@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.nvidiareflex.client.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"DebugScreenEntriesMixin",
+		"DebugScreenEntryListMixin",
+		"VulkanBackendMixin",
+		"VulkanGpuSurfaceMixin",
+		"VideoSettingsScreenMixin",
+		"MinecraftMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

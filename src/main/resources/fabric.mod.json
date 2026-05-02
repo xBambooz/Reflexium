@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "nvidia-reflex-mod",
+	"version": "${version}",
+	"name": "Nvidia Reflex Mod",
+	"description": "Adds Nvidia Reflex low-latency support to Minecraft when using the Vulkan graphics API. Reduces input lag via the VK_NV_low_latency2 Vulkan extension.",
+	"authors": [
+		"Ryan"
+	],
+	"contact": {},
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.nvidiareflex.NvidiaReflexMod"
+		],
+		"client": [
+			"com.nvidiareflex.client.NvidiaReflexModClient"
+		]
+	},
+	"mixins": [
+		"nvidia-reflex-mod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.0",
+		"minecraft": ">=26.2-alpha.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

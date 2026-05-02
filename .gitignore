@@ -1,0 +1,23 @@
+# Local agent/project notes
+/AGENTS.md
+/_Run Claude.bat
+/_Run Codex.bat
+
+# Build output and Gradle state
+/.gradle/
+/build/
+
+# Local Minecraft/reference source copies
+/_mc_src/
+/com/
+/net/
+/backup/
+
+# IDE/editor files
+/.idea/
+/.vscode/
+*.iml
+
+# OS files
+Thumbs.db
+.DS_Store

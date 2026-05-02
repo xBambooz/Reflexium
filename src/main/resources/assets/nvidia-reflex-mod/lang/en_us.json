@@ -1,0 +1,4 @@
+{
+	"nvidia_reflex.option.reflex_mode": "Nvidia Reflex",
+	"nvidia_reflex.option.reflex_mode.tooltip": "Nvidia Reflex reduces system latency by aligning CPU and GPU work. 'On' enables low-latency mode. 'On + Boost' also prevents the GPU from lowering clocks during GPU-bound scenarios. Requires Vulkan graphics API and an NVIDIA GPU."
+}
