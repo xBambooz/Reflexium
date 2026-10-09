@@ -5,7 +5,6 @@ import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.OptionInstance;
-import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public final class ReflexiumOptions {
 		return new OptionInstance<>(
 				"reflexium.option.reflex_mode",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.reflex_mode.tooltip")),
-				(caption, value) -> Options.genericValueLabel(caption, value.label()),
+				(caption, value) -> value.label(),
 				new OptionInstance.Enum<>(List.of(ReflexMode.values()), MODE_CODEC),
 				MODE_CODEC,
 				ReflexiumConfig.get().reflexMode(),
