@@ -1,0 +1,14 @@
+{
+	"reflexium.title": "Reflexium",
+	"reflexium.status": "Status",
+	"reflexium.reflex_mode.off": "Off",
+	"reflexium.reflex_mode.on": "On",
+	"reflexium.reflex_mode.on_boost": "On + Boost",
+	"reflexium.option.reflex_mode": "NVIDIA Reflex",
+	"reflexium.option.reflex_mode.tooltip": "Lowers input latency by letting the driver start each frame just in time for the GPU.\n\nOn + Boost also keeps GPU clocks high when the CPU is the bottleneck.",
+	"reflexium.option.frame_limiter": "Reflex FPS Cap",
+	"reflexium.option.frame_limiter.tooltip": "While Reflex is on, enforce Max Framerate with the Reflex sleep instead of vanilla's limiter. Lower latency at the same cap.",
+	"reflexium.option.dlss_detection": "DLSS Detection",
+	"reflexium.option.dlss_detection.tooltip": "Enables the Vulkan extensions DLSS needs and checks driver and feature DLL readiness (shown in F3). Upscaling itself is not implemented yet. Applies after a restart.",
+	"modmenu.descriptionTranslation.reflexium": "NVIDIA Reflex low latency for Minecraft's Vulkan renderer, with DLSS readiness checks."
+}

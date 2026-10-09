@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.bambooz.reflexium.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"DebugScreenEntriesMixin",
+		"DebugScreenEntryListMixin",
+		"MinecraftMixin",
+		"VideoSettingsScreenMixin",
+		"VulkanBackendMixin",
+		"VulkanDeviceMixin",
+		"VulkanGpuSurfaceMixin",
+		"VulkanQueueSubmissionMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

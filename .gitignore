@@ -21,3 +21,6 @@
 # OS files
 Thumbs.db
 .DS_Store
+
+# Dev client run directory
+/run/

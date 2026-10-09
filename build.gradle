@@ -1,6 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+	id "net.fabricmc.fabric-loom" version "${loom_version}"
 }
 
 version = project.mod_version
@@ -10,65 +9,90 @@ base {
 	archivesName = project.archives_base_name
 }
 
-repositories {
-}
-
 loom {
 	splitEnvironmentSourceSets()
 
+	runs {
+		client {
+			vmArg "-Dreflexium.logLatency=true"
+		}
+	}
+
 	mods {
-		"nvidia-reflex-mod" {
+		"reflexium" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
 }
 
+repositories {
+	maven { name = "TerraformersMC"; url = "https://maven.terraformersmc.com/releases/" }
+}
+
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
 	inputs.property "version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "loader_version", project.loader_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
+		expand(
+			"version": project.version,
+			"minecraft_version": project.minecraft_version,
+			"loader_version": project.loader_version
+		)
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
+	it.options.compilerArgs += ["-Xlint:deprecation", "-Xlint:unchecked"]
 }
 
 java {
 	withSourcesJar()
-
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
 }
 
-jar {
-	inputs.property "archivesName", project.base.archivesName
+// Reflexium-<mod_version>-fabric-<minecraft_version>.jar
+def releaseVersion = "${project.version}-fabric-${project.minecraft_version}"
+tasks.named("jar") { archiveVersion = releaseVersion }
+tasks.named("sourcesJar") { archiveVersion = releaseVersion }
 
+jar {
 	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}" }
+		rename { "${it}_${project.base.archivesName.get()}" }
 	}
 }
 
-publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
+// Every build drops the jar into the local Modrinth test profile and removes older copies.
+def installTarget = providers.gradleProperty("reflexiumInstallDir")
+	.map { file(it) }
+	.orElse(providers.environmentVariable("APPDATA").map { file("${it}/ModrinthApp/profiles/Fabric 26.3/mods") })
+
+tasks.register("installReflexium", Copy) {
+	group = "build"
+	description = "Copies the latest Reflexium jar into the local Modrinth test profile."
+	dependsOn tasks.named("jar")
+	onlyIf { installTarget.get().exists() }
+
+	from(tasks.named("jar").flatMap { it.archiveFile })
+	into(installTarget)
+
+	doFirst {
+		delete fileTree(installTarget.get()) {
+			include "Reflexium-*.jar", "nvidia-reflex-mod-*.jar"
 		}
 	}
+}
 
-	repositories {
-	}
+tasks.named("build") {
+	dependsOn tasks.named("installReflexium")
 }

@@ -1,30 +1,33 @@
 {
 	"schemaVersion": 1,
-	"id": "nvidia-reflex-mod",
+	"id": "reflexium",
 	"version": "${version}",
-	"name": "Nvidia Reflex Mod",
-	"description": "Adds Nvidia Reflex low-latency support to Minecraft when using the Vulkan graphics API. Reduces input lag via the VK_NV_low_latency2 Vulkan extension.",
-	"authors": [
-		"Ryan"
-	],
-	"contact": {},
+	"name": "Reflexium",
+	"description": "NVIDIA Reflex low latency for Minecraft's Vulkan renderer, with DLSS readiness checks.",
+	"authors": ["Bambooz"],
+	"contact": {
+		"sources": "https://github.com/xBambooz/Reflexium",
+		"issues": "https://github.com/xBambooz/Reflexium/issues"
+	},
 	"license": "MIT",
-	"environment": "*",
+	"icon": "assets/reflexium/icon.png",
+	"environment": "client",
 	"entrypoints": {
-		"main": [
-			"com.nvidiareflex.NvidiaReflexMod"
-		],
-		"client": [
-			"com.nvidiareflex.client.NvidiaReflexModClient"
-		]
+		"client": ["com.bambooz.reflexium.ReflexiumClient"],
+		"modmenu": ["com.bambooz.reflexium.compat.ModMenuIntegration"]
 	},
 	"mixins": [
-		"nvidia-reflex-mod.mixins.json"
+		{ "config": "reflexium.mixins.json", "environment": "client" }
 	],
 	"depends": {
-		"fabricloader": ">=0.18.0",
-		"minecraft": ">=26.2-alpha.1",
-		"java": ">=25",
-		"fabric-api": "*"
+		"fabricloader": ">=${loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=25"
+	},
+	"suggests": {
+		"modmenu": "*"
+	},
+	"breaks": {
+		"nvidia-reflex-mod": "*"
 	}
 }
