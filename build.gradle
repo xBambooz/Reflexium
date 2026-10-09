@@ -75,7 +75,7 @@ jar {
 // Every build drops the jar into the local Modrinth test profile and removes older copies.
 def installTarget = providers.gradleProperty("reflexiumInstallDir")
 	.map { file(it) }
-	.orElse(providers.environmentVariable("APPDATA").map { file("${it}/ModrinthApp/profiles/Fabric 26.3/mods") })
+	.orElse(providers.environmentVariable("APPDATA").map { file("${it}/ModrinthApp/profiles/26.3 Testing Instance/mods") })
 
 tasks.register("installReflexium", Copy) {
 	group = "build"

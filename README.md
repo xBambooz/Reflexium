@@ -54,7 +54,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 ./gradlew build
 ```
 
-The jar is written to `build/libs/Reflexium-<version>-fabric-<minecraft>.jar` and copied into the Modrinth profile `Fabric 26.3` when it exists. One release line per Minecraft version.
+The jar is written to `build/libs/Reflexium-<version>-fabric-<minecraft>.jar` and copied into the Modrinth profile `26.3 Testing Instance` when it exists. One release line per Minecraft version.
 
 ## License
 
