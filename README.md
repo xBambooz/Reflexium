@@ -22,6 +22,8 @@ Fabric API is not required.
 
 Reflex mode and the Reflex FPS cap appear in Video Settings below Graphics API when the driver supports Reflex. All settings are also in Mod Menu and in `config/reflexium.properties`:
 
+With Sodium installed, use Mod Menu or the config file: Sodium replaces the vanilla Video Settings screen containing Reflexium's controls. Restart after editing the config file.
+
 | Key | Values | Default |
 | --- | --- | --- |
 | `reflex_mode` | `off`, `on`, `on_boost` | `on` |
@@ -34,6 +36,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 
 ## Shaders
 
+- **[Vitrail Shaders](https://github.com/avpbynf/Vitrail-Shaders)**: verified with Vitrail `0.12.0-beta+mc26.3`, Sodium `0.9.2+mc26.3` and Complementary Reimagined `r5.9.3` on Windows/NVIDIA. Reflex sleep, frame limiting and driver latency readings work through the shared Vulkan backend. Install Vitrail's Minecraft 26.3 jar and its Sodium/Fabric API dependencies. See [the compatibility check](docs/VITRAIL.md) for evidence and repeat steps.
 - **Aperture** (the Iris team's Vulkan shader loader, private beta): Reflex works underneath it, since Aperture renders through Minecraft's own Vulkan device and swapchain. DLSS needs hooks Aperture does not expose yet.
 - **Iris** is OpenGL-only, so Reflex is unavailable while it is in use.
 

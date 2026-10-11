@@ -1,0 +1,58 @@
+# Vitrail compatibility
+
+Checked 2026-10-10. Reflexium's existing Vulkan hooks work with Vitrail; no special mixin or runtime dependency is needed.
+
+## Tested setup
+
+- Reflexium `1.1.0-alpha`, source commit `530bb40`.
+- Minecraft `26.3`, Fabric Loader `0.19.5`, Fabric API `0.162.0+26.3`.
+- Vitrail `0.12.0-beta+mc26.3`, Modrinth version `Ul13RHiD`.
+- Sodium `0.9.2+mc26.3`, Modrinth version `bAZQdGpg`.
+- Complementary Reimagined `r5.9.3`, default HIGH profile.
+- Windows 11, Java `25.0.4`, NVIDIA GeForce RTX 5070, driver `617.42`.
+- Reflex On, frame limiter enabled, DLSS detection enabled.
+
+Vitrail jar SHA-256: `0823ba8ff806e9a1cc8520b7410783683d3a5f2213576212cecdeecc869bcfc8`.
+
+## Source review
+
+Vitrail was researched through [Modrinth](https://modrinth.com/mod/vitrail-shaders) and its [source repository](https://github.com/avpbynf/Vitrail-Shaders). Source reviewed at `f42e5489c6abff655781b40bebc70338bada3039`; runtime testing used the released jar above.
+
+- Both mods wrap `VulkanBackend.createDevice(FeatureSet, VulkanPhysicalDevice)` with MixinExtras `WrapOperation`. Each composes its additional features onto the incoming FeatureSet and calls the original operation. The wrappers preserve each other's extensions and features.
+- Vitrail's `VulkanQueueSubmitMixin` injects a submission counter before `vkQueueSubmit2KHR`. Reflexium's `ModifyArg` adds the current frame ID to that call's submission buffer, preserving existing `pNext` structures. Neither replaces the submission call.
+- Vitrail's rendering stays on the game's Vulkan device and queue. Its shader work therefore passes through Reflexium's existing submission tagging, swapchain and present hooks.
+- Each mod's F3 entries use its own namespace. Both sets of entries displayed together.
+
+## Runtime evidence
+
+`./gradlew build` passed and installed the release jar into the configured Modrinth testing profile. `./gradlew runClient` loaded Reflexium, Vitrail and Sodium together without a mixin failure. The test used the separate repository `run/` directory and a new creative world named `Reflexium Vitrail Smoke`.
+
+The Vulkan device started with both feature sets enabled:
+
+```text
+(Vitrail) Vulkan device features: vertexPipelineStoresAndAtomics, fragmentStoresAndAtomics, shaderStorageImageExtendedFormats, shaderStorageImageWriteWithoutFormat, independentBlend, geometryShader, shaderFloat16, shaderInt8, shaderInt16, shaderSubgroupExtendedTypes, storageBuffer16BitAccess, uniformAndStorageBuffer16BitAccess, storageBuffer8BitAccess, uniformAndStorageBuffer8BitAccess
+(Reflexium) Enabling device extensions: VK_NV_low_latency2, VK_KHR_present_id, VK_NVX_image_view_handle, VK_NVX_binary_import
+(Reflexium) Vulkan device NVIDIA GeForce RTX 5070 (1.4.351 NVIDIA 617.42): low_latency2=true, present_id=true
+```
+
+Title-screen rendering produced driver latency data with the 60 FPS cap. In the world, Vitrail loaded Complementary through its shader reload key and drew terrain, shadows and composite passes. F3 showed the loaded pack alongside Reflex On and driver timings. These are functional readings, not a latency benchmark:
+
+```text
+20:39:18 (Reflexium) Reflex: On, cap 60 FPS | Reflex latency: 0.9 ms, sim 0.0, submit 0.7, GPU 0.1
+20:40:24 (Minecraft) [System] [CHAT] Shaders Reloaded!
+20:40:30 (Reflexium) Reflex: On, cap 120 FPS | Reflex latency: 2.2 ms, sim 0.0, submit 2.0, GPU 1.6
+20:40:46 (Vitrail) Colour targets of ComplementaryReimagined_r5.9.3 sized for 984x611: 11 targets, 45 MiB
+20:40:55 (Reflexium) Reflex: On | Reflex latency: 3.6 ms, sim 0.0, submit 3.5, GPU 5.4
+```
+
+Resizing the window recreated the swapchain and Vitrail's render targets; rendering and Reflex timing continued. Sodium's Video Settings screen also opened successfully. Dev-launch Realms authentication errors were unrelated to rendering.
+
+## Repeating the check
+
+1. Install the Minecraft 26.3 Vitrail jar, Sodium 0.9.2 and Fabric API alongside Reflexium. For a dev launch, put these optional test dependencies in `run/mods/`; they are not bundled into Reflexium.
+2. Select Vulkan and restart. Confirm the log actually reports Vulkan and `low_latency2=true, present_id=true`.
+3. Load a world with Complementary Reimagined r5.9.3. Open F3 and check that both Vitrail's pack entry and Reflexium's mode/timing entries are visible.
+4. Reload the shader pack with R and resize the window. Verify the pack still renders and Reflex latency keeps updating.
+5. Use Mod Menu's Reflexium screen for mode and limiter settings. Sodium replaces the vanilla Video Settings screen; the alternative is `config/reflexium.properties` followed by a restart.
+
+This check establishes compatibility for the versions and Reflex On configuration above. Other packs, other Vitrail/Sodium versions, Reflex Off/On + Boost, and OpenGL fallback were not covered by this run. DLSS remains a readiness check; Vitrail's render-scale setting does not enable DLSS.
