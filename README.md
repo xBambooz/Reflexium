@@ -1,13 +1,13 @@
 # Reflexium
 
-NVIDIA Reflex and DLSS Super Resolution for Minecraft Java's Vulkan renderer. Client-side Fabric mod for Minecraft 26.3.
+NVIDIA Reflex, DLSS and AMD FSR 3.1 for Minecraft Java's Vulkan renderer. Client-side Fabric mod for Minecraft 26.3.
 
 ## What it does
 
 - **Reflex low latency** through `VK_NV_low_latency2`: the driver sleeps the game just before input is read, so each frame starts as late as the GPU allows. Modes: Off, On, On + Boost.
 - **Reflex FPS cap**: while Reflex is on, Minecraft's Max Framerate (including the 60 FPS menu cap) is enforced by the Reflex sleep instead of vanilla's post-present sleep.
 - **Latency readout** in F3: input-to-present time plus simulation, render submit and GPU time, straight from the driver. Works with Reflex off too, for A/B comparisons.
-- **DLSS Super Resolution and DLAA**: renders the world at the selected resolution, reconstructs camera motion from depth, and runs NVIDIA NGX before drawing the full-resolution HUD. Quality, Balanced, Performance, Ultra Performance and DLAA work on vanilla Vulkan and Sodium. See [setup, limitations and validation](docs/DLSS.md).
+- **DLSS and FSR 3.1 upscaling**: renders the world below display resolution, reconstructs camera motion from depth, and applies NVIDIA DLSS or AMD FSR 3.1 before drawing the full-resolution HUD. Presets include Native AA, Quality, Balanced, Performance, and Ultra Performance. See [setup, limitations and validation](docs/DLSS.md).
 
 ## Requirements
 
@@ -18,7 +18,13 @@ NVIDIA Reflex and DLSS Super Resolution for Minecraft Java's Vulkan renderer. Cl
 
 Fabric API is not required.
 
-DLSS additionally requires an RTX GPU and NVIDIA's `nvngx_dlss.dll` in `<instance>/reflexium/`. The small native NGX bridge is bundled; the NVIDIA feature DLL is not. Restart after adding the DLL, then choose DLSS in Reflexium's video settings.
+## Upscaling
+
+- DLSS: requires an NVIDIA RTX GPU and `nvngx_dlss.dll` in `<game>/reflexium/`. The native NGX bridge is bundled.
+- FSR 3.1: works on any Vulkan GPU (AMD, Intel, NVIDIA).
+- Auto mode picks DLSS when available, otherwise FSR 3.1.
+- Paused while a Vitrail shader pack draws.
+- Moving entities have no motion vectors yet (camera motion only).
 
 ## Settings
 
@@ -33,8 +39,11 @@ Settings appear in:
 | `reflex_mode` | `off`, `on`, `on_boost` | `on` |
 | `reflex_frame_limiter` | `true`, `false` | `true` |
 | `dlss_detection` | `true`, `false` (restart to apply) | `true` |
-| `dlss_mode` | `off`, `dlaa`, `quality`, `balanced`, `performance`, `ultra_performance` | `quality` |
-| `betterf3_module_placed` | set after Reflexium adds its BetterF3 module once | `false` |
+| `upscaler` | `off`, `auto`, `dlss`, `fsr` | `auto` |
+| `upscale_quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | `quality` |
+| `dlss_model` | `auto`, `transformer`, `cnn` | `auto` |
+| `fsr_sharpness` | `0` to `100` | `20` |
+| `betterf3_module_placed` | `true`, `false` (set after Reflexium adds its BetterF3 module once) | `false` |
 
 Settings from the old `nvidia-reflex-mod.properties` are migrated automatically.
 
@@ -45,7 +54,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 ## Shaders
 
 - **[Vitrail Shaders](https://github.com/avpbynf/Vitrail-Shaders)**: verified with Vitrail `0.12.0-beta+mc26.3`, Sodium `0.9.2+mc26.3` and Complementary Reimagined `r5.9.3` on Windows/NVIDIA. Reflex sleep, frame limiting and driver latency readings work through the shared Vulkan backend. Install Vitrail's Minecraft 26.3 jar and its Sodium/Fabric API dependencies. See [the compatibility check](docs/VITRAIL.md) for evidence and repeat steps.
-- DLSS pauses while Vitrail draws a shader pack, then resumes when shaders are disabled. Shader-pack DLSS is not implemented. Moving entities also lack independent motion vectors and may trail. Reflex remains available with shaders.
+- DLSS and FSR pause while Vitrail draws a shader pack, then resume when shaders are disabled. Moving entities also lack independent motion vectors and may trail. Reflex remains available with shaders.
 - **Aperture** (the Iris team's Vulkan shader loader): shared Vulkan hooks are the intended integration point; runtime compatibility and DLSS integration remain unverified.
 - **Iris** is OpenGL-only, so Reflex is unavailable while it is in use.
 

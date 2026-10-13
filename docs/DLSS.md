@@ -1,6 +1,6 @@
 # DLSS in Reflexium: findings and plan
 
-Status (1.1.0-alpha, 2026-10-09): DLSS prerequisites are enabled and reported. No upscaling yet.
+Status: DLSS and AMD FSR 3.1 upscaling are implemented and verified in-game.
 
 ## How Radiance does it
 
