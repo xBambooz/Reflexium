@@ -29,11 +29,19 @@ public final class DlssSupport {
 	private static final String[] FEATURE_DLLS = {"nvngx_dlss.dll", "nvngx_dlssd.dll", "nvngx_dlssg.dll"};
 
 	private static volatile DlssStatus status = DlssStatus.pending();
+	/** True when probe found no nvngx_dlss.dll and started the automatic download. */
+	private static volatile boolean awaitingRuntime;
 
 	private DlssSupport() {
 	}
 
 	public static DlssStatus status() {
+		if (awaitingRuntime) {
+			String runtime = DlssRuntimeInstaller.state().message();
+			if (!runtime.isEmpty()) {
+				return DlssStatus.unavailable(runtime);
+			}
+		}
 		return status;
 	}
 
@@ -43,6 +51,7 @@ public final class DlssSupport {
 	}
 
 	public static void probe(VulkanSession session) {
+		awaitingRuntime = false;
 		if (!session.isNvidia()) {
 			status = DlssStatus.unavailable("not an NVIDIA GPU");
 		} else if (locateNgxCore().isEmpty()) {
@@ -55,9 +64,13 @@ public final class DlssSupport {
 				}
 			}
 			boolean extensions = session.ngxExtensions().containsAll(Set.of("VK_NVX_binary_import", "VK_NVX_image_view_handle"));
+			awaitingRuntime = !found.contains(DlssRuntimeInstaller.FILE_NAME);
+			if (awaitingRuntime) {
+				DlssRuntimeInstaller.ensureInstalledAsync();
+			}
 			status = DlssStatus.ready(extensions, found);
 		}
-		ReflexiumClient.LOGGER.info("DLSS: {}", status.summary());
+		ReflexiumClient.LOGGER.info("DLSS: {}", status().summary());
 	}
 
 	/** Same lookup order as NVIDIA's NGX loader (nvsdk_ngx_loader.h). */
