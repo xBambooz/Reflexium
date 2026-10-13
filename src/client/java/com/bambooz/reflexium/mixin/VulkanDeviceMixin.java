@@ -17,7 +17,7 @@ public abstract class VulkanDeviceMixin {
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void reflexium$created(VulkanInstance instance, VulkanPhysicalDevice physicalDevice, FeatureSet features,
 			VkDevice device, long vma, CheckpointExtension checkpoints, CallbackInfo ci) {
-		VulkanLifecycle.onDeviceCreated(instance, physicalDevice, device);
+		VulkanLifecycle.onDeviceCreated(instance, physicalDevice, device, (VulkanDevice) (Object) this);
 	}
 
 	@Inject(method = "close", at = @At("HEAD"))

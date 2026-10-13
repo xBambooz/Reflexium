@@ -2,8 +2,10 @@ package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.dlss.DlssSupport;
 import com.bambooz.reflexium.reflex.ReflexController;
+import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanInstance;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
 import org.lwjgl.system.MemoryStack;
@@ -24,7 +26,7 @@ public final class VulkanLifecycle {
 	private VulkanLifecycle() {
 	}
 
-	public static void onDeviceCreated(VulkanInstance instance, VulkanPhysicalDevice physicalDevice, VkDevice device) {
+	public static void onDeviceCreated(VulkanInstance instance, VulkanPhysicalDevice physicalDevice, VkDevice device, VulkanDevice vulkanDevice) {
 		VulkanSession.PendingExtensions extensions = VulkanSession.takePending();
 		VulkanSession session = new VulkanSession(
 				instance.vkInstance(),
@@ -44,9 +46,11 @@ public final class VulkanLifecycle {
 		if (ReflexiumConfig.get().dlssDetection() && ReflexiumClient.isSupportedPlatform()) {
 			DlssSupport.probe(session);
 		}
+		UpscalingRenderer.get().onDeviceCreated(vulkanDevice, session);
 	}
 
 	public static void onDeviceClosing() {
+		UpscalingRenderer.get().onDeviceClosing();
 		ReflexController.get().shutdown();
 		VulkanSession.clear();
 	}

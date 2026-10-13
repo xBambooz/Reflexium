@@ -19,7 +19,7 @@ public record DlssStatus(boolean prerequisitesMet, String reason, boolean extens
 
 	/** {@link #summary()} without the feature DLL list, for narrow screens. */
 	public String shortSummary() {
-		return reason.isEmpty() && extensionsEnabled ? "prerequisites met, upscaling not implemented yet" : summary();
+		return reason.isEmpty() && extensionsEnabled ? "prerequisites met" : summary();
 	}
 
 	public String summary() {
@@ -30,6 +30,6 @@ public record DlssStatus(boolean prerequisitesMet, String reason, boolean extens
 			return "device lacks NVX extensions";
 		}
 		String dlls = featureDlls.isEmpty() ? "no feature DLLs in reflexium/" : String.join(", ", featureDlls);
-		return "prerequisites met (" + dlls + "), upscaling not implemented yet";
+		return "prerequisites met (" + dlls + ")";
 	}
 }

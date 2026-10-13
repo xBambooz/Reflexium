@@ -1,6 +1,9 @@
 package com.bambooz.reflexium.config;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.dlss.UpscaleQuality;
+import com.bambooz.reflexium.dlss.Upscaler;
+import com.bambooz.reflexium.dlss.DlssModel;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -23,6 +26,10 @@ public final class ReflexiumConfig {
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
 	private volatile boolean reflexFrameLimiter = true;
 	private volatile boolean dlssDetection = true;
+	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
+	private volatile Upscaler upscaler = Upscaler.AUTO;
+	private volatile DlssModel dlssModel = DlssModel.AUTO;
+	private volatile int fsrSharpness = 20;
 	private volatile boolean betterF3ModulePlaced = false;
 
 	private ReflexiumConfig() {
@@ -61,6 +68,23 @@ public final class ReflexiumConfig {
 		save();
 	}
 
+	/** DLSS Super Resolution preset. Needs DLSS detection (device extensions) and the Vulkan renderer. */
+	public UpscaleQuality upscaleQuality() {
+		return upscaleQuality;
+	}
+
+	public void setUpscaleQuality(UpscaleQuality mode) {
+		upscaleQuality = mode;
+		save();
+	}
+
+	public Upscaler upscaler() { return upscaler; }
+	public void setUpscaler(Upscaler value) { upscaler = value; save(); }
+	public DlssModel dlssModel() { return dlssModel; }
+	public void setDlssModel(DlssModel value) { dlssModel = value; save(); }
+	public int fsrSharpness() { return fsrSharpness; }
+	public void setFsrSharpness(int value) { fsrSharpness = Math.clamp(value, 0, 100); save(); }
+
 	/** Reflexium's BetterF3 module was added to the BetterF3 layout once; from then on the player's layout wins. */
 	public boolean betterF3ModulePlaced() {
 		return betterF3ModulePlaced;
@@ -90,6 +114,12 @@ public final class ReflexiumConfig {
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
 		config.reflexFrameLimiter = parseBoolean(props, "reflex_frame_limiter", config.reflexFrameLimiter);
 		config.dlssDetection = parseBoolean(props, "dlss_detection", config.dlssDetection);
+		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
+		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
+				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
+		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
+		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
+		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
 		if (source == LEGACY_PATH) {
 			config.save();
@@ -108,6 +138,10 @@ public final class ReflexiumConfig {
 		props.setProperty("reflex_mode", reflexMode.serializedName());
 		props.setProperty("reflex_frame_limiter", Boolean.toString(reflexFrameLimiter));
 		props.setProperty("dlss_detection", Boolean.toString(dlssDetection));
+		props.setProperty("upscale_quality", upscaleQuality.serializedName());
+		props.setProperty("upscaler", upscaler.serializedName());
+		props.setProperty("dlss_model", dlssModel.serializedName());
+		props.setProperty("fsr_sharpness", Integer.toString(fsrSharpness));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
 		try {
 			Files.createDirectories(DIR);

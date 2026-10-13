@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.gui.ReflexiumOptions;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import net.minecraft.client.Options;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Puts the Reflex mode at the end of the display section (after Graphics API) when the driver supports it. */
+/** Puts the Reflex and DLSS options at the end of the display section (after Graphics API) when the driver supports them. */
 @Mixin(VideoSettingsScreen.class)
 public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 	private VideoSettingsScreenMixin(Screen lastScreen, Options options, Component title) {
@@ -25,6 +26,11 @@ public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 		VulkanSession session = VulkanSession.current();
 		if (session != null && session.lowLatency2()) {
 			list.addSmall(ReflexiumOptions.reflexMode(), ReflexiumOptions.frameLimiter());
+		}
+		if (UpscalingRenderer.get().isReady()) {
+			list.addBig(ReflexiumOptions.upscaler());
+			list.addBig(ReflexiumOptions.upscaleQuality());
+			list.addSmall(ReflexiumOptions.dlssModel(), ReflexiumOptions.fsrSharpness());
 		}
 	}
 }

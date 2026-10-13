@@ -68,6 +68,19 @@ java {
 	targetCompatibility = JavaVersion.VERSION_25
 }
 
+sourceSets.test.compileClasspath += sourceSets.client.output + sourceSets.client.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client.runtimeClasspath
+
+tasks.register("dlssMathCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.dlss.DlssMathCheck"
+}
+
+// The assertion main above is the test runner; no JUnit dependency is needed.
+tasks.named("test") { failOnNoDiscoveredTests = false }
+tasks.named("check") { dependsOn "dlssMathCheck" }
+
 // Reflexium-<mod_version>-fabric-<minecraft_version>.jar
 def releaseVersion = "${project.version}-fabric-${project.minecraft_version}"
 tasks.named("jar") { archiveVersion = releaseVersion }
@@ -87,7 +100,7 @@ def installTarget = providers.gradleProperty("reflexiumInstallDir")
 tasks.register("installReflexium", Copy) {
 	group = "build"
 	description = "Copies the latest Reflexium jar into the local Modrinth test profile."
-	dependsOn tasks.named("jar")
+	dependsOn tasks.named("jar"), tasks.named("check")
 	onlyIf { installTarget.get().exists() }
 
 	from(tasks.named("jar").flatMap { it.archiveFile })

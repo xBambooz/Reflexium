@@ -2,6 +2,11 @@ package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.dlss.UpscaleQuality;
+import com.bambooz.reflexium.dlss.Upscaler;
+import com.bambooz.reflexium.dlss.DlssModel;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.gui.ReflexiumOptions;
 import com.bambooz.reflexium.gui.ReflexiumConfigScreen;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
@@ -50,7 +55,37 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setStorageHandler(SAVED_ON_SET)
 										.setBinding(config::setReflexFrameLimiter, config::reflexFrameLimiter)))
 						.addOptionGroup(builder.createOptionGroup()
-								.setName(Component.translatable("reflexium.group.dlss"))
+								.setName(Component.translatable("reflexium.group.upscaling"))
+								.addOption(builder.createEnumOption(id("upscaler"), Upscaler.class)
+										.setName(Component.translatable("reflexium.option.upscaler"))
+										.setTooltip(Component.translatable("reflexium.option.upscaler.tooltip"))
+										.setElementNameProvider(Upscaler::label)
+										.setDefaultValue(Upscaler.AUTO)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(ReflexiumOptions::setUpscaler, config::upscaler))
+								.addOption(builder.createEnumOption(id("dlss_mode"), UpscaleQuality.class)
+										.setName(Component.translatable("reflexium.option.quality"))
+										.setTooltip(Component.translatable("reflexium.option.quality.tooltip"))
+										.setElementNameProvider(UpscaleQuality::label)
+										.setImpact(OptionImpact.HIGH)
+										.setDefaultValue(UpscaleQuality.QUALITY)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(ReflexiumOptions::setUpscaleQuality, config::upscaleQuality))
+								.addOption(builder.createEnumOption(id("dlss_model"), DlssModel.class)
+										.setName(Component.translatable("reflexium.option.dlss_model"))
+										.setTooltip(Component.translatable("reflexium.option.dlss_model.tooltip"))
+										.setElementNameProvider(DlssModel::label)
+										.setDefaultValue(DlssModel.AUTO)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(ReflexiumOptions::setDlssModel, config::dlssModel)
+										.setEnabled(UpscalingRenderer.get().dlssReady()))
+								.addOption(builder.createIntegerOption(id("fsr_sharpness"))
+										.setName(Component.translatable("reflexium.option.fsr_sharpness"))
+										.setTooltip(Component.translatable("reflexium.option.fsr_sharpness.tooltip"))
+										.setRange(0, 100, 5)
+										.setDefaultValue(20)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(config::setFsrSharpness, config::fsrSharpness))
 								.addOption(builder.createBooleanOption(id("dlss_detection"))
 										.setName(Component.translatable("reflexium.option.dlss_detection"))
 										.setTooltip(Component.translatable("reflexium.option.dlss_detection.tooltip"))

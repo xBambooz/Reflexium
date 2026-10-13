@@ -3,7 +3,7 @@
 	"id": "reflexium",
 	"version": "${version}",
 	"name": "Reflexium",
-	"description": "NVIDIA Reflex low latency for Minecraft's Vulkan renderer, with DLSS readiness checks.",
+	"description": "NVIDIA Reflex low latency and DLSS Super Resolution for Minecraft's Vulkan renderer.",
 	"authors": ["Bambooz"],
 	"contact": {
 		"sources": "https://github.com/xBambooz/Reflexium",

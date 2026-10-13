@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.compat.betterf3;
 
-import com.bambooz.reflexium.dlss.DlssSupport;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import me.cominixo.betterf3.modules.BaseModule;
 import me.cominixo.betterf3.utils.DebugLine;
@@ -38,7 +38,7 @@ public final class ReflexiumModule extends BaseModule {
 		ReflexController reflex = ReflexController.get();
 		mode.value(valueOf(reflex.statusLine()));
 		latency.value(valueOf(reflex.latencyLine()));
-		dlss.value(DlssSupport.status().shortSummary());
+		dlss.value(valueOf(UpscalingRenderer.get().statusLine()));
 	}
 
 	@Override

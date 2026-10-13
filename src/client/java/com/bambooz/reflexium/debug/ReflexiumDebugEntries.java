@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.debug;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.DlssSupport;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
@@ -21,7 +21,7 @@ public final class ReflexiumDebugEntries {
 	public static final Map<Identifier, DebugScreenEntry> ENTRIES = Map.of(
 			REFLEX, new Line(() -> ReflexController.get().statusLine()),
 			LATENCY, new Line(() -> ReflexController.get().latencyLine()),
-			DLSS, new Line(() -> "DLSS: " + DlssSupport.status().summary()));
+			DLSS, new Line(() -> UpscalingRenderer.get().statusLine()));
 
 	private ReflexiumDebugEntries() {
 	}

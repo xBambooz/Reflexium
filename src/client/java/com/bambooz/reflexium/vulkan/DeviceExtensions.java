@@ -2,15 +2,19 @@ package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.dlss.NgxBridge;
 import com.bambooz.reflexium.dlss.DlssSupport;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
+import com.mojang.renderpearl.backend.vulkan.VulkanFeatureSets;
 import com.mojang.renderpearl.backend.vulkan.init.FeatureSet;
 import com.mojang.renderpearl.backend.vulkan.init.VulkanFeature;
 import com.mojang.renderpearl.backend.vulkan.init.VulkanPNextStruct;
 import org.lwjgl.vulkan.KHRPresentId;
 import org.lwjgl.vulkan.NVLowLatency2;
 import org.lwjgl.vulkan.VkPhysicalDevicePresentIdFeaturesKHR;
+import org.lwjgl.vulkan.VkPhysicalDeviceSubgroupSizeControlFeatures;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -28,10 +32,18 @@ public final class DeviceExtensions {
 
 	public static FeatureSet extend(FeatureSet vanilla, VulkanPhysicalDevice physicalDevice) {
 		VulkanSession.setPending(VulkanSession.PendingExtensions.NONE);
-		if (!ReflexiumClient.isSupportedPlatform()
-				|| physicalDevice.vkPhysicalDeviceProperties().vendorID() != VulkanSession.VENDOR_NVIDIA) {
+		if (!ReflexiumClient.isSupportedPlatform()) {
 			return vanilla;
 		}
+		// FFX queries physical support when choosing shader permutations. Enable those supported
+		// features on the logical device too, including on AMD and Intel.
+		vanilla = optional(vanilla, physicalDevice, "VK_KHR_shader_float16_int8",
+				new VulkanFeature(VulkanFeatureSets.VK12_FEATURES_STRUCT, "shaderFloat16"));
+		vanilla = optional(vanilla, physicalDevice, "VK_EXT_subgroup_size_control",
+				new VulkanFeature(new VulkanPNextStruct(VkPhysicalDeviceSubgroupSizeControlFeatures.class), "subgroupSizeControl"));
+		vanilla = optional(vanilla, physicalDevice, null,
+				new VulkanFeature(VulkanFeatureSets.VK10_FEATURES_STRUCT, "shaderStorageImageExtendedFormats"));
+		if (physicalDevice.vkPhysicalDeviceProperties().vendorID() != VulkanSession.VENDOR_NVIDIA) return vanilla;
 
 		Set<String> extensions = new LinkedHashSet<>();
 		Set<VulkanFeature> features = new LinkedHashSet<>();
@@ -54,7 +66,9 @@ public final class DeviceExtensions {
 
 		Set<String> ngx = new LinkedHashSet<>();
 		if (ReflexiumConfig.get().dlssDetection()) {
-			for (String name : DlssSupport.DEVICE_EXTENSIONS) {
+			Set<String> wanted = new LinkedHashSet<>(DlssSupport.DEVICE_EXTENSIONS);
+			NgxBridge.get().ifPresent(bridge -> wanted.addAll(Arrays.asList(bridge.requiredDeviceExtensions())));
+			for (String name : wanted) {
 				if (physicalDevice.hasDeviceExtension(name)) {
 					ngx.add(name);
 				} else {
@@ -71,5 +85,11 @@ public final class DeviceExtensions {
 		}
 		ReflexiumClient.LOGGER.info("Enabling device extensions: {}", String.join(", ", extensions));
 		return vanilla.composite(new FeatureSet("Reflexium", extensions, features));
+	}
+
+	private static FeatureSet optional(FeatureSet vanilla, VulkanPhysicalDevice device, String extension, VulkanFeature feature) {
+		FeatureSet requested = new FeatureSet("FSR", extension == null ? Set.of() : Set.of(extension), Set.of(feature));
+		return (extension == null || device.hasDeviceExtension(extension)) && requested.allFeaturesSupported(device.vkPhysicalDevice())
+				? vanilla.composite(requested) : vanilla;
 	}
 }

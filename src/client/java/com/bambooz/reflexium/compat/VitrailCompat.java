@@ -33,6 +33,22 @@ public final class VitrailCompat {
 				.orElse("not installed");
 	}
 
+	/** True while Vitrail draws a shader pack. The pack owns the world image, so DLSS steps aside. */
+	public static boolean isDrawingPack() {
+		if (!isLoaded()) {
+			return false;
+		}
+		if (!lookUp()) {
+			return true;
+		}
+		try {
+			return (boolean) drawingPack.invoke(null);
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			broken = true;
+			return true;
+		}
+	}
+
 	/** Version plus the pack being drawn. Touches Vitrail's render classes, so call it only once the game is running. */
 	public static String status() {
 		return isLoaded() ? version() + packStatus().map(s -> ", " + s).orElse("") : version();
