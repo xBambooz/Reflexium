@@ -25,7 +25,7 @@ public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 	private void reflexium$addReflexOption(CallbackInfo ci) {
 		VulkanSession session = VulkanSession.current();
 		if (session != null && session.lowLatency2()) {
-			list.addSmall(ReflexiumOptions.reflexMode(), ReflexiumOptions.frameLimiter());
+			list.addBig(ReflexiumOptions.reflexMode());
 		}
 		if (UpscalingRenderer.get().isReady()) {
 			list.addBig(ReflexiumOptions.upscaler());

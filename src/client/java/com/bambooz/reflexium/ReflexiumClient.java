@@ -18,9 +18,8 @@ public final class ReflexiumClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ReflexiumConfig config = ReflexiumConfig.get();
-		LOGGER.info("Reflexium loaded (Reflex: {}, frame limiter: {}, DLSS detection: {}, Vitrail: {}, Aperture: {})",
+		LOGGER.info("Reflexium loaded (Reflex: {}, DLSS detection: {}, Vitrail: {}, Aperture: {})",
 				config.reflexMode().displayName(),
-				config.reflexFrameLimiter() ? "Reflex" : "vanilla",
 				config.dlssDetection() ? "on" : "off",
 				VitrailCompat.version(),
 				ApertureCompat.status());

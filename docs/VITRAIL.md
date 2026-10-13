@@ -10,7 +10,7 @@ Checked 2026-10-10. Reflexium's existing Vulkan hooks work with Vitrail; no spec
 - Sodium `0.9.2+mc26.3`, Modrinth version `bAZQdGpg`.
 - Complementary Reimagined `r5.9.3`, default HIGH profile.
 - Windows 11, Java `25.0.4`, NVIDIA GeForce RTX 5070, driver `617.42`.
-- Reflex On, frame limiter enabled, DLSS detection enabled.
+- Reflex On, DLSS detection enabled.
 
 Vitrail jar SHA-256: `0823ba8ff806e9a1cc8520b7410783683d3a5f2213576212cecdeecc869bcfc8`.
 

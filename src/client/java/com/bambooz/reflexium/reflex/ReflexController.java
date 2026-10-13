@@ -3,6 +3,8 @@ package com.bambooz.reflexium.reflex;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.vulkan.VulkanSession;
+import com.mojang.blaze3d.platform.VideoMode;
+import com.mojang.blaze3d.platform.Window;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkGetLatencyMarkerInfoNV;
@@ -43,8 +45,9 @@ public final class ReflexController {
 	private static final ReflexController INSTANCE = new ReflexController();
 	private static final long SLEEP_TIMEOUT_NS = 100_000_000L;
 	private static final long TIMING_REFRESH_NS = 250_000_000L;
-	/** Minecraft treats 260 as "unlimited". */
+	/** Minecraft treats 260 as "unlimited" for Max Framerate. */
 	private static final int UNLIMITED_FPS = 260;
+	private static final int NO_CAP = Integer.MAX_VALUE;
 	/** -Dreflexium.logLatency=true writes the F3 Reflex lines to the log every few seconds. */
 	private static final boolean LOG_LATENCY = Boolean.getBoolean("reflexium.logLatency");
 	private static final long LATENCY_LOG_INTERVAL_NS = 5_000_000_000L;
@@ -64,6 +67,7 @@ public final class ReflexController {
 	private ReflexMode loggedMode;
 	private int appliedIntervalUs = -1;
 	private int requestedIntervalUs;
+	private boolean requestedCapIsVrr;
 	private boolean sleepFailed;
 
 	private long lastTimingRefresh;
@@ -193,12 +197,27 @@ public final class ReflexController {
 	}
 
 	/**
-	 * Called every frame with vanilla's effective FPS cap (menu and AFK throttles included). While
-	 * Reflex sleeps, the cap becomes the driver's minimum frame interval, applied at the next sleep.
+	 * Called every frame with vanilla's effective FPS cap (menu and AFK throttles included). Reflex paces
+	 * frames to the lower of that cap and the automatic VRR cap, applied as the driver's minimum frame
+	 * interval at the next sleep.
 	 */
-	public void updateFrameLimit(int fpsLimit) {
-		boolean capped = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS;
-		requestedIntervalUs = capped && ReflexiumConfig.get().reflexFrameLimiter() ? 1_000_000 / fpsLimit : 0;
+	public void updateFrameLimit(int fpsLimit, boolean vsync, Window window) {
+		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
+		// Vulkan cannot see G-Sync, so VSync on is the signal; NVIDIA's driver Reflex auto-cap keys off the same pair.
+		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
+		int fps = Math.min(userFps, vrrFps);
+		requestedIntervalUs = fps == NO_CAP ? 0 : 1_000_000 / fps;
+		requestedCapIsVrr = vrrFps < userFps;
+	}
+
+	/** NVIDIA's automatic variable refresh cap, just below the refresh rate. Unknown refresh rate means no cap. */
+	private static int vrrCap(Window window) {
+		VideoMode video = window.getActiveVideoMode();
+		if (video == null || video.getRefreshRate() <= 0) {
+			return NO_CAP;
+		}
+		float hz = video.getRefreshRate();
+		return Math.max(1, (int) Math.floor(hz - hz * hz / 3600f));
 	}
 
 	/** True when vanilla's post-present sleep should be skipped because the Reflex sleep paces frames. */
@@ -226,6 +245,9 @@ public final class ReflexController {
 			line.append(" (sleep failed, markers only)");
 		} else if (appliedIntervalUs > 0) {
 			line.append(", cap ").append(Math.round(1_000_000.0 / appliedIntervalUs)).append(" FPS");
+			if (requestedCapIsVrr) {
+				line.append(" (VSync)");
+			}
 		}
 		if (!presentIdEnabled) {
 			line.append(", no present id");

@@ -5,8 +5,6 @@
   "reflexium.group.upscaling": "Upscaling and Anti-Aliasing",
   "reflexium.option.reflex_mode": "NVIDIA Reflex",
   "reflexium.option.reflex_mode.tooltip": "Reduces input latency by starting each frame just in time for the GPU. On + Boost also keeps GPU clocks high when CPU-bound.",
-  "reflexium.option.frame_limiter": "Reflex FPS Cap",
-  "reflexium.option.frame_limiter.tooltip": "Enforces Max Framerate using Reflex sleep pacing instead of the vanilla limiter. Lowers input latency while framerate capping is active.",
   "reflexium.option.dlss_detection": "DLSS Detection",
   "reflexium.option.dlss_detection.tooltip": "Enables Vulkan device extensions required for DLSS upscaling. Requires restarting the game to take effect.",
   "reflexium.option.upscaler": "Upscaler",

@@ -24,7 +24,6 @@ public final class ReflexiumConfig {
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
-	private volatile boolean reflexFrameLimiter = true;
 	private volatile boolean dlssDetection = true;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
@@ -45,16 +44,6 @@ public final class ReflexiumConfig {
 
 	public void setReflexMode(ReflexMode mode) {
 		reflexMode = mode;
-		save();
-	}
-
-	/** Replace vanilla's post-present sleep with the driver-paced Reflex limiter while Reflex is on. */
-	public boolean reflexFrameLimiter() {
-		return reflexFrameLimiter;
-	}
-
-	public void setReflexFrameLimiter(boolean enabled) {
-		reflexFrameLimiter = enabled;
 		save();
 	}
 
@@ -111,8 +100,8 @@ public final class ReflexiumConfig {
 			return config;
 		}
 
+		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
-		config.reflexFrameLimiter = parseBoolean(props, "reflex_frame_limiter", config.reflexFrameLimiter);
 		config.dlssDetection = parseBoolean(props, "dlss_detection", config.dlssDetection);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
@@ -136,7 +125,6 @@ public final class ReflexiumConfig {
 	private synchronized void save() {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
-		props.setProperty("reflex_frame_limiter", Boolean.toString(reflexFrameLimiter));
 		props.setProperty("dlss_detection", Boolean.toString(dlssDetection));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());

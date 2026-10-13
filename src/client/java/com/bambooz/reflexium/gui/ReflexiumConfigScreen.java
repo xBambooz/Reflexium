@@ -17,7 +17,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 	@Override
 	protected void addOptions() {
 		list.addBig(ReflexiumOptions.reflexMode());
-		list.addSmall(ReflexiumOptions.frameLimiter(), ReflexiumOptions.dlssDetection());
+		list.addBig(ReflexiumOptions.dlssDetection());
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));
 		list.addBig(ReflexiumOptions.upscaler());
 		list.addBig(ReflexiumOptions.upscaleQuality());

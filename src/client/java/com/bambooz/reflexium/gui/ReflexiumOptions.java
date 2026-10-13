@@ -80,13 +80,6 @@ public final class ReflexiumOptions {
 				ReflexiumConfig.get().fsrSharpness(), ReflexiumConfig.get()::setFsrSharpness);
 	}
 
-	public static OptionInstance<Boolean> frameLimiter() {
-		ReflexiumConfig config = ReflexiumConfig.get();
-		return OptionInstance.createBoolean("reflexium.option.frame_limiter",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.frame_limiter.tooltip")),
-				config.reflexFrameLimiter(), config::setReflexFrameLimiter);
-	}
-
 	public static OptionInstance<Boolean> dlssDetection() {
 		ReflexiumConfig config = ReflexiumConfig.get();
 		return OptionInstance.createBoolean("reflexium.option.dlss_detection",
