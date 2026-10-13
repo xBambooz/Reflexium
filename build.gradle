@@ -28,12 +28,19 @@ loom {
 
 repositories {
 	maven { name = "TerraformersMC"; url = "https://maven.terraformersmc.com/releases/" }
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+		content { includeGroup "maven.modrinth" }
+	}
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	clientCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+	clientCompileOnly "maven.modrinth:betterf3:${project.betterf3_version}"
 }
 
 processResources {

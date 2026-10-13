@@ -14,10 +14,12 @@
 	"environment": "client",
 	"entrypoints": {
 		"client": ["com.bambooz.reflexium.ReflexiumClient"],
-		"modmenu": ["com.bambooz.reflexium.compat.ModMenuIntegration"]
+		"modmenu": ["com.bambooz.reflexium.compat.ModMenuIntegration"],
+		"sodium:config_api_user": ["com.bambooz.reflexium.compat.SodiumConfigIntegration"]
 	},
 	"mixins": [
-		{ "config": "reflexium.mixins.json", "environment": "client" }
+		{ "config": "reflexium.mixins.json", "environment": "client" },
+		{ "config": "reflexium.compat.mixins.json", "environment": "client" }
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",
@@ -25,7 +27,8 @@
 		"java": ">=25"
 	},
 	"suggests": {
-		"modmenu": "*"
+		"modmenu": "*",
+		"sodium": "*"
 	},
 	"breaks": {
 		"nvidia-reflex-mod": "*"

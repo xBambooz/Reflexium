@@ -53,6 +53,6 @@ Resizing the window recreated the swapchain and Vitrail's render targets; render
 2. Select Vulkan and restart. Confirm the log actually reports Vulkan and `low_latency2=true, present_id=true`.
 3. Load a world with Complementary Reimagined r5.9.3. Open F3 and check that both Vitrail's pack entry and Reflexium's mode/timing entries are visible.
 4. Reload the shader pack with R and resize the window. Verify the pack still renders and Reflex latency keeps updating.
-5. Use Mod Menu's Reflexium screen for mode and limiter settings. Sodium replaces the vanilla Video Settings screen; the alternative is `config/reflexium.properties` followed by a restart.
+5. Open Video Settings: Sodium's screen lists a Reflexium page next to Vitrail's pages (both register through Sodium's config API).
 
 This check establishes compatibility for the versions and Reflex On configuration above. Other packs, other Vitrail/Sodium versions, Reflex Off/On + Boost, and OpenGL fallback were not covered by this run. DLSS remains a readiness check; Vitrail's render-scale setting does not enable DLSS.

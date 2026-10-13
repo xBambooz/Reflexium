@@ -23,6 +23,7 @@ public final class ReflexiumConfig {
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
 	private volatile boolean reflexFrameLimiter = true;
 	private volatile boolean dlssDetection = true;
+	private volatile boolean betterF3ModulePlaced = false;
 
 	private ReflexiumConfig() {
 	}
@@ -60,6 +61,16 @@ public final class ReflexiumConfig {
 		save();
 	}
 
+	/** Reflexium's BetterF3 module was added to the BetterF3 layout once; from then on the player's layout wins. */
+	public boolean betterF3ModulePlaced() {
+		return betterF3ModulePlaced;
+	}
+
+	public void setBetterF3ModulePlaced(boolean placed) {
+		betterF3ModulePlaced = placed;
+		save();
+	}
+
 	private static ReflexiumConfig load() {
 		ReflexiumConfig config = new ReflexiumConfig();
 		Path source = Files.exists(PATH) ? PATH : Files.exists(LEGACY_PATH) ? LEGACY_PATH : null;
@@ -79,6 +90,7 @@ public final class ReflexiumConfig {
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
 		config.reflexFrameLimiter = parseBoolean(props, "reflex_frame_limiter", config.reflexFrameLimiter);
 		config.dlssDetection = parseBoolean(props, "dlss_detection", config.dlssDetection);
+		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
 		if (source == LEGACY_PATH) {
 			config.save();
 			ReflexiumClient.LOGGER.info("Migrated {} to {}", LEGACY_PATH.getFileName(), PATH.getFileName());
@@ -96,6 +108,7 @@ public final class ReflexiumConfig {
 		props.setProperty("reflex_mode", reflexMode.serializedName());
 		props.setProperty("reflex_frame_limiter", Boolean.toString(reflexFrameLimiter));
 		props.setProperty("dlss_detection", Boolean.toString(dlssDetection));
+		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
 		try {
 			Files.createDirectories(DIR);
 			Path temp = PATH.resolveSibling(PATH.getFileName() + ".tmp");

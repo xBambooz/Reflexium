@@ -1,0 +1,71 @@
+package com.bambooz.reflexium.compat;
+
+import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.gui.ReflexiumConfigScreen;
+import com.bambooz.reflexium.reflex.ReflexController;
+import com.bambooz.reflexium.reflex.ReflexMode;
+import net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint;
+import net.caffeinemc.mods.sodium.api.config.StorageEventHandler;
+import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
+import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
+import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+
+/**
+ * Reflexium page in Sodium's Video Settings, which replaces the vanilla screen that
+ * {@code VideoSettingsScreenMixin} extends. Reese's Sodium Options and other Sodium screen
+ * replacements render the same registered pages. Loaded only through the
+ * {@code sodium:config_api_user} entrypoint, so Sodium stays optional.
+ */
+public final class SodiumConfigIntegration implements ConfigEntryPoint {
+	// ReflexiumConfig persists on every set, so Sodium's post-apply hook has nothing left to write.
+	private static final StorageEventHandler SAVED_ON_SET = () -> {
+	};
+
+	@Override
+	public void registerConfigLate(ConfigBuilder builder) {
+		ReflexiumConfig config = ReflexiumConfig.get();
+
+		builder.registerOwnModOptions()
+				.setNonTintedIcon(id("icon.png"))
+				.addPage(builder.createOptionPage()
+						.setName(Component.translatable("reflexium.title"))
+						.addOptionGroup(builder.createOptionGroup()
+								.setName(Component.translatable("reflexium.group.reflex"))
+								.addOption(builder.createEnumOption(id("reflex_mode"), ReflexMode.class)
+										.setName(Component.translatable("reflexium.option.reflex_mode"))
+										.setTooltip(Component.translatable("reflexium.option.reflex_mode.tooltip"))
+										.setElementNameProvider(ReflexMode::label)
+										.setImpact(OptionImpact.LOW)
+										.setDefaultValue(ReflexMode.ON)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(ReflexController.get()::setMode, config::reflexMode))
+								.addOption(builder.createBooleanOption(id("frame_limiter"))
+										.setName(Component.translatable("reflexium.option.frame_limiter"))
+										.setTooltip(Component.translatable("reflexium.option.frame_limiter.tooltip"))
+										.setDefaultValue(true)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(config::setReflexFrameLimiter, config::reflexFrameLimiter)))
+						.addOptionGroup(builder.createOptionGroup()
+								.setName(Component.translatable("reflexium.group.dlss"))
+								.addOption(builder.createBooleanOption(id("dlss_detection"))
+										.setName(Component.translatable("reflexium.option.dlss_detection"))
+										.setTooltip(Component.translatable("reflexium.option.dlss_detection.tooltip"))
+										.setFlags(OptionFlag.REQUIRES_GAME_RESTART)
+										.setDefaultValue(true)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(config::setDlssDetection, config::dlssDetection)))
+						.addOptionGroup(builder.createOptionGroup()
+								.addOption(builder.createExternalButtonOption(id("status"))
+										.setName(Component.translatable("reflexium.option.status"))
+										.setTooltip(Component.translatable("reflexium.option.status.tooltip"))
+										.setScreenConsumer(parent -> Minecraft.getInstance().setScreenAndShow(new ReflexiumConfigScreen(parent))))));
+	}
+
+	private static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(ReflexiumClient.MOD_ID, path);
+	}
+}

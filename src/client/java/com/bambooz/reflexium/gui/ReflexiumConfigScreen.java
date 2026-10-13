@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.gui;
 
 import com.bambooz.reflexium.compat.ApertureCompat;
+import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.dlss.DlssSupport;
 import com.bambooz.reflexium.reflex.ReflexController;
 import net.minecraft.client.Minecraft;
@@ -20,7 +21,10 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 
 		list.addHeader(Component.translatable("reflexium.status"));
 		list.addHeader(Component.literal(ReflexController.get().statusLine()));
-		list.addHeader(Component.literal("DLSS: " + DlssSupport.status().summary()));
+		list.addHeader(Component.literal("DLSS: " + DlssSupport.status().shortSummary()));
+		if (VitrailCompat.isLoaded()) {
+			list.addHeader(Component.literal("Vitrail: " + VitrailCompat.status()));
+		}
 		list.addHeader(Component.literal("Aperture: " + ApertureCompat.status()));
 	}
 }

@@ -1,3 +1,4 @@
+| `betterf3_module_placed` | set once Reflexium has added its BetterF3 module | `false` |
 # Reflexium
 
 NVIDIA Reflex for Minecraft Java's Vulkan renderer. Client-side Fabric mod for Minecraft 26.3.
@@ -20,17 +21,22 @@ Fabric API is not required.
 
 ## Settings
 
-Reflex mode and the Reflex FPS cap appear in Video Settings below Graphics API when the driver supports Reflex. All settings are also in Mod Menu and in `config/reflexium.properties`:
+Settings appear in:
 
-With Sodium installed, use Mod Menu or the config file: Sodium replaces the vanilla Video Settings screen containing Reflexium's controls. Restart after editing the config file.
+- Video Settings, below Graphics API, when the driver supports Reflex (vanilla screen).
+- Sodium's Video Settings as a Reflexium page when Sodium is installed. Reese's Sodium Options and other Sodium screen replacements show the same page. Tested with Sodium 0.9.2 and Reese's Sodium Options 2.2.5 (which requires exactly Sodium 0.9.2).
+- Mod Menu, and `config/reflexium.properties` (restart after editing).
 
 | Key | Values | Default |
 | --- | --- | --- |
 | `reflex_mode` | `off`, `on`, `on_boost` | `on` |
 | `reflex_frame_limiter` | `true`, `false` | `true` |
 | `dlss_detection` | `true`, `false` (restart to apply) | `true` |
+| `betterf3_module_placed` | set after Reflexium adds its BetterF3 module once | `false` |
 
 Settings from the old `nvidia-reflex-mod.properties` are migrated automatically.
+
+With [BetterF3](https://modrinth.com/mod/betterf3), which hides other mods' F3 lines, Reflexium adds a Reflexium module to the right column once. Move, recolor or remove it in BetterF3's module settings.
 
 For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex status and latency every 5 seconds.
 

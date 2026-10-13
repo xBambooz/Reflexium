@@ -1,6 +1,7 @@
 package com.bambooz.reflexium;
 
 import com.bambooz.reflexium.compat.ApertureCompat;
+import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
@@ -17,10 +18,11 @@ public final class ReflexiumClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		ReflexiumConfig config = ReflexiumConfig.get();
-		LOGGER.info("Reflexium loaded (Reflex: {}, frame limiter: {}, DLSS detection: {}, Aperture: {})",
+		LOGGER.info("Reflexium loaded (Reflex: {}, frame limiter: {}, DLSS detection: {}, Vitrail: {}, Aperture: {})",
 				config.reflexMode().displayName(),
 				config.reflexFrameLimiter() ? "Reflex" : "vanilla",
 				config.dlssDetection() ? "on" : "off",
+				VitrailCompat.version(),
 				ApertureCompat.status());
 	}
 

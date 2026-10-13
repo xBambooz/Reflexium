@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.bambooz.reflexium.mixin.compat",
+	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"BetterF3ConfigMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
