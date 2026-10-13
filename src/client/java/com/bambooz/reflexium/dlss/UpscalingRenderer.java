@@ -52,8 +52,8 @@ public final class UpscalingRenderer {
 	private static final int FEATURE_FLAGS = (1 << 1) | (1 << 3);
 	/** Camera moves further than this (blocks) between frames: treat as a cut and reset history. */
 	private static final double RESET_DISTANCE = 8.0;
-	/** Sign applied to the projection jitter before it is handed to DLSS (tunable for testing). */
-	private static final float JITTER_SIGN = Float.parseFloat(System.getProperty("reflexium.dlss.jitterSign", "-1"));
+	/** Sign applied to the projection jitter before it is handed to DLSS and FSR (tunable for testing). +1 on both axes: lowest still-frame change in the 2026-10-13 static test (docs/DEBUGGING.md). */
+	private static final float JITTER_SIGN = Float.parseFloat(System.getProperty("reflexium.dlss.jitterSign", "1"));
 	private static final boolean NGX_VERBOSE = Boolean.getBoolean("reflexium.dlss.verboseLog");
 
 	private VulkanDevice device;

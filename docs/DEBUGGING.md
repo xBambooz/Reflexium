@@ -53,7 +53,7 @@ game runs on the render thread.
 | `quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | |
 | `dlss_model` | `auto`, `transformer`, `cnn` | |
 | `fsr_sharpness` | `0` to `100` | |
-| `jitter_sign_x`, `jitter_sign_y` | `1`, `-1`, `default` | Runtime override of the sign UpscalingRenderer applies to the jitter handed to the upscaler. `default` restores the built-in value (`-1`, or `-Dreflexium.dlss.jitterSign`). `jitter_sign` sets both |
+| `jitter_sign_x`, `jitter_sign_y` | `1`, `-1`, `default` | Runtime override of the sign UpscalingRenderer applies to the jitter handed to the upscaler. `default` restores the built-in value (`1`, measured in build/jitter-tuning, or `-Dreflexium.dlss.jitterSign`). `jitter_sign` sets both |
 | `jitter` | `0`, `1` | `0` zeroes the projection jitter and the jitter given to the upscaler, for A/B |
 | `mv_debug` | `0`, `1` | Draws the motion vector texture over the upscaled world (see below) |
 
