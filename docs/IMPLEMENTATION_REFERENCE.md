@@ -321,13 +321,13 @@ Status definitions:
 
 | Feature / Requirement | Status | Reflexium Code Location | Explanation |
 | :--- | :--- | :--- | :--- |
-| Reflex Marker Sequence | WRONG | `ReflexController.java:121, 144` | `INPUT_SAMPLE` is emitted after input poll instead of just before; `SIMULATION_START` precedes input poll rather than surrounding simulation tick. |
+| Reflex Marker Sequence | OK (reviewed) | `ReflexController.beginFrame/afterInputPoll` | Sleep, then SIMULATION_START, then SDL input poll, then INPUT_SAMPLE at the moment input is read. Matches the documented order; an earlier draft of this table marked it WRONG by mistake. |
 | Reflex Sleep Placement | OK | `ReflexController.java:122, 251` | `vkLatencySleepNV` and timeline semaphore wait execute before input gathering. |
 | Reflex Present ID Attribution | OK | `VulkanLifecycle.java:78, 101` | Present ID is chained via `VkLatencySubmissionPresentIdNV` on submit and `VkPresentIdKHR` on present. |
 | Reflex Boost Mode | OK | `ReflexController.java:231` | `lowLatencyBoost` correctly passed to `VkLatencySleepModeInfoNV`. |
 | Reflex Frame Limiter | OK | `ReflexController.java:171` | `minimumIntervalUs` calculated as `1000000 / fps` and applied via `vkSetLatencySleepModeNV`. |
 | Reflex VRR Auto-Cap Formula | OK | `ReflexController.java:181` | Uses `floor(hz - hz * hz / 3600f)`, matching driver VRR headroom subtraction. |
-| Reflex PCL Markers when Off | WRONG | `ReflexController.java:121, 275` | Markers are gated behind `enabled`; Streamline guidelines require continuous markers even when Reflex is Off. |
+| Reflex PCL Markers when Off | OK (reviewed) | `ReflexController.marker` | marker() only requires a swapchain with low_latency2; it is not gated on the Reflex mode, so PC Latency stats keep working with Reflex Off. Earlier draft said WRONG by mistake. |
 | Reflex UI Naming | OK | `ReflexiumConfig.java`, UI screens | Uses "NVIDIA Reflex" with "Off", "On", "On + Boost". |
 | DLSS Required Buffer Formats | OK | `UpscalingRenderer.java:441` | Passes RGBA8/D32_FLOAT/RG16F, valid under NGX Vulkan requirements. |
 | DLSS Jitter Sign Convention | OK | `UpscalingRenderer.java:55, 617` | `JITTER_SIGN = -1.0f` matches translation sign in projection matrix. |
