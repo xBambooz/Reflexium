@@ -1,4 +1,3 @@
-| `betterf3_module_placed` | set once Reflexium has added its BetterF3 module | `false` |
 # Reflexium
 
 NVIDIA Reflex for Minecraft Java's Vulkan renderer. Client-side Fabric mod for Minecraft 26.3.
