@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reflexium system architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1920px;
+    height: 1080px;
+    background: #0B0F17;
+    color: #E2E8F0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 36px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 16px;
+  }
+  .title-group h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .title-group p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+  .header-legend {
+    display: flex;
+    gap: 12px;
+  }
+  .legend-chip {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .chip-java { background: rgba(56, 189, 248, 0.15); border: 1px solid #38BDF8; color: #38BDF8; }
+  .chip-native { background: rgba(0, 229, 163, 0.15); border: 1px solid #00E5A3; color: #00E5A3; }
+  .chip-fsr { background: rgba(255, 70, 85, 0.15); border: 1px solid #FF4655; color: #FF4655; }
+  .chip-vitrail { background: rgba(168, 85, 247, 0.15); border: 1px solid #A855F7; color: #A855F7; }
+
+  /* 3 Main Columns Layout: Left (Minecraft & Java), Middle (Bridges & Drivers), Right (Integrations & Tooling) */
+  .architecture-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1.25fr 0.85fr;
+    gap: 16px;
+    margin: 12px 0;
+    flex: 1;
+  }
+  .layer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .arch-panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+  }
+  .panel-header {
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag-mc { color: #94A3B8; }
+  .tag-java { color: #38BDF8; }
+  .tag-native { color: #00E5A3; }
+  .tag-hardware { color: #76B900; }
+  .tag-ecosystem { color: #A855F7; }
+
+  .panel-title {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+
+  .component-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .component-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .comp-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F1F5F9;
+  }
+  .comp-role {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: #38BDF8;
+  }
+  .comp-why {
+    font-size: 11.5px;
+    color: #94A3B8;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+
+  /* Full width card inside panel */
+  .full-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Footer */
+  .footer-note {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #94A3B8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-note strong { color: #F8FAFC; }
+  .footer-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #38BDF8;
+    background: #0B0F17;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <h1>Reflexium system architecture</h1>
+      <p>How Minecraft 26.3 Vulkan, Reflexium Java mixins, native C++ bridges, and the GPU driver connect</p>
+    </div>
+    <div class="header-legend">
+      <div class="legend-chip chip-java">Java Fabric Mod</div>
+      <div class="legend-chip chip-native">NVIDIA DLSS Bridge</div>
+      <div class="legend-chip chip-fsr">AMD FSR Bridge</div>
+      <div class="legend-chip chip-vitrail">Shader Ecosystem</div>
+    </div>
+  </div>
+
+  <!-- 3 Column Architecture Layout -->
+  <div class="architecture-grid">
+
+    <!-- Column 1: Minecraft Engine & Reflexium Java -->
+    <div class="layer-col">
+
+      <!-- Minecraft Engine Panel -->
+      <div class="arch-panel">
+        <div class="panel-header">
+          <span class="panel-title">Minecraft 26.3 client</span>
+          <span class="panel-tag tag-mc">Host engine</span>
+        </div>
+        <div class="component-grid">
+          <div class="component-card">
+            <div class="comp-name">Vulkan renderer</div>
+            <div class="comp-role">mojang.renderpearl.backend.vulkan</div>
+            <div class="comp-why">Manages VulkanDevice, command encoders, and swapchain surface presentation.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">Game loop & GUI</div>
+            <div class="comp-role">Minecraft.run / GameRenderer</div>
+            <div class="comp-why">Executes SDL polling, tick simulation, world rendering, and native HUD drawing.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reflexium Java Side Panel -->
+      <div class="arch-panel" style="flex: 1;">
+        <div class="panel-header">
+          <span class="panel-title">Reflexium Java mod layer</span>
+          <span class="panel-tag tag-java">Fabric client</span>
+        </div>
+        <div class="component-grid">
+          <div class="component-card">
+            <div class="comp-name">MinecraftMixin</div>
+            <div class="comp-role">Frame pacing & markers</div>
+            <div class="comp-why">Injects Reflex sleep before input polling, emits markers, and skips vanilla limiter.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">GameRendererMixin</div>
+            <div class="comp-role">Render hooks & jitter</div>
+            <div class="comp-why">Performs render target swapping, copies world depth, and invokes the upscaler.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">ReflexController</div>
+            <div class="comp-role">Vulkan timeline sleep</div>
+            <div class="comp-why">Controls vkLatencySleepNV, present ID tracking, VRR auto-cap, and F3 telemetry.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">UpscalingRenderer</div>
+            <div class="comp-role">Upscale orchestrator</div>
+            <div class="comp-why">Manages Halton jitter, render targets, motion vector pass, and native bridge calls.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">UI & config integrations</div>
+            <div class="comp-role">Sodium, BetterF3, Vanilla</div>
+            <div class="comp-why">Provides Sodium settings page, Video Settings controls, and BetterF3 column stats.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">dlss_motion.fsh</div>
+            <div class="comp-role">Camera depth reprojection</div>
+            <div class="comp-why">Reconstructs camera motion vectors from depth while clamping hand velocity to zero.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Column 2: Native Bridges & Driver Layer -->
+    <div class="layer-col">
+
+      <!-- Native Bridges Panel -->
+      <div class="arch-panel">
+        <div class="panel-header">
+          <span class="panel-title">Native C++ bridges</span>
+          <span class="panel-tag tag-native">Foreign Function & Memory API</span>
+        </div>
+
+        <div class="full-card" style="border-left: 3px solid #00E5A3;">
+          <div class="comp-name">reflexium_ngx.dll &rarr; NVIDIA NGX</div>
+          <div class="comp-role">Static nvsdk_ngx_s.lib bridge</div>
+          <div class="comp-why">
+            Bridges Java FFM to NVIDIA NGX C API on Minecraft's Vulkan device; loads nvngx_dlss.dll auto-downloaded by DlssRuntimeInstaller.
+          </div>
+        </div>
+
+        <div class="full-card" style="border-left: 3px solid #FF4655;">
+          <div class="comp-name">reflexium_fsr.dll &rarr; AMD FidelityFX</div>
+          <div class="comp-role">FidelityFX SDK 1.1.4 bridge</div>
+          <div class="comp-why">
+            Bridges Java FFM to amd_fidelityfx_vk.dll; provides universal FSR 3.1 temporal upscaling and RCAS sharpening on any Vulkan GPU.
+          </div>
+        </div>
+      </div>
+
+      <!-- GPU Driver & Hardware Panel -->
+      <div class="arch-panel" style="flex: 1;">
+        <div class="panel-header">
+          <span class="panel-title">Driver and GPU hardware</span>
+          <span class="panel-tag tag-hardware">Vulkan extensions</span>
+        </div>
+
+        <div class="component-grid">
+          <div class="component-card">
+            <div class="comp-name">VK_NV_low_latency2</div>
+            <div class="comp-role">Reflex pacing extension</div>
+            <div class="comp-why">Exposes sleep semaphores, latency markers, and timing telemetry queries.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">VK_KHR_present_id</div>
+            <div class="comp-role">Present tracking</div>
+            <div class="comp-why">Attaches monotonic frame IDs to queue submissions and swapchain presentation.</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">NVIDIA Tensor Cores</div>
+            <div class="comp-role">GeForce RTX AI hardware</div>
+            <div class="comp-why">Executes DLSS neural network reconstruction (CNN and Transformer models).</div>
+          </div>
+          <div class="component-card">
+            <div class="comp-name">Vulkan compute shaders</div>
+            <div class="comp-role">Universal GPU execution</div>
+            <div class="comp-why">Executes AMD FSR 3.1 passes and RCAS sharpening across AMD, Intel, and NVIDIA.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Column 3: Ecosystem & Dev Debug Tooling -->
+    <div class="layer-col">
+
+      <!-- Shaders Panel -->
+      <div class="arch-panel">
+        <div class="panel-header">
+          <span class="panel-title">Shader compatibility</span>
+          <span class="panel-tag tag-ecosystem">Vitrail Shaders</span>
+        </div>
+        <div class="full-card" style="border-left: 3px solid #A855F7;">
+          <div class="comp-name">VitrailCompat.isDrawingPack()</div>
+          <div class="comp-role">Shader pack detection</div>
+          <div class="comp-why">
+            Reflex low latency works fully alongside Vitrail shaders; upscaling currently pauses while a shader pack draws (deep integration planned).
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev Debug Harness Panel -->
+      <div class="arch-panel" style="flex: 1;">
+        <div class="panel-header">
+          <span class="panel-title">Dev debug harness</span>
+          <span class="panel-tag" style="color: #FBBF24;">Developer tooling</span>
+        </div>
+
+        <div class="full-card" style="border-left: 3px solid #FBBF24;">
+          <div class="comp-name">tools/rxdbg.ps1</div>
+          <div class="comp-role">Loopback HTTP CLI</div>
+          <div class="comp-why">
+            PowerShell script wrapping dev endpoints for inspecting mod status, changing settings, capturing screenshots, and scripting camera motion.
+          </div>
+        </div>
+
+        <div class="full-card">
+          <div class="comp-name">DebugServer (Port 25599)</div>
+          <div class="comp-role">-Dreflexium.debugPort</div>
+          <div class="comp-why">
+            In-game HTTP control server enabled in dev builds to automate camera turns, benchmark sequences, and verify reprojection math.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <div>
+      <strong>Separation of concerns:</strong> Reflex paces the CPU game loop for ultra-low latency; DLSS/FSR upscales the 3D world for high framerates; the GUI remains untouched at full display resolution.
+    </div>
+    <div>
+      Reflexium: Client-side Fabric mod for Minecraft 26.3
+    </div>
+  </div>
+
+</body>
+</html>

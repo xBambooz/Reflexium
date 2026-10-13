@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sub-pixel jitter and motion vector reconstruction</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1920px;
+    height: 1080px;
+    background: #0B0F17;
+    color: #E2E8F0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 36px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 16px;
+  }
+  .title-group h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .title-group p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+  .badge-tag {
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid #38BDF8;
+    color: #38BDF8;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* 2x2 Grid Layout */
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    margin: 12px 0;
+    flex: 1;
+  }
+  .panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .panel-header {
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 10px;
+  }
+  .panel-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #00E5A3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+
+  .content-box {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .box-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #F1F5F9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .box-text {
+    font-size: 12.5px;
+    color: #94A3B8;
+    line-height: 1.45;
+  }
+
+  .code-snippet {
+    background: #080C14;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    color: #38BDF8;
+    line-height: 1.4;
+  }
+
+  .accent-orange { color: #FBBF24; }
+  .accent-green { color: #76B900; }
+  .accent-red { color: #FF4655; }
+  .accent-purple { color: #A855F7; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Footer */
+  .footer-note {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #94A3B8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-note strong { color: #F8FAFC; }
+  .footer-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #38BDF8;
+    background: #0B0F17;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <h1>Sub-pixel jitter and motion vector reconstruction</h1>
+      <p>How camera offsets reveal fine spatial detail and how depth reprojection tracks pixels across frames</p>
+    </div>
+    <div class="badge-tag">dlss_motion.fsh & Halton(2,3)</div>
+  </div>
+
+  <!-- 2x2 Grid -->
+  <div class="grid-container">
+
+    <!-- Panel 1: Sub-pixel Camera Jitter -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Temporal sampling</div>
+        <div class="panel-title">Sub-pixel camera jitter</div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>What jitter is</span>
+          <span class="accent-green">Halton(2, 3) sequence</span>
+        </div>
+        <div class="box-text">
+          A tiny sub-pixel offset applied to the projection matrix each frame, shifting the camera view within [-0.5, +0.5] render pixels across a sequence of <code>ceil(8 * ratio^2)</code> phases.
+        </div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>Why jitter rebuilds detail</span>
+          <span class="accent-orange">Temporal accumulation</span>
+        </div>
+        <div class="box-text">
+          A static grid repeatedly samples the exact same pixel centers; shifting the camera slightly each frame lets the upscaler gather new sub-pixel samples across time to reconstruct razor-sharp edges.
+        </div>
+      </div>
+
+      <div class="code-snippet">
+        Phase counts: DLAA = 8, Quality = 18, Balanced = 24, Performance = 32, Ultra Perf = 72
+      </div>
+    </div>
+
+    <!-- Panel 2: Motion Vectors from Depth -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Velocity calculation</div>
+        <div class="panel-title">Motion vectors via depth reprojection</div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>Vector convention</span>
+          <span class="accent-green">V = Position_prev - Position_curr</span>
+        </div>
+        <div class="box-text">
+          Stored in render-pixel units in an RG16F texture. A fullscreen post-process shader (<code>dlss_motion.fsh</code>) reconstructs 3D world positions from hardware depth and reprojects them into the previous frame.
+        </div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>Camera translation delta</span>
+          <span class="accent-purple">Camera-relative rendering</span>
+        </div>
+        <div class="box-text">
+          Because Minecraft renders relative to camera position, the world origin shifts every frame. Reflexium adds back camera translation delta to prevent catastrophic smearing when walking or falling.
+        </div>
+      </div>
+
+      <div class="code-snippet">
+        mat4 CurrentToPrevious = previousUnjittered * cameraDelta * inverse(currentJittered);
+      </div>
+    </div>
+
+    <!-- Panel 3: First-Person Hand Masking -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Special geometry handling</div>
+        <div class="panel-title">Why the first-person hand gets zero motion</div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>The hand dilemma</span>
+          <span class="accent-orange">Independent animations</span>
+        </div>
+        <div class="box-text">
+          The player hand moves with view orientation but has independent view-bobbing and tool swing motions. Reprojecting the hand with world camera matrices creates severe tearing and shearing artifacts.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="content-box">
+          <div class="box-title">1. Depth capture</div>
+          <div class="box-text">
+            <code>captureWorldDepth</code> copies world depth before vanilla clears it for the hand pass.
+          </div>
+        </div>
+        <div class="content-box">
+          <div class="box-title">2. Velocity zeroing</div>
+          <div class="box-text">
+            <code>dlss_motion.fsh</code> checks <code>HandDepthSampler</code> and outputs <code>vec4(0.0)</code> on hand pixels.
+          </div>
+        </div>
+      </div>
+
+      <div class="box-text" style="font-size: 11.5px; color: #CBD5E1;">
+        Why zero motion works: keeping hand velocity at zero prevents reprojection tearing during camera turns, keeping the weapon model stable on screen.
+      </div>
+    </div>
+
+    <!-- Panel 4: Moving Mobs and Per-Object Motion Vectors -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Future roadmap</div>
+        <div class="panel-title">Moving mobs and per-entity motion vectors</div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>Current limitation</span>
+          <span class="accent-red">Static terrain assumption</span>
+        </div>
+        <div class="box-text">
+          Depth reprojection assumes all pixels belong to stationary terrain. When zombies, animals, or other players walk or swing limbs, their movement does not match world matrices, creating ghost trails.
+        </div>
+      </div>
+
+      <div class="content-box">
+        <div class="box-title">
+          <span>Planned solution</span>
+          <span class="accent-green">Multiple Render Targets (MRT)</span>
+        </div>
+        <div class="box-text">
+          Bind the motion buffer as Color Attachment 1 during entity forward passes (<code>entityCutout</code>, <code>entitySolid</code>), writing per-vertex clip delta (<code>Pos_prev_clip - Pos_curr_clip</code>) to eliminate mob ghosting completely.
+        </div>
+      </div>
+
+      <div class="code-snippet">
+        Planned: layout(location = 1) out vec4 outMotion; // Exact entity vertex velocity
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <div>
+      <strong>Temporal continuity:</strong> Reflexium automatically flags <code>reset = 1</code> to clear temporal history during cuts (teleports &gt; 8 blocks, turns &gt; 15 degrees, or frametime jumps &gt; 250 ms).
+    </div>
+    <div>
+      Shader implementation: <code>dlss_motion.fsh</code> | Math: <code>DlssMath.java</code>
+    </div>
+  </div>
+
+</body>
+</html>

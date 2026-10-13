@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>How Reflex lowers latency</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1920px;
+    height: 1080px;
+    background: #0B0F17;
+    color: #E2E8F0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 36px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 18px;
+  }
+  .title-group h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .title-group p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+  .badge-tag {
+    background: rgba(118, 185, 0, 0.15);
+    border: 1px solid #76B900;
+    color: #76B900;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* 4 Columns layout */
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1.15fr 0.9fr 1.05fr 0.9fr;
+    gap: 16px;
+    margin: 12px 0;
+    flex: 1;
+  }
+  .panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+  }
+  .panel-header {
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 10px;
+  }
+  .panel-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #76B900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .panel-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+
+  /* Comparison cards inside Panel 1 */
+  .compare-box {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .compare-box.bad {
+    border-left: 3px solid #EF4444;
+  }
+  .compare-box.good {
+    border-left: 3px solid #76B900;
+  }
+  .compare-title {
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .compare-title.red { color: #F87171; }
+  .compare-title.green { color: #76B900; }
+  .compare-text {
+    font-size: 12.5px;
+    color: #94A3B8;
+    line-height: 1.4;
+  }
+
+  /* Mode cards inside Panel 2 */
+  .mode-item {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .mode-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .mode-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+  .mode-chip {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .chip-off { background: #1E293B; color: #94A3B8; }
+  .chip-on { background: rgba(118, 185, 0, 0.2); color: #76B900; border: 1px solid #76B900; }
+  .chip-boost { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid #F59E0B; }
+  .mode-desc {
+    font-size: 12px;
+    color: #94A3B8;
+    line-height: 1.35;
+  }
+
+  /* Table in Panel 3 */
+  .cap-formula-box {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  .formula-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #38BDF8;
+  }
+  .formula-sub {
+    font-size: 11px;
+    color: #64748B;
+    margin-top: 4px;
+  }
+  .vrr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .vrr-table th {
+    text-align: left;
+    color: #64748B;
+    padding: 4px 6px;
+    border-bottom: 1px solid #1E293B;
+    font-weight: 600;
+  }
+  .vrr-table td {
+    padding: 5px 6px;
+    border-bottom: 1px solid #0F172A;
+    color: #CBD5E1;
+  }
+  .vrr-table tr:last-child td { border-bottom: none; }
+  .td-bold { font-weight: 700; color: #76B900; }
+
+  /* F3 Readout in Panel 4 */
+  .f3-mockup {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: #E2E8F0;
+  }
+  .f3-line-title { color: #94A3B8; margin-bottom: 4px; font-weight: 700; }
+  .f3-accent { color: #76B900; font-weight: 700; }
+  .f3-cyan { color: #38BDF8; }
+  .f3-yellow { color: #FBBF24; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .stat-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+  }
+  .stat-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin: 2px 0;
+  }
+  .stat-desc {
+    font-size: 11px;
+    color: #94A3B8;
+    line-height: 1.25;
+  }
+
+  /* Bottom bar */
+  .footer-note {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #94A3B8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-note strong { color: #F8FAFC; }
+  .footer-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #38BDF8;
+    background: #0B0F17;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <h1>How Reflex lowers latency</h1>
+      <p>Synchronizing the CPU game loop with the GPU, preventing queue backlog, and enforcing refresh-rate limits</p>
+    </div>
+    <div class="badge-tag">VK_NV_low_latency2</div>
+  </div>
+
+  <!-- Grid layout -->
+  <div class="grid-container">
+
+    <!-- Panel 1: Why Reflex lowers latency -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Pacing mechanics</div>
+        <div class="panel-title">Why Reflex lowers latency</div>
+      </div>
+
+      <div class="compare-box bad">
+        <div class="compare-title red">
+          <span>Standard un-paced pipeline (Off)</span>
+        </div>
+        <div class="compare-text">
+          The CPU runs ahead of the GPU as fast as possible, queueing multiple frames into the driver render buffer. User clicks wait in this queue before reaching the screen, creating noticeable input lag.
+        </div>
+      </div>
+
+      <div class="compare-box good">
+        <div class="compare-title green">
+          <span>Reflex just-in-time pacing (On)</span>
+        </div>
+        <div class="compare-text">
+          The driver sleeps the CPU via <code>vkLatencySleepNV</code> so the frame starts at the latest possible moment before the GPU is ready. Input is polled immediately after waking, removing queue backlog.
+        </div>
+      </div>
+
+      <div class="compare-box">
+        <div class="compare-title" style="color: #38BDF8;">
+          <span>Timeline semaphore sync</span>
+        </div>
+        <div class="compare-text">
+          Reflex uses an asynchronous timeline semaphore wait (<code>vkWaitSemaphores</code>) at the start of each frame so execution wakes precisely when the GPU needs work.
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Modes & Clock boost -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">User settings</div>
+        <div class="panel-title">Operating modes</div>
+      </div>
+
+      <div class="mode-item">
+        <div class="mode-item-header">
+          <span class="mode-name">Reflex Off</span>
+          <span class="mode-chip chip-off">OFF</span>
+        </div>
+        <div class="mode-desc">
+          Disables latency pacing. The CPU runs unconstrained and can queue frames. Latency markers remain active so timing stats still report to F3 for comparison.
+        </div>
+      </div>
+
+      <div class="mode-item">
+        <div class="mode-item-header">
+          <span class="mode-name">Reflex On</span>
+          <span class="mode-chip chip-on">ON</span>
+        </div>
+        <div class="mode-desc">
+          Enables dynamic frame pacing. The driver sleeps the CPU before input polling to align CPU frame generation directly with GPU execution.
+        </div>
+      </div>
+
+      <div class="mode-item">
+        <div class="mode-item-header">
+          <span class="mode-name">Reflex On + Boost</span>
+          <span class="mode-chip chip-boost">ON + BOOST</span>
+        </div>
+        <div class="mode-desc">
+          Enables pacing and commands the GPU power manager to keep core clocks pinned at maximum frequency even during CPU-heavy scenes, preventing downclock lag spikes.
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Frame limiting & VRR auto-cap -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Frame pacing</div>
+        <div class="panel-title">Frame cap and VRR auto-cap</div>
+      </div>
+
+      <div class="compare-text" style="font-size: 12px; color: #CBD5E1;">
+        Reflex replaces Minecraft's post-present sleep with driver-level pacing using <code>minimumIntervalUs</code>, preventing double-sleep stalls.
+      </div>
+
+      <div class="cap-formula-box">
+        <div class="formula-text">Cap = floor(hz - hz * hz / 3600)</div>
+        <div class="formula-sub">Automatic cap applied only when VSync is enabled</div>
+      </div>
+
+      <table class="vrr-table">
+        <thead>
+          <tr>
+            <th>Display Hz</th>
+            <th>Effective Cap</th>
+            <th>Safety Headroom</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>60 Hz</td>
+            <td class="td-bold">59 FPS</td>
+            <td>1.0 FPS</td>
+          </tr>
+          <tr>
+            <td>120 Hz</td>
+            <td class="td-bold">116 FPS</td>
+            <td>4.0 FPS</td>
+          </tr>
+          <tr>
+            <td>144 Hz</td>
+            <td class="td-bold">138 FPS</td>
+            <td>5.8 FPS</td>
+          </tr>
+          <tr>
+            <td>165 Hz</td>
+            <td class="td-bold">157 FPS</td>
+            <td>7.6 FPS</td>
+          </tr>
+          <tr>
+            <td>240 Hz</td>
+            <td class="td-bold">224 FPS</td>
+            <td>16.0 FPS</td>
+          </tr>
+          <tr>
+            <td>360 Hz</td>
+            <td class="td-bold">324 FPS</td>
+            <td>36.0 FPS</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="compare-text" style="font-size: 11.5px; color: #94A3B8;">
+        Why non-linear headroom exists: frame time variance represents a larger percentage of total budget at high refresh rates, requiring a wider buffer below the VSync ceiling.
+      </div>
+    </div>
+
+    <!-- Panel 4: Telemetry in F3 -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-tag">Driver telemetry</div>
+        <div class="panel-title">Latency numbers in F3</div>
+      </div>
+
+      <div class="f3-mockup">
+        <div class="f3-line-title">// In-game F3 screen lines</div>
+        <div>Reflex: <span class="f3-accent">On</span>, cap <span class="f3-cyan">138 FPS</span> (VSync)</div>
+        <div>Reflex latency: <span class="f3-accent">11.2 ms</span>, sim <span class="f3-yellow">1.4</span>, submit <span class="f3-yellow">0.8</span>, GPU <span class="f3-yellow">8.9</span></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-name">Total PC Latency</div>
+          <div class="stat-val" style="color: #76B900;">11.2 ms</div>
+          <div class="stat-desc">From input sample to swapchain presentation end.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-name">Sim Time</div>
+          <div class="stat-val" style="color: #FBBF24;">1.4 ms</div>
+          <div class="stat-desc">Client tick, physics, and entity logic processing.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-name">Submit Time</div>
+          <div class="stat-val" style="color: #38BDF8;">0.8 ms</div>
+          <div class="stat-desc">CPU command recording and queue submission.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-name">GPU Time</div>
+          <div class="stat-val" style="color: #F87171;">8.9 ms</div>
+          <div class="stat-desc">Actual hardware execution time on the graphics card.</div>
+        </div>
+      </div>
+
+      <div class="compare-text" style="font-size: 11.5px; color: #94A3B8;">
+        Queried directly from the driver via <code>vkGetLatencyTimingsNV</code>. Operates on all hardware and remains active when Reflex is Off for reliable before/after comparisons.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-note">
+    <div>
+      <strong>Reflex controller integration:</strong> Managed by <code>ReflexController.java</code>, hooking into <code>MinecraftMixin</code> to sleep before SDL event polling and skip vanilla's display FPS limiter.
+    </div>
+    <div>
+      Status line: <code>ReflexController.statusLine()</code> | Latency report: <code>ReflexController.latencyLine()</code>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Upscaling pipeline and render-resolution swapping</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1920px;
+    height: 1080px;
+    background: #0B0F17;
+    color: #E2E8F0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 36px 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 16px;
+  }
+  .title-group h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .title-group p {
+    font-size: 16px;
+    color: #94A3B8;
+  }
+  .engine-badges {
+    display: flex;
+    gap: 10px;
+  }
+  .engine-badge {
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .badge-dlss {
+    background: rgba(0, 229, 163, 0.15);
+    border: 1px solid #00E5A3;
+    color: #00E5A3;
+  }
+  .badge-fsr {
+    background: rgba(255, 70, 85, 0.15);
+    border: 1px solid #FF4655;
+    color: #FF4655;
+  }
+
+  /* Swap trick row */
+  .swap-trick-panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .swap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .swap-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #00E5A3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .swap-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+  .swap-steps {
+    display: grid;
+    grid-template-columns: 1fr 40px 1.4fr 40px 1.2fr 40px 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  .swap-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .swap-card.highlight-low {
+    border-left: 3px solid #00E5A3;
+  }
+  .swap-card.highlight-upscale {
+    border-left: 3px solid #38BDF8;
+    background: #0D192B;
+  }
+  .swap-card.highlight-full {
+    border-left: 3px solid #76B900;
+  }
+  .swap-step-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #F1F5F9;
+  }
+  .swap-step-res {
+    font-size: 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #38BDF8;
+  }
+  .swap-step-desc {
+    font-size: 12px;
+    color: #94A3B8;
+    line-height: 1.35;
+    margin-top: 2px;
+  }
+  .arrow-sep {
+    text-align: center;
+    color: #475569;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  /* Inputs Row */
+  .inputs-panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 16px 22px;
+  }
+  .inputs-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .input-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .input-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+  }
+  .input-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+  .input-format {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: #38BDF8;
+  }
+  .input-why {
+    font-size: 12px;
+    color: #94A3B8;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  /* Bottom comparison grid */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    gap: 16px;
+  }
+  .bottom-panel {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bottom-panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #F8FAFC;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 6px;
+  }
+
+  /* Preset table */
+  .preset-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .preset-table th {
+    text-align: left;
+    color: #64748B;
+    padding: 4px 6px;
+    border-bottom: 1px solid #1E293B;
+    font-weight: 600;
+  }
+  .preset-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #0F172A;
+    color: #CBD5E1;
+  }
+  .preset-table tr:last-child td { border-bottom: none; }
+  .p-name { font-weight: 700; color: #F1F5F9; }
+  .p-scale { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #00E5A3; }
+
+  /* Model cards */
+  .model-card {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .model-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F8FAFC;
+    margin-bottom: 2px;
+  }
+  .model-desc {
+    font-size: 11.5px;
+    color: #94A3B8;
+    line-height: 1.35;
+  }
+
+  /* Engine cards */
+  .engine-item {
+    background: #0B0F17;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .engine-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #F8FAFC;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .engine-item-desc {
+    font-size: 11.5px;
+    color: #94A3B8;
+    line-height: 1.35;
+  }
+
+  /* Footer */
+  .footer-note {
+    background: #131A29;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: #94A3B8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-note strong { color: #F8FAFC; }
+  .footer-note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #38BDF8;
+    background: #0B0F17;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <h1>Upscaling pipeline and render-resolution swapping</h1>
+      <p>How Reflexium renders the 3D world at lower resolutions and reconstructs native-quality output before drawing the GUI</p>
+    </div>
+    <div class="engine-badges">
+      <div class="engine-badge badge-dlss">NVIDIA DLSS Super Resolution</div>
+      <div class="engine-badge badge-fsr">AMD FidelityFX FSR 3.1</div>
+    </div>
+  </div>
+
+  <!-- 1. The Target Swap Trick -->
+  <div class="swap-trick-panel">
+    <div class="swap-header">
+      <div class="swap-title">The render-resolution target swap trick</div>
+      <div class="swap-tag">Pipeline hook in GameRendererMixin</div>
+    </div>
+
+    <div class="swap-steps">
+      <div class="swap-card highlight-low">
+        <div class="swap-step-name">1. Swap before world</div>
+        <div class="swap-step-res">Low render resolution</div>
+        <div class="swap-step-desc">
+          <code>beforeLevel</code> swaps the texture handles of <code>mainRenderTarget</code> to <code>renderTarget</code>.
+        </div>
+      </div>
+
+      <div class="arrow-sep">&rarr;</div>
+
+      <div class="swap-card highlight-low">
+        <div class="swap-step-name">2. World, hand, post effects</div>
+        <div class="swap-step-res">33% to 67% pixel count</div>
+        <div class="swap-step-desc">
+          Terrain, mobs, lighting, hand, and post-processing all render at reduced resolution, cutting fillrate costs.
+        </div>
+      </div>
+
+      <div class="arrow-sep">&rarr;</div>
+
+      <div class="swap-card highlight-upscale">
+        <div class="swap-step-name">3. Upscale evaluation</div>
+        <div class="swap-step-res">Reconstruct to 100% display size</div>
+        <div class="swap-step-desc">
+          DLSS or FSR evaluates color, depth, and motion vectors, writing upscaled output into display textures.
+        </div>
+      </div>
+
+      <div class="arrow-sep">&rarr;</div>
+
+      <div class="swap-card highlight-full">
+        <div class="swap-step-name">4. Restore & draw GUI</div>
+        <div class="swap-step-res">Native display resolution</div>
+        <div class="swap-step-desc">
+          Main target textures restored; HUD, crosshair, chat, and menus render at full native crispness.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. The 4 Essential Inputs -->
+  <div class="inputs-panel">
+    <div class="inputs-title-row">
+      <div style="font-size: 17px; font-weight: 700; color: #F8FAFC;">The four essential upscaler inputs</div>
+      <div style="font-size: 12px; color: #64748B;">Passed to NVSDK_NGX_VK_DLSS_Eval_Params and ffxDispatchDescUpscale</div>
+    </div>
+
+    <div class="inputs-grid">
+      <div class="input-card">
+        <div class="input-label">Input 01</div>
+        <div class="input-name">Low-res color</div>
+        <div class="input-format">VK_FORMAT_R8G8B8A8_UNORM</div>
+        <div class="input-why">
+          Supplies shaded scene color before HUD elements are drawn so the upscaler has raw scene lighting and textures.
+        </div>
+      </div>
+
+      <div class="input-card">
+        <div class="input-label">Input 02</div>
+        <div class="input-name">Hardware depth</div>
+        <div class="input-format">VK_FORMAT_D32_SFLOAT (Reverse-Z)</div>
+        <div class="input-why">
+          Supplies surface distance so the upscaler detects geometry silhouettes, occlusions, and newly revealed pixels.
+        </div>
+      </div>
+
+      <div class="input-card">
+        <div class="input-label">Input 03</div>
+        <div class="input-name">Motion vectors</div>
+        <div class="input-format">VK_FORMAT_R16G16_SFLOAT (Render pixels)</div>
+        <div class="input-why">
+          Supplies 2D screen-space pixel velocity pointing from current to previous frame to align history across time.
+        </div>
+      </div>
+
+      <div class="input-card">
+        <div class="input-label">Input 04</div>
+        <div class="input-name">Camera jitter</div>
+        <div class="input-format">Sub-pixel NDC / pixel offset</div>
+        <div class="input-why">
+          Informs the upscaler how the projection matrix shifted this frame, allowing it to reconstruct sub-pixel detail.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Comparison Grid -->
+  <div class="bottom-grid">
+
+    <!-- Engine selection -->
+    <div class="bottom-panel">
+      <div class="bottom-panel-title">Upscaler engine selection</div>
+
+      <div class="engine-item">
+        <div class="engine-item-title">
+          <span style="color: #38BDF8;">Auto mode (default)</span>
+          <span style="color: #64748B; font-size: 11px;">Recommended</span>
+        </div>
+        <div class="engine-item-desc">
+          Detects hardware and picks DLSS on NVIDIA RTX graphics cards. Falls back to FSR 3.1 on AMD, Intel, and non-RTX cards.
+        </div>
+      </div>
+
+      <div class="engine-item">
+        <div class="engine-item-title">
+          <span style="color: #00E5A3;">NVIDIA DLSS</span>
+          <span style="color: #64748B; font-size: 11px;">RTX GPUs</span>
+        </div>
+        <div class="engine-item-desc">
+          Tensor Core accelerated neural reconstruction via <code>reflexium_ngx.dll</code> and auto-downloaded <code>nvngx_dlss.dll</code>.
+        </div>
+      </div>
+
+      <div class="engine-item">
+        <div class="engine-item-title">
+          <span style="color: #FF4655;">AMD FidelityFX FSR 3.1</span>
+          <span style="color: #64748B; font-size: 11px;">Universal Vulkan</span>
+        </div>
+        <div class="engine-item-desc">
+          Vendor-agnostic temporal upscaler with RCAS sharpening via <code>reflexium_fsr.dll</code> and <code>amd_fidelityfx_vk.dll</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="bottom-panel">
+      <div class="bottom-panel-title">Quality presets and scale ratios</div>
+
+      <table class="preset-table">
+        <thead>
+          <tr>
+            <th>Preset</th>
+            <th>Scale Ratio</th>
+            <th>Render Scale</th>
+            <th>Pixel Footprint</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-name">Native AA / DLAA</td>
+            <td class="p-scale">1.0x</td>
+            <td>100.0%</td>
+            <td>100% (No scaling, pure AI AA)</td>
+          </tr>
+          <tr>
+            <td class="p-name">Quality</td>
+            <td class="p-scale">1.5x</td>
+            <td>66.7%</td>
+            <td>44.4% of display pixels</td>
+          </tr>
+          <tr>
+            <td class="p-name">Balanced</td>
+            <td class="p-scale">1.7x</td>
+            <td>58.8%</td>
+            <td>34.6% of display pixels</td>
+          </tr>
+          <tr>
+            <td class="p-name">Performance</td>
+            <td class="p-scale">2.0x</td>
+            <td>50.0%</td>
+            <td>25.0% of display pixels</td>
+          </tr>
+          <tr>
+            <td class="p-name">Ultra Performance</td>
+            <td class="p-scale">3.0x</td>
+            <td>33.3%</td>
+            <td>11.1% of display pixels</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DLSS Models -->
+    <div class="bottom-panel">
+      <div class="bottom-panel-title">DLSS models: CNN vs Transformer</div>
+
+      <div class="model-card">
+        <div class="model-name" style="color: #94A3B8;">Auto model selection</div>
+        <div class="model-desc">
+          Reflexium automatically assigns the vendor-recommended neural model for the active quality preset.
+        </div>
+      </div>
+
+      <div class="model-card">
+        <div class="model-name" style="color: #FBBF24;">CNN models (Presets A through G)</div>
+        <div class="model-desc">
+          Classic convolutional autoencoders. Low VRAM consumption (~60 MB at 1080p); fast on older Turing cards, but prone to thin-line ghosting.
+        </div>
+      </div>
+
+      <div class="model-card">
+        <div class="model-name" style="color: #00E5A3;">Transformer models (Presets J through M)</div>
+        <div class="model-desc">
+          DLSS 3.10+ Vision Transformers using self-attention. Vastly improved stability and ghosting reduction, at higher VRAM and compute cost.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <div>
+      <strong>Resolution swap rule:</strong> Main target always holds display textures outside the world pass, ensuring screenshots, window resizing, and the final swapchain blit work without modifications.
+    </div>
+    <div>
+      Configuration: <code>UpscaleQuality.java</code> and <code>UpscalingRenderer.java</code>
+    </div>
+  </div>
+
+</body>
+</html>
