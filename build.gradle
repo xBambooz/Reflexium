@@ -9,12 +9,20 @@ base {
 	archivesName = project.archives_base_name
 }
 
+// Dev debug harness (docs/DEBUGGING.md): -PrxDebug[=port] or env RX_DEBUG_PORT enables the loopback HTTP
+// command server in runClient. Never set in normal play or in release jars.
+def rxDebugRaw = providers.gradleProperty("rxDebug").orElse(providers.environmentVariable("RX_DEBUG_PORT")).orNull
+def rxDebugPort = rxDebugRaw == null ? null : (rxDebugRaw ==~ /\d+/ ? rxDebugRaw : "25599")
+
 loom {
 	splitEnvironmentSourceSets()
 
 	runs {
 		client {
 			vmArg "-Dreflexium.logLatency=true"
+			if (rxDebugPort != null) {
+				vmArg "-Dreflexium.debugPort=${rxDebugPort}"
+			}
 		}
 	}
 

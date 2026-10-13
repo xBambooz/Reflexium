@@ -3,6 +3,7 @@ package com.bambooz.reflexium;
 import com.bambooz.reflexium.compat.ApertureCompat;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.debug.DebugServer;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ public final class ReflexiumClient implements ClientModInitializer {
 				config.dlssDetection() ? "on" : "off",
 				VitrailCompat.version(),
 				ApertureCompat.status());
+		DebugServer.startIfRequested();
 	}
 
 	/** NVIDIA Reflex and NGX are only shipped for Windows drivers in this mod. */

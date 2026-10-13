@@ -3,6 +3,7 @@ package com.bambooz.reflexium.dlss;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
 import com.bambooz.reflexium.mixin.RenderTargetAccessor;
 import com.bambooz.reflexium.mixin.VulkanCommandEncoderAccessor;
@@ -81,6 +82,8 @@ public final class UpscalingRenderer {
 	private TextureTarget motionTarget;
 	private OutputImage output;
 	private MotionVectorPass motionPass;
+	private MotionDebugPass motionDebugPass;
+	private volatile String lastError = "";
 
 	// Per-frame state.
 	private boolean activeThisFrame;
@@ -203,6 +206,7 @@ public final class UpscalingRenderer {
 
 	/** GameRenderer.render HEAD: decide whether this frame upscales and (re)build for the current size and mode. */
 	public void beginFrame(GameRenderer gameRenderer) {
+		DebugSettings.onFrame();
 		activeThisFrame = false;
 		worldDepthCaptured = false;
 		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
@@ -352,6 +356,9 @@ public final class UpscalingRenderer {
 			swapped = false;
 			updateGlobals(displayWidth, displayHeight);
 		}
+		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
+			drawMotionVectorView(main);
+		}
 		previousUnjittered.set(currentUnjittered);
 		previousCamera = currentCamera;
 		previousOrientation.set(currentOrientation);
@@ -390,6 +397,18 @@ public final class UpscalingRenderer {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
 		}
 		return String.format(Locale.ROOT, "%s: %s %dx%d -> %dx%d", name, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight);
+	}
+
+	/** Debug harness snapshot (see DebugServer). Values describe the most recent frame. */
+	public record DebugInfo(boolean active, String builtUpscaler, int jitterIndex, float jitterX, float jitterY,
+			float jitterSignX, float jitterSignY, int renderWidth, int renderHeight, int displayWidth, int displayHeight,
+			String lastError) {
+	}
+
+	public DebugInfo debugInfo() {
+		return new DebugInfo(activeThisFrame, builtUpscaler.serializedName(), jitterIndex, jitterX, jitterY,
+				DebugSettings.jitterSignX(JITTER_SIGN), DebugSettings.jitterSignY(JITTER_SIGN),
+				renderWidth, renderHeight, displayWidth, displayHeight, lastError);
 	}
 
 	public boolean isReady() {
@@ -472,9 +491,25 @@ public final class UpscalingRenderer {
 		builtMode = null;
 	}
 
+	/** Debug only: overlay the motion vector texture on the upscaled world (main holds the display textures). */
+	private void drawMotionVectorView(RenderTarget main) {
+		try {
+			if (motionDebugPass == null) {
+				motionDebugPass = new MotionDebugPass();
+			}
+			motionDebugPass.render(motionTarget, main);
+		} catch (RuntimeException e) {
+			DebugSettings.setMotionVectorView(false);
+			lastError = "motion vector view failed: " + e;
+			ReflexiumClient.LOGGER.error("Motion vector debug view failed, disabling it", e);
+		}
+	}
+
 	private void evaluate(RenderTarget main) {
 		VkCommandBuffer commandBuffer = commandBuffer();
 		barrier(commandBuffer);
+		float signedJitterX = DebugSettings.jitterSignX(JITTER_SIGN) * jitterX;
+		float signedJitterY = DebugSettings.jitterSignY(JITTER_SIGN) * jitterY;
 		long now = System.nanoTime();
 		float frameTimeMs = lastEvaluateNs == 0 ? 16.6f : (now - lastEvaluateNs) / 1_000_000f;
 		lastEvaluateNs = now;
@@ -482,13 +517,13 @@ public final class UpscalingRenderer {
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), output.asNgx(),
-				JITTER_SIGN * jitterX, JITTER_SIGN * jitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
+				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
 				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()),
 				output.asNgx(),
-				JITTER_SIGN * jitterX, JITTER_SIGN * jitterY, 1.0f, 1.0f, resetNext, frameTimeMs);
+				signedJitterX, signedJitterY, 1.0f, 1.0f, resetNext, frameTimeMs);
 		if (result != 0) {
 			drainLog();
 			throw new IllegalStateException(builtUpscaler + " evaluate returned 0x" + Integer.toHexString(result));
@@ -563,6 +598,11 @@ public final class UpscalingRenderer {
 		float ratio = (float) displayWidth / renderWidth;
 		int phases = Math.max(8, Math.min(64, (int) Math.ceil(8.0f * ratio * ratio)));
 		jitterIndex = jitterIndex % phases + 1;
+		if (!DebugSettings.jitterEnabled()) {
+			jitterX = 0.0f;
+			jitterY = 0.0f;
+			return;
+		}
 		jitterX = DlssMath.halton(jitterIndex, 2) - 0.5f;
 		jitterY = DlssMath.halton(jitterIndex, 3) - 0.5f;
 	}
@@ -582,6 +622,7 @@ public final class UpscalingRenderer {
 	private void fail(String what, RuntimeException e) {
 		failed = true;
 		activeThisFrame = false;
+		lastError = what + ": " + e;
 		ReflexiumClient.LOGGER.error("DLSS {}, falling back to native resolution", what, e);
 		drainLog();
 	}
@@ -630,6 +671,7 @@ public final class UpscalingRenderer {
 			motionPass.close();
 			motionPass = null;
 		}
+		motionDebugPass = null;
 		renderSizeApplied = false;
 		builtMode = null;
 	}

@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.debug.DebugServer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.Minecraft;
@@ -24,6 +25,12 @@ public abstract class MinecraftMixin {
 			target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents(Lcom/mojang/blaze3d/platform/SDLEventHandler;)V"))
 	private void reflexium$inputSampled(CallbackInfo ci) {
 		ReflexController.get().afterInputPoll();
+	}
+
+	/** Dev debug harness scripted motion; a no-op unless -Dreflexium.debugPort is set. */
+	@Inject(method = "tick", at = @At("TAIL"))
+	private void reflexium$debugTick(CallbackInfo ci) {
+		DebugServer.onClientTick();
 	}
 
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;renderFrame(Z)V"))
