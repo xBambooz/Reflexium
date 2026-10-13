@@ -45,6 +45,7 @@ public final class ReflexController {
 	private static final ReflexController INSTANCE = new ReflexController();
 	private static final long SLEEP_TIMEOUT_NS = 100_000_000L;
 	private static final long TIMING_REFRESH_NS = 250_000_000L;
+	private static final long REFRESH_RATE_INTERVAL_NS = 1_000_000_000L;
 	/** Minecraft treats 260 as "unlimited" for Max Framerate. */
 	private static final int UNLIMITED_FPS = 260;
 	private static final int NO_CAP = Integer.MAX_VALUE;
@@ -71,6 +72,8 @@ public final class ReflexController {
 	private boolean sleepFailed;
 
 	private long lastTimingRefresh;
+	private long lastRefreshRead;
+	private float refreshRateHz;
 	private LatencyReport latency = LatencyReport.unavailable("no data yet");
 
 	public static ReflexController get() {
@@ -211,13 +214,24 @@ public final class ReflexController {
 	}
 
 	/** NVIDIA's automatic variable refresh cap, just below the refresh rate. Unknown refresh rate means no cap. */
-	private static int vrrCap(Window window) {
-		VideoMode video = window.getActiveVideoMode();
-		if (video == null || video.getRefreshRate() <= 0) {
-			return NO_CAP;
+	private int vrrCap(Window window) {
+		float hz = refreshRate(window);
+		return hz <= 0 ? NO_CAP : Math.max(1, (int) Math.floor(hz - hz * hz / 3600f));
+	}
+
+	/**
+	 * Refresh rate of the monitor the window is on, from vanilla's active video mode: the display's current
+	 * mode in windowed and borderless modes, the exclusive mode when one is set. Read at most once per second,
+	 * so a window move, resize or monitor switch takes effect within a second without a per-frame SDL query.
+	 */
+	private float refreshRate(Window window) {
+		long now = System.nanoTime();
+		if (now - lastRefreshRead > REFRESH_RATE_INTERVAL_NS) {
+			lastRefreshRead = now;
+			VideoMode video = window.getActiveVideoMode();
+			refreshRateHz = video == null ? 0 : video.getRefreshRate();
 		}
-		float hz = video.getRefreshRate();
-		return Math.max(1, (int) Math.floor(hz - hz * hz / 3600f));
+		return refreshRateHz;
 	}
 
 	/** True when vanilla's post-present sleep should be skipped because the Reflex sleep paces frames. */
