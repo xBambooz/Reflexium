@@ -24,6 +24,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import com.bambooz.reflexium.debug.FrameProfiler;
+import org.lwjgl.vulkan.VkCommandBuffer;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -61,7 +63,10 @@ public final class SharpBlockOutlineRenderer {
 			return;
 		}
 
+		VkCommandBuffer commands = UpscalingRenderer.get().commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.OUTLINE_DEPTH, commands);
 		upscaleDepth(displayTarget, motionTarget);
+		FrameProfiler.end(FrameProfiler.OUTLINE_DEPTH, timing, commands);
 
 		BlockOutlineRenderState outline = this.capturedOutline;
 		CameraRenderState camera = this.capturedCamera;
@@ -81,11 +86,13 @@ public final class SharpBlockOutlineRenderer {
 		int outlineColor = outline.highContrast() ? -11010079 : ARGB.black(102);
 		float lineWidth = Minecraft.getInstance().gameRenderer.gameRenderState().windowRenderState.appropriateLineWidth;
 
+		timing = FrameProfiler.start(FrameProfiler.OUTLINE, commands);
 		drawShape(displayTarget, unjitteredProjection, modelView, shape, outlineColor, lineWidth);
 
 		if (outline.highContrast()) {
 			drawShape(displayTarget, unjitteredProjection, modelView, shape, -16777216, 7.0f);
 		}
+		FrameProfiler.end(FrameProfiler.OUTLINE, timing, commands);
 	}
 
 	private static void upscaleDepth(RenderTarget displayTarget, RenderTarget motionTarget) {

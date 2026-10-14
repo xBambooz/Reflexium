@@ -77,6 +77,7 @@ public final class DebugServer {
 				if (params.containsKey("key")) return set(params);
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
+				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));
 				return status();
 			});
 			api.getMethod("register", String.class, String.class, handler)

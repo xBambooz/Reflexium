@@ -20,6 +20,7 @@
 		"SamplerCacheMixin",
 		"VideoSettingsScreenMixin",
 		"VulkanCommandEncoderAccessor",
+		"VulkanSubmitTimingMixin",
 		"VulkanBackendMixin",
 		"VulkanConstMixin",
 		"VulkanDeviceMixin",

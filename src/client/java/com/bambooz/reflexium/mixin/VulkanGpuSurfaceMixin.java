@@ -35,6 +35,12 @@ import java.nio.LongBuffer;
  */
 @Mixin(VulkanGpuSurface.class)
 public abstract class VulkanGpuSurfaceMixin {
+	@WrapMethod(method = "acquireNextTexture")
+	private void reflexium$timeAcquire(Operation<Void> original) {
+		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, null);
+		try { original.call(); }
+		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, timing, null); }
+	}
 	@Shadow private long swapchain;
 	@Shadow @Final private VulkanDevice device;
 	@Shadow private com.mojang.renderpearl.api.device.SurfaceException eatenException;
@@ -124,8 +130,12 @@ public abstract class VulkanGpuSurfaceMixin {
 		com.bambooz.reflexium.reflex.ReflexController reflex = com.bambooz.reflexium.reflex.ReflexController.get();
 		if (fg.inPresentBatch()) reflex.beforeBatchPresent(fg.isGeneratedPresent());
 		int result;
+		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.PRESENT, null);
 		try { result = original.call(queue, info); }
-		finally { if (fg.inPresentBatch()) reflex.afterBatchPresent(fg.isGeneratedPresent()); }
+		finally {
+			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.PRESENT, timing, null);
+			if (fg.inPresentBatch()) reflex.afterBatchPresent(fg.isGeneratedPresent());
+		}
 		fg.onPresentResult(info, result);
 		return result;
 	}

@@ -4,6 +4,7 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.debug.FrameProfiler;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
 import com.bambooz.reflexium.mixin.RenderTargetAccessor;
 import com.bambooz.reflexium.mixin.VulkanCommandEncoderAccessor;
@@ -145,6 +146,7 @@ public final class UpscalingRenderer {
 	public void onDeviceCreated(VulkanDevice device, VulkanSession session) {
 		this.device = device;
 		this.session = session;
+		FrameProfiler.init(session.device(), session.physicalDevice());
 		if (ReflexiumClient.isSupportedPlatform()) {
 			try {
 				fsr = new FsrBridge();
@@ -217,6 +219,8 @@ public final class UpscalingRenderer {
 	}
 
 	public void onDeviceClosing() {
+		if (session != null) VK10.vkDeviceWaitIdle(session.device());
+		FrameProfiler.close();
 		if (device != null) {
 			destroyResources();
 		}
@@ -240,6 +244,7 @@ public final class UpscalingRenderer {
 	/** GameRenderer.render HEAD: decide whether this frame upscales and (re)build for the current size and mode. */
 	public void beginFrame(GameRenderer gameRenderer) {
 		DebugSettings.onFrame();
+		FrameProfiler.beginFrame();
 		FrameGenerationRenderer.get().beginFrame();
 		if (awaitingRuntime && device != null) {
 			DlssRuntimeInstaller.Phase phase = DlssRuntimeInstaller.state().phase();
@@ -387,8 +392,11 @@ public final class UpscalingRenderer {
 	public void captureOpaqueColor() {
 		if (!supportsReactiveMask()) return;
 		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+		VkCommandBuffer commands = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.OPAQUE_COPY, commands);
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getColorTexture(), opaqueTarget.getColorTexture(),
 				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		FrameProfiler.end(FrameProfiler.OPAQUE_COPY, timing, commands);
 		opaqueCaptured = true;
 	}
 
@@ -401,11 +409,13 @@ public final class UpscalingRenderer {
 		if (opaqueCaptured && reactive != null && !reactiveMaskFailed) {
 			try {
 			VkCommandBuffer commands = commandBuffer();
+			long timing = FrameProfiler.start(FrameProfiler.REACTIVE, commands);
 			barrier(commands);
 			int result = fsr.generateReactive(commands.address(), ngxImage(opaqueTarget.getColorTexture(), opaqueTarget.getColorTextureView()),
 					ngxImage(main.getColorTexture(), main.getColorTextureView()), reactive.asNgx());
 			barrier(commands);
 			if (result != 0) throw new IllegalStateException("FSR reactive mask returned " + result);
+			FrameProfiler.end(FrameProfiler.REACTIVE, timing, commands);
 			reactiveGenerated = true;
 			} catch (RuntimeException e) {
 				reactiveMaskFailed = true;
@@ -413,8 +423,11 @@ public final class UpscalingRenderer {
 				ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
 			}
 		}
+		VkCommandBuffer commands = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.DEPTH, commands);
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), worldDepth.getDepthTexture(),
 				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		FrameProfiler.end(FrameProfiler.DEPTH, timing, commands);
 		worldDepthCaptured = true;
 	}
 
@@ -446,10 +459,15 @@ public final class UpscalingRenderer {
 		Matrix4f currentToPrevious = DlssMath.reprojection(previousUnjittered, currentJittered,
 				(float) delta.x, (float) delta.y, (float) delta.z);
 		try {
+			VkCommandBuffer commands = commandBuffer();
+			long timing = FrameProfiler.start(FrameProfiler.MOTION, commands);
 			motionPass.render(motionTarget, worldDepth.getDepthTextureView(), handDepth,
 					currentToPrevious, jitterNdcX(), jitterNdcY());
+			FrameProfiler.end(FrameProfiler.MOTION, timing, commands);
+			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
 			objectVelocityPass.render(ObjectMotion.get(), motionTarget, worldDepth.getDepthTextureView(), handDepth,
 					currentJittered, currentUnjittered, previousUnjittered, (float) delta.x, (float) delta.y, (float) delta.z, resetNext);
+			FrameProfiler.end(FrameProfiler.OBJECTS, timing, commands);
 		} catch (RuntimeException e) {
 			worldDepthCaptured = false;
 			fail("motion vector pass failed", e);
@@ -673,7 +691,9 @@ public final class UpscalingRenderer {
 
 	private void evaluate(RenderTarget main) {
 		VkCommandBuffer commandBuffer = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.BARRIER_BEFORE, commandBuffer);
 		barrier(commandBuffer);
+		FrameProfiler.end(FrameProfiler.BARRIER_BEFORE, timing, commandBuffer);
 		float signedJitterX = DebugSettings.jitterSignX(JITTER_SIGN) * jitterX;
 		float signedJitterY = DebugSettings.jitterSignY(JITTER_SIGN) * jitterY;
 		long now = System.nanoTime();
@@ -687,6 +707,7 @@ public final class UpscalingRenderer {
 			return;
 		}
 		NgxBridge.Image outputImage = ngxImage(renderTarget.getColorTexture(), renderTarget.getColorTextureView());
+		timing = FrameProfiler.start(FrameProfiler.EVALUATE, commandBuffer);
 		int result = builtUpscaler == Upscaler.FSR ? fsr.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
@@ -699,6 +720,7 @@ public final class UpscalingRenderer {
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()),
 				outputImage,
 				signedJitterX, signedJitterY, 1.0f, 1.0f, resetNext, frameTimeMs);
+		FrameProfiler.end(FrameProfiler.EVALUATE, timing, commandBuffer);
 		if (result != 0) {
 			drainLog();
 			throw new IllegalStateException(builtUpscaler + " evaluate returned 0x" + Integer.toHexString(result));
@@ -708,7 +730,9 @@ public final class UpscalingRenderer {
 			ReflexiumClient.LOGGER.info("{} evaluated first world frame: {}x{} -> {}x{} (camera and object motion vectors)",
 					builtUpscaler, renderWidth, renderHeight, displayWidth, displayHeight);
 		}
+		timing = FrameProfiler.start(FrameProfiler.BARRIER_AFTER, commandBuffer);
 		barrier(commandBuffer);
+		FrameProfiler.end(FrameProfiler.BARRIER_AFTER, timing, commandBuffer);
 	}
 
 	static NgxBridge.Image ngxImage(GpuTexture texture, GpuTextureView view) {

@@ -171,7 +171,9 @@ public final class ReflexController {
 		frameOpen = true;
 		applySleepMode();
 		if (isSleeping()) {
+			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
+			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, timing, null);
 		}
 		marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
 		if (LOG_LATENCY && System.nanoTime() - lastLatencyLog > LATENCY_LOG_INTERVAL_NS) {

@@ -95,6 +95,13 @@ tasks.register("objectMotionCheck", JavaExec) {
 tasks.named("test") { failOnNoDiscoveredTests = false }
 tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck" }
 
+tasks.register("frameProfilerCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.debug.FrameProfilerCheck"
+}
+tasks.named("check") { dependsOn "frameProfilerCheck" }
+
 // Reflexium-<mod_version>-fabric-<minecraft_version>.jar
 def releaseVersion = "${project.version}-fabric-${project.minecraft_version}"
 tasks.named("jar") { archiveVersion = releaseVersion }
