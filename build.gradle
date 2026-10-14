@@ -13,6 +13,8 @@ base {
 // command server in runClient. Never set in normal play or in release jars.
 def rxDebugRaw = providers.gradleProperty("rxDebug").orElse(providers.environmentVariable("RX_DEBUG_PORT")).orNull
 def rxDebugPort = rxDebugRaw == null ? null : (rxDebugRaw ==~ /\d+/ ? rxDebugRaw : "25599")
+// Jar comparisons keep the same dev runtime but load the selected historical mod.
+def rxBenchJar = providers.gradleProperty("rxBenchJar").orNull
 
 loom {
 	splitEnvironmentSourceSets()
@@ -20,6 +22,12 @@ loom {
 	runs {
 		client {
 			vmArg "-Dreflexium.logLatency=true"
+			if (rxBenchJar != null) {
+				vmArg "-Xms4G"
+				vmArg "-Xmx4G"
+				programArg "--graphicsBackend"
+				programArg "vulkan"
+			}
 			if (rxDebugPort != null) {
 				vmArg "-Dreflexium.debugPort=${rxDebugPort}"
 			}
@@ -27,7 +35,7 @@ loom {
 	}
 
 	mods {
-		"reflexium" {
+		if (rxBenchJar == null) "reflexium" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
@@ -49,6 +57,7 @@ dependencies {
 	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	clientCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
 	clientCompileOnly "maven.modrinth:betterf3:${project.betterf3_version}"
+	if (rxBenchJar != null) clientRuntimeOnly files(rxBenchJar)
 }
 
 processResources {
@@ -101,6 +110,43 @@ tasks.register("frameProfilerCheck", JavaExec) {
 	mainClass = "com.bambooz.reflexium.debug.FrameProfilerCheck"
 }
 tasks.named("check") { dependsOn "frameProfilerCheck" }
+
+// -PrxBenchJar: the run classpath otherwise still lists this tree's build/classes and build/resources
+// ahead of the selected jar, so an "old" jar would silently execute the working tree's client code.
+// Loom writes the classpath argfile from its own argument providers while the task starts, so the
+// filter is the last provider and edits the file after Loom has written it.
+if (rxBenchJar != null) {
+	gradle.projectsEvaluated {
+		tasks.named("runClient") {
+			def argFile = layout.buildDirectory.file("loom-cache/argFiles/runClient").get().asFile
+			def own = ["classes/java/main", "classes/java/client", "resources/main", "resources/client"]
+					.collect { layout.buildDirectory.dir(it).get().asFile.absolutePath }.toSet()
+			argumentProviders.add({
+				def lines = argFile.readLines()
+				def at = lines.indexOf("-classpath")
+				def all = lines[at + 1].split(";") as List
+				def kept = all.findAll { !(it in own) }
+				if (kept.size() == all.size()) throw new GradleException("rxBenchJar: project outputs missing from the run classpath")
+				lines[at + 1] = kept.join(";")
+				argFile.text = lines.join(System.lineSeparator()) + System.lineSeparator()
+				return []
+			} as CommandLineArgumentProvider)
+		}
+	}
+}
+
+// Independent capture control, so the same Benchmark Mod driver also works with old jars.
+tasks.register("bmDriverJar", Jar) {
+	dependsOn tasks.named("testClasses")
+	archiveFileName = "reflexium-bm-driver.jar"
+	from(sourceSets.test.output) { include "com/bambooz/reflexium/debug/BmDriver*.class" }
+	def metadata = layout.buildDirectory.file("bm-driver/fabric.mod.json")
+	doFirst {
+		metadata.get().asFile.parentFile.mkdirs()
+		metadata.get().asFile.text = '{"schemaVersion":1,"id":"reflexium_bm_driver","version":"1","environment":"client","entrypoints":{"client":["com.bambooz.reflexium.debug.BmDriver"]},"depends":{"benchmarkmod":"*","agentharness":"*"}}'
+	}
+	from(metadata)
+}
 
 // Reflexium-<mod_version>-fabric-<minecraft_version>.jar
 def releaseVersion = "${project.version}-fabric-${project.minecraft_version}"
