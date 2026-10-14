@@ -98,6 +98,8 @@ public final class VulkanLifecycle {
 		if (id == 0 || session == null || !session.lowLatency2()) {
 			return submits;
 		}
+		// Zero clears explicit attribution on this queue when comparing the implicit path.
+		if (!com.bambooz.reflexium.debug.DebugSettings.reflexSubmission) id = 0;
 		MemoryStack stack = MemoryStack.stackGet();
 		for (int i = submits.position(); i < submits.limit(); i++) {
 			VkSubmitInfo2 submit = submits.get(i);

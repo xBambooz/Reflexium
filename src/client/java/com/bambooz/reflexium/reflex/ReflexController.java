@@ -366,6 +366,45 @@ public final class ReflexController {
 		}
 	}
 
+	/** Debug harness: the driver's most recent complete per-frame reports, in microseconds relative to the oldest simulation start. */
+	public com.google.gson.JsonObject timingReports() {
+		com.google.gson.JsonObject result = new com.google.gson.JsonObject();
+		result.addProperty("ok", true);
+		com.google.gson.JsonArray frames = new com.google.gson.JsonArray();
+		result.add("frames", frames);
+		if (!isAvailable()) return result;
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
+			for (int i = 0; i < reports.capacity(); i++) reports.get(i).sType$Default();
+			VkGetLatencyMarkerInfoNV info = VkGetLatencyMarkerInfoNV.calloc(stack).sType$Default()
+					.timingCount(reports.capacity()).pTimings(reports);
+			vkGetLatencyTimingsNV(device, swapchain, info);
+			long origin = 0;
+			for (int i = 0; i < info.timingCount(); i++) {
+				VkLatencyTimingsFrameReportNV r = reports.get(i);
+				if (r.presentID() == 0 || r.presentEndTimeUs() == 0 || r.gpuRenderEndTimeUs() == 0) continue;
+				if (origin == 0) origin = r.simStartTimeUs();
+				com.google.gson.JsonObject f = new com.google.gson.JsonObject();
+				f.addProperty("id", r.presentID());
+				f.addProperty("input", r.inputSampleTimeUs() - origin);
+				f.addProperty("sim_start", r.simStartTimeUs() - origin);
+				f.addProperty("sim_end", r.simEndTimeUs() - origin);
+				f.addProperty("submit_start", r.renderSubmitStartTimeUs() - origin);
+				f.addProperty("submit_end", r.renderSubmitEndTimeUs() - origin);
+				f.addProperty("present_start", r.presentStartTimeUs() - origin);
+				f.addProperty("present_end", r.presentEndTimeUs() - origin);
+				f.addProperty("driver_start", r.driverStartTimeUs() - origin);
+				f.addProperty("driver_end", r.driverEndTimeUs() - origin);
+				f.addProperty("os_queue_start", r.osRenderQueueStartTimeUs() - origin);
+				f.addProperty("os_queue_end", r.osRenderQueueEndTimeUs() - origin);
+				f.addProperty("gpu_start", r.gpuRenderStartTimeUs() - origin);
+				f.addProperty("gpu_end", r.gpuRenderEndTimeUs() - origin);
+				frames.add(f);
+			}
+		}
+		return result;
+	}
+
 	private LatencyReport readLatency() {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
@@ -381,7 +420,7 @@ public final class ReflexController {
 			VkLatencyTimingsFrameReportNV latest = null;
 			for (int i = 0; i < info.timingCount(); i++) {
 				VkLatencyTimingsFrameReportNV report = reports.get(i);
-				if (report.presentID() > 0 && report.presentEndTimeUs() > 0
+				if (report.presentID() > 0 && report.presentEndTimeUs() > 0 && report.gpuRenderEndTimeUs() > 0
 						&& (latest == null || report.presentID() > latest.presentID())) {
 					latest = report;
 				}
@@ -389,15 +428,7 @@ public final class ReflexController {
 			if (latest == null) {
 				return LatencyReport.unavailable("waiting for driver data");
 			}
-			long start = latest.inputSampleTimeUs() > 0 ? latest.inputSampleTimeUs() : latest.simStartTimeUs();
-			if (start <= 0 || latest.presentEndTimeUs() <= start) {
-				return LatencyReport.unavailable("incomplete driver data");
-			}
-			return new LatencyReport(true, "",
-					(latest.presentEndTimeUs() - start) / 1000.0,
-					span(latest.simStartTimeUs(), latest.simEndTimeUs()),
-					span(latest.renderSubmitStartTimeUs(), latest.renderSubmitEndTimeUs()),
-					span(latest.gpuRenderStartTimeUs(), latest.gpuRenderEndTimeUs()));
+			return LatencyReport.from(latest);
 		} catch (RuntimeException e) {
 			return LatencyReport.unavailable("timing query failed");
 		}
@@ -427,6 +458,17 @@ public final class ReflexController {
 	}
 
 	record LatencyReport(boolean available, String reason, double totalMs, double simMs, double submitMs, double gpuMs) {
+		static LatencyReport from(VkLatencyTimingsFrameReportNV report) {
+			long start = report.inputSampleTimeUs() > 0 ? report.inputSampleTimeUs() : report.simStartTimeUs();
+			if (start <= 0 || report.gpuRenderEndTimeUs() <= start) return unavailable("incomplete driver data");
+			if (report.driverStartTimeUs() > 0 && report.driverEndTimeUs() > 0
+					&& report.driverStartTimeUs() > report.driverEndTimeUs()) return unavailable("inconsistent driver timestamps");
+			return new LatencyReport(true, "", (report.gpuRenderEndTimeUs() - start) / 1000.0,
+					span(report.simStartTimeUs(), report.simEndTimeUs()),
+					span(report.renderSubmitStartTimeUs(), report.renderSubmitEndTimeUs()),
+					span(report.gpuRenderStartTimeUs(), report.gpuRenderEndTimeUs()));
+		}
+
 		static LatencyReport unavailable(String reason) {
 			return new LatencyReport(false, reason, 0, -1, -1, -1);
 		}
@@ -435,7 +477,7 @@ public final class ReflexController {
 			if (!available) {
 				return "Reflex latency: " + reason;
 			}
-			StringBuilder line = new StringBuilder(String.format(java.util.Locale.ROOT, "Reflex latency: %.1f ms", totalMs));
+			StringBuilder line = new StringBuilder(String.format(java.util.Locale.ROOT, "Reflex render latency: %.1f ms", totalMs));
 			append(line, "sim", simMs);
 			append(line, "submit", submitMs);
 			append(line, "GPU", gpuMs);

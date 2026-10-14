@@ -78,6 +78,7 @@ public final class DebugServer {
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
 				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));
+				if (params.containsKey("reflex_timings")) return call(() -> com.bambooz.reflexium.reflex.ReflexController.get().timingReports());
 				return status();
 			});
 			api.getMethod("register", String.class, String.class, handler)
@@ -353,6 +354,8 @@ public final class DebugServer {
 		o.addProperty("transient_motion_uniforms", upscaling.usesTransientUniforms());
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
 		o.addProperty("reflex_mode", config.reflexMode().name());
+		o.addProperty("reflex_status", com.bambooz.reflexium.reflex.ReflexController.get().statusLine());
+		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
@@ -482,6 +485,10 @@ public final class DebugServer {
 				int preset = Integer.parseInt(value);
 				if (preset != -1 && preset != 5 && preset != 6 && preset != 10 && preset != 11) throw new BadRequest("Preset must be -1, 5, 6, 10 or 11");
 				yield () -> DebugSettings.dlssPreset = preset;
+			}
+			case "reflex_submission" -> {
+				boolean enabled = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.reflexSubmission = enabled;
 			}
 			case "reflex_mode" -> {
 				var mode = parseEnum(com.bambooz.reflexium.reflex.ReflexMode.class, value);

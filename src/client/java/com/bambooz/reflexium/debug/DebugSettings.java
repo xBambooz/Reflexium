@@ -14,6 +14,8 @@ public final class DebugSettings {
 	public static boolean fastUniforms = true;
 	public static boolean directDepth = true;
 	public static int dlssPreset = -1;
+	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
+	public static boolean reflexSubmission = true;
 	public static boolean objectMotion() { return objectMotion; }
 	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
 	public static boolean drawStaticObjects() { return drawStaticObjects; }
