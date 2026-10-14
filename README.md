@@ -7,7 +7,7 @@ NVIDIA Reflex, DLSS, AMD FSR 3.1 and frame generation for Minecraft Java's Vulka
 - **Reflex low latency** through `VK_NV_low_latency2`: the driver sleeps the game just before input is read, so each frame starts as late as the GPU allows. Modes: Off, On, On + Boost.
 - **Frame pacing**: while Reflex is on, Minecraft's Max Framerate (including the 60 FPS menu cap) is enforced by the Reflex sleep instead of vanilla's post-present sleep. With VSync on, Reflex also caps just below the refresh rate using NVIDIA's formula (138 FPS on 144 Hz, 224 FPS on 240 Hz).
 - **Latency readout** in F3: input-to-present time plus simulation, render submit and GPU time, straight from the driver. Works with Reflex off too, for A/B comparisons.
-- **DLSS and FSR 3.1 upscaling**: renders the world below display resolution, reconstructs camera motion from depth, and applies NVIDIA DLSS or AMD FSR 3.1 before drawing the full-resolution HUD. Presets include Native AA, Quality, Balanced, Performance, and Ultra Performance. See [setup, limitations and validation](docs/DLSS.md).
+- **DLSS and FSR 3.1 upscaling**: renders the world below display resolution, reconstructs camera motion from depth, and applies NVIDIA DLSS or AMD FSR 3.1 before drawing the full-resolution HUD. Presets include DLAA (Native AA for FSR), Quality, Balanced, Performance, and Ultra Performance. See [setup, limitations and validation](docs/DLSS.md).
 - **Frame generation (experimental)**: standard DLSS FG (2x), DLSS Multi Frame Generation (runtime-limited, up to 6x on the tested RTX 5070), and FSR FG (2x). Works independently of the upscaler. Minecraft's prepared GUI is drawn onto every output frame, preserving sharp HUD text and background-dependent crosshair blending. See [implementation and validation](docs/FRAME_GENERATION.md).
 
 ## Requirements
@@ -38,13 +38,12 @@ Settings appear in:
 | Key | Values | Default |
 | --- | --- | --- |
 | `reflex_mode` | `off`, `on`, `on_boost` | `on` |
-| `dlss_detection` | `true`, `false` (restart to apply) | `true` |
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | `auto` |
 | `upscale_quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | `quality` |
 | `dlss_model` | `auto`, `transformer`, `cnn` | `auto` |
 | `fsr_sharpness` | `0` to `100` | `20` |
 | `frame_generation` | `off`, `dlss`, `dlss_multi`, `fsr` | `off` |
-| `frame_generation_multiplier` | `3` to `8`, capped by runtime support; MFG only | `4` |
+| `frame_generation_multiplier` | `2` to `8`, capped by runtime support; MFG only | `4` |
 | `betterf3_module_placed` | `true`, `false` (set after Reflexium adds its BetterF3 module once) | `false` |
 
 Settings from the old `nvidia-reflex-mod.properties` are migrated automatically.

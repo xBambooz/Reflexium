@@ -33,6 +33,10 @@ VSync must be off for this route. DLSS FG enables Reflex while requested, preser
 Reflex preference. Real presents retain simulation-frame IDs; generated presents use out-of-band
 markers and do not consume the real present ID.
 
+Vulkan presentation surfaces initialize with an expanded acquire semaphore ring (16 semaphores)
+to allow multi-frame present batches to cycle through distinct binary semaphores without GPU stalls
+or semaphore reuse hazards.
+
 On other supported GPUs, FSR uses AMD's signed Vulkan swapchain scheduler. Three additional
 queues are reserved only when the physical family has room. SDK presentation threads use those
 private queues. All swapchain operations go through the SDK; its intermediate images finish in
@@ -45,8 +49,9 @@ Reflex never receives an opaque FSR proxy handle.
 The world is interpolated before the GUI. `GuiRenderer` prepares/uploads once, then replays its
 draw list on each generated target before discarding the list. This preserves text, hotbars and
 destination-dependent blending such as the crosshair. It costs additional GUI draws per output.
-Screenshots of the main target continue to contain the rendered world and GUI. Minecraft's FPS
-counter continues to report rendered frames; it is never multiplied by the selected FG setting.
+Screenshots of the main target continue to contain the rendered world and GUI. Minecraft's F3
+displayed FPS reflects the active displayed frame multiplier while frames are generated, accurately
+reporting the displayed frame delivery rate to the user.
 
 Native contexts and image resources are independent of upscaler contexts. Changes flush submitted
 work and wait before releasing GPU resources. The AMD scheduler is disabled and drained before
@@ -78,7 +83,7 @@ debug sessions were identified by PID, injected harness jar and exact game direc
 Repeat with a joined debug world on the authenticated harness at port 25601:
 
 ```powershell
-.\tools\check-frame-generation.ps1
+.\\tools\\check-frame-generation.ps1
 ```
 
 The script verifies process identity, checks supported mode/upscaler combinations, writes ignored
