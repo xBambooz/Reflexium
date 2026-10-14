@@ -1,0 +1,137 @@
+{
+    "ok":  true,
+    "port":  25601,
+    "session":  "C:\\Users\\Ryan\\source\\repos\\mc-agent-harness\\instances\\25601\\session.json",
+    "pid":  13840,
+    "foreground_before":  4655136,
+    "foreground_after":  4655136,
+    "focus_unchanged":  true,
+    "status":  {
+                   "pid":  13840,
+                   "game_directory":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\run",
+                   "world_loaded":  false,
+                   "screen":  "GenericMessageScreen",
+                   "paused":  false,
+                   "ticks":  0,
+                   "frames":  1,
+                   "fps":  1.0,
+                   "frame_time_ms":  0.0,
+                   "motion_running":  false,
+                   "focus":  {
+                                 "os_input_focus":  false,
+                                 "os_foreground":  false,
+                                 "os_minimized":  false,
+                                 "hwnd":  16122674,
+                                 "foreground_hwnd":  4655136,
+                                 "os_cursor":  {
+                                                   "x":  2002,
+                                                   "y":  137
+                                               }
+                             },
+                   "displays":  [
+                                    {
+                                        "id":  1,
+                                        "name":  "PG27AQDP",
+                                        "x":  0,
+                                        "y":  0,
+                                        "w":  2560,
+                                        "h":  1440,
+                                        "refresh_hz":  479.99,
+                                        "primary":  true
+                                    },
+                                    {
+                                        "id":  2,
+                                        "name":  "XF250Q",
+                                        "x":  2560,
+                                        "y":  0,
+                                        "w":  1920,
+                                        "h":  1080,
+                                        "refresh_hz":  239.76,
+                                        "primary":  false
+                                    }
+                                ],
+                   "window":  {
+                                  "x":  2560,
+                                  "y":  0,
+                                  "width":  1920,
+                                  "height":  1080,
+                                  "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                  "gui_width":  960,
+                                  "gui_height":  540
+                              },
+                   "hooks":  {
+                                 "throttle":  1,
+                                 "cursor":  0,
+                                 "pause":  1
+                             },
+                   "widgets":  [
+                                   {
+                                       "text":  "Loading Minecraft",
+                                       "x":  417,
+                                       "y":  266,
+                                       "width":  126,
+                                       "height":  33,
+                                       "active":  true,
+                                       "visible":  true
+                                   }
+                               ],
+                   "plugins":  {
+                                   "reflexium":  {
+                                                     "upscaler":  "off",
+                                                     "upscaler_effective":  "off",
+                                                     "upscaler_built":  "off",
+                                                     "quality":  "quality",
+                                                     "dlss_model":  "transformer",
+                                                     "fsr_sharpness":  20,
+                                                     "frame_generation":  "off",
+                                                     "fg_multiplier":  4,
+                                                     "fg_status":  "Frame generation: off",
+                                                     "fg_max_multiplier":  6,
+                                                     "fg_evaluated_frames":  0,
+                                                     "fg_generated_presents":  0,
+                                                     "fg_metering_feedback":  0,
+                                                     "fg_sdk_present_count":  0,
+                                                     "fg_sdk_scheduler":  false,
+                                                     "upscaling_active":  false,
+                                                     "status_line":  "Upscaling: off",
+                                                     "render_size":  {
+                                                                         "w":  0,
+                                                                         "h":  0
+                                                                     },
+                                                     "display_size":  {
+                                                                          "w":  0,
+                                                                          "h":  0
+                                                                      },
+                                                     "jitter_index":  0,
+                                                     "jitter_px":  {
+                                                                       "x":  0.0,
+                                                                       "y":  0.0
+                                                                   },
+                                                     "jitter_sign":  {
+                                                                         "x":  1.0,
+                                                                         "y":  1.0
+                                                                     },
+                                                     "jitter_enabled":  true,
+                                                     "mv_debug":  false,
+                                                     "object_motion":  true,
+                                                     "object_vertices_captured":  0,
+                                                     "object_vertices_drawn":  0,
+                                                     "object_entities":  0,
+                                                     "object_block_entities":  0,
+                                                     "mip_bias":  0.0,
+                                                     "reactive_mask":  false,
+                                                     "evaluated_frames":  0,
+                                                     "pack_hand_mask":  false,
+                                                     "fps":  0,
+                                                     "frame_time_ms":  0.0,
+                                                     "frames":  1,
+                                                     "world_loaded":  false,
+                                                     "screen":  "GenericMessageScreen",
+                                                     "hud_hidden":  false,
+                                                     "motion_running":  false,
+                                                     "last_error":  ""
+                                                 }
+                               },
+                   "ok":  true
+               }
+}

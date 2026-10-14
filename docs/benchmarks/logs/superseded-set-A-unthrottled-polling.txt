@@ -1,0 +1,5 @@
+Set A on pid 13840, window 1920x1080, world loaded.
+0   Native, upscaler off                         avg 2126.464 base  disp     2136  1%low  610.761  0x0  gpu 81.5%
+1   Native, upscaler off                         avg 2104.853 base  disp   2115.9  1%low  604.358  0x0  gpu 81.4%
+1   DLSS CNN, DLAA                               avg 1085.724 base  disp   1091.7  1%low  356.159  1920x1080  gpu 83%
+1   DLSS CNN, Quality                            avg 1400.429 base  disp   1401.7  1%low  463.186  1280x720  gpu 88.7%

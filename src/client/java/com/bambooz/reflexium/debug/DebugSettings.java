@@ -19,6 +19,9 @@ public final class DebugSettings {
 	private static volatile long frames;
 	private static volatile float frameTimeMs;
 	private static long lastFrameNs;
+	/** Start time of frame {@code n} at index {@code n & (FRAME_RING - 1)}; about 30 s at 4000 fps. */
+	private static final int FRAME_RING = 1 << 17;
+	private static final long[] frameStartNs = new long[FRAME_RING];
 
 	private DebugSettings() {
 	}
@@ -68,11 +71,26 @@ public final class DebugSettings {
 			frameTimeMs = frameTimeMs == 0 ? ms : frameTimeMs * 0.95f + ms * 0.05f;
 		}
 		lastFrameNs = now;
+		frameStartNs[(int) (frames & (FRAME_RING - 1))] = now;
 		frames++;
 	}
 
 	public static long frames() {
 		return frames;
+	}
+
+	/**
+	 * Milliseconds between consecutive frame starts for frames after {@code from}, within the ring's history.
+	 * Frame {@code f} contributes start(f) - start(f - 1).
+	 */
+	public static double[] frameIntervalsMs(long from) {
+		long to = frames;
+		long lo = Math.max(from + 1, to - FRAME_RING + 1);
+		double[] ms = new double[(int) Math.max(0, to - lo)];
+		for (long f = lo; f < to; f++) {
+			ms[(int) (f - lo)] = (frameStartNs[(int) (f & (FRAME_RING - 1))] - frameStartNs[(int) ((f - 1) & (FRAME_RING - 1))]) / 1_000_000.0;
+		}
+		return ms;
 	}
 
 	/** Smoothed frame time in milliseconds (exponential average over roughly 20 frames). */

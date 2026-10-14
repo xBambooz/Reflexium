@@ -1,0 +1,75 @@
+Set A on pid 13840, window 1920x1080, world loaded.
+0   Native, upscaler off                         avg   2533.7 base  disp   2527.7  1%low   685.23  1280x720  gpu 83.7%
+1   Native, upscaler off                         avg 2573.447 base  disp   2570.7  1%low  700.944  1280x720  gpu 84.7%
+1   DLSS CNN, DLAA                               avg 1065.127 base  disp   1061.9  1%low  373.908  1920x1080  gpu 77.2%
+1   DLSS CNN, Quality                            avg  1356.41 base  disp     1357  1%low  418.156  1280x720  gpu 85.3%
+1   DLSS CNN, Balanced                           avg 1407.342 base  disp     1407  1%low   439.08  1114x626  gpu 85.9%
+1   DLSS CNN, Performance                        avg  1444.05 base  disp     1445  1%low  444.149  960x540  gpu 86.5%
+1   DLSS CNN, Ultra Performance                  avg 1349.093 base  disp   1348.8  1%low  419.965  640x360  gpu 85.6%
+1   DLSS Transformer, DLAA                       avg  580.758 base  disp    581.3  1%low   345.76  1920x1080  gpu 65.5%
+1   DLSS Transformer, Quality                    avg  606.485 base  disp    605.7  1%low  353.209  1280x720  gpu 64.6%
+1   DLSS Transformer, Balanced                   avg  616.396 base  disp    616.8  1%low  348.051  1114x626  gpu 63.1%
+1   DLSS Transformer, Performance                avg   625.52 base  disp    625.7  1%low  353.628  960x540  gpu 64.6%
+1   DLSS Transformer, Ultra Performance          avg  635.655 base  disp    635.2  1%low  355.135  640x360  gpu 64.2%
+1   FSR 3.1, Native AA                           avg  668.124 base  disp    668.9  1%low  338.113  1920x1080  gpu 67.1%
+1   FSR 3.1, Quality                             avg  1124.33 base  disp   1124.6  1%low  378.528  1280x720  gpu 84.1%
+1   FSR 3.1, Balanced                            avg 1223.058 base  disp   1223.3  1%low  406.904  1129x635  gpu 86.7%
+1   FSR 3.1, Performance                         avg 1359.266 base  disp   1359.5  1%low  453.987  960x540  gpu 91.3%
+1   FSR 3.1, Ultra Performance                   avg  1472.83 base  disp     1473  1%low  530.987  640x360  gpu 91.6%
+1   DLSS Transformer Quality, DLSS FG (2x)       avg  313.871 base  disp    628.1  1%low  231.611  1280x720  gpu 76.3%
+1   DLSS Transformer Quality, DLSS MFG 3x        avg  254.364 base  disp    763.1  1%low  202.272  1280x720  gpu 81.5%
+1   DLSS Transformer Quality, DLSS MFG 4x        avg  207.621 base  disp    830.6  1%low  171.765  1280x720  gpu 80.5%
+1   DLSS Transformer Quality, DLSS MFG 5x        avg  179.239 base  disp      896  1%low  150.183  1280x720  gpu 82.6%
+1   DLSS Transformer Quality, DLSS MFG 6x        avg  154.737 base  disp    928.8  1%low  130.108  1280x720  gpu 82.5%
+1   FSR 3.1 Quality, FSR FG (2x)                 avg  399.509 base  disp    798.8  1%low  301.704  1280x720  gpu 65.3%
+2   FSR 3.1 Quality, FSR FG (2x)                 avg  400.778 base  disp    801.4  1%low  303.124  1280x720  gpu 66%
+2   DLSS Transformer Quality, DLSS MFG 6x        avg   154.92 base  disp    929.6  1%low  129.064  1280x720  gpu 82.9%
+2   DLSS Transformer Quality, DLSS MFG 5x        avg  178.583 base  disp    892.7  1%low  143.792  1280x720  gpu 82.4%
+2   DLSS Transformer Quality, DLSS MFG 4x        avg  207.115 base  disp    828.5  1%low  166.216  1280x720  gpu 80.5%
+2   DLSS Transformer Quality, DLSS MFG 3x        avg  255.129 base  disp    764.8  1%low  198.511  1280x720  gpu 81.6%
+2   DLSS Transformer Quality, DLSS FG (2x)       avg  316.496 base  disp    633.7  1%low  248.544  1280x720  gpu 77%
+2   FSR 3.1, Ultra Performance                   avg 1477.376 base  disp   1478.1  1%low  546.336  640x360  gpu 92.7%
+2   FSR 3.1, Performance                         avg 1355.971 base  disp   1355.6  1%low  444.531  960x540  gpu 91.1%
+2   FSR 3.1, Balanced                            avg 1257.331 base  disp   1253.7  1%low  422.461  1129x635  gpu 88.3%
+2   FSR 3.1, Quality                             avg 1143.051 base  disp   1141.3  1%low  379.756  1280x720  gpu 85.4%
+2   FSR 3.1, Native AA                           avg  670.329 base  disp      671  1%low  333.294  1920x1080  gpu 68.1%
+2   DLSS Transformer, Ultra Performance          avg  644.352 base  disp    644.4  1%low    349.5  640x360  gpu 65.1%
+2   DLSS Transformer, Performance                avg  625.728 base  disp    626.1  1%low  353.489  960x540  gpu 64.5%
+2   DLSS Transformer, Balanced                   avg  616.797 base  disp    616.1  1%low  341.334  1114x626  gpu 64%
+2   DLSS Transformer, Quality                    avg  610.446 base  disp      611  1%low  341.273  1280x720  gpu 65%
+2   DLSS Transformer, DLAA                       avg    586.1 base  disp    586.1  1%low  347.202  1920x1080  gpu 66.6%
+2   DLSS CNN, Ultra Performance                  avg 1344.722 base  disp   1345.4  1%low  436.258  640x360  gpu 85.3%
+2   DLSS CNN, Performance                        avg 1447.593 base  disp     1448  1%low  446.925  960x540  gpu 87.7%
+2   DLSS CNN, Balanced                           avg 1393.509 base  disp   1393.8  1%low  432.611  1114x626  gpu 85.5%
+2   DLSS CNN, Quality                            avg 1354.413 base  disp   1353.9  1%low  414.926  1280x720  gpu 84.6%
+2   DLSS CNN, DLAA                               avg 1066.754 base  disp   1067.9  1%low  373.085  1920x1080  gpu 77.7%
+2   Native, upscaler off                         avg 2572.941 base  disp   2565.4  1%low  667.621  1920x1080  gpu 84.8%
+
+set mode            label                                  runs status displayed_fps base_fps low_1pct_fps mean_frame_m
+                                                                                                                      s
+--- ----            -----                                  ---- ------ ------------- -------- ------------ ------------
+A   native          Native, upscaler off                      3 ok            2554.6     2560        684.6        0.391
+A   cnn-dlaa        DLSS CNN, DLAA                            2 ok            1064.9   1065.9        373.5        0.938
+A   cnn-quality     DLSS CNN, Quality                         2 ok            1355.4   1355.4        416.5        0.738
+A   cnn-balanced    DLSS CNN, Balanced                        2 ok            1400.4   1400.4        435.8        0.714
+A   cnn-performance DLSS CNN, Performance                     2 ok            1446.5   1445.8        445.5        0.692
+A   cnn-ultra       DLSS CNN, Ultra Performance               2 ok            1347.1   1346.9        428.1        0.742
+A   tf-dlaa         DLSS Transformer, DLAA                    2 ok             583.7    583.4        346.5        1.714
+A   tf-quality      DLSS Transformer, Quality                 2 ok             608.4    608.5        347.2        1.644
+A   tf-balanced     DLSS Transformer, Balanced                2 ok             616.4    616.6        344.7        1.622
+A   tf-performance  DLSS Transformer, Performance             2 ok             625.9    625.6        353.6        1.598
+A   tf-ultra        DLSS Transformer, Ultra Performance       2 ok             639.8      640        352.3        1.562
+A   fsr-native-aa   FSR 3.1, Native AA                        2 ok               670    669.2        335.7        1.494
+A   fsr-quality     FSR 3.1, Quality                          2 ok            1132.9   1133.7        379.1        0.882
+A   fsr-balanced    FSR 3.1, Balanced                         2 ok            1238.5   1240.2        414.7        0.806
+A   fsr-performance FSR 3.1, Performance                      2 ok            1357.6   1357.6        449.3        0.736
+A   fsr-ultra       FSR 3.1, Ultra Performance                2 ok            1475.6   1475.1        538.7        0.678
+A   fg-dlss-fg      DLSS Transformer Quality, DLSS FG (2x)    2 ok             630.9    315.2        240.1        3.173
+A   fg-dlss-mfg3    DLSS Transformer Quality, DLSS MFG 3x     2 ok               764    254.7        200.4        3.926
+A   fg-dlss-mfg4    DLSS Transformer Quality, DLSS MFG 4x     2 ok             829.6    207.4          169        4.822
+A   fg-dlss-mfg5    DLSS Transformer Quality, DLSS MFG 5x     2 ok             894.4    178.9          147        5.589
+A   fg-dlss-mfg6    DLSS Transformer Quality, DLSS MFG 6x     2 ok             929.2    154.8        129.6        6.459
+A   fg-fsr-fg       FSR 3.1 Quality, FSR FG (2x)              2 ok             800.1    400.1        302.4        2.499
+
+
+

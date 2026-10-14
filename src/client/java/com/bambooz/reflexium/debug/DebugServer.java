@@ -74,7 +74,10 @@ public final class DebugServer {
 				if (!method.getName().equals("handle")) return method.getName().equals("toString") ? "Reflexium debug endpoint" : null;
 				@SuppressWarnings("unchecked")
 				Map<String, String> params = (Map<String, String>) args[0].getClass().getMethod("params").invoke(args[0]);
-				return params.containsKey("key") ? set(params) : status();
+				if (params.containsKey("key")) return set(params);
+				if (params.containsKey("frame_mark")) return frameMark();
+				if (params.containsKey("frame_stats_from")) return frameStats(params);
+				return status();
 			});
 			api.getMethod("register", String.class, String.class, handler)
 					.invoke(null, "reflexium", "Upscaling status and runtime settings", endpoint);
@@ -414,6 +417,45 @@ public final class DebugServer {
 
 	private static double round(double value) {
 		return Math.round(value * 1000.0) / 1000.0;
+	}
+
+	/** Current frame index. Pass it as {@code frame_stats_from} later to measure the frames rendered in between. */
+	private static JsonObject frameMark() {
+		JsonObject o = new JsonObject();
+		o.addProperty("frames", DebugSettings.frames());
+		return o;
+	}
+
+	/** Render-thread frame intervals after the marked index: mean, percentiles and worst-frame lows. */
+	private static JsonObject frameStats(Map<String, String> q) throws Exception {
+		long from = Long.parseLong(required(q, "frame_stats_from"));
+		double[] ms = DebugSettings.frameIntervalsMs(from);
+		JsonObject o = new JsonObject();
+		o.addProperty("frames_from", from);
+		o.addProperty("frames_to", DebugSettings.frames());
+		o.addProperty("intervals", ms.length);
+		if (ms.length > 0) {
+			double[] sorted = ms.clone();
+			java.util.Arrays.sort(sorted);
+			double mean = java.util.Arrays.stream(sorted).average().orElse(0);
+			o.addProperty("mean_ms", round(mean));
+			o.addProperty("p50_ms", round(sorted[sorted.length / 2]));
+			o.addProperty("p99_ms", round(sorted[(int) Math.min(sorted.length - 1, Math.floor(sorted.length * 0.99))]));
+			o.addProperty("avg_fps", round(1000.0 / mean));
+			o.addProperty("low_1pct_fps", round(1000.0 / worstMean(sorted, 0.01)));
+			o.addProperty("low_0_1pct_fps", round(1000.0 / worstMean(sorted, 0.001)));
+		}
+		return o;
+	}
+
+	/** Mean of the slowest {@code fraction} of ascending-sorted intervals, at least one interval. */
+	private static double worstMean(double[] sorted, double fraction) {
+		int count = Math.max(1, (int) Math.ceil(sorted.length * fraction));
+		double sum = 0;
+		for (int i = sorted.length - count; i < sorted.length; i++) {
+			sum += sorted[i];
+		}
+		return sum / count;
 	}
 
 	private static JsonObject set(Map<String, String> q) throws Exception {

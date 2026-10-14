@@ -1,0 +1,25 @@
+Set A on pid 13840, window 1920x1080, world loaded.
+0   Native, upscaler off                         avg 2527.492 base  disp     2525  1%low  725.585  1114x626  gpu 83.8%
+1   Native, upscaler off                         avg 2558.655 base  disp   2550.4  1%low  720.653  1114x626  gpu 84.5%
+1   DLSS CNN, DLAA                               avg 1073.697 base  disp   1072.8  1%low  360.294  1920x1080  gpu 78%
+1   DLSS CNN, Quality                            avg 1327.473 base  disp   1327.1  1%low  412.057  1280x720  gpu 82.4%
+1   DLSS CNN, Balanced                           avg 1374.741 base  disp   1374.5  1%low  419.407  1114x626  gpu 83.3%
+1   DLSS CNN, Performance                        avg  1445.84 base  disp   1444.9  1%low  429.925  960x540  gpu 86.5%
+1   DLSS CNN, Ultra Performance                  avg 1327.981 base  disp   1327.6  1%low  418.791  640x360  gpu 83.5%
+1   DLSS Transformer, DLAA                       avg  578.642 base  disp    578.2  1%low  346.578  1920x1080  gpu 65.7%
+1   DLSS Transformer, Quality                    avg  611.747 base  disp    610.8  1%low  343.869  1280x720  gpu 64.8%
+1   DLSS Transformer, Balanced                   avg  616.608 base  disp    616.2  1%low  352.731  1114x626  gpu 64.1%
+1   DLSS Transformer, Performance                avg  629.708 base  disp    630.1  1%low  341.732  960x540  gpu 64.5%
+1   DLSS Transformer, Ultra Performance          avg  646.916 base  disp    646.3  1%low  335.506  640x360  gpu 64.6%
+1   FSR 3.1, Native AA                           avg  684.601 base  disp    686.7  1%low  339.073  1920x1080  gpu 68%
+1   FSR 3.1, Quality                             avg 1145.273 base  disp   1145.7  1%low  386.568  1280x720  gpu 85.3%
+1   FSR 3.1, Balanced                            avg 1250.515 base  disp   1250.7  1%low  418.291  1129x635  gpu 87.9%
+1   FSR 3.1, Performance                         avg 1342.675 base  disp   1342.8  1%low  435.039  960x540  gpu 90.2%
+1   FSR 3.1, Ultra Performance                   avg 1462.825 base  disp   1462.4  1%low  506.139  640x360  gpu 91.2%
+error on fg-dlss-fg: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+error on fg-dlss-fg: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+error on fg-dlss-fg: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+error on fg-dlss-mfg2: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+error on fg-dlss-mfg2: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+error on fg-dlss-mfg2: POST /reflexium returned 500: {"ok":false,"error":"BadRequest: FG multiplier must be 3..8"}
+1   DLSS Transformer Quality, DLSS MFG 3x        avg  251.603 base  disp    754.7  1%low  203.842  1280x720  gpu 80.8%
