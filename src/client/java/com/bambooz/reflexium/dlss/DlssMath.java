@@ -8,7 +8,7 @@ final class DlssMath {
 	private DlssMath() {}
 
 	static float mipBias(int renderWidth, int displayWidth) {
-		return renderWidth < displayWidth ? (float) (Math.log((double) renderWidth / displayWidth) / Math.log(2) - 1) : 0;
+		return renderWidth < displayWidth ? (float) (Math.log((double) renderWidth / displayWidth) / Math.log(2.0)) : 0.0f;
 	}
 
 	static int jitterPhases(int renderWidth, int displayWidth) {

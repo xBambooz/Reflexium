@@ -40,10 +40,16 @@ public enum UpscaleQuality {
 	}
 
 	public Component label() {
+		if (this == NATIVE_AA && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.DLSS) {
+			return Component.translatable("reflexium.quality.dlaa");
+		}
 		return Component.translatable("reflexium.quality." + serializedName);
 	}
 
 	public String displayName() {
+		if (this == NATIVE_AA && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.DLSS) {
+			return "DLAA";
+		}
 		return switch (this) {
 			case NATIVE_AA -> "Native AA";
 			case QUALITY -> "Quality";

@@ -33,7 +33,6 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkCommandBuffer;
-import org.lwjgl.vulkan.VkImageCopy;
 
 import java.util.Locale;
 
@@ -59,9 +58,9 @@ public final class UpscalingRenderer {
 	private static final boolean NGX_VERBOSE = Boolean.getBoolean("reflexium.dlss.verboseLog");
 
 	private VulkanDevice device;
+	private VulkanSession session;
 	private NgxBridge bridge;
 	private FsrBridge fsr;
-	private VulkanSession session;
 	private String fsrUnavailable = "needs Windows x64 and Vulkan";
 	private Upscaler builtUpscaler = Upscaler.OFF;
 	private DlssModel builtModel;
@@ -83,7 +82,6 @@ public final class UpscalingRenderer {
 	private TextureTarget renderTarget;
 	private TextureTarget worldDepth;
 	private TextureTarget motionTarget;
-	private OutputImage output;
 	private OutputImage reactive;
 	private TextureTarget opaqueTarget;
 	private final MipBiasSamplers materialSamplers = new MipBiasSamplers();
@@ -122,13 +120,13 @@ public final class UpscalingRenderer {
 	private long lastEvaluateNs;
 	private long evaluatedFrames;
 
-	// Last GlobalSettingsUniform.update arguments, re-sent with the render size and then the display size.
+	// Global uniform state captured before the world pass.
 	private GlobalSettingsUniform globals;
 	private double glintAlpha;
 	private long gameTime;
 	private float worldPartialTicks;
 	private int menuBlurRadius;
-	private Vec3 cameraPos = Vec3.ZERO;
+	private Vec3 cameraPos;
 	private boolean useRgss;
 
 	private UpscalingRenderer() {
@@ -139,7 +137,7 @@ public final class UpscalingRenderer {
 	}
 
 	// ---------------------------------------------------------------------------------------------
-	// Device lifecycle
+	// Device lifecycle (render thread)
 
 	public void onDeviceCreated(VulkanDevice device, VulkanSession session) {
 		this.device = device;
@@ -147,6 +145,7 @@ public final class UpscalingRenderer {
 		if (ReflexiumClient.isSupportedPlatform()) {
 			try {
 				fsr = new FsrBridge();
+				fsrUnavailable = "";
 				ReflexiumClient.LOGGER.info("FSR 3.1 Vulkan runtime loaded on {}", session.deviceName());
 			} catch (Throwable e) {
 				fsrUnavailable = "FSR runtime could not load (see log)";
@@ -168,10 +167,6 @@ public final class UpscalingRenderer {
 			return;
 		}
 		DlssStatus prerequisites = DlssSupport.status();
-		if (!ReflexiumConfig.get().dlssDetection()) {
-			unavailable = "DLSS detection is off";
-			return;
-		}
 		if (!prerequisites.prerequisitesMet()) {
 			unavailable = prerequisites.summary();
 			awaitingRuntime = DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.DOWNLOADING
@@ -437,7 +432,6 @@ public final class UpscalingRenderer {
 		GpuTextureView handDepth = packHandCaptured ? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
 		Object level = Minecraft.getInstance().level;
 		if (!havePrevious || level != previousLevel || currentCamera.distanceToSqr(previousCamera) > RESET_DISTANCE * RESET_DISTANCE
-				|| Math.abs(currentOrientation.dot(previousOrientation)) < 0.9659258f
 				|| System.nanoTime() - lastEvaluateNs > 250_000_000L) {
 			resetNext = true;
 			previousUnjittered.set(currentUnjittered);
@@ -470,15 +464,18 @@ public final class UpscalingRenderer {
 		try {
 			if (worldDepthCaptured) {
 				evaluate(main);
+				SharpBlockOutlineRenderer.get().render(renderTarget, motionTarget, currentProjection);
 			} else {
 				// Pack warmup can replace the level call while still presenting a loading frame.
 				// Keep that frame visible and start fresh when actual scene rendering resumes.
 				main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
 				resetNext = true;
+				SharpBlockOutlineRenderer.get().clear();
 			}
 		} catch (RuntimeException e) {
 			fail("evaluate failed", e);
 			main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
+			SharpBlockOutlineRenderer.get().clear();
 		} finally {
 			swap(main, renderTarget);
 			swapped = false;
@@ -592,7 +589,6 @@ public final class UpscalingRenderer {
 			objectVelocityPass = new ObjectVelocityPass();
 		}
 		VkCommandBuffer commandBuffer = commandBuffer();
-		output = new OutputImage(device, commandBuffer, displayWidth, displayHeight);
 		mipBias = DlssMath.mipBias(renderWidth, displayWidth);
 		if (VitrailCompat.isLoaded()) {
 			packHandBefore = new TextureTarget("Reflexium pack before hand", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
@@ -675,17 +671,18 @@ public final class UpscalingRenderer {
 			resetNext = false;
 			return;
 		}
+		NgxBridge.Image outputImage = ngxImage(renderTarget.getColorTexture(), renderTarget.getColorTextureView());
 		int result = builtUpscaler == Upscaler.FSR ? fsr.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
-				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), output.asNgx(),
+				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), outputImage,
 				reactiveGenerated ? reactive.asNgx() : null,
 				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
 				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()),
-				output.asNgx(),
+				outputImage,
 				signedJitterX, signedJitterY, 1.0f, 1.0f, resetNext, frameTimeMs);
 		if (result != 0) {
 			drainLog();
@@ -695,18 +692,6 @@ public final class UpscalingRenderer {
 		if (++evaluatedFrames == 1) {
 			ReflexiumClient.LOGGER.info("{} evaluated first world frame: {}x{} -> {}x{} (camera and object motion vectors)",
 					builtUpscaler, renderWidth, renderHeight, displayWidth, displayHeight);
-		}
-		barrier(commandBuffer);
-
-		// After the swap, renderTarget holds the display-resolution textures that go back into the main target.
-		VulkanGpuTexture display = (VulkanGpuTexture) renderTarget.getColorTexture();
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			VkImageCopy.Buffer region = VkImageCopy.calloc(1, stack);
-			region.srcSubresource().aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT).layerCount(1);
-			region.dstSubresource().aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT).layerCount(1);
-			region.extent().set(displayWidth, displayHeight, 1);
-			VK10.vkCmdCopyImage(commandBuffer, output.image, VK10.VK_IMAGE_LAYOUT_GENERAL,
-					display.vkImage(), VK10.VK_IMAGE_LAYOUT_GENERAL, region);
 		}
 		barrier(commandBuffer);
 	}
@@ -728,24 +713,27 @@ public final class UpscalingRenderer {
 	}
 
 	static void swap(RenderTarget a, RenderTarget b) {
-		RenderTargetAccessor x = (RenderTargetAccessor) a;
-		RenderTargetAccessor y = (RenderTargetAccessor) b;
-		GpuTexture color = x.reflexium$colorTexture();
-		GpuTextureView colorView = x.reflexium$colorTextureView();
-		GpuTexture depth = x.reflexium$depthTexture();
-		GpuTextureView depthView = x.reflexium$depthTextureView();
+		RenderTargetAccessor accA = (RenderTargetAccessor) a;
+		RenderTargetAccessor accB = (RenderTargetAccessor) b;
+
+		GpuTexture color = a.getColorTexture();
+		GpuTextureView colorView = a.getColorTextureView();
+		GpuTexture depth = a.getDepthTexture();
+		GpuTextureView depthView = a.getDepthTextureView();
 		int width = a.width;
 		int height = a.height;
-		x.reflexium$setColorTexture(y.reflexium$colorTexture());
-		x.reflexium$setColorTextureView(y.reflexium$colorTextureView());
-		x.reflexium$setDepthTexture(y.reflexium$depthTexture());
-		x.reflexium$setDepthTextureView(y.reflexium$depthTextureView());
+
+		accA.reflexium$setColorTexture(b.getColorTexture());
+		accA.reflexium$setColorTextureView(b.getColorTextureView());
+		accA.reflexium$setDepthTexture(b.getDepthTexture());
+		accA.reflexium$setDepthTextureView(b.getDepthTextureView());
 		a.width = b.width;
 		a.height = b.height;
-		y.reflexium$setColorTexture(color);
-		y.reflexium$setColorTextureView(colorView);
-		y.reflexium$setDepthTexture(depth);
-		y.reflexium$setDepthTextureView(depthView);
+
+		accB.reflexium$setColorTexture(color);
+		accB.reflexium$setColorTextureView(colorView);
+		accB.reflexium$setDepthTexture(depth);
+		accB.reflexium$setDepthTextureView(depthView);
 		b.width = width;
 		b.height = height;
 	}
@@ -820,10 +808,6 @@ public final class UpscalingRenderer {
 		if (bridge != null && ngxReady) {
 			bridge.release();
 		}
-		if (output != null) {
-			output.destroy();
-			output = null;
-		}
 		if (renderTarget != null) {
 			renderTarget.destroyBuffers();
 			renderTarget = null;
@@ -838,9 +822,20 @@ public final class UpscalingRenderer {
 		}
 	}
 
+	void waitForGpu() {
+		if (device != null) {
+			try {
+				((VulkanCommandEncoderAccessor) device.createCommandEncoder()).reflexium$commandBuffer();
+				device.createCommandEncoder().submit();
+			} catch (RuntimeException ignored) {
+			}
+		}
+	}
+
 	private void destroyResources() {
 		waitForGpu();
 		releaseFeatureResources();
+		materialSamplers.close();
 		if (motionPass != null) {
 			motionPass.close();
 			motionPass = null;
@@ -849,18 +844,9 @@ public final class UpscalingRenderer {
 			objectVelocityPass.close();
 			objectVelocityPass = null;
 		}
-		packHandMaskPass = null;
 		motionDebugPass = null;
+		packHandMaskPass = null;
 		renderSizeApplied = false;
 		builtMode = null;
-	}
-
-	void waitForGpu() {
-		// Idle only covers submitted commands. Flush before freeing raw NGX/VMA resources.
-		device.createCommandEncoder().submit();
-		int result = VK10.vkDeviceWaitIdle(device.vkDevice());
-		if (result != VK10.VK_SUCCESS) {
-			throw new IllegalStateException("Waiting for DLSS resources failed: " + result);
-		}
 	}
 }
