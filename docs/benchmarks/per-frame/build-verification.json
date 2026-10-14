@@ -1,0 +1,16 @@
+{
+    "jar":  "Reflexium-1.2.0-alpha-fabric-26.3.jar",
+    "sha256":  "47145EA13B26E144A724330A1F0424B80E5709BB8B0217015355D92E1E665912",
+    "installed_sha256":  "47145EA13B26E144A724330A1F0424B80E5709BB8B0217015355D92E1E665912",
+    "match":  true,
+    "code_commit":  "fd2afbd",
+    "build":  "gradlew.bat build --console=plain, successful 2026-10-14 11:05",
+    "checks":  [
+                   "dlssMathCheck",
+                   "objectMotionCheck",
+                   "frameProfilerCheck",
+                   "test",
+                   "check",
+                   "installReflexium"
+               ]
+}

@@ -17,8 +17,9 @@ five generated frames, hence 6x maximum. A runtime reporting one generated frame
 2x FG; it does not enable MFG. Unsupported selections show their reason in status and render normally.
 This is static MFG. Streamline's dynamic multiplier selection is not integrated.
 
-All three modes work with DLSS upscaling, FSR upscaling, or upscaling off. Native rendering still
-captures depth and camera/object motion; it does not invoke an upscaler or add projection jitter.
+Current settings require Auto or the matching upscaler. Selecting Off or an explicitly mismatched
+backend disables FG. The renderer retains native and cross-backend paths from earlier acceptance;
+the [2026-10-14 check](PERFORMANCE.md) covers the current settings combinations.
 Menus, missing world frames, camera cuts and target recreation reset interpolation history.
 FG does not increase game ticks or input sampling. A base rate of at least 60 FPS is recommended
 by the vendors for quality and latency, rather than enforced as an initialization requirement.

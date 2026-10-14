@@ -1,0 +1,168 @@
+[
+    {
+        "upscaler":  "dlss",
+        "stats":  {
+                      "frames_from":  1073008,
+                      "frames_to":  1074172,
+                      "intervals":  1163,
+                      "mean_ms":  2.571,
+                      "p50_ms":  2.506,
+                      "p99_ms":  3.831,
+                      "avg_fps":  388.92,
+                      "low_1pct_fps":  239.615,
+                      "low_0_1pct_fps":  201.112,
+                      "ok":  true
+                  },
+        "status":  {
+                       "upscaler":  "dlss",
+                       "upscaler_effective":  "dlss",
+                       "upscaler_built":  "dlss",
+                       "quality":  "quality",
+                       "dlss_model":  "cnn",
+                       "dlss_preset_hint":  5,
+                       "history_reset_frames":  1,
+                       "transient_motion_uniforms":  true,
+                       "direct_scene_depth":  true,
+                       "reflex_mode":  "ON",
+                       "fsr_sharpness":  20,
+                       "frame_generation":  "off",
+                       "fg_multiplier":  6,
+                       "fg_status":  "Frame generation: off",
+                       "fg_max_multiplier":  6,
+                       "fg_evaluated_frames":  8513,
+                       "fg_generated_presents":  15693,
+                       "fg_metering_feedback":  0,
+                       "fg_sdk_present_count":  0,
+                       "fg_sdk_scheduler":  false,
+                       "upscaling_active":  true,
+                       "status_line":  "DLSS: Quality 1280x720 -\u003e 1920x1080",
+                       "render_size":  {
+                                           "w":  1280,
+                                           "h":  720
+                                       },
+                       "display_size":  {
+                                            "w":  1920,
+                                            "h":  1080
+                                        },
+                       "jitter_index":  4,
+                       "jitter_px":  {
+                                         "x":  -0.375,
+                                         "y":  -0.055555552
+                                     },
+                       "jitter_sign":  {
+                                           "x":  1.0,
+                                           "y":  1.0
+                                       },
+                       "jitter_enabled":  true,
+                       "mv_debug":  false,
+                       "object_motion":  true,
+                       "object_vertices_captured":  5168,
+                       "object_vertices_drawn":  1040,
+                       "object_entities":  16,
+                       "object_block_entities":  0,
+                       "mip_bias":  -0.5849625,
+                       "reactive_mask":  false,
+                       "evaluated_frames":  2326,
+                       "pack_hand_mask":  true,
+                       "fps":  391,
+                       "frame_time_ms":  2.55,
+                       "frames":  1074173,
+                       "world_loaded":  true,
+                       "screen":  "none",
+                       "hud_hidden":  false,
+                       "motion_running":  false,
+                       "camera":  {
+                                      "x":  -25.5,
+                                      "y":  69.0,
+                                      "z":  23.5,
+                                      "eye_y":  70.62,
+                                      "yaw":  30.0,
+                                      "pitch":  0.0
+                                  },
+                       "last_error":  ""
+                   }
+    },
+    {
+        "upscaler":  "fsr",
+        "stats":  {
+                      "frames_from":  1075418,
+                      "frames_to":  1076503,
+                      "intervals":  1084,
+                      "mean_ms":  2.737,
+                      "p50_ms":  2.548,
+                      "p99_ms":  4.033,
+                      "avg_fps":  365.304,
+                      "low_1pct_fps":  240.818,
+                      "low_0_1pct_fps":  226.691,
+                      "ok":  true
+                  },
+        "status":  {
+                       "upscaler":  "fsr",
+                       "upscaler_effective":  "fsr",
+                       "upscaler_built":  "fsr",
+                       "quality":  "quality",
+                       "dlss_model":  "cnn",
+                       "dlss_preset_hint":  5,
+                       "history_reset_frames":  1,
+                       "transient_motion_uniforms":  false,
+                       "direct_scene_depth":  false,
+                       "reflex_mode":  "ON",
+                       "fsr_sharpness":  20,
+                       "frame_generation":  "off",
+                       "fg_multiplier":  6,
+                       "fg_status":  "Frame generation: off",
+                       "fg_max_multiplier":  6,
+                       "fg_evaluated_frames":  8513,
+                       "fg_generated_presents":  15693,
+                       "fg_metering_feedback":  0,
+                       "fg_sdk_present_count":  0,
+                       "fg_sdk_scheduler":  false,
+                       "upscaling_active":  true,
+                       "status_line":  "FSR 3.1: Quality 1280x720 -\u003e 1920x1080",
+                       "render_size":  {
+                                           "w":  1280,
+                                           "h":  720
+                                       },
+                       "display_size":  {
+                                            "w":  1920,
+                                            "h":  1080
+                                        },
+                       "jitter_index":  4,
+                       "jitter_px":  {
+                                         "x":  -0.375,
+                                         "y":  -0.055555552
+                                     },
+                       "jitter_sign":  {
+                                           "x":  1.0,
+                                           "y":  1.0
+                                       },
+                       "jitter_enabled":  true,
+                       "mv_debug":  false,
+                       "object_motion":  true,
+                       "object_vertices_captured":  6048,
+                       "object_vertices_drawn":  2736,
+                       "object_entities":  18,
+                       "object_block_entities":  0,
+                       "mip_bias":  -0.5849625,
+                       "reactive_mask":  false,
+                       "evaluated_frames":  2200,
+                       "pack_hand_mask":  true,
+                       "fps":  366,
+                       "frame_time_ms":  2.68,
+                       "frames":  1076504,
+                       "world_loaded":  true,
+                       "screen":  "none",
+                       "hud_hidden":  false,
+                       "motion_running":  false,
+                       "camera":  {
+                                      "x":  -25.5,
+                                      "y":  69.0,
+                                      "z":  23.5,
+                                      "eye_y":  70.62,
+                                      "yaw":  60.0,
+                                      "pitch":  0.0
+                                  },
+                       "last_error":  ""
+                   }
+    }
+]

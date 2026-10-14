@@ -1,0 +1,37 @@
+[
+    {
+        "mode":  "cnn-native_aa",
+        "laplacian_before":  252.34525391762884,
+        "laplacian_after":  247.34521476250481,
+        "mean_luma_difference":  0.027710126220482544,
+        "psnr_db":  63.203846062863676
+    },
+    {
+        "mode":  "cnn-performance",
+        "laplacian_before":  232.754837787803,
+        "laplacian_after":  233.14228636608402,
+        "mean_luma_difference":  0.13439542635774548,
+        "psnr_db":  50.5131107448553
+    },
+    {
+        "mode":  "cnn-ultra_performance",
+        "laplacian_before":  223.22870005010193,
+        "laplacian_after":  88.448053031941186,
+        "mean_luma_difference":  0.53836584748447147,
+        "psnr_db":  39.765642110302281
+    },
+    {
+        "mode":  "fsr-quality",
+        "laplacian_before":  184.84013665170127,
+        "laplacian_after":  181.68440059646088,
+        "mean_luma_difference":  0.18390916310666153,
+        "psnr_db":  41.594069864423737
+    },
+    {
+        "mode":  "transformer-native_aa",
+        "laplacian_before":  241.51406919232019,
+        "laplacian_after":  241.5317615475054,
+        "mean_luma_difference":  0.000391182940585014,
+        "psnr_db":  80.166878959745716
+    }
+]

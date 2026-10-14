@@ -82,6 +82,12 @@ smoothed values, so percentile lows need the stamps:
 
 `tools/benchmark-upscaling.ps1` uses both to measure the upscaling matrix in `docs/benchmarks/`.
 
+### Per-pass CPU and GPU timing
+
+The authenticated harness endpoint accepts `profile=on|reset|off|status`. `reset` clears counters and enables profiling; `off` returns the collected spans and disables it. Each span includes `cpu_us`, `cpu_samples`, `gpu_us` and `gpu_samples`. GPU timestamp pairs are sampled every 16 frames. The result ring is read only when available, with no query wait. Parent spans include their children. Headline FPS should be measured separately with profiling off.
+
+`tools/measure-per-frame.ps1 -Label profile-example -Paths optimized -Passes 1 -Profile` runs a fixed-pose matrix. `-Paths legacy` selects the previous uniform/depth/outline paths and CNN E for paired tests in the same JVM. `perf_uniforms`, `perf_depth`, `perf_outline` accept `0|1`; `dlss_preset` accepts `-1` (normal mapping), 5 (E), 6 (F), 10 (J) or 11 (K). `reflex_mode` accepts `off|on|on_boost`. Only the existing Reflex setting persists. Status includes the built preset hint and history reset count. See [performance analysis](PERFORMANCE.md).
+
 Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are saved to
 `run\config\reflexium.properties` like menu changes. The jitter and `mv_debug` overrides are runtime
 only and reset on restart.

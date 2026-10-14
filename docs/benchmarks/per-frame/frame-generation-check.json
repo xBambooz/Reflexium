@@ -1,0 +1,134 @@
+[
+    {
+        "mode":  "fsr",
+        "multiplier":  2,
+        "upscaler":  "auto",
+        "evaluations":  619,
+        "generatedPresents":  619,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  828,
+        "status":  "Frame generation: FSR FG"
+    },
+    {
+        "mode":  "fsr",
+        "multiplier":  2,
+        "upscaler":  "fsr",
+        "evaluations":  577,
+        "generatedPresents":  577,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  770,
+        "status":  "Frame generation: FSR FG"
+    },
+    {
+        "mode":  "dlss",
+        "multiplier":  2,
+        "upscaler":  "auto",
+        "evaluations":  514,
+        "generatedPresents":  514,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  684,
+        "status":  "Frame generation: DLSS FG"
+    },
+    {
+        "mode":  "dlss",
+        "multiplier":  2,
+        "upscaler":  "dlss",
+        "evaluations":  509,
+        "generatedPresents":  509,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  678,
+        "status":  "Frame generation: DLSS FG"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  3,
+        "upscaler":  "auto",
+        "evaluations":  388,
+        "generatedPresents":  776,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  768,
+        "status":  "Frame generation: DLSS MFG 3x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  3,
+        "upscaler":  "dlss",
+        "evaluations":  384,
+        "generatedPresents":  768,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  768,
+        "status":  "Frame generation: DLSS MFG 3x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  4,
+        "upscaler":  "auto",
+        "evaluations":  285,
+        "generatedPresents":  855,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  760,
+        "status":  "Frame generation: DLSS MFG 4x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  4,
+        "upscaler":  "dlss",
+        "evaluations":  284,
+        "generatedPresents":  852,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  756,
+        "status":  "Frame generation: DLSS MFG 4x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  5,
+        "upscaler":  "auto",
+        "evaluations":  208,
+        "generatedPresents":  832,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  695,
+        "status":  "Frame generation: DLSS MFG 5x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  5,
+        "upscaler":  "dlss",
+        "evaluations":  200,
+        "generatedPresents":  800,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  665,
+        "status":  "Frame generation: DLSS MFG 5x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  6,
+        "upscaler":  "auto",
+        "evaluations":  155,
+        "generatedPresents":  775,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  624,
+        "status":  "Frame generation: DLSS MFG 6x"
+    },
+    {
+        "mode":  "dlss_multi",
+        "multiplier":  6,
+        "upscaler":  "dlss",
+        "evaluations":  154,
+        "generatedPresents":  770,
+        "sdkPresents":  0,
+        "meteringFeedback":  0,
+        "renderedFps":  618,
+        "status":  "Frame generation: DLSS MFG 6x"
+    }
+]

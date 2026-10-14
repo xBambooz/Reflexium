@@ -8,7 +8,7 @@ NVIDIA Reflex, DLSS, AMD FSR 3.1 and frame generation for Minecraft Java's Vulka
 - **Frame pacing**: while Reflex is on, Minecraft's Max Framerate (including the 60 FPS menu cap) is enforced by the Reflex sleep instead of vanilla's post-present sleep. With VSync on, Reflex also caps just below the refresh rate using NVIDIA's formula (138 FPS on 144 Hz, 224 FPS on 240 Hz).
 - **Latency readout** in F3: input-to-present time plus simulation, render submit and GPU time, straight from the driver. Works with Reflex off too, for A/B comparisons.
 - **DLSS and FSR 3.1 upscaling**: renders the world below display resolution, reconstructs camera motion from depth, and applies NVIDIA DLSS or AMD FSR 3.1 before drawing the full-resolution HUD. Presets include DLAA (Native AA for FSR), Quality, Balanced, Performance, and Ultra Performance. See [setup, limitations and validation](docs/DLSS.md).
-- **Frame generation (experimental)**: standard DLSS FG (2x), DLSS Multi Frame Generation (runtime-limited, up to 6x on the tested RTX 5070), and FSR FG (2x). Works independently of the upscaler. Minecraft's prepared GUI is drawn onto every output frame, preserving sharp HUD text and background-dependent crosshair blending. See [implementation and validation](docs/FRAME_GENERATION.md).
+- **Frame generation (experimental)**: standard DLSS FG (2x), DLSS Multi Frame Generation (runtime-limited, up to 6x on the tested RTX 5070), and FSR FG (2x). Select Auto or the matching upscaler; turning upscaling off disables FG. Minecraft's prepared GUI is drawn onto every output frame, preserving sharp HUD text and background-dependent crosshair blending. See [implementation and validation](docs/FRAME_GENERATION.md).
 
 ## Requirements
 
@@ -26,6 +26,8 @@ Fabric API is not required.
 - Auto mode picks DLSS when available, otherwise FSR 3.1.
 - Vitrail 0.12.x shader upscaling is supported, with Complementary Reimagined r5.9.3 tested. Reflexium owns render scale and jitter while active.
 - Opaque moving entities and animated block entities receive per-vertex motion vectors. Shader-only deformation and translucent objects still have limitations; see [validation](docs/DLSS.md).
+
+Upscaling has a fixed reconstruction cost. Without shaders, native rendering can be faster even at lower upscaling qualities; DLAA also pays the full-resolution network cost. DLSS uses transient motion uniforms and retained scene depth; both upscalers skip depth reconstruction for an invisible outline. See [per-pass timings, paired results and remaining limits](docs/PERFORMANCE.md). DLSS has no additional sharpening pass.
 
 ## Settings
 

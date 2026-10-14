@@ -1,0 +1,14 @@
+{
+    "ok":  true,
+    "dlss_colored_samples":  1858,
+    "fsr_colored_samples":  3184,
+    "camera_only_colored_samples":  0,
+    "sample_step":  2,
+    "hud_crop_bottom":  140,
+    "fixture":  "NoGravity pig with AI enabled, confirmed changed server positions; clear-air FSR fixture and depth-occluded DLSS fixture",
+    "images":  [
+                   "motion-dlss.png",
+                   "motion-fsr.png",
+                   "motion-camera-only.png"
+               ]
+}

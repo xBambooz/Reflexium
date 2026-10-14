@@ -1,0 +1,68 @@
+{
+    "upscaler":  "fsr",
+    "upscaler_effective":  "fsr",
+    "upscaler_built":  "fsr",
+    "quality":  "performance",
+    "dlss_model":  "cnn",
+    "dlss_preset_hint":  5,
+    "history_reset_frames":  2,
+    "transient_motion_uniforms":  false,
+    "direct_scene_depth":  false,
+    "reflex_mode":  "ON",
+    "fsr_sharpness":  20,
+    "frame_generation":  "off",
+    "fg_multiplier":  6,
+    "fg_status":  "Frame generation: off",
+    "fg_max_multiplier":  6,
+    "fg_evaluated_frames":  8513,
+    "fg_generated_presents":  15693,
+    "fg_metering_feedback":  0,
+    "fg_sdk_present_count":  0,
+    "fg_sdk_scheduler":  false,
+    "upscaling_active":  true,
+    "status_line":  "FSR 3.1: Performance 960x540 -\u003e 1920x1080",
+    "render_size":  {
+                        "w":  960,
+                        "h":  540
+                    },
+    "display_size":  {
+                         "w":  1920,
+                         "h":  1080
+                     },
+    "jitter_index":  13,
+    "jitter_px":  {
+                      "x":  0.1875,
+                      "y":  -0.018518507
+                  },
+    "jitter_sign":  {
+                        "x":  1.0,
+                        "y":  1.0
+                    },
+    "jitter_enabled":  true,
+    "mv_debug":  true,
+    "object_motion":  true,
+    "object_vertices_captured":  3264,
+    "object_vertices_drawn":  168,
+    "object_entities":  10,
+    "object_block_entities":  0,
+    "mip_bias":  -1.0,
+    "reactive_mask":  true,
+    "evaluated_frames":  2285,
+    "pack_hand_mask":  false,
+    "fps":  1174,
+    "frame_time_ms":  0.81,
+    "frames":  965554,
+    "world_loaded":  true,
+    "screen":  "none",
+    "hud_hidden":  false,
+    "motion_running":  false,
+    "camera":  {
+                   "x":  -25.5,
+                   "y":  100.0,
+                   "z":  23.5,
+                   "eye_y":  101.62,
+                   "yaw":  -4.65,
+                   "pitch":  2.1
+               },
+    "last_error":  ""
+}

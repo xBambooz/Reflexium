@@ -1,0 +1,16 @@
+[
+    {
+        "mode":  "cnn-ultra_performance",
+        "laplacian_before":  245.56436980017642,
+        "laplacian_after":  263.41077242161248,
+        "mean_luma_difference":  0.32078718298154146,
+        "psnr_db":  43.58764573040726
+    },
+    {
+        "mode":  "fsr-quality",
+        "laplacian_before":  205.78109176979433,
+        "laplacian_after":  205.85734268323276,
+        "mean_luma_difference":  0.02717329821821635,
+        "psnr_db":  63.174272509375172
+    }
+]
