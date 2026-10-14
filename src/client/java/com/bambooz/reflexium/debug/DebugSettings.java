@@ -14,8 +14,8 @@ public final class DebugSettings {
 	public static boolean fastUniforms = true;
 	public static boolean directDepth = true;
 	public static int dlssPreset = -1;
-	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
-	public static boolean reflexSubmission = true;
+	/** Streamline uses implicit attribution. True enables explicit submit ids for diagnostics. */
+	public static boolean reflexSubmission = false;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
 	public static boolean objectMotion() { return objectMotion; }

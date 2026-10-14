@@ -2,10 +2,15 @@ package com.bambooz.reflexium.reflex;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkLatencyTimingsFrameReportNV;
+import org.lwjgl.vulkan.VkLatencySubmissionPresentIdNV;
+import org.lwjgl.vulkan.VkSubmitInfo2;
+import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.vulkan.VulkanLifecycle;
+import com.bambooz.reflexium.vulkan.VulkanSession;
 import static org.lwjgl.system.MemoryUtil.memPutLong;
 
 public final class ReflexTimingCheck {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ReflectiveOperationException {
 		var pacing = new ReflexController.SmartPacing();
 		long now = 1;
 		pacing.update(now, true);
@@ -42,6 +47,42 @@ public final class ReflexTimingCheck {
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.GPURENDERENDTIMEUS, 0);
 			if (ReflexController.LatencyReport.from(report).available()) throw new AssertionError("incomplete GPU report");
 		}
-		System.out.println("Reflex GPU-complete latency checks passed");
+		checkSubmissionAttribution();
+		System.out.println("Reflex latency and submission attribution checks passed");
+	}
+
+	/** Exercises actual pNext packets without creating a Vulkan device or invoking the driver. */
+	private static void checkSubmissionAttribution() throws ReflectiveOperationException {
+		VulkanSession.publish(new VulkanSession(null, null, null, 0x10de, "fixture", "fixture", true, true, false, java.util.Set.of()));
+		var frameId = ReflexController.class.getDeclaredField("frameId");
+		var frameOpen = ReflexController.class.getDeclaredField("frameOpen");
+		frameId.setAccessible(true); frameOpen.setAccessible(true);
+		frameId.setLong(ReflexController.get(), 5); frameOpen.setBoolean(ReflexController.get(), true);
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			if (DebugSettings.reflexSubmission) throw new AssertionError("implicit attribution must be the default");
+			var submits = VkSubmitInfo2.calloc(2, stack);
+			for (int i = 0; i < 2; i++) submits.get(i).sType$Default();
+			VulkanLifecycle.chainSubmissionIds(submits);
+			if (submits.get(0).pNext() != 0 || submits.get(1).pNext() != 0) throw new AssertionError("implicit path must omit tags");
+			DebugSettings.reflexSubmission = true;
+			VulkanLifecycle.chainSubmissionIds(submits);
+			for (int i = 0; i < 2; i++) {
+				if (VkLatencySubmissionPresentIdNV.create(submits.get(i).pNext()).presentID() != 5) throw new AssertionError("tag all batches");
+			}
+			long previous = submits.get(0).pNext();
+			DebugSettings.reflexSubmission = false;
+			VulkanLifecycle.chainSubmissionIds(submits);
+			var cleared = VkLatencySubmissionPresentIdNV.create(submits.get(0).pNext());
+			if (cleared.presentID() != 0 || cleared.pNext() != previous) throw new AssertionError("clear while preserving pNext");
+			// A second queue can still inherit its last explicit id. Unframed submits must clear it too.
+			frameOpen.setBoolean(ReflexController.get(), false);
+			var anotherQueue = VkSubmitInfo2.calloc(1, stack); anotherQueue.get(0).sType$Default();
+			VulkanLifecycle.chainSubmissionIds(anotherQueue);
+			if (VkLatencySubmissionPresentIdNV.create(anotherQueue.get(0).pNext()).presentID() != 0) throw new AssertionError("clear every queue");
+		} finally {
+			DebugSettings.reflexSubmission = false;
+			frameOpen.setBoolean(ReflexController.get(), false);
+			VulkanSession.clear();
+		}
 	}
 }

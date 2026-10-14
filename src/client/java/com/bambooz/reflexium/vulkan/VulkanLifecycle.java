@@ -22,10 +22,13 @@ import org.lwjgl.vulkan.VkSwapchainLatencyCreateInfoNV;
  * as long as the Vulkan call that reads them.
  */
 public final class VulkanLifecycle {
+	/** Once explicit ids were used, zero them on every queue until this device is closed. */
+	private static boolean usedExplicitSubmissionIds;
 	private VulkanLifecycle() {
 	}
 
 	public static void onDeviceCreated(VulkanInstance instance, VulkanPhysicalDevice physicalDevice, VkDevice device, VulkanDevice vulkanDevice) {
+		usedExplicitSubmissionIds = false;
 		VulkanSession.PendingExtensions extensions = VulkanSession.takePending();
 		VulkanSession session = new VulkanSession(
 				instance.vkInstance(),
@@ -95,11 +98,15 @@ public final class VulkanLifecycle {
 		if (com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().isGeneratedPresent()) return submits;
 		long id = ReflexController.get().currentFrameId();
 		VulkanSession session = VulkanSession.current();
-		if (id == 0 || session == null || !session.lowLatency2()) {
+		if (session == null || !session.lowLatency2()) {
 			return submits;
 		}
 		// Zero clears explicit attribution on this queue when comparing the implicit path.
 		if (!com.bambooz.reflexium.debug.DebugSettings.reflexSubmission) id = 0;
+		// The normal implicit path omits the struct, exactly as Streamline does. Clearing after a
+		// diagnostic toggle must continue on all previously tagged queues, including unframed work.
+		if (id == 0 && !usedExplicitSubmissionIds) return submits;
+		if (id != 0) usedExplicitSubmissionIds = true;
 		MemoryStack stack = MemoryStack.stackGet();
 		for (int i = submits.position(); i < submits.limit(); i++) {
 			VkSubmitInfo2 submit = submits.get(i);

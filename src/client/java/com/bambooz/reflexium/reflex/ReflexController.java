@@ -31,19 +31,19 @@ import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
  * <p>
  * Per frame (hooks in MinecraftMixin):
  * <pre>
- *   run():       latency sleep, SIMULATION_START,
- *                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
+ *   run():       latency sleep, SIMULATION_START    (before SDL event polling, so input is sampled late)
  *   runTick():   SIMULATION_END                    (before renderFrame)
  *   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
  *                RENDERSUBMIT_END, PRESENT_START   (before present)
  *                PRESENT_END                       (after present)
  * </pre>
- * The same frame id is attached to every queue submission (VkLatencySubmissionPresentIdNV) and to the
- * present itself (VkPresentIdKHR), which is how the driver ties GPU work to the markers.
+ * Streamline's Vulkan path uses implicit submission attribution and omits the deprecated INPUT_SAMPLE
+ * marker. Presents use the simulation frame id. Explicit submit ids remain a diagnostic override.
  */
 public final class ReflexController {
 	private static final ReflexController INSTANCE = new ReflexController();
-	private static final long SLEEP_TIMEOUT_NS = 100_000_000L;
+	/** Streamline's sl.chi/vulkan.h kMaxSemaphoreWaitUs is 500 ms, in Vulkan nanoseconds. */
+	private static final long SLEEP_TIMEOUT_NS = 500_000_000L;
 	private static final long TIMING_REFRESH_NS = 250_000_000L;
 	private static final long REFRESH_RATE_INTERVAL_NS = 1_000_000_000L;
 	/** Minecraft treats 260 as "unlimited" for Max Framerate. */
@@ -184,7 +184,8 @@ public final class ReflexController {
 		frameOpen = true;
 		applySleepMode();
 		smartPacing.update(System.nanoTime(), canPausePacing());
-		if (isSleeping()) {
+		// Streamline calls sleep even with mode Off; its zero interval does not replace vanilla's cap.
+		if (sleepSemaphore != 0 && !sleepFailed && !isPacingPaused()) {
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, timing, null);
@@ -194,7 +195,6 @@ public final class ReflexController {
 			lastLatencyLog = System.nanoTime();
 			ReflexiumClient.LOGGER.info("{} | {}", statusLine(), latencyLine());
 		}
-		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
 	}
 
 	public void endSimulation() {
