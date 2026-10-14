@@ -80,26 +80,16 @@ public final class VitrailCompat {
 		try {
 			Class<?> type = pack.getClass();
 			String name = (String) type.getMethod("packFileName").invoke(pack);
+			if (!name.startsWith("ComplementaryReimagined_") && !name.startsWith("ComplementaryUnbound_")) return pack;
 			Set<?> declared = (Set<?>) type.getMethod("declared").invoke(pack);
-			String[] aaKeys = {"TAA_DEFINE", "TAA", "FXAA", "ANTIALIASING", "ANTI_ALIASING"};
-			boolean hasAnyAa = false;
-			for (String key : aaKeys) {
-				if (declared.contains(key)) {
-					hasAnyAa = true;
-					break;
-				}
-			}
-			if (!hasAnyAa) {
+			if (!declared.contains("TAA_DEFINE") || !declared.contains("TAA_JITTER")) {
 				return pack;
 			}
 			Map<?, ?> original = (Map<?, ?>) type.getMethod("forced").invoke(pack);
 			Map<Object, Object> forced = new LinkedHashMap<>(original);
 			Method optionValueOf = Class.forName("dev.vitrail.pack.option.OptionValue").getMethod("of", String.class);
-			for (String key : aaKeys) {
-				if (declared.contains(key)) {
-					forced.put(key, optionValueOf.invoke(null, "0"));
-				}
-			}
+			forced.put("TAA_DEFINE", optionValueOf.invoke(null, "1"));
+			forced.put("TAA_JITTER", optionValueOf.invoke(null, "0"));
 			RecordComponent[] components = type.getRecordComponents();
 			Class<?>[] types = new Class<?>[components.length];
 			Object[] values = new Object[components.length];
@@ -108,7 +98,7 @@ public final class VitrailCompat {
 				values[i] = components[i].getName().equals("forced") ? Map.copyOf(forced)
 						: components[i].getAccessor().invoke(pack);
 			}
-			ReflexiumClient.LOGGER.info("Vitrail {}: Reflexium owns antialiasing while upscaling (disabled pack AA)", name);
+			ReflexiumClient.LOGGER.info("Vitrail {}: pack TAA retained with Reflexium projection jitter", name);
 			return type.getConstructor(types).newInstance(values);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			integrationBroken = true;

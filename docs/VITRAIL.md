@@ -39,8 +39,9 @@ While Reflexium upscales a frame:
   resolution.
 
 Complementary Reimagined and Unbound packs whose names begin `ComplementaryReimagined_` or
-`ComplementaryUnbound_` and declare `TAA_DEFINE` are loaded with an in-memory `TAA_DEFINE=0`
-override. That removes their own jitter and TAA resolve while DLSS/FSR owns temporal sampling.
+`ComplementaryUnbound_` and declare both `TAA_DEFINE` and `TAA_JITTER` are loaded with in-memory
+`TAA_DEFINE=1` and `TAA_JITTER=0` overrides. The pack's TAA resolves its dithered lighting, while
+Reflexium supplies the only projection jitter for DLSS/FSR.
 No pack or settings file is changed. Enabling or disabling an available upscaler reloads the
 current pack once; disabling restores the user's own settings. Shader toggles and world changes
 read the same override through the pack's normal load path.
@@ -52,9 +53,9 @@ without evaluating the upscaler or treating the missing scene as a permanent fai
 temporal history for the next actual world frame. A warmup check at frame start alone would miss
 the reload that occurs inside Vitrail's wrapper.
 
-Other packs retain their own temporal options. Their TAA must be disabled in their own settings
-if it applies a second jitter or resolve. Pack names and option semantics are not standardized,
-so this integration does not guess how an unknown option works. Material animations driven only
+Other packs retain their own temporal options and need pack-specific validation. Pack names and
+option semantics are not standardized, so this integration does not guess how an unknown option
+works. Material animations driven only
 inside the pack, including waving leaves and water, do not have independent object vectors.
 The automatic FSR reactive mask is disabled while a pack draws because the opaque pre-composite
 image and final tone-mapped image are not a valid matched color pair.
@@ -63,7 +64,7 @@ image and final tone-mapped image are not a valid matched color pair.
 
 1. Use the exact Vitrail/Sodium/Complementary setup below, with Vulkan confirmed in the live log.
 2. Choose DLSS Quality, load a world and wait for the pack's compilation to finish. Check the log
-   for `Reflexium owns TAA` and a pack target size matching Reflexium's render resolution. The
+   for `pack TAA retained with Reflexium projection jitter` and a pack target size matching Reflexium's render resolution. The
    upscaler frame counter must advance while the pack is drawing.
 3. Capture a still camera sequence, then turn and walk. Check for jitter wobble, history trails,
    stable post-effect alignment and a sharp GUI. Repeat with FSR and each quality mode.

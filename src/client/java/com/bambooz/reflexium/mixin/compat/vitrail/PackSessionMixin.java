@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Apply the known pack's TAA override in memory; the user's saved file stays authoritative off. */
+/** Keep the pack's temporal resolve while preventing its second projection jitter. */
 @Pseudo
 @Mixin(targets = "dev.vitrail.settings.PackSession", remap = false)
 public abstract class PackSessionMixin {
