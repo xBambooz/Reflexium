@@ -105,7 +105,7 @@ foreach ($entry in @{enableVsync='false';maxFps='260';renderDistance=[string]$re
 function WorldHashes { @(Get-ChildItem (Join-Path $scene 'world') -File -Recurse | Where-Object { $_.Name -ne 'session.lock' -and $_.FullName -notmatch '\\players\\(stats|advancements)\\' } | Sort-Object FullName | ForEach-Object { @{path=$_.FullName.Substring($scene.Length);sha256=(Get-FileHash -LiteralPath $_.FullName).Hash} }) }
 $hashes = WorldHashes
 WriteJson (Join-Path $out 'world-before.json') $hashes
-WriteJson (Join-Path $out 'protocol.json') @{scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning='Benchmark Mod per JVM'}
+WriteJson (Join-Path $out 'protocol.json') @{scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;quick=[bool]$Quick;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning=$(if ($Quick) { 'disabled (-Quick)' } else { 'Benchmark Mod per JVM' })}
 $definitions = @(
     @{id='native';upscaler='off';quality='performance';model='transformer';fg='off';mult=2},
     @{id='cnn-performance';upscaler='dlss';quality='performance';model='cnn';fg='off';mult=2},
@@ -121,7 +121,7 @@ $definitions = @(
 $chosen = if ($Modes) { @($Modes.Split(',')) } elseif ($IncludeFG) { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance','fg2','fg4') } else { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance') }
 # A mode may carry runtime overrides after '@', for example tf-performance@reflex_mode=off. Only keys listed
 # here are accepted; each is restored to its shipped value before the next capture that does not set it.
-$knobs = @{reflex_submission='1';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on'}
+$knobs = @{reflex_submission='1';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on';smart_reflex='0';reflex_interval_us='-1'}
 $selected = foreach ($entry in $chosen) {
     $parts = $entry.Split('@')
     $base = $definitions | Where-Object id -eq $parts[0]
@@ -170,7 +170,7 @@ $owned=$false
 try {
     # ABBA across fresh JVMs: old forward, new forward, new reversed, old reversed. -Explore is one JVM
     # of the new jar, forward then reversed, for comparing runtime overrides cheaply.
-    $launches = @(if ($Explore) { @{arm='explore';jar=$new;orders=@('f','r')} }
+    $launches = @(if ($Explore) { @{arm='explore';jar=$new;orders=@(if ($Quick) { 'f' } else { 'f','r' })} }
         elseif ($Quick) { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')}) }
         else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) })
     $touched = [Collections.Generic.HashSet[string]]::new()

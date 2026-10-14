@@ -16,6 +16,8 @@ public final class DebugSettings {
 	public static int dlssPreset = -1;
 	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
 	public static boolean reflexSubmission = true;
+	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
+	public static int reflexIntervalUs = -1;
 	public static boolean objectMotion() { return objectMotion; }
 	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
 	public static boolean drawStaticObjects() { return drawStaticObjects; }

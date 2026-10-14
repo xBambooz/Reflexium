@@ -228,3 +228,72 @@ The integration audit found no application frame cap: `minimumIntervalUs` is zer
 The simulation, render-submit and present markers use the same `frameId`. `RENDERSUBMIT_END` follows NGX evaluation. The RenderPearl `vkQueueSubmit2KHR` hook tags every stage with the current frame ID, and the real present chains the same monotonically increasing number through `VkPresentIdKHR`. NGX Super Resolution records into RenderPearl's supplied command buffer, with no separate application-owned submit in its steady-state bridge. The sampled engine submit and sleep counts match one per frame. The [Vulkan attribution rules](https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#low-latency-frame-attribution) explicitly say `VkLatencySubmissionPresentIdNV` is independent of `VkPresentIdKHR`; matching numbers are a convention, not an attribution requirement. An out-of-band queue designation on the graphics queue would exclude or redirect the actual render submission. This audit did not trace hidden submissions inside the proprietary NGX driver library, so it cannot exclude them categorically. FG's generated presents use out-of-band present markers, but FG was disabled for these captures.
 
 In the normal set, Off spent about 0.76 ms per frame in RenderPearl submit including its required resource-lifetime wait. On reduced that span to 0.18 to 0.19 ms but spent 0.94 to 1.01 ms inside `vkLatencySleepNV` before simulation. The net additional wait closely matches the measured 0.43 ms frame-time increase. The [Vulkan specification](https://docs.vulkan.org/refpages/latest/refpages/source/vkLatencySleepNV.html) says `vkLatencySleepNV` returns immediately and the semaphore wait delays host work; [NVIDIA confirmed that expectation](https://forums.developer.nvidia.com/t/vk-nv-low-latency2-latency-sleep-semaphore-appears-to-under-sleep-by-1000x/366452) in a separate report. This driver stack instead spent the time in the driver call. Disabling the OBS hook or NVIDIA presentation layer did not change that behavior. Reflex On reduced reported render latency by about 0.68 ms, but its throughput remains roughly 28% below Off and fails NVIDIA's approximately 4% QA criterion. The driver scheduling reason is not proven to be expected behavior. No safe throughput fix emerged: bypassing sleep would turn Reflex off, and excluding the graphics queue would hide real rendering. A correlated Vulkan API and GPU trace is still needed to isolate the driver scheduling decision.
+
+## Reflex isolation and 800 us interval check, 14 October 2026
+
+Smart Reflex is disabled by default on this investigation branch. Every new measurement also explicitly sets `smart_reflex=0`; a pacing pause is not an accepted optimization. The test jar is SHA-256 `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`.
+
+The inherited `build/trace-tools/api-reflex-route.txt` is a detailed LunarG API dump of 50 sampled frames, numbered 10000 through 59000 at intervals of 1000. Each sampled frame has one `vkQueueSubmit2KHR` call with two `VkSubmitInfo2` batches, both tagged with the simulation ID, followed by one present carrying that same ID in `VkPresentIdKHR`. All simulation/render/present-start marker IDs match. There are no extra loader-visible NGX submissions in these samples. NGX receives the application's Vulkan resolver functions and records its SR work into supplied command buffers. Driver-private submissions remain outside this observation. [Trace summary and retained queue/pNext packets](benchmarks/bm/reflex-investigation/trace-summary.json).
+
+The separate startup dump confirms `latencyModeEnable=VK_TRUE`, Immediate presentation, `minImageCount=8`, eight actual images, and a successful `vkSetLatencySleepModeNV` with zero minimum interval. A startup submit before the first simulation marker is untagged. That is outside an active Reflex frame. LunarG increments its own frame counter at present, so `PRESENT_END` for frame N shares the dump-frame number of `SIMULATION_START` for N+1. This counter boundary is not an off-by-one in the application IDs. The creation hook resets the applied mode/cap and reapplies them on every normal swapchain recreation.
+
+A fresh dump of 32 consecutive active frames (LunarG 12000 through 12031, application IDs 11921 through 11952) confirms the same result continuously: 32 sleeps, 32 submit calls containing 64 tagged batches, and 32 real presents. Every active batch and marker matches its frame's present ID, and no additional loader-visible queue submission appears. The retained packets and capture environment are in the trace summary above. API logging perturbs pacing; that capture's FPS is excluded from performance conclusions.
+
+The old `reflex-images-20261014-A` measurements overlap the other agent's benchmark campaign and are excluded from performance conclusions. Nsight Systems is not installed. New GPU work waits until both Minecraft clients and benchmark parent processes have exited, including gaps between launches.
+
+The runtime-only `reflex_interval_us` debug override adds a minimum interval while retaining full Reflex sleep and any slower user/VRR cap. `-1` restores the normal setting. The 800 us hypothesis is that requesting an explicit 1250 FPS ceiling selects a better driver pacing path even when the actual rendered rate is below that ceiling. Status must show the requested interval, `reflex_sleeping=true` and `reflex_pacing_paused=false`.
+
+The native [reflex-reference.cpp](../tools/reflex-reference.cpp) isolates the driver without Minecraft, NGX, SDL or Java. It creates a non-activating secondary-monitor Win32 window, an Immediate three-image latency-enabled swapchain and a timeline sleep semaphore. It calibrates device-local buffer fills to roughly 1.1 ms GPU work, adds 350 us of simulated CPU work after sleep/input markers, and compares Off, On/0 us and On/800 us. It can use one submission batch or RenderPearl's two-batch layout. Its timestamps and driver reports are diagnostics for this transfer-heavy workload, not a game latency or mouse-feel acceptance test.
+
+### Quick interval result
+
+One forward-only `-Quick -Explore -Diagnostics` JVM captured the frozen route with five-second warmups and one measured pass. It used implicit submission attribution to obtain valid latency reports. All six captures preserved focus, produced no FG presents, and retained all 63 protected world hashes. The initial CNN Off capture has the known possible cold-start bias. These instrumented, single-capture values are rough diagnostics, not final acceptance. [Command, raw capture hashes, profiles, status and driver reports](benchmarks/bm/reflex-investigation/interval-800/protocol.json).
+
+| Model | Reflex | Minimum interval | FPS | Driver call | Semaphore wait | Input to GPU end |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Transformer Performance | Off | 0 us | 894.5 | not called | not called | 2.167 ms |
+| Transformer Performance | On | 0 us | 642.6 | 1.038 ms | 4.75 us | 1.437 ms |
+| Transformer Performance | On | 800 us | 619.8 | 1.159 ms | 4.97 us | 1.411 ms |
+| CNN Performance | Off | 0 us | 1259.4 | not called | not called | 1.491 ms |
+| CNN Performance | On | 0 us | 1040.7 | 0.312 ms | 3.89 us | 1.196 ms |
+| CNN Performance | On | 800 us | 620.4 | 1.221 ms | 4.80 us | 0.980 ms |
+
+Each latency number averages 64 complete, consistently ordered reports from the matching profile snapshot. It excludes scanout and physical device latency. Status verified full sleep and no pause in every On capture. The 800 us override reduced Transformer FPS by 3.5% and CNN FPS by 40.4% against 0 us. Both 800 us variants ran near 620 FPS, roughly a 1.61 ms frame interval despite the requested 0.8 ms minimum. This does not establish a universal internal Reflex cap, but it rules out this floor as a fix on the tested stack. The earlier approximately flat CNN comparison was not reproduced here.
+
+### Isolated driver reproduction
+
+NVIDIA 617.42 on the RTX 5070 reproduces both problems outside Minecraft. [Native console output, raw timing reports and commands](benchmarks/bm/reflex-investigation/native-reference/protocol.json).
+
+| Reference variant | Off FPS | On/0 FPS | On driver call | On GPU workload | Inverted explicit reports |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Implicit attribution, one batch | 886.7 | 554.4 | 1.315 ms | 1.025 ms | 0/64 |
+| Explicit attribution, one batch | 886.6 | 538.9 | 1.364 ms | 1.019 ms | 64/64 |
+| Explicit attribution, two batches | 886.0 | 522.1 | 1.417 ms | 1.024 ms | 64/64 |
+
+The implicit one-batch reference has no application ID ambiguity. On cuts throughput by 37.5% while reducing its input-to-GPU-end report from 4.350 to 1.459 ms. Its Off `vkLatencySleepNV` calls take about 6 us, and its On semaphore waits about 5 us. Thus neither NGX nor RenderPearl's submission layout is necessary for the blocking-call penalty. The native explicit variants reproduce the inverted driver timestamps in Off and On, with both batch layouts. This rules out Java struct bindings and a Minecraft-only present-ID mismatch as necessary causes of that defect. Invalid explicit latency values printed as zero by the reference mean unavailable, not zero latency.
+
+A lighter implicit, one-batch workload with 100 us CPU work and about 0.24 ms GPU work measured 3841.1 FPS Off, 3250.4 On/0, and 650.1 On/800. At 800 us, the driver call averaged 1.304 ms, while the semaphore wait remained 5.08 us. This independently reproduces the unexpectedly low ceiling. The OS's current global timer resolution was 500 us, measured with `NtQueryTimerResolution`; a coarse global 15.625 ms timer is not the explanation. That query alone does not establish each process's timer policy.
+
+The native explicit two-batch test also completed under Khronos core validation and a separate run with synchronization validation (`VK_LAYER_VALIDATE_SYNC=1`). Both exited zero with empty warning/error callback logs, while reproducing the inverted reports and On penalty. Validation timings are retained separately and are not the headline reference measurements.
+
+The strongest remaining cause is excessive pacing inside this driver/OS implementation of `VK_NV_low_latency2`, alongside an independently reproducible explicit-attribution reporting defect. This is stronger than the earlier integration-only hypothesis, but it does not identify the driver's internal scheduling error. No safe production throughput fix is demonstrated, and the requested 5% target remains unmet. The default minimum interval stays zero; the 800 us knob is diagnostic only. Reflex remains fully active when On.
+
+Build the reference from an x64 Visual Studio 2022 developer prompt at the repository root, using the already installed local Vulkan SDK:
+
+```bat
+cl /nologo /O2 /EHsc /std:c++17 /Ibuild\trace-tools\sdk\Include tools\reflex-reference.cpp /Fobuild\trace-tools\reflex-reference.obj /Febuild\trace-tools\reflex-reference.exe /link /NOLOGO /LIBPATH:build\trace-tools\sdk\Lib vulkan-1.lib user32.lib
+```
+
+Arguments are explicit IDs (`0|1`), CPU work in us, split batches (`0|1`), and target GPU work in us (default 1100). The first phase calibrates, then each variant has two seconds to settle and four seconds of measurement. Launch its console hidden; its Win32 window stays visible on the secondary monitor without activation:
+
+```powershell
+Start-Process build\trace-tools\reflex-reference.exe -ArgumentList '0','350','0','1100' -WindowStyle Hidden -Wait -RedirectStandardOutput build\trace-tools\reference.txt -RedirectStandardError build\trace-tools\reference-errors.txt
+```
+
+### The apparent 306 FPS shader and 317 FPS FG ceilings
+
+The inherited `quick-smartreflex-B` arms are distinct captures with different SHA-256 hashes and different frame intervals. Both happen to contain 13777 frames, but their full-second rates range from 258 to 367 FPS and 260 to 370 FPS. They average 96.9% and 97.7% GPU utilization. Thus the matching average is not a hard 306 FPS cap. A new two-capture `-Quick -Explore -Diagnostics -Set B` check measured **308.0 FPS On and 307.8 Off**, with 97.8% and 98.4% GPU use. World GPU spans are 3.15 and 3.09 ms, present calls 33 and 36 us, and acquire calls about 4 to 5 us. The cause is the Complementary/Vitrail shader workload saturating the GPU. On correctly returns from `vkLatencySleepNV` in 4.67 us and waits about 1.50 ms on the semaphore in this workload. Turning Reflex off does not raise throughput. The installed Vitrail bytecode contains no reference to the vanilla FPS limiter or Vulkan swapchain/present-mode setters; its `ChainPresent` is a fullscreen shader draw. [Capture hashes, full-second ranges and diagnostic profiles](benchmarks/bm/reflex-investigation/ceilings/measurements.json).
+
+The shaderless FG2 result has a separate workload/completion bottleneck. Its inherited arms average 318.0 and 316.8 real FPS, with full-second rates up to 330 and 327, at about 80% GPU use. One new FG2 diagnostic measured 311.2 real FPS, with full seconds from 290 to 327. World rendering costs 0.915 ms GPU and FG evaluation adds 1.434 ms. There are two renderer submits per real frame: their CPU spans total 2.526 ms, including about **2.435 ms in resource-completion waits** (9587 wait calls / 1579 real frames, averaging 401 us per call). The extra submit presents the real image after the generated image and encounters RenderPearl's resource-lifetime synchronization again. These spans include one another and must not be added as independent costs. Reflex sleep totals only **25.8 us per real frame**. The two presents average 29 us each and two acquires about 4 us each. This localizes the cost to FG work and renderer submission/completion serialization, rather than a 317 FPS Reflex or out-of-band presentation cap. The base rate counts real frames; generated/displayed cadence is a separate metric.
+
+Both diagnostic campaigns used the same frozen route, preserved focus and protected world hashes, and ran without another game or benchmark parent. No new pacing option or FPS-cap workaround was added for either result.

@@ -360,6 +360,7 @@ public final class DebugServer {
 		o.addProperty("reflex_sleeping", com.bambooz.reflexium.reflex.ReflexController.get().isSleeping());
 		o.addProperty("reflex_latency", com.bambooz.reflexium.reflex.ReflexController.get().latencyLine());
 		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);
+		o.addProperty("reflex_interval_us", DebugSettings.reflexIntervalUs);
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
@@ -493,6 +494,11 @@ public final class DebugServer {
 			case "reflex_submission" -> {
 				boolean enabled = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.reflexSubmission = enabled;
+			}
+			case "reflex_interval_us" -> {
+				int interval = Integer.parseInt(value);
+				if (interval < -1 || interval > 1_000_000) throw new BadRequest("Reflex interval must be -1..1000000 us");
+				yield () -> DebugSettings.reflexIntervalUs = interval;
 			}
 			case "reflex_mode" -> {
 				var mode = parseEnum(com.bambooz.reflexium.reflex.ReflexMode.class, value);

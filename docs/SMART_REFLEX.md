@@ -3,7 +3,7 @@
 Interim workaround for the high-FPS `vkLatencySleepNV` throughput cost described in
 [PERFORMANCE.md](PERFORMANCE.md). This does not fix the driver scheduling issue.
 
-`smart_reflex=true` is the default, including when an older config omits the property.
+`smart_reflex=false` is the default, including when an older config omits the property.
 The toggle appears next to NVIDIA Reflex in vanilla Video Settings, Mod Menu's config
 screen, Sodium and Reese's Sodium Options.
 

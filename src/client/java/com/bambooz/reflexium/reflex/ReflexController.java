@@ -346,7 +346,7 @@ public final class ReflexController {
 			return;
 		}
 		ReflexMode mode = mode();
-		int interval = mode.enabled() ? requestedIntervalUs : 0;
+		int interval = mode.enabled() ? Math.max(requestedIntervalUs, com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs) : 0;
 		if (mode == appliedMode && interval == appliedIntervalUs) {
 			return;
 		}

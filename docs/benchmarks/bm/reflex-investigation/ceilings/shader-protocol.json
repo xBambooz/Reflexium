@@ -1,0 +1,11 @@
+{
+    "render_distance":  16,
+    "diagnostics":  true,
+    "conditioning":  "disabled (-Quick)",
+    "quick":  true,
+    "warmup_seconds":  5,
+    "scene_source":  "C:\\Users\\Ryan\\Documents\\Minecraft FPS Lab\\baseline\\scene",
+    "route_seconds":  48.0,
+    "passes":  1,
+    "scene_sha256":  "720F539F755CCC56A18EBFD9A932A3FB633A142139DCC1550754FC220BDB8316"
+}

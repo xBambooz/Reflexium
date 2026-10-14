@@ -1,0 +1,501 @@
+{
+  "api-reflex-explicit": {
+    "source": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\trace-tools\\api-reflex-explicit.txt",
+    "sha256": "a129adfb81b85127148dd2056278a7d35d30baca997f682dde07157f07d1ec8a",
+    "retained": "docs\\benchmarks\\bm\\reflex-investigation\\api-reflex-explicit-queues.txt.gz",
+    "scope": "Sparse api_dump samples, not a continuous trace",
+    "call_counts": {
+      "QueueSubmit2KHR": 2,
+      "QueuePresentKHR": 2,
+      "SetLatencyMarkerNV": 7,
+      "LatencySleepNV": 1
+    },
+    "queues": [
+      "000001CE393814D0"
+    ],
+    "sampled_dump_frames": [
+      0,
+      1000
+    ],
+    "untagged_submit_calls": 1,
+    "id_mismatches": [],
+    "samples": [
+      {
+        "dump_frame": 0,
+        "present_id": []
+      },
+      {
+        "dump_frame": 1000,
+        "present_id": [
+          940
+        ]
+      }
+    ],
+    "startup_untagged_submit_calls": 1,
+    "active_untagged_submit_calls": 0,
+    "startup_note": "Dump frame 0 precedes the first simulation marker, so its submit is correctly untagged. Active frame 1000 has matching nonzero IDs."
+  },
+  "api-reflex-route": {
+    "source": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\trace-tools\\api-reflex-route.txt",
+    "sha256": "de51f881b1c7babf5e1ae4023f95cc10a5a406cf838436872aa7d04481ffce13",
+    "retained": "docs\\benchmarks\\bm\\reflex-investigation\\api-reflex-route-queues.txt.gz",
+    "scope": "Sparse api_dump samples, not a continuous trace",
+    "call_counts": {
+      "SetLatencyMarkerNV": 350,
+      "LatencySleepNV": 50,
+      "QueueSubmit2KHR": 50,
+      "QueuePresentKHR": 50
+    },
+    "queues": [
+      "00000298DC3814D0"
+    ],
+    "sampled_dump_frames": [
+      10000,
+      11000,
+      12000,
+      13000,
+      14000,
+      15000,
+      16000,
+      17000,
+      18000,
+      19000,
+      20000,
+      21000,
+      22000,
+      23000,
+      24000,
+      25000,
+      26000,
+      27000,
+      28000,
+      29000,
+      30000,
+      31000,
+      32000,
+      33000,
+      34000,
+      35000,
+      36000,
+      37000,
+      38000,
+      39000,
+      40000,
+      41000,
+      42000,
+      43000,
+      44000,
+      45000,
+      46000,
+      47000,
+      48000,
+      49000,
+      50000,
+      51000,
+      52000,
+      53000,
+      54000,
+      55000,
+      56000,
+      57000,
+      58000,
+      59000
+    ],
+    "untagged_submit_calls": 0,
+    "id_mismatches": [],
+    "samples": [
+      {
+        "dump_frame": 10000,
+        "present_id": [
+          9928
+        ]
+      },
+      {
+        "dump_frame": 11000,
+        "present_id": [
+          10928
+        ]
+      },
+      {
+        "dump_frame": 12000,
+        "present_id": [
+          11928
+        ]
+      },
+      {
+        "dump_frame": 13000,
+        "present_id": [
+          12928
+        ]
+      },
+      {
+        "dump_frame": 14000,
+        "present_id": [
+          13928
+        ]
+      },
+      {
+        "dump_frame": 15000,
+        "present_id": [
+          14928
+        ]
+      },
+      {
+        "dump_frame": 16000,
+        "present_id": [
+          15928
+        ]
+      },
+      {
+        "dump_frame": 17000,
+        "present_id": [
+          16928
+        ]
+      },
+      {
+        "dump_frame": 18000,
+        "present_id": [
+          17928
+        ]
+      },
+      {
+        "dump_frame": 19000,
+        "present_id": [
+          18928
+        ]
+      },
+      {
+        "dump_frame": 20000,
+        "present_id": [
+          19928
+        ]
+      },
+      {
+        "dump_frame": 21000,
+        "present_id": [
+          20928
+        ]
+      },
+      {
+        "dump_frame": 22000,
+        "present_id": [
+          21928
+        ]
+      },
+      {
+        "dump_frame": 23000,
+        "present_id": [
+          22928
+        ]
+      },
+      {
+        "dump_frame": 24000,
+        "present_id": [
+          23928
+        ]
+      },
+      {
+        "dump_frame": 25000,
+        "present_id": [
+          24928
+        ]
+      },
+      {
+        "dump_frame": 26000,
+        "present_id": [
+          25928
+        ]
+      },
+      {
+        "dump_frame": 27000,
+        "present_id": [
+          26928
+        ]
+      },
+      {
+        "dump_frame": 28000,
+        "present_id": [
+          27928
+        ]
+      },
+      {
+        "dump_frame": 29000,
+        "present_id": [
+          28928
+        ]
+      },
+      {
+        "dump_frame": 30000,
+        "present_id": [
+          29928
+        ]
+      },
+      {
+        "dump_frame": 31000,
+        "present_id": [
+          30928
+        ]
+      },
+      {
+        "dump_frame": 32000,
+        "present_id": [
+          31928
+        ]
+      },
+      {
+        "dump_frame": 33000,
+        "present_id": [
+          32928
+        ]
+      },
+      {
+        "dump_frame": 34000,
+        "present_id": [
+          33928
+        ]
+      },
+      {
+        "dump_frame": 35000,
+        "present_id": [
+          34928
+        ]
+      },
+      {
+        "dump_frame": 36000,
+        "present_id": [
+          35928
+        ]
+      },
+      {
+        "dump_frame": 37000,
+        "present_id": [
+          36928
+        ]
+      },
+      {
+        "dump_frame": 38000,
+        "present_id": [
+          37928
+        ]
+      },
+      {
+        "dump_frame": 39000,
+        "present_id": [
+          38735
+        ]
+      },
+      {
+        "dump_frame": 40000,
+        "present_id": [
+          39735
+        ]
+      },
+      {
+        "dump_frame": 41000,
+        "present_id": [
+          40735
+        ]
+      },
+      {
+        "dump_frame": 42000,
+        "present_id": [
+          41735
+        ]
+      },
+      {
+        "dump_frame": 43000,
+        "present_id": [
+          42735
+        ]
+      },
+      {
+        "dump_frame": 44000,
+        "present_id": [
+          43735
+        ]
+      },
+      {
+        "dump_frame": 45000,
+        "present_id": [
+          44735
+        ]
+      },
+      {
+        "dump_frame": 46000,
+        "present_id": [
+          45735
+        ]
+      },
+      {
+        "dump_frame": 47000,
+        "present_id": [
+          46735
+        ]
+      },
+      {
+        "dump_frame": 48000,
+        "present_id": [
+          47735
+        ]
+      },
+      {
+        "dump_frame": 49000,
+        "present_id": [
+          48735
+        ]
+      },
+      {
+        "dump_frame": 50000,
+        "present_id": [
+          49735
+        ]
+      },
+      {
+        "dump_frame": 51000,
+        "present_id": [
+          50735
+        ]
+      },
+      {
+        "dump_frame": 52000,
+        "present_id": [
+          51735
+        ]
+      },
+      {
+        "dump_frame": 53000,
+        "present_id": [
+          52735
+        ]
+      },
+      {
+        "dump_frame": 54000,
+        "present_id": [
+          53735
+        ]
+      },
+      {
+        "dump_frame": 55000,
+        "present_id": [
+          54735
+        ]
+      },
+      {
+        "dump_frame": 56000,
+        "present_id": [
+          55735
+        ]
+      },
+      {
+        "dump_frame": 57000,
+        "present_id": [
+          56735
+        ]
+      },
+      {
+        "dump_frame": 58000,
+        "present_id": [
+          57735
+        ]
+      },
+      {
+        "dump_frame": 59000,
+        "present_id": [
+          58735
+        ]
+      }
+    ],
+    "active_untagged_submit_calls": 0
+  },
+  "api-reflex-contiguous": {
+    "source": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\trace-tools\\api-reflex-contiguous.txt",
+    "sha256": "dce703c11bb00e985ec4f7cf5292cbe4d326979a4469026e478410d885263a5f",
+    "retained": "docs/benchmarks/bm/reflex-investigation/api-reflex-contiguous-queues.txt.gz",
+    "scope": "32 consecutive active frames plus startup frame 0",
+    "active_frames": 32,
+    "active_submit_calls": 32,
+    "active_submit_batches": 64,
+    "active_present_calls": 32,
+    "active_sleep_calls": 32,
+    "active_untagged_submit_calls": 0,
+    "id_mismatches": [],
+    "dump_frames": [
+      12000,
+      12001,
+      12002,
+      12003,
+      12004,
+      12005,
+      12006,
+      12007,
+      12008,
+      12009,
+      12010,
+      12011,
+      12012,
+      12013,
+      12014,
+      12015,
+      12016,
+      12017,
+      12018,
+      12019,
+      12020,
+      12021,
+      12022,
+      12023,
+      12024,
+      12025,
+      12026,
+      12027,
+      12028,
+      12029,
+      12030,
+      12031
+    ],
+    "present_ids": [
+      11921,
+      11922,
+      11923,
+      11924,
+      11925,
+      11926,
+      11927,
+      11928,
+      11929,
+      11930,
+      11931,
+      11932,
+      11933,
+      11934,
+      11935,
+      11936,
+      11937,
+      11938,
+      11939,
+      11940,
+      11941,
+      11942,
+      11943,
+      11944,
+      11945,
+      11946,
+      11947,
+      11948,
+      11949,
+      11950,
+      11951,
+      11952
+    ],
+    "command": "bm-quick-bench.ps1 -Quick -Explore -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar -Modes tf-performance@smart_reflex=0 -Set A -Port 25622 -Label reflex-api-contiguous-20261014",
+    "environment": {
+      "VK_LAYER_PATH": "build/trace-tools/sdk/Bin",
+      "VK_INSTANCE_LAYERS": "VK_LAYER_LUNARG_api_dump",
+      "VK_APIDUMP_OUTPUT_RANGE": "0,12000-32",
+      "VK_APIDUMP_DETAILED": "true",
+      "VK_APIDUMP_TIMESTAMP": "true",
+      "VK_APIDUMP_FLUSH": "false"
+    },
+    "caveat": "API logging perturbs pacing. Do not use the traced capture FPS for acceptance."
+  }
+}

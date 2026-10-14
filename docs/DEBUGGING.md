@@ -90,6 +90,8 @@ The authenticated harness endpoint accepts `profile=on|reset|off|status`. `reset
 
 Use Benchmark Mod and `tools/bm-quick-bench.ps1` for new performance measurements. The older fixed-pose script above documents the historical captures. `-Diagnostics` adds opt-in `fg_evaluate`/`fg_gui` CPU and GPU spans and raw driver reports; its FPS is diagnostic, not uninstrumented acceptance. `reflex_submission=0` chains zero queue IDs to return to implicit attribution; `1` restores the shipped explicit IDs. It resets on JVM restart. Do not use this variant with FG as an acceptance configuration.
 
+`reflex_interval_us=-1|0..1000000` imposes a diagnostic minimum frame interval in microseconds while Reflex is On. `-1` restores the normal cap; an explicit/VRR cap still takes precedence when it is slower. The override is runtime only and appears in status. For example, `800` requests a 1250 FPS ceiling. `-Quick -Explore` runs the selected runtime variants once in one JVM, with no reverse pass or conditioning capture. Use `smart_reflex=0` throughout Reflex investigations.
+
 `POST /reflexium {"reflex_timings":"1"}` returns up to 64 complete driver reports with microsecond timestamps relative to the first returned simulation start. Preserve these fields even when driver timestamps are inconsistent. F3's `Reflex render latency` uses input sample (or simulation start fallback) through GPU completion, excludes scanout, and refuses reports with inverted driver start/end. CPU present return alone is not render-complete latency. Status includes `reflex_status` and `reflex_submission`, allowing a diagnostic to verify caps and the attribution variant.
 
 Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are saved to
