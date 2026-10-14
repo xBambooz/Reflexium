@@ -174,6 +174,12 @@ four combinations.
 
 ## Notes and limits
 
+Frame generation adds `frame_generation=off|dlss|dlss_multi|fsr` and `fg_multiplier=3..8` to `/set`.
+Status includes the runtime MFG maximum, FG evaluations, successful generated present submissions,
+metering feedback and AMD scheduler present counts. These counters do not measure physical scanout.
+`/screenshot?fg_index=0&gui=1` reads the first generated target. See
+[frame-generation checks](FRAME_GENERATION.md) for the authenticated harness test script.
+
 - The harness forces `pauseOnLostFocus` off while the debug server runs, so a background window keeps
   ticking and scripted motion is not frozen by the pause menu.
 - Window minimized or unfocused for a long time can hit vanilla's AFK frame limits and slow frames.

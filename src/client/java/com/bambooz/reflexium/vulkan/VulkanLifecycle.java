@@ -37,10 +37,11 @@ public final class VulkanLifecycle {
 				physicalDevice.driverInfo(),
 				extensions.lowLatency2(),
 				extensions.presentId(),
+				extensions.presentMetering(),
 				extensions.ngxExtensions());
 		VulkanSession.publish(session);
-		ReflexiumClient.LOGGER.info("Vulkan device {} ({}): low_latency2={}, present_id={}",
-				session.deviceName(), session.driverInfo(), session.lowLatency2(), session.presentId());
+		ReflexiumClient.LOGGER.info("Vulkan device {} ({}): low_latency2={}, present_id={}, present_metering={}",
+				session.deviceName(), session.driverInfo(), session.lowLatency2(), session.presentId(), session.presentMetering());
 
 		ReflexController.get().onDeviceCreated(session);
 		if (ReflexiumConfig.get().dlssDetection() && ReflexiumClient.isSupportedPlatform()) {
@@ -60,6 +61,7 @@ public final class VulkanLifecycle {
 	}
 
 	public static void onSwapchainDestroyed() {
+		com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().invalidate();
 		ReflexController.get().onSwapchainDestroyed();
 	}
 
@@ -90,6 +92,7 @@ public final class VulkanLifecycle {
 	}
 
 	public static VkSubmitInfo2.Buffer chainSubmissionIds(VkSubmitInfo2.Buffer submits) {
+		if (com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().isGeneratedPresent()) return submits;
 		long id = ReflexController.get().currentFrameId();
 		VulkanSession session = VulkanSession.current();
 		if (id == 0 || session == null || !session.lowLatency2()) {

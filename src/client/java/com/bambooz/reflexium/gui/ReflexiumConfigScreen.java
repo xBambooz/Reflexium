@@ -23,10 +23,13 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		list.addBig(ReflexiumOptions.upscaleQuality());
 		list.addBig(ReflexiumOptions.dlssModel());
 		list.addBig(ReflexiumOptions.fsrSharpness());
+		list.addHeader(Component.translatable("reflexium.group.frame_generation"));
+		ReflexiumOptions.addFrameGeneration(list);
 
 		list.addHeader(Component.translatable("reflexium.status"));
 		list.addHeader(Component.literal(ReflexController.get().statusLine()));
 		list.addHeader(Component.literal(UpscalingRenderer.get().statusLine()));
+		list.addHeader(Component.literal(com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().statusLine()));
 		if (VitrailCompat.isLoaded()) {
 			list.addHeader(Component.literal("Vitrail: " + VitrailCompat.status()));
 		}

@@ -6,6 +6,8 @@ import com.bambooz.reflexium.dlss.DlssModel;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -313,7 +315,7 @@ public final class DebugServer {
 		JsonArray endpoints = new JsonArray();
 		for (String line : new String[] {
 				"/status",
-				"/set?key=<upscaler|quality|dlss_model|fsr_sharpness|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter>&value=<v>",
+				"/set?key=<upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter>&value=<v>",
 				"/screenshot?path=<file.png>&gui=0|1",
 				"/camera?x=&y=&z=&yaw=&pitch=",
 				"/move?dx=&dz=&ticks=&async=0|1   (total blocks along world X/Z over ticks)",
@@ -343,6 +345,15 @@ public final class DebugServer {
 		o.addProperty("quality", config.upscaleQuality().serializedName());
 		o.addProperty("dlss_model", config.dlssModel().serializedName());
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
+		o.addProperty("frame_generation", config.frameGeneration().serializedName());
+		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
+		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
+		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
+		o.addProperty("fg_evaluated_frames", FrameGenerationRenderer.get().evaluatedFrames());
+		o.addProperty("fg_generated_presents", FrameGenerationRenderer.get().generatedPresents());
+		o.addProperty("fg_metering_feedback", FrameGenerationRenderer.get().meteringFeedback());
+		o.addProperty("fg_sdk_present_count", com.bambooz.reflexium.dlss.FsrSwapchain.presentCount());
+		o.addProperty("fg_sdk_scheduler", com.bambooz.reflexium.dlss.FsrSwapchain.active());
 		o.addProperty("upscaling_active", info.active());
 		o.addProperty("status_line", upscaling.statusLine());
 		o.add("render_size", pair("w", info.renderWidth(), "h", info.renderHeight()));
@@ -410,6 +421,15 @@ public final class DebugServer {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "frame_generation" -> {
+				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
+				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
+			}
+			case "fg_multiplier" -> {
+				int multiplier = integer(Map.of("v", value), "v", 4);
+				if (multiplier < 3 || multiplier > 8) throw new BadRequest("FG multiplier must be 3..8");
+				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); };
+			}
 			case "upscaler" -> {
 				Upscaler upscaler = parseEnum(Upscaler.class, value);
 				yield () -> ReflexiumConfig.get().setUpscaler(upscaler);
@@ -458,7 +478,7 @@ public final class DebugServer {
 				yield () -> DebugSettings.setDrawStaticObjects(on);
 			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static");
 		};
 		return call(() -> {
 			apply.run();
@@ -499,7 +519,7 @@ public final class DebugServer {
 		boolean gui = flag(q, "gui", false);
 		boolean hiddenByUs = hideHud(gui);
 		try {
-			return capture(file);
+			return capture(file, integer(q, "fg_index", -1));
 		} finally {
 			restoreHud(hiddenByUs);
 		}
@@ -538,6 +558,10 @@ public final class DebugServer {
 
 	/** Reads back the main render target (display resolution, after upscaling) and writes a PNG. */
 	private static JsonObject capture(Path file) throws Exception {
+		return capture(file, -1);
+	}
+
+	private static JsonObject capture(Path file, int generatedIndex) throws Exception {
 		CompletableFuture<NativeImage> image = new CompletableFuture<>();
 		JsonObject meta = call(() -> {
 			Minecraft mc = Minecraft.getInstance();
@@ -552,7 +576,7 @@ public final class DebugServer {
 			if (mc.player != null) {
 				m.add("camera", cameraJson(mc.player));
 			}
-			RenderTarget target = mc.gameRenderer.mainRenderTarget();
+			RenderTarget target = generatedIndex < 0 ? mc.gameRenderer.mainRenderTarget() : FrameGenerationRenderer.get().debugTarget(generatedIndex);
 			Screenshot.takeScreenshot(target, image::complete);
 			return m;
 		});

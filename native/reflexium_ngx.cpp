@@ -11,6 +11,8 @@
 #include "nvsdk_ngx_vk.h"
 #include "nvsdk_ngx_helpers.h"
 #include "nvsdk_ngx_helpers_vk.h"
+#include "nvsdk_ngx_helpers_dlssg_vk.h"
+#include "frame_constants.h"
 
 #include <cstdint>
 #include <cstdio>
@@ -28,6 +30,8 @@ constexpr const char* kProjectId = "4f6b2a0e-6d51-4c8a-9a7e-7c1f3d2b9e15";
 VkDevice g_device = VK_NULL_HANDLE;
 NVSDK_NGX_Parameter* g_params = nullptr;
 NVSDK_NGX_Handle* g_dlss = nullptr;
+NVSDK_NGX_Parameter* g_fgParams = nullptr;
+NVSDK_NGX_Handle* g_fg = nullptr;
 bool g_initialized = false;
 
 std::mutex g_logMutex;
@@ -152,6 +156,88 @@ RX_EXPORT int rx_dlss_available(int* needsDriverUpdate, unsigned int* minDriverM
 	return NVSDK_NGX_SUCCEED(result) && available ? 1 : 0;
 }
 
+// Capability query on the SAME initialized Minecraft device. maxGenerated excludes the real frame.
+RX_EXPORT int rx_fg_available(int* maxGenerated, int* initResult, int* needsDriverUpdate) {
+    *maxGenerated = 0;
+    *initResult = 0;
+    *needsDriverUpdate = 0;
+    if (!g_initialized) return 0;
+    int available = 0;
+    g_params->Get(NVSDK_NGX_Parameter_FrameGeneration_FeatureInitResult, initResult);
+    g_params->Get(NVSDK_NGX_Parameter_FrameGeneration_NeedsUpdatedDriver, needsDriverUpdate);
+    auto result = g_params->Get(NVSDK_NGX_Parameter_FrameGeneration_Available, &available);
+    if (NVSDK_NGX_FAILED(result) || !available || *needsDriverUpdate) return 0;
+    unsigned int maximum = 1; // Older FG runtimes do not expose the MFG query.
+    g_params->Get(NVSDK_NGX_DLSSG_Parameter_MultiFrameCountMax, &maximum);
+    *maxGenerated = static_cast<int>(maximum);
+    return maximum > 0 ? 1 : 0;
+}
+
+// Caller must finish GPU work before releasing or replacing either feature.
+RX_EXPORT void rx_fg_release() {
+    if (g_fg) { NVSDK_NGX_VULKAN_ReleaseFeature(g_fg); g_fg = nullptr; }
+    if (g_fgParams) { NVSDK_NGX_VULKAN_DestroyParameters(g_fgParams); g_fgParams = nullptr; }
+}
+
+RX_EXPORT int rx_fg_create(void* commands, unsigned int width, unsigned int height, int format) {
+    if (!g_initialized || !commands || !width || !height) return -1;
+    rx_fg_release();
+    auto result = NVSDK_NGX_VULKAN_GetCapabilityParameters(&g_fgParams);
+    if (NVSDK_NGX_FAILED(result)) return static_cast<int>(result);
+    NVSDK_NGX_DLSSG_Create_Params description = {};
+    description.Width = width;
+    description.Height = height;
+    description.NativeBackbufferFormat = format;
+    g_fgParams->Set(NVSDK_NGX_DLSSG_Parameter_UserInterfaceRecompositionEnabled, 0u);
+    result = NGX_VK_CREATE_DLSSG(static_cast<VkCommandBuffer>(commands), 1, 1, &g_fg, g_fgParams, &description);
+    if (NVSDK_NGX_FAILED(result)) { rx_fg_release(); return static_cast<int>(result); }
+    return 0;
+}
+
+// Inputs exclude the GUI. The app composites its current premultiplied GUI after interpolation.
+RX_EXPORT int rx_fg_evaluate(void* commands, const RxImage* color, const RxImage* depth,
+        const RxImage* motion, const RxImage* output, const RxFrameConstants* camera,
+        uint64_t frameId, unsigned int count, unsigned int index, int reset) {
+    if (!g_fg || !commands || !color || !depth || !motion || !output || !camera
+            || count < 1 || index < 1 || index > count) return -1;
+    auto c = toResource(color, false), d = toResource(depth, false), m = toResource(motion, false), o = toResource(output, true);
+    NVSDK_NGX_VK_DLSSG_Eval_Params eval = {};
+    eval.pBackbuffer = &c;
+    eval.pDepth = &d;
+    eval.pMVecs = &m;
+    eval.pOutputInterpFrame = &o;
+    NVSDK_NGX_DLSSG_Opt_Eval_Params opt = {};
+    opt.multiFrameCount = count;
+    opt.multiFrameIndex = index;
+    std::memcpy(opt.cameraViewToClip, camera->viewToClip, sizeof(camera->viewToClip));
+    std::memcpy(opt.clipToCameraView, camera->clipToView, sizeof(camera->clipToView));
+    std::memcpy(opt.clipToLensClip, camera->clipToLens, sizeof(camera->clipToLens));
+    std::memcpy(opt.clipToPrevClip, camera->clipToPrevious, sizeof(camera->clipToPrevious));
+    std::memcpy(opt.prevClipToClip, camera->previousToClip, sizeof(camera->previousToClip));
+    opt.jitterOffset[0] = 2.0f * camera->jitter[0] / motion->width;
+    opt.jitterOffset[1] = 2.0f * camera->jitter[1] / motion->height;
+    opt.mvecScale[0] = 1.0f / motion->width;
+    opt.mvecScale[1] = 1.0f / motion->height;
+    std::memcpy(opt.cameraPos, camera->position, sizeof(camera->position));
+    std::memcpy(opt.cameraUp, camera->up, sizeof(camera->up));
+    std::memcpy(opt.cameraRight, camera->right, sizeof(camera->right));
+    std::memcpy(opt.cameraFwd, camera->forward, sizeof(camera->forward));
+    opt.cameraNear = camera->nearPlane;
+    opt.cameraFar = camera->farPlane;
+    opt.cameraFOV = camera->verticalFov;
+    opt.cameraAspectRatio = camera->aspect;
+    opt.depthInverted = true;
+    opt.cameraMotionIncluded = true;
+    opt.reset = reset != 0;
+    opt.mvecsSubrectSize = {static_cast<unsigned int>(motion->width), static_cast<unsigned int>(motion->height)};
+    opt.depthSubrectSize = {static_cast<unsigned int>(depth->width), static_cast<unsigned int>(depth->height)};
+    opt.backbufferSubrectSize = {static_cast<unsigned int>(color->width), static_cast<unsigned int>(color->height)};
+    opt.outputInterpSubrectSize = {static_cast<unsigned int>(output->width), static_cast<unsigned int>(output->height)};
+    g_fgParams->Set(NVSDK_NGX_DLSSG_Parameter_BackbufferFrameID, frameId);
+    auto result = NGX_VK_EVALUATE_DLSSG(static_cast<VkCommandBuffer>(commands), g_fg, g_fgParams, &eval, &opt);
+    return NVSDK_NGX_FAILED(result) ? static_cast<int>(result) : 0;
+}
+
 RX_EXPORT int rx_optimal_settings(unsigned int displayWidth, unsigned int displayHeight, int quality,
 		unsigned int* renderWidth, unsigned int* renderHeight) {
 	if (!g_initialized) {
@@ -230,6 +316,7 @@ RX_EXPORT int rx_evaluate(void* commandBuffer, const RxImage* color, const RxIma
 }
 
 RX_EXPORT void rx_shutdown() {
+	rx_fg_release();
 	rx_release();
 	if (g_initialized) {
 		if (g_params != nullptr) {

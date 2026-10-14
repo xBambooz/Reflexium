@@ -63,6 +63,7 @@ public final class ReflexController {
 	private volatile long frameId;
 	private long lastPresentedId;
 	private volatile boolean frameOpen;
+	private boolean batchedPresent;
 
 	private ReflexMode appliedMode;
 	private ReflexMode loggedMode;
@@ -135,7 +136,8 @@ public final class ReflexController {
 	}
 
 	public ReflexMode mode() {
-		return ReflexiumConfig.get().reflexMode();
+		ReflexMode requested = ReflexiumConfig.get().reflexMode();
+		return requested == ReflexMode.OFF && com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().needsReflex() ? ReflexMode.ON : requested;
 	}
 
 	public void setMode(ReflexMode mode) {
@@ -189,11 +191,21 @@ public final class ReflexController {
 
 	public void beforePresent() {
 		marker(VK_LATENCY_MARKER_RENDERSUBMIT_END_NV);
-		marker(VK_LATENCY_MARKER_PRESENT_START_NV);
+		batchedPresent = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().generatedCount() > 0
+				&& !com.bambooz.reflexium.dlss.FsrSwapchain.active();
+		if (!batchedPresent) marker(VK_LATENCY_MARKER_PRESENT_START_NV);
 	}
 
 	public void afterPresent() {
-		marker(VK_LATENCY_MARKER_PRESENT_END_NV);
+		if (!batchedPresent) marker(VK_LATENCY_MARKER_PRESENT_END_NV);
+		batchedPresent = false;
+	}
+
+	public void beforeBatchPresent(boolean generated) {
+		marker(generated ? VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV : VK_LATENCY_MARKER_PRESENT_START_NV);
+	}
+	public void afterBatchPresent(boolean generated) {
+		marker(generated ? VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV : VK_LATENCY_MARKER_PRESENT_END_NV);
 	}
 
 	/**
@@ -251,6 +263,7 @@ public final class ReflexController {
 		if (!session.lowLatency2()) {
 			return "Reflex: unavailable (" + (session.isNvidia() ? "driver lacks VK_NV_low_latency2" : "not an NVIDIA GPU") + ")";
 		}
+		if (com.bambooz.reflexium.dlss.FsrSwapchain.active()) return "Reflex: unavailable (FSR presentation scheduler)";
 		StringBuilder line = new StringBuilder("Reflex: ").append(mode.displayName());
 		if (sleepFailed) {
 			line.append(" (sleep failed, markers only)");

@@ -5,6 +5,8 @@ import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
+import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.gui.ReflexiumOptions;
 import com.bambooz.reflexium.gui.ReflexiumConfigScreen;
@@ -88,6 +90,24 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setDefaultValue(true)
 										.setStorageHandler(SAVED_ON_SET)
 										.setBinding(config::setDlssDetection, config::dlssDetection)))
+						.addOptionGroup(builder.createOptionGroup()
+								.setName(Component.translatable("reflexium.group.frame_generation"))
+								.addOption(builder.createEnumOption(id("frame_generation"), FrameGeneration.class)
+										.setName(Component.translatable("reflexium.option.frame_generation"))
+										.setTooltip(Component.translatable("reflexium.option.frame_generation.tooltip"))
+										.setElementNameProvider(FrameGeneration::label)
+										.setDefaultValue(FrameGeneration.OFF)
+										.setStorageHandler(SAVED_ON_SET)
+										.setBinding(ReflexiumOptions::setFrameGeneration, config::frameGeneration))
+								.addOption(builder.createIntegerOption(id("fg_multiplier"))
+										.setName(Component.translatable("reflexium.option.fg_multiplier"))
+										.setTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip"))
+										.setRange(3, Math.max(4, FrameGenerationRenderer.get().maximumMultiplier()), 1)
+										.setValueFormatter(value -> Component.literal(value + "x"))
+										.setDefaultValue(Math.min(4, Math.max(3, FrameGenerationRenderer.get().maximumMultiplier())))
+										.setStorageHandler(SAVED_ON_SET)
+										.setEnabled(FrameGenerationRenderer.get().maximumMultiplier() > 3)
+										.setBinding(ReflexiumOptions::setFrameGenerationMultiplier, () -> Math.min(config.frameGenerationMultiplier(), Math.max(3, FrameGenerationRenderer.get().maximumMultiplier())))))
 						.addOptionGroup(builder.createOptionGroup()
 								.addOption(builder.createExternalButtonOption(id("status"))
 										.setName(Component.translatable("reflexium.option.status"))

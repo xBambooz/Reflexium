@@ -13,6 +13,8 @@ import org.lwjgl.vulkan.KHRPresentId;
 import org.lwjgl.vulkan.NVLowLatency2;
 import org.lwjgl.vulkan.VkPhysicalDevicePresentIdFeaturesKHR;
 import org.lwjgl.vulkan.VkPhysicalDeviceSubgroupSizeControlFeatures;
+import org.lwjgl.vulkan.NVPresentMetering;
+import org.lwjgl.vulkan.VkPhysicalDevicePresentMeteringFeaturesNV;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -47,6 +49,14 @@ public final class DeviceExtensions {
 
 		Set<String> extensions = new LinkedHashSet<>();
 		Set<VulkanFeature> features = new LinkedHashSet<>();
+		VulkanFeature meteringFeature = new VulkanFeature(new VulkanPNextStruct(VkPhysicalDevicePresentMeteringFeaturesNV.class), "presentMetering");
+		FeatureSet metering = new FeatureSet("Reflexium frame pacing", Set.of(NVPresentMetering.VK_NV_PRESENT_METERING_EXTENSION_NAME), Set.of(meteringFeature));
+		boolean presentMetering = physicalDevice.hasDeviceExtension(NVPresentMetering.VK_NV_PRESENT_METERING_EXTENSION_NAME)
+				&& metering.allFeaturesSupported(physicalDevice.vkPhysicalDevice());
+		if (presentMetering) {
+			extensions.add(NVPresentMetering.VK_NV_PRESENT_METERING_EXTENSION_NAME);
+			features.add(meteringFeature);
+		}
 
 		boolean lowLatency2 = physicalDevice.hasDeviceExtension(NVLowLatency2.VK_NV_LOW_LATENCY_2_EXTENSION_NAME);
 		boolean presentId = false;
@@ -78,7 +88,7 @@ public final class DeviceExtensions {
 			extensions.addAll(ngx);
 		}
 
-		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, presentId, Set.copyOf(ngx)));
+		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, presentId, presentMetering, Set.copyOf(ngx)));
 		extensions.removeAll(vanilla.extensions());
 		if (extensions.isEmpty() && features.isEmpty()) {
 			return vanilla;

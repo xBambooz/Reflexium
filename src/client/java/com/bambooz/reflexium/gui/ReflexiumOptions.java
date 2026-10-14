@@ -5,6 +5,8 @@ import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
+import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import com.mojang.serialization.Codec;
@@ -85,5 +87,34 @@ public final class ReflexiumOptions {
 		return OptionInstance.createBoolean("reflexium.option.dlss_detection",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.dlss_detection.tooltip")),
 				config.dlssDetection(), config::setDlssDetection);
+	}
+
+	public static OptionInstance<FrameGeneration> frameGeneration() {
+		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, FrameGeneration.OFF), FrameGeneration::serializedName);
+		return new OptionInstance<>("reflexium.option.frame_generation",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.frame_generation.tooltip")),
+				(caption, value) -> value.label(), new OptionInstance.Enum<>(List.of(FrameGeneration.values()), codec),
+				ReflexiumConfig.get().frameGeneration(), ReflexiumOptions::setFrameGeneration);
+	}
+	public static void setFrameGeneration(FrameGeneration value) {
+		ReflexiumConfig.get().setFrameGeneration(value);
+		FrameGenerationRenderer.get().retry();
+	}
+	public static OptionInstance<Integer> frameGenerationMultiplier() {
+		int maximum = Math.max(3, FrameGenerationRenderer.get().maximumMultiplier());
+		return new OptionInstance<>("reflexium.option.fg_multiplier",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
+				(caption, value) -> Component.literal(value + "x"),
+				new OptionInstance.Enum<>(java.util.stream.IntStream.rangeClosed(3, maximum).boxed().toList(), Codec.INT),
+				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
+	}
+	public static void addFrameGeneration(net.minecraft.client.gui.components.OptionsList list) {
+		list.addBig(frameGeneration());
+		OptionInstance<Integer> multiplier = frameGenerationMultiplier();
+		list.addBig(multiplier);
+		list.findOption(multiplier).active = FrameGenerationRenderer.get().maximumMultiplier() > 3;
+	}
+	public static void setFrameGenerationMultiplier(int value) {
+		ReflexiumConfig.get().setFrameGenerationMultiplier(value); FrameGenerationRenderer.get().retry();
 	}
 }

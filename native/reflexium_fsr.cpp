@@ -1,7 +1,10 @@
 // Small C ABI over AMD's signed FidelityFX Vulkan API (SDK 1.1.4 / FSR 3.1.4).
 #include <ffx_api/ffx_upscale.h>
+#include <ffx_api/ffx_framegeneration.h>
 #include <ffx_api/vk/ffx_api_vk.h>
+#include "frame_constants.h"
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 #define RX_EXPORT extern "C" __declspec(dllexport)
@@ -27,6 +30,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL deviceProcAddr(VkDevice device, const c
 }
 ffxCreateBackendVKDesc backend = {};
 ffxCreateContextDescUpscale description = {};
+ffxContext fgContext = nullptr;
+ffxCreateBackendVKDesc fgBackend = {};
+ffxCreateContextDescFrameGeneration fgDescription = {};
 }
 
 struct RxImage {
@@ -34,6 +40,7 @@ struct RxImage {
     int32_t format, width, height, aspect;
 };
 static_assert(sizeof(RxImage) == 32);
+RX_EXPORT void rx_fsr_sc_pause();
 
 static FfxApiResource resource(const RxImage* image, bool output) {
     VkImageCreateInfo info = {};
@@ -120,3 +127,78 @@ RX_EXPORT int rx_fsr_generate_reactive(void* commandBuffer, const RxImage* opaqu
     dispatch.flags = FFX_UPSCALE_AUTOREACTIVEFLAGS_APPLY_THRESHOLD | FFX_UPSCALE_AUTOREACTIVEFLAGS_USE_COMPONENTS_MAX;
     return ffxDispatch(&context, &dispatch.header);
 }
+
+RX_EXPORT void rx_fsr_fg_release() {
+    rx_fsr_sc_pause();
+    if (fgContext) { ffxDestroyContext(&fgContext, nullptr); fgContext = nullptr; }
+}
+
+RX_EXPORT int rx_fsr_fg_create(void* device, void* physicalDevice, void* gdpa,
+        uint32_t renderWidth, uint32_t renderHeight, uint32_t displayWidth, uint32_t displayHeight) {
+    if (!device || !physicalDevice || !gdpa || !renderWidth || !renderHeight || !displayWidth || !displayHeight) return -1;
+    rx_fsr_fg_release();
+    realDeviceProcAddr = reinterpret_cast<PFN_vkGetDeviceProcAddr>(gdpa);
+    fgBackend = {};
+    fgBackend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_VK;
+    fgBackend.vkDevice = static_cast<VkDevice>(device);
+    fgBackend.vkPhysicalDevice = static_cast<VkPhysicalDevice>(physicalDevice);
+    fgBackend.vkDeviceProcAddr = deviceProcAddr;
+    fgDescription = {};
+    fgDescription.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION;
+    fgDescription.header.pNext = &fgBackend.header;
+    fgDescription.flags = FFX_FRAMEGENERATION_ENABLE_DEPTH_INVERTED;
+    fgDescription.displaySize = {displayWidth, displayHeight};
+    fgDescription.maxRenderSize = {renderWidth, renderHeight};
+    fgDescription.backBufferFormat = FFX_API_SURFACE_FORMAT_R8G8B8A8_UNORM;
+    return ffxCreateContext(&fgContext, &fgDescription.header, nullptr);
+}
+
+RX_EXPORT int rx_fsr_fg_evaluate(void* commands, const RxImage* color, const RxImage* depth,
+        const RxImage* motion, const RxImage* output, const RxFrameConstants* camera, uint64_t frameId, int reset) {
+    if (!fgContext || !commands || !color || !depth || !motion || !output || !camera) return -1;
+    ffxConfigureDescFrameGeneration config = {};
+    config.header.type = FFX_API_CONFIGURE_DESC_TYPE_FRAMEGENERATION;
+    config.frameGenerationEnabled = true;
+    config.flags = FFX_FRAMEGENERATION_FLAG_NO_SWAPCHAIN_CONTEXT_NOTIFY;
+    config.generationRect = {0, 0, output->width, output->height};
+    config.frameID = frameId;
+    auto result = ffxConfigure(&fgContext, &config.header);
+    if (result != FFX_API_RETURN_OK) return result;
+    ffxDispatchDescFrameGenerationPrepareCameraInfo vectors = {};
+    vectors.header.type = FFX_API_DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO;
+    std::memcpy(vectors.cameraPosition, camera->position, sizeof(camera->position));
+    std::memcpy(vectors.cameraUp, camera->up, sizeof(camera->up));
+    std::memcpy(vectors.cameraRight, camera->right, sizeof(camera->right));
+    std::memcpy(vectors.cameraForward, camera->forward, sizeof(camera->forward));
+    ffxDispatchDescFrameGenerationPrepare prepare = {};
+    prepare.header.type = FFX_API_DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE;
+    prepare.header.pNext = &vectors.header;
+    prepare.frameID = frameId;
+    prepare.commandList = commands;
+    prepare.renderSize = {static_cast<uint32_t>(motion->width), static_cast<uint32_t>(motion->height)};
+    prepare.jitterOffset = {camera->jitter[0], camera->jitter[1]};
+    prepare.motionVectorScale = {1.0f, 1.0f};
+    prepare.frameTimeDelta = camera->frameTimeMs;
+    prepare.cameraNear = camera->farPlane; // reverse-Z convention, as in FSR upscaling
+    prepare.cameraFar = camera->nearPlane;
+    prepare.cameraFovAngleVertical = camera->verticalFov;
+    prepare.viewSpaceToMetersFactor = 1.0f;
+    prepare.depth = resource(depth, false);
+    prepare.motionVectors = resource(motion, false);
+    result = ffxDispatch(&fgContext, &prepare.header);
+    if (result != FFX_API_RETURN_OK) return result;
+    ffxDispatchDescFrameGeneration dispatch = {};
+    dispatch.header.type = FFX_API_DISPATCH_DESC_TYPE_FRAMEGENERATION;
+    dispatch.commandList = commands;
+    dispatch.presentColor = resource(color, false);
+    dispatch.outputs[0] = resource(output, true);
+    dispatch.numGeneratedFrames = 1;
+    dispatch.reset = reset != 0;
+    dispatch.backbufferTransferFunction = FFX_API_BACKBUFFER_TRANSFER_FUNCTION_SRGB;
+    dispatch.minMaxLuminance[1] = 1.0f;
+    dispatch.generationRect = config.generationRect;
+    dispatch.frameID = frameId;
+    return ffxDispatch(&fgContext, &dispatch.header);
+}
+
+#include "fsr_swapchain.h"

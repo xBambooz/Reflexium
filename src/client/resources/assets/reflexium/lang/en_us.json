@@ -41,5 +41,15 @@
   "text.betterf3.line.reflexium_mode": "Reflex",
   "text.betterf3.line.reflexium_latency": "Reflex Latency",
   "text.betterf3.line.reflexium_dlss": "Upscaling",
-  "modmenu.descriptionTranslation.reflexium": "NVIDIA Reflex, DLSS and AMD FSR 3.1 for Minecraft's Vulkan renderer."
+  "reflexium.group.frame_generation": "Frame Generation",
+  "reflexium.option.frame_generation": "Frame Generation",
+  "reflexium.option.frame_generation.tooltip": "Generates intermediate display frames without advancing gameplay. DLSS FG needs a supported RTX 40/50 series GPU; Multi Frame Generation needs RTX 50 series support. FSR FG uses the AMD runtime on supported Vulkan GPUs. A base rate of 60 FPS or higher is recommended. Available capabilities and errors appear in Status.",
+  "reflexium.option.fg_multiplier": "MFG Multiplier",
+  "reflexium.option.fg_multiplier.tooltip": "Total frames per rendered frame, including the real frame. Only applies to DLSS Multi Frame Generation. The driver-reported maximum limits this setting. Vulkan DLSS FG needs VSync off and enables Reflex while active.",
+  "reflexium.frame_generation.off": "Off",
+  "reflexium.frame_generation.dlss": "DLSS FG (2x)",
+  "reflexium.frame_generation.dlss_multi": "DLSS MFG",
+  "reflexium.frame_generation.fsr": "FSR FG (2x)",
+  "text.betterf3.line.reflexium_fg": "Frame Generation",
+  "modmenu.descriptionTranslation.reflexium": "NVIDIA Reflex, DLSS, AMD FSR 3.1 and frame generation for Minecraft's Vulkan renderer."
 }

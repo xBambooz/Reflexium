@@ -17,11 +17,13 @@ public final class ReflexiumDebugEntries {
 	public static final Identifier REFLEX = id("reflex");
 	public static final Identifier LATENCY = id("reflex_latency");
 	public static final Identifier DLSS = id("dlss");
+	public static final Identifier FRAME_GENERATION = id("frame_generation");
 
 	public static final Map<Identifier, DebugScreenEntry> ENTRIES = Map.of(
 			REFLEX, new Line(() -> ReflexController.get().statusLine()),
 			LATENCY, new Line(() -> ReflexController.get().latencyLine()),
-			DLSS, new Line(() -> UpscalingRenderer.get().statusLine()));
+			DLSS, new Line(() -> UpscalingRenderer.get().statusLine()),
+			FRAME_GENERATION, new Line(() -> com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().statusLine()));
 
 	private ReflexiumDebugEntries() {
 	}

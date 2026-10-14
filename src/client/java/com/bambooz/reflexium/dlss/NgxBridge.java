@@ -42,6 +42,7 @@ public final class NgxBridge {
 	private final MethodHandle release;
 	private final MethodHandle shutdown;
 	private final MethodHandle takeLog;
+	private final MethodHandle fgAvailable, fgCreate, fgEvaluate, fgRelease;
 
 	/** Reused per-frame argument memory (render thread only). */
 	private final MemorySegment images = Arena.global().allocate(IMAGE_SIZE * 4, 8);
@@ -62,6 +63,38 @@ public final class NgxBridge {
 		release = handle(linker, lookup, "rx_release", FunctionDescriptor.ofVoid());
 		shutdown = handle(linker, lookup, "rx_shutdown", FunctionDescriptor.ofVoid());
 		takeLog = handle(linker, lookup, "rx_take_log", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
+		fgAvailable = handle(linker, lookup, "rx_fg_available", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
+		fgCreate = handle(linker, lookup, "rx_fg_create", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT));
+		fgEvaluate = handle(linker, lookup, "rx_fg_evaluate", FunctionDescriptor.of(JAVA_INT,
+				ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_LONG, JAVA_INT, JAVA_INT, JAVA_INT));
+		fgRelease = handle(linker, lookup, "rx_fg_release", FunctionDescriptor.ofVoid());
+	}
+
+	public record FrameGenerationSupport(boolean available, int maxGenerated, int initResult, boolean needsDriverUpdate) {}
+
+	public FrameGenerationSupport frameGenerationSupport() {
+		try {
+			int available = (int) fgAvailable.invokeExact(outInts, outInts.asSlice(4), outInts.asSlice(8));
+			return new FrameGenerationSupport(available != 0, outInts.get(JAVA_INT, 0), outInts.get(JAVA_INT, 4), outInts.get(JAVA_INT, 8) != 0);
+		} catch (Throwable t) { throw rethrow(t); }
+	}
+
+	int createFrameGeneration(long commands, int width, int height, int format) {
+		try { return (int) fgCreate.invokeExact(MemorySegment.ofAddress(commands), width, height, format); }
+		catch (Throwable t) { throw rethrow(t); }
+	}
+
+	int evaluateFrameGeneration(long commands, Image color, Image depth, Image motion, Image output,
+			MemorySegment constants, long frameId, int generated, int index, boolean reset) {
+		try { return (int) fgEvaluate.invokeExact(MemorySegment.ofAddress(commands), color.write(images, 0),
+				depth.write(images, 32), motion.write(images, 64), output.write(images, 96), constants,
+				frameId, generated, index, reset ? 1 : 0); }
+		catch (Throwable t) { throw rethrow(t); }
+	}
+
+	void releaseFrameGeneration() {
+		try { fgRelease.invokeExact(); }
+		catch (Throwable t) { throw rethrow(t); }
 	}
 
 	private static MethodHandle handle(Linker linker, SymbolLookup lookup, String name, FunctionDescriptor descriptor) {

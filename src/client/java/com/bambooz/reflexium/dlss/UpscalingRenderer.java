@@ -108,6 +108,8 @@ public final class UpscalingRenderer {
 	private float jitterX;
 	private float jitterY;
 	private final Matrix4f currentJittered = new Matrix4f();
+	private final Matrix4f currentProjection = new Matrix4f();
+	private float lastFrameMs = 16.6f;
 	private final Matrix4f currentUnjittered = new Matrix4f();
 	private final Matrix4f previousUnjittered = new Matrix4f();
 	private Vec3 currentCamera = Vec3.ZERO;
@@ -153,12 +155,18 @@ public final class UpscalingRenderer {
 		}
 		ngxReady = false;
 		failed = false;
+		FrameGenerationRenderer.get().onDeviceCreated(device, session, fsr);
 		initializeNgx();
 	}
 
 	/** Render-thread only: also runs once when a first-use download finishes. */
 	private void initializeNgx() {
 		awaitingRuntime = false;
+		if (DlssRuntimeInstaller.hasPendingWork()) {
+			awaitingRuntime = true;
+			unavailable = DlssRuntimeInstaller.state().message();
+			return;
+		}
 		DlssStatus prerequisites = DlssSupport.status();
 		if (!ReflexiumConfig.get().dlssDetection()) {
 			unavailable = "DLSS detection is off";
@@ -193,6 +201,7 @@ public final class UpscalingRenderer {
 				return;
 			}
 			ngxInitialized = true;
+			FrameGenerationRenderer.get().onNgxReady(bridge);
 			int[] available = bridge.dlssAvailable();
 			if (available[0] == 0) {
 				unavailable = available[1] != 0
@@ -214,8 +223,10 @@ public final class UpscalingRenderer {
 			destroyResources();
 		}
 		if (bridge != null && ngxInitialized) {
+			FrameGenerationRenderer.get().onDeviceClosing();
 			bridge.shutdown();
 		}
+		else FrameGenerationRenderer.get().onDeviceClosing();
 		ngxInitialized = false;
 		ngxReady = false;
 		awaitingRuntime = false;
@@ -231,11 +242,13 @@ public final class UpscalingRenderer {
 	/** GameRenderer.render HEAD: decide whether this frame upscales and (re)build for the current size and mode. */
 	public void beginFrame(GameRenderer gameRenderer) {
 		DebugSettings.onFrame();
+		FrameGenerationRenderer.get().beginFrame();
 		if (awaitingRuntime && device != null) {
 			DlssRuntimeInstaller.Phase phase = DlssRuntimeInstaller.state().phase();
-			if (phase != DlssRuntimeInstaller.Phase.DOWNLOADING) {
+			if (phase != DlssRuntimeInstaller.Phase.DOWNLOADING && DlssRuntimeInstaller.ensureInstalledAsync().isDone()) {
 				awaitingRuntime = false;
-				if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY) {
+				if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY
+						|| java.nio.file.Files.isRegularFile(DlssSupport.featureFolder().resolve(DlssRuntimeInstaller.FILE_NAME))) {
 					DlssSupport.probe(session);
 					initializeNgx();
 				} else {
@@ -251,8 +264,9 @@ public final class UpscalingRenderer {
 		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
+		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
 		VitrailCompat.configureUpscaling(available(selected) && !failed);
-		boolean wanted = available(selected) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
+		boolean wanted = (available(selected) || FrameGenerationRenderer.get().wantsMotion()) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
 				&& window.width > 0 && window.height > 0 && VitrailCompat.canUpscale();
 		if (!wanted) {
 			ObjectMotion.get().beginFrame(false, false);
@@ -320,6 +334,7 @@ public final class UpscalingRenderer {
 			return projection;
 		}
 		currentUnjittered.set(projection).mul(camera.viewRotationMatrix);
+		currentProjection.set(projection);
 		cameraNear = projection.m32() / (projection.m22() + 1.0f);
 		cameraFar = projection.m32() / projection.m22();
 		cameraFov = 2.0f * (float) Math.atan(1.0f / Math.abs(projection.m11()));
@@ -451,6 +466,7 @@ public final class UpscalingRenderer {
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
+		boolean fgReset = resetNext;
 		try {
 			if (worldDepthCaptured) {
 				evaluate(main);
@@ -470,6 +486,14 @@ public final class UpscalingRenderer {
 		}
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
 			drawMotionVectorView(main);
+		}
+		if (worldDepthCaptured && !failed) {
+			Vec3 delta = currentCamera.subtract(previousCamera);
+			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), currentProjection,
+					DlssMath.reprojection(previousUnjittered, currentUnjittered, (float) delta.x, (float) delta.y, (float) delta.z),
+					currentOrientation, (float) currentCamera.x, (float) currentCamera.y, (float) currentCamera.z,
+					DebugSettings.jitterSignX(JITTER_SIGN) * jitterX, DebugSettings.jitterSignY(JITTER_SIGN) * jitterY,
+					cameraNear, cameraFar, cameraFov, lastFrameMs, fgReset);
 		}
 		previousUnjittered.set(currentUnjittered);
 		previousCamera = currentCamera;
@@ -540,6 +564,7 @@ public final class UpscalingRenderer {
 	public void onModeChanged() {
 		failed = false;
 		lastError = "";
+		FrameGenerationRenderer.get().retry();
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -547,7 +572,8 @@ public final class UpscalingRenderer {
 
 	private void build(GameRenderer gameRenderer, UpscaleQuality mode, int width, int height) {
 		Upscaler selected = effectiveUpscaler();
-		int[] size = selected == Upscaler.FSR ? mode.fsrSize(width, height) : bridge.optimalSettings(width, height, mode);
+		int[] size = selected == Upscaler.OFF ? new int[] {width, height}
+				: selected == Upscaler.FSR ? mode.fsrSize(width, height) : bridge.optimalSettings(width, height, mode);
 		if (size == null) {
 			throw new IllegalStateException("no DLSS render size for " + width + "x" + height + " " + mode.displayName());
 		}
@@ -577,7 +603,7 @@ public final class UpscalingRenderer {
 			opaqueTarget = new TextureTarget("Reflexium opaque scene", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, null);
 			reactive = new OutputImage(device, commandBuffer, renderWidth, renderHeight, VK10.VK_FORMAT_R8_UNORM);
 		}
-		int result = selected == Upscaler.FSR
+		int result = selected == Upscaler.OFF ? 0 : selected == Upscaler.FSR
 				? fsr.create(session.device().address(), session.physicalDevice().address(),
 						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight)
 				: bridge.create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS,
@@ -641,7 +667,14 @@ public final class UpscalingRenderer {
 		float signedJitterY = DebugSettings.jitterSignY(JITTER_SIGN) * jitterY;
 		long now = System.nanoTime();
 		float frameTimeMs = lastEvaluateNs == 0 ? 16.6f : (now - lastEvaluateNs) / 1_000_000f;
+		lastFrameMs = frameTimeMs;
 		lastEvaluateNs = now;
+		if (builtUpscaler == Upscaler.OFF) {
+			RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getColorTexture(), renderTarget.getColorTexture(),
+					0, 0, 0, 0, 0, displayWidth, displayHeight);
+			resetNext = false;
+			return;
+		}
 		int result = builtUpscaler == Upscaler.FSR ? fsr.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
@@ -678,23 +711,23 @@ public final class UpscalingRenderer {
 		barrier(commandBuffer);
 	}
 
-	private static NgxBridge.Image ngxImage(GpuTexture texture, GpuTextureView view) {
+	static NgxBridge.Image ngxImage(GpuTexture texture, GpuTextureView view) {
 		int aspect = texture.getFormat().hasColorAspect() ? VK10.VK_IMAGE_ASPECT_COLOR_BIT : VK10.VK_IMAGE_ASPECT_DEPTH_BIT;
 		return new NgxBridge.Image(((VulkanGpuTexture) texture).vkImage(), ((VulkanGpuTextureView) view).vkImageView(),
 				VulkanConst.toVk(texture.getFormat()), texture.getWidth(0), texture.getHeight(0), aspect);
 	}
 
-	private VkCommandBuffer commandBuffer() {
+	VkCommandBuffer commandBuffer() {
 		return ((VulkanCommandEncoderAccessor) device.createCommandEncoder()).reflexium$commandBuffer();
 	}
 
-	private static void barrier(VkCommandBuffer commandBuffer) {
+	static void barrier(VkCommandBuffer commandBuffer) {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder.memoryBarrier(commandBuffer, stack);
 		}
 	}
 
-	private static void swap(RenderTarget a, RenderTarget b) {
+	static void swap(RenderTarget a, RenderTarget b) {
 		RenderTargetAccessor x = (RenderTargetAccessor) a;
 		RenderTargetAccessor y = (RenderTargetAccessor) b;
 		GpuTexture color = x.reflexium$colorTexture();
@@ -727,7 +760,7 @@ public final class UpscalingRenderer {
 	private void advanceJitter() {
 		int phases = DlssMath.jitterPhases(renderWidth, displayWidth);
 		jitterIndex = jitterIndex % phases + 1;
-		if (!DebugSettings.jitterEnabled()) {
+		if (builtUpscaler == Upscaler.OFF || !DebugSettings.jitterEnabled()) {
 			jitterX = 0.0f;
 			jitterY = 0.0f;
 			return;
@@ -771,6 +804,7 @@ public final class UpscalingRenderer {
 	}
 
 	private void releaseFeatureResources() {
+		FrameGenerationRenderer.get().release();
 		materialSamplers.close();
 		if (packHandBefore != null) { packHandBefore.destroyBuffers(); packHandBefore = null; }
 		if (packHandMask != null) { packHandMask.destroyBuffers(); packHandMask = null; }
@@ -821,7 +855,7 @@ public final class UpscalingRenderer {
 		builtMode = null;
 	}
 
-	private void waitForGpu() {
+	void waitForGpu() {
 		// Idle only covers submitted commands. Flush before freeing raw NGX/VMA resources.
 		device.createCommandEncoder().submit();
 		int result = VK10.vkDeviceWaitIdle(device.vkDevice());

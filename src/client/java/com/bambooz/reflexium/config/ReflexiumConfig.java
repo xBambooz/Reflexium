@@ -4,6 +4,7 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
+import com.bambooz.reflexium.dlss.FrameGeneration;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -29,6 +30,8 @@ public final class ReflexiumConfig {
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DlssModel.AUTO;
 	private volatile int fsrSharpness = 20;
+	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
+	private volatile int frameGenerationMultiplier = 4;
 	private volatile boolean betterF3ModulePlaced = false;
 
 	private ReflexiumConfig() {
@@ -73,6 +76,10 @@ public final class ReflexiumConfig {
 	public void setDlssModel(DlssModel value) { dlssModel = value; save(); }
 	public int fsrSharpness() { return fsrSharpness; }
 	public void setFsrSharpness(int value) { fsrSharpness = Math.clamp(value, 0, 100); save(); }
+	public FrameGeneration frameGeneration() { return frameGeneration; }
+	public void setFrameGeneration(FrameGeneration value) { frameGeneration = value; save(); }
+	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
+	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 3, 8); save(); }
 
 	/** Reflexium's BetterF3 module was added to the BetterF3 layout once; from then on the player's layout wins. */
 	public boolean betterF3ModulePlaced() {
@@ -107,6 +114,9 @@ public final class ReflexiumConfig {
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
 		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
+		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
+		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 3, 8); }
+		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
@@ -130,6 +140,8 @@ public final class ReflexiumConfig {
 		props.setProperty("upscaler", upscaler.serializedName());
 		props.setProperty("dlss_model", dlssModel.serializedName());
 		props.setProperty("fsr_sharpness", Integer.toString(fsrSharpness));
+		props.setProperty("frame_generation", frameGeneration.serializedName());
+		props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
 		try {
 			Files.createDirectories(DIR);

@@ -16,6 +16,7 @@ public final class ReflexiumModule extends BaseModule {
 	private final DebugLine mode = newLine("reflexium_mode");
 	private final DebugLine latency = newLine("reflexium_latency");
 	private final DebugLine dlss = newLine("reflexium_dlss");
+	private final DebugLine fg = newLine("reflexium_fg");
 
 	public ReflexiumModule() {
 		defaultNameColor = legacyColor(ChatFormatting.GREEN);
@@ -25,6 +26,7 @@ public final class ReflexiumModule extends BaseModule {
 		lines.add(mode);
 		lines.add(latency);
 		lines.add(dlss);
+		lines.add(fg);
 	}
 
 	private static DebugLine newLine(String id) {
@@ -39,6 +41,7 @@ public final class ReflexiumModule extends BaseModule {
 		mode.value(valueOf(reflex.statusLine()));
 		latency.value(valueOf(reflex.latencyLine()));
 		dlss.value(valueOf(UpscalingRenderer.get().statusLine()));
+		fg.value(valueOf(com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().statusLine()));
 	}
 
 	@Override

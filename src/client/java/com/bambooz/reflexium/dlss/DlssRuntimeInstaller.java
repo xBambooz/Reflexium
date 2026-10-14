@@ -36,6 +36,9 @@ public final class DlssRuntimeInstaller {
 	static final URI SOURCE = URI.create("https://raw.githubusercontent.com/NVIDIA/DLSS/374959484e79a640feaba44c93ac8cfb0a03f5b5/lib/Windows_x86_64/rel/nvngx_dlss.dll");
 	static final String SHA256 = "3975567b8943c53acce397f2b72380092f84f162d00b0d2c7d08a1025c563983";
 	static final String FILE_NAME = "nvngx_dlss.dll";
+	static final String FG_FILE_NAME = "nvngx_dlssg.dll";
+	static final URI FG_SOURCE = URI.create("https://raw.githubusercontent.com/NVIDIA/DLSS/374959484e79a640feaba44c93ac8cfb0a03f5b5/lib/Windows_x86_64/rel/nvngx_dlssg.dll");
+	static final String FG_SHA256 = "ff6e90eb78b827927dff5b4ecc6b1c870c2e9bca29ed9f48c7d348cc9e170b82";
 	static final String LICENSE_NAME = "NVIDIA_DLSS_LICENSE.txt";
 	/** Set to {@code false} with -D to stop automatic downloads. */
 	static final String OPT_OUT_PROPERTY = "reflexium.dlss.autoDownload";
@@ -73,6 +76,7 @@ public final class DlssRuntimeInstaller {
 	public static State state() {
 		return state;
 	}
+	static synchronized boolean hasPendingWork() { return pending != null && !pending.isDone(); }
 
 	/**
 	 * Starts the download when nvngx_dlss.dll is missing and returns without waiting. The future
@@ -80,13 +84,19 @@ public final class DlssRuntimeInstaller {
 	 */
 	public static synchronized CompletableFuture<Path> ensureInstalledAsync() {
 		if (pending == null) {
-			pending = startInstall(DlssSupport.featureFolder(), SOURCE, SHA256);
+			Path folder = DlssSupport.featureFolder();
+			pending = startInstall(folder, SOURCE, SHA256).thenCompose(sr ->
+					startInstall(folder, FG_SOURCE, FG_SHA256, FG_FILE_NAME).thenApply(fg -> sr));
 		}
 		return pending;
 	}
 
 	static CompletableFuture<Path> startInstall(Path folder, URI source, String sha256) {
-		Path target = folder.resolve(FILE_NAME);
+		return startInstall(folder, source, sha256, FILE_NAME);
+	}
+
+	private static CompletableFuture<Path> startInstall(Path folder, URI source, String sha256, String fileName) {
+		Path target = folder.resolve(fileName);
 		if (Files.isRegularFile(target)) {
 			state = new State(Phase.READY, 0, "");
 			return CompletableFuture.completedFuture(target);
@@ -101,7 +111,7 @@ public final class DlssRuntimeInstaller {
 		state = new State(Phase.DOWNLOADING, 0, "");
 		Thread.ofPlatform().name("Reflexium DLSS runtime").daemon(true).start(() -> {
 			try {
-				future.complete(install(folder, source, sha256));
+				future.complete(install(folder, source, sha256, fileName));
 			} catch (Exception e) {
 				String reason = e.getMessage() != null ? e.getMessage() : e.toString();
 				state = new State(Phase.FAILED, 0, reason);
@@ -117,9 +127,13 @@ public final class DlssRuntimeInstaller {
 	 * tests can run it against a temp folder.
 	 */
 	static Path install(Path folder, URI source, String sha256) throws IOException, InterruptedException, NoSuchAlgorithmException {
-		Path target = folder.resolve(FILE_NAME);
+		return install(folder, source, sha256, FILE_NAME);
+	}
+
+	static Path install(Path folder, URI source, String sha256, String fileName) throws IOException, InterruptedException, NoSuchAlgorithmException {
+		Path target = folder.resolve(fileName);
 		Files.createDirectories(folder);
-		Path part = folder.resolve(FILE_NAME + ".part");
+		Path part = folder.resolve(fileName + ".part");
 		Files.deleteIfExists(part);
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -151,7 +165,7 @@ public final class DlssRuntimeInstaller {
 				state = new State(Phase.READY, 0, "");
 				return target;
 			}
-			Files.writeString(folder.resolve(LICENSE_NAME), LICENSE_TEXT);
+			Files.writeString(folder.resolve(LICENSE_NAME), LICENSE_TEXT + "\nFrame Generation runtime: " + FG_FILE_NAME + "\nSHA-256: " + FG_SHA256 + "\n");
 			Files.move(part, target, StandardCopyOption.ATOMIC_MOVE);
 			state = new State(Phase.INSTALLED, copied, "");
 			LOGGER.info("DLSS runtime {} installed ({} MB) at {}", VERSION, String.format(Locale.ROOT, "%.1f", copied / 1048576.0), target);

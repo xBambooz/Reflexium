@@ -65,7 +65,7 @@ public final class DlssSupport {
 			}
 			boolean extensions = session.ngxExtensions().containsAll(Set.of("VK_NVX_binary_import", "VK_NVX_image_view_handle"));
 			awaitingRuntime = !found.contains(DlssRuntimeInstaller.FILE_NAME);
-			if (awaitingRuntime) {
+			if (awaitingRuntime || !found.contains(DlssRuntimeInstaller.FG_FILE_NAME)) {
 				DlssRuntimeInstaller.ensureInstalledAsync();
 			}
 			status = DlssStatus.ready(extensions, found);

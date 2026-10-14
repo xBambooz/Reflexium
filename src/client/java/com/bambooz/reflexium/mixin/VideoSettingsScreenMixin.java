@@ -31,6 +31,7 @@ public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 			list.addBig(ReflexiumOptions.upscaler());
 			list.addBig(ReflexiumOptions.upscaleQuality());
 			list.addSmall(ReflexiumOptions.dlssModel(), ReflexiumOptions.fsrSharpness());
+			ReflexiumOptions.addFrameGeneration(list);
 		}
 	}
 }
