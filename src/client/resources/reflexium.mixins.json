@@ -12,7 +12,6 @@
 		"RenderTypeFeatureMotionMixin",
 		"DebugScreenEntriesMixin",
 		"DebugScreenEntryListMixin",
-		"LevelRendererOutlineMixin",
 		"MinecraftMixin",
 		"GameRendererAccessor",
 		"GameRendererMixin",

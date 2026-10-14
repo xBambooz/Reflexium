@@ -469,13 +469,12 @@ public final class DebugServer {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
-			case "perf_uniforms", "perf_depth", "perf_outline" -> {
+			case "perf_uniforms", "perf_depth" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> {
 					switch (key) {
 						case "perf_uniforms" -> DebugSettings.fastUniforms = on;
 						case "perf_depth" -> DebugSettings.directDepth = on;
-						case "perf_outline" -> DebugSettings.lazyOutlineDepth = on;
 					}
 				};
 			}

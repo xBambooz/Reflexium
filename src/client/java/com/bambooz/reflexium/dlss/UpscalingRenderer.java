@@ -506,18 +506,15 @@ public final class UpscalingRenderer {
 		try {
 			if (worldDepthCaptured) {
 				evaluate(main);
-				SharpBlockOutlineRenderer.get().render(renderTarget, motionTarget, currentProjection);
 			} else {
 				// Pack warmup can replace the level call while still presenting a loading frame.
 				// Keep that frame visible and start fresh when actual scene rendering resumes.
 				main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
 				resetNext = true;
-				SharpBlockOutlineRenderer.get().clear();
 			}
 		} catch (RuntimeException e) {
 			fail("evaluate failed", e);
 			main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
-			SharpBlockOutlineRenderer.get().clear();
 		} finally {
 			swap(main, renderTarget);
 			swapped = false;

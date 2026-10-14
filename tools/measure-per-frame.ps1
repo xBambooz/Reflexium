@@ -36,7 +36,7 @@ function Measure-Modes {
     if (!$status.world_loaded -or $status.pid -ne $session.game_pid) { throw 'Expected recorded client with a loaded world' }
     Set-Rx frame_generation off
 	if ($Paths -ne 'current') {
-		foreach ($key in 'perf_uniforms','perf_depth','perf_outline') { Set-Rx $key $(if ($Paths -eq 'legacy') {'0'} else {'1'}) }
+		foreach ($key in 'perf_uniforms','perf_depth') { Set-Rx $key $(if ($Paths -eq 'legacy') {'0'} else {'1'}) }
 	}
     Call-Harness camera @{x=-25.5;y=69;z=23.5;yaw=0;pitch=$Pitch} | Out-Null
     for ($pass=1; $pass -le $Passes; $pass++) {
