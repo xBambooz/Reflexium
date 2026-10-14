@@ -1,0 +1,16 @@
+{
+    "code_commit":  "d057dbf88a7963a26b835d8b9b3c5de50e6df0e7",
+    "jar":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+    "installed_jar":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\26.3 Testing Instance\\mods\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+    "sha256":  "EA0CE88418BAEB94E82B97A4496B226817A1E051C7826EF310FCC11A4B5A29C2",
+    "installed_sha256":  "EA0CE88418BAEB94E82B97A4496B226817A1E051C7826EF310FCC11A4B5A29C2",
+    "installed_time":  "2026-10-14T15:38:38.0964319-04:00",
+    "build":  "gradlew.bat build bmDriverJar",
+    "checks":  [
+                   "dlssMathCheck",
+                   "objectMotionCheck",
+                   "frameProfilerCheck",
+                   "reflexTimingCheck"
+               ],
+    "final_paired_acceptance":  "not run; handoff command in README.md"
+}

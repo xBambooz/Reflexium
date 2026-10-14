@@ -88,6 +88,10 @@ The authenticated harness endpoint accepts `profile=on|reset|off|status`. `reset
 
 `tools/measure-per-frame.ps1 -Label profile-example -Paths optimized -Passes 1 -Profile` runs a fixed-pose matrix. `-Paths legacy` selects the previous uniform/depth paths and CNN E for paired tests in the same JVM. `perf_uniforms` and `perf_depth` accept `0|1`; `dlss_preset` accepts `-1` (normal mapping), 5 (E), 6 (F), 10 (J) or 11 (K). `reflex_mode` accepts `off|on|on_boost`. Only the existing Reflex setting persists. Status includes the built preset hint and history reset count. See [performance analysis](PERFORMANCE.md).
 
+Use Benchmark Mod and `tools/bm-quick-bench.ps1` for new performance measurements. The older fixed-pose script above documents the historical captures. `-Diagnostics` adds opt-in `fg_evaluate`/`fg_gui` CPU and GPU spans and raw driver reports; its FPS is diagnostic, not uninstrumented acceptance. `reflex_submission=0` chains zero queue IDs to return to implicit attribution; `1` restores the shipped explicit IDs. It resets on JVM restart. Do not use this variant with FG as an acceptance configuration.
+
+`POST /reflexium {"reflex_timings":"1"}` returns up to 64 complete driver reports with microsecond timestamps relative to the first returned simulation start. Preserve these fields even when driver timestamps are inconsistent. F3's `Reflex render latency` uses input sample (or simulation start fallback) through GPU completion, excludes scanout, and refuses reports with inverted driver start/end. CPU present return alone is not render-complete latency. Status includes `reflex_status` and `reflex_submission`, allowing a diagnostic to verify caps and the attribution variant.
+
 Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are saved to
 `run\config\reflexium.properties` like menu changes. The jitter and `mv_debug` overrides are runtime
 only and reset on restart.

@@ -366,7 +366,7 @@ public final class ReflexController {
 		}
 	}
 
-	/** Debug harness: the driver's most recent complete per-frame reports, in microseconds relative to the oldest simulation start. */
+	/** Debug harness: complete driver reports, in microseconds relative to the first returned simulation start. */
 	public com.google.gson.JsonObject timingReports() {
 		com.google.gson.JsonObject result = new com.google.gson.JsonObject();
 		result.addProperty("ok", true);

@@ -1,0 +1,52 @@
+{
+    "scene_source":  "C:\\Users\\Ryan\\Documents\\Minecraft FPS Lab\\baseline\\scene",
+    "scene_sha256":  "720F539F755CCC56A18EBFD9A932A3FB633A142139DCC1550754FC220BDB8316",
+    "render_distance":  16,
+    "route_seconds":  48,
+    "passes":  1,
+    "warmup_seconds":  5,
+    "diagnostics":  true,
+    "conditioning":  "Benchmark Mod per JVM",
+    "focus_unchanged":  true,
+    "unchanged_world_files":  63,
+    "low_latency2_spec_version":  3,
+    "command":  "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\\bm-quick-bench.ps1 -NewJar build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar -Explore -Diagnostics -Modes \u0027tf-performance,tf-performance@reflex_mode=off,tf-performance@reflex_submission=0\u0027 -Passes 1 -WarmupSeconds 5 -Label reflex-attribution-diagnostic -Set A",
+    "captures":  [
+                     {
+                         "label":  "s0f1",
+                         "mode":  "tf-performance",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-24-53_benchmark-route_yybnv3.bmresult.json.gz",
+                         "sha256":  "AFF04222267099C9DA93D7289B47524159733E700AEB9C34158389BCF1A37C50"
+                     },
+                     {
+                         "label":  "s0f2",
+                         "mode":  "tf-performance-reflex_mode-off",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-25-53_benchmark-route_7lseb6.bmresult.json.gz",
+                         "sha256":  "FC2C10CB3A7F7D83DD9F7FBA510316EBE3F02AD5223F3101BC908F80AA4545B6"
+                     },
+                     {
+                         "label":  "s0f3",
+                         "mode":  "tf-performance-reflex_submission-0",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-26-53_benchmark-route_x63dzq.bmresult.json.gz",
+                         "sha256":  "FC09649A66E005D4F06FE6D4A3EEA8D6209EDC87E0A5B77528D677BC4E3448CF"
+                     },
+                     {
+                         "label":  "s0r4",
+                         "mode":  "tf-performance-reflex_submission-0",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-27-52_benchmark-route_y85f95.bmresult.json.gz",
+                         "sha256":  "918B7B894F0145FA5700BEDAB5F998DC493338A58B2BB39AD983FB65FE25B964"
+                     },
+                     {
+                         "label":  "s0r5",
+                         "mode":  "tf-performance-reflex_mode-off",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-28-51_benchmark-route_xb3mey.bmresult.json.gz",
+                         "sha256":  "7C3DEA6475714299276DF7AD8E37BB1600A4E263F27967F8B83C7AF943B01195"
+                     },
+                     {
+                         "label":  "s0r6",
+                         "mode":  "tf-performance",
+                         "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-attribution-diagnostic-A\\data\\results\\2026-10\\2026-10-14_15-29-50_benchmark-route_duqr7i.bmresult.json.gz",
+                         "sha256":  "C53789C0BB90980F412F766A686F920ADE13B53591742C19A2ECF2813D6F7336"
+                     }
+                 ]
+}

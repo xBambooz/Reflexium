@@ -1,0 +1,32 @@
+[
+    {
+        "mode":  "tf-performance",
+        "captures":  2,
+        "fps":  637.8720289570806,
+        "fps_vs_first_pct":  0,
+        "low1":  316.51573768555272,
+        "low1_vs_first_pct":  0,
+        "forward_fps":  641.46743205893142,
+        "reverse_fps":  634.27662585522978
+    },
+    {
+        "mode":  "tf-performance-reflex_mode-off",
+        "captures":  2,
+        "fps":  912.0935360723563,
+        "fps_vs_first_pct":  42.990050459435778,
+        "low1":  453.13987574293628,
+        "low1_vs_first_pct":  43.165037876604686,
+        "forward_fps":  913.94444865707283,
+        "reverse_fps":  910.24262348763978
+    },
+    {
+        "mode":  "tf-performance-reflex_submission-0",
+        "captures":  2,
+        "fps":  645.61701026549986,
+        "fps_vs_first_pct":  1.2141904577760432,
+        "low1":  341.59516823624347,
+        "low1_vs_first_pct":  7.9235967014083419,
+        "forward_fps":  649.94283255562323,
+        "reverse_fps":  641.29118797537649
+    }
+]

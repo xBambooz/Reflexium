@@ -1,0 +1,62 @@
+[
+    {
+        "mode":  "native",
+        "captures":  2,
+        "fps":  1797.9682072044939,
+        "fps_vs_first_pct":  0,
+        "low1":  396.09891213753508,
+        "low1_vs_first_pct":  0,
+        "forward_fps":  1805.3550795419283,
+        "reverse_fps":  1790.5813348670595
+    },
+    {
+        "mode":  "native-reflex_mode-off",
+        "captures":  2,
+        "fps":  1948.1544488946101,
+        "fps_vs_first_pct":  8.3531088641232376,
+        "low1":  501.54563526665811,
+        "low1_vs_first_pct":  26.621310965001932,
+        "forward_fps":  1956.1963392992843,
+        "reverse_fps":  1940.1125584899357
+    },
+    {
+        "mode":  "tf-performance",
+        "captures":  2,
+        "fps":  632.58700098134409,
+        "fps_vs_first_pct":  -64.816563582906767,
+        "low1":  324.12163560647764,
+        "low1_vs_first_pct":  -18.171541078624621,
+        "forward_fps":  637.71992252889117,
+        "reverse_fps":  627.45407943379712
+    },
+    {
+        "mode":  "tf-performance-reflex_mode-off",
+        "captures":  2,
+        "fps":  892.75696836241525,
+        "fps_vs_first_pct":  -50.346342900551818,
+        "low1":  440.15749884179115,
+        "low1_vs_first_pct":  11.123127419486046,
+        "forward_fps":  893.49032410267046,
+        "reverse_fps":  892.02361262216
+    },
+    {
+        "mode":  "cnn-performance",
+        "captures":  2,
+        "fps":  1033.1722847889102,
+        "fps_vs_first_pct":  -42.536676641501856,
+        "low1":  358.54597055654676,
+        "low1_vs_first_pct":  -9.48069798483795,
+        "forward_fps":  1036.013919740343,
+        "reverse_fps":  1030.3306498374775
+    },
+    {
+        "mode":  "cnn-performance-reflex_mode-off",
+        "captures":  2,
+        "fps":  1275.7116836534415,
+        "fps_vs_first_pct":  -29.047038844088579,
+        "low1":  426.23036082235643,
+        "low1_vs_first_pct":  7.6070516129968624,
+        "forward_fps":  1278.3888792820565,
+        "reverse_fps":  1273.0344880248263
+    }
+]
