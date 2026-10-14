@@ -11,9 +11,14 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface;
+import com.mojang.renderpearl.backend.vulkan.VulkanUtils;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK12;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
+import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.Final;
@@ -21,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.nio.LongBuffer;
 
 /**
  * VK_NV_low_latency2 needs the swapchain created with VkSwapchainLatencyCreateInfoNV and each present
@@ -32,8 +39,27 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Shadow @Final private VulkanDevice device;
 	@Shadow private com.mojang.renderpearl.api.device.SurfaceException eatenException;
 	@Shadow private boolean swapchainOutOfDate;
+	@Mutable @Shadow @Final private long[] acquireSemaphores;
 	@Unique private GpuTextureView reflexium$realView;
 	@Unique private boolean reflexium$presenting;
+
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void reflexium$expandAcquireSemaphores(VulkanDevice device, long windowHandle, CallbackInfo ci) {
+		for (long sem : acquireSemaphores) {
+			VK12.vkDestroySemaphore(device.vkDevice(), sem, null);
+		}
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo.calloc(stack).sType$Default();
+			LongBuffer handle = stack.callocLong(1);
+			long[] expanded = new long[16];
+			for (int i = 0; i < expanded.length; i++) {
+				VulkanUtils.crashIfFailure(
+						device, VK12.vkCreateSemaphore(device.vkDevice(), info, null, handle), "Failed to create VkSemaphore(binary)");
+				expanded[i] = handle.get(0);
+			}
+			acquireSemaphores = expanded;
+		}
+	}
 
 	@WrapMethod(method = "blitFromTexture")
 	private void reflexium$firstGenerated(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
@@ -57,8 +83,9 @@ public abstract class VulkanGpuSurfaceMixin {
 			for (int i = 1; i <= count && !swapchainOutOfDate; i++) {
 				surface.acquireNextTexture();
 				fg.beginPresent(i < count);
-				surface.blitFromTexture(device.createCommandEncoder(), i < count ? fg.generatedView(i) : reflexium$realView);
-				device.createCommandEncoder().submit();
+				CommandEncoderBackend encoder = device.createCommandEncoder();
+				surface.blitFromTexture(encoder, i < count ? fg.generatedView(i) : reflexium$realView);
+				encoder.submit();
 				original.call();
 			}
 		} catch (com.mojang.renderpearl.api.device.SurfaceException resized) {
@@ -117,26 +144,5 @@ public abstract class VulkanGpuSurfaceMixin {
 	private int reflexium$fsrImages(org.lwjgl.vulkan.VkDevice device, long swapchain, java.nio.IntBuffer count,
 			java.nio.LongBuffer images, Operation<Integer> original) {
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.images(count, images) : original.call(device, swapchain, count, images);
-	}
-	@WrapOperation(method = "destroySwapchain", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkDestroySwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
-	private void reflexium$fsrDestroy(org.lwjgl.vulkan.VkDevice device, long swapchain, org.lwjgl.vulkan.VkAllocationCallbacks allocator, Operation<Void> original) {
-		if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
-		else original.call(device, swapchain, allocator);
-	}
-	@WrapOperation(method = "acquireNextTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkAcquireNextImageKHR(Lorg/lwjgl/vulkan/VkDevice;JJJJLjava/nio/IntBuffer;)I"))
-	private int reflexium$fsrAcquire(org.lwjgl.vulkan.VkDevice device, long swapchain, long timeout, long semaphore, long fence,
-			java.nio.IntBuffer index, Operation<Integer> original) {
-		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.acquire(timeout, semaphore, fence, index) : original.call(device, swapchain, timeout, semaphore, fence, index);
-	}
-	@ModifyArg(method = "blitFromTexture", index = 1, at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSynchronization2;vkCmdPipelineBarrier2KHR(Lorg/lwjgl/vulkan/VkCommandBuffer;Lorg/lwjgl/vulkan/VkDependencyInfo;)V"))
-	private org.lwjgl.vulkan.VkDependencyInfo reflexium$fsrImageLayout(org.lwjgl.vulkan.VkDependencyInfo dependency) {
-		if (!FsrSwapchain.owns(swapchain) || dependency.pImageMemoryBarriers() == null) return dependency;
-		for (org.lwjgl.vulkan.VkImageMemoryBarrier2 barrier : dependency.pImageMemoryBarriers()) {
-			if (barrier.newLayout() == org.lwjgl.vulkan.KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR) {
-				barrier.newLayout(org.lwjgl.vulkan.VK10.VK_IMAGE_LAYOUT_GENERAL)
-						.dstAccessMask(org.lwjgl.vulkan.VK10.VK_ACCESS_MEMORY_READ_BIT | org.lwjgl.vulkan.VK10.VK_ACCESS_MEMORY_WRITE_BIT);
-			}
-		}
-		return dependency;
 	}
 }

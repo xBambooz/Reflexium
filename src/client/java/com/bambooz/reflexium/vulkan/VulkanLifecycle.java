@@ -1,7 +1,6 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.dlss.DlssSupport;
 import com.bambooz.reflexium.reflex.ReflexController;
@@ -44,7 +43,7 @@ public final class VulkanLifecycle {
 				session.deviceName(), session.driverInfo(), session.lowLatency2(), session.presentId(), session.presentMetering());
 
 		ReflexController.get().onDeviceCreated(session);
-		if (ReflexiumConfig.get().dlssDetection() && ReflexiumClient.isSupportedPlatform()) {
+		if (ReflexiumClient.isSupportedPlatform()) {
 			DlssSupport.probe(session);
 		}
 		UpscalingRenderer.get().onDeviceCreated(vulkanDevice, session);
@@ -66,6 +65,7 @@ public final class VulkanLifecycle {
 	}
 
 	public static VkSwapchainCreateInfoKHR chainSwapchainLatency(VkSwapchainCreateInfoKHR info) {
+		info.minImageCount(Math.max(info.minImageCount(), 8));
 		VulkanSession session = VulkanSession.current();
 		if (session == null || !session.lowLatency2()) {
 			return info;

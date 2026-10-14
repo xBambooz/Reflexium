@@ -29,13 +29,13 @@ public final class FrameGenerationRenderer {
 	private FsrBridge fsr;
 	private NgxBridge.FrameGenerationSupport support;
 	private FrameGeneration built = FrameGeneration.OFF;
-	private OutputImage[] outputs = new OutputImage[0];
 	private TextureTarget[] generated = new TextureTarget[0];
 	private boolean failed, resetNext = true;
 	private int ready, width, height;
 	private long frameId, evaluated, presented;
 	private String problem = "";
 	private int presentBatch, presentIndex;
+	private int activeBatchMultiplier = 1;
 	private boolean generatedPresent;
 	private int lastMeteringFeedback;
 
@@ -55,10 +55,12 @@ public final class FrameGenerationRenderer {
 	}
 
 	public int maximumMultiplier() { return support != null && support.available() ? Math.min(8, support.maxGenerated() + 1) : 1; }
+	public boolean isDlssFgSupported() { return session != null && session.isNvidia() && support != null && support.available(); }
+	public boolean isDlssMfgSupported() { return isDlssFgSupported() && maximumMultiplier() >= 3; }
 	public boolean wantsMotion() { return ReflexiumConfig.get().frameGeneration() != FrameGeneration.OFF && !failed && unavailableReason().isEmpty(); }
 	public boolean needsReflex() { return wantsMotion() && ReflexiumConfig.get().frameGeneration().nvidia(); }
 	public void retry() { failed = false; problem = ""; resetNext = true; }
-	public void invalidate() { ready = 0; resetNext = true; }
+	public void invalidate() { ready = 0; resetNext = true; activeBatchMultiplier = 1; }
 
 	private String unavailableReason() {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
@@ -78,24 +80,23 @@ public final class FrameGenerationRenderer {
 	void beginFrame() {
 		frameId++;
 		ready = 0;
-		if (!wantsMotion() || Minecraft.getInstance().gui.screen() != null) resetNext = true;
+		if (!wantsMotion()) resetNext = true;
 	}
 
 	void sceneReady(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands, Matrix4fc projection,
 			Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z, float jitterX, float jitterY,
 			float near, float far, float fov, float frameMs, boolean reset) {
-		if (!wantsMotion() || Minecraft.getInstance().gui.screen() != null) return;
+		if (!wantsMotion()) return;
 		try {
 			FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
 			int count = mode == FrameGeneration.DLSS_MULTI ? Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier()) - 1 : 1;
-			if (built != mode || outputs.length != count || width != scene.width || height != scene.height) {
+			if (built != mode || generated.length != count || width != scene.width || height != scene.height) {
 				UpscalingRenderer.get().waitForGpu();
 				release();
 				commands = UpscalingRenderer.get().commandBuffer();
 				width = scene.width; height = scene.height;
-				outputs = new OutputImage[count]; generated = new TextureTarget[count];
+				generated = new TextureTarget[count];
 				for (int i = 0; i < count; i++) {
-					outputs[i] = new OutputImage(device, commands, width, height);
 					generated[i] = new TextureTarget("Reflexium generated frame " + i, width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 				}
 				int result = mode == FrameGeneration.FSR ? fsr.createFrameGeneration(session.device().address(), session.physicalDevice().address(),
@@ -113,12 +114,12 @@ public final class FrameGenerationRenderer {
 			NgxBridge.Image depth = UpscalingRenderer.ngxImage(motion.getDepthTexture(), motion.getDepthTextureView());
 			NgxBridge.Image vectors = UpscalingRenderer.ngxImage(motion.getColorTexture(), motion.getColorTextureView());
 			for (int i = 0; i < count; i++) {
+				NgxBridge.Image outputImg = UpscalingRenderer.ngxImage(generated[i].getColorTexture(), generated[i].getColorTextureView());
 				int result = mode == FrameGeneration.FSR ? fsr.evaluateFrameGeneration(commands.address(), color, depth, vectors,
-						outputs[i].asNgx(), constants, frameId, resetting)
-						: ngx.evaluateFrameGeneration(commands.address(), color, depth, vectors, outputs[i].asNgx(), constants, frameId, count, i + 1, resetting);
+						outputImg, constants, frameId, resetting)
+						: ngx.evaluateFrameGeneration(commands.address(), color, depth, vectors, outputImg, constants, frameId, count, i + 1, resetting);
 				check(result, "evaluation");
 				UpscalingRenderer.barrier(commands);
-				copy(commands, outputs[i], generated[i]);
 			}
 			UpscalingRenderer.barrier(commands);
 			evaluated++;
@@ -144,6 +145,22 @@ public final class FrameGenerationRenderer {
 	}
 
 	public int generatedCount() { return ready; }
+	public int displayMultiplier() {
+		if (!wantsMotion() || failed) {
+			return 1;
+		}
+		if (FsrSwapchain.active()) {
+			return 2;
+		}
+		if (activeBatchMultiplier > 1) {
+			return activeBatchMultiplier;
+		}
+		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
+		if (mode == FrameGeneration.DLSS_MULTI) {
+			return Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
+		}
+		return mode != FrameGeneration.OFF ? 2 : 1;
+	}
 	public void scheduleProxyPresent() {
 		if (FsrSwapchain.active() && built == FrameGeneration.FSR) {
 			FsrSwapchain.schedule(ready == 0 ? null : UpscalingRenderer.ngxImage(generated[0].getColorTexture(), generated[0].getColorTextureView()), frameId);
@@ -162,10 +179,10 @@ public final class FrameGenerationRenderer {
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
 		return "Frame generation: " + (reason.isEmpty() ? mode.label().getString()
-				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (outputs.length + 1) + "x" : "") : reason);
+				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "") : reason);
 	}
 
-	public void beginPresentBatch(int frames) { presentBatch = frames; presentIndex = 0; }
+	public void beginPresentBatch(int frames) { presentBatch = frames; presentIndex = 0; activeBatchMultiplier = frames; }
 	public boolean inPresentBatch() { return presentBatch > 1; }
 	public void beginPresent(boolean generated) { generatedPresent = generated; }
 	public boolean isGeneratedPresent() { return generatedPresent; }
@@ -196,21 +213,10 @@ public final class FrameGenerationRenderer {
 		invalidate();
 		if (ngx != null) ngx.releaseFrameGeneration();
 		if (fsr != null) fsr.releaseFrameGeneration();
-		for (OutputImage output : outputs) if (output != null) output.destroy();
 		for (TextureTarget target : generated) if (target != null) target.destroyBuffers();
-		outputs = new OutputImage[0]; generated = new TextureTarget[0]; built = FrameGeneration.OFF;
+		generated = new TextureTarget[0]; built = FrameGeneration.OFF;
 	}
 	private static void check(int result, String operation) {
 		if (result != 0) throw new IllegalStateException("FG " + operation + " failed: 0x" + Integer.toHexString(result));
-	}
-	private static void copy(VkCommandBuffer commands, OutputImage source, TextureTarget target) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			VkImageCopy.Buffer region = VkImageCopy.calloc(1, stack);
-			region.srcSubresource().aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT).layerCount(1);
-			region.dstSubresource().aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT).layerCount(1);
-			region.extent().set(target.width, target.height, 1);
-			VK10.vkCmdCopyImage(commands, source.image, VK10.VK_IMAGE_LAYOUT_GENERAL,
-					((VulkanGpuTexture) target.getColorTexture()).vkImage(), VK10.VK_IMAGE_LAYOUT_GENERAL, region);
-		}
 	}
 }
