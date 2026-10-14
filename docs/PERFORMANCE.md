@@ -297,3 +297,22 @@ The inherited `quick-smartreflex-B` arms are distinct captures with different SH
 The shaderless FG2 result has a separate workload/completion bottleneck. Its inherited arms average 318.0 and 316.8 real FPS, with full-second rates up to 330 and 327, at about 80% GPU use. One new FG2 diagnostic measured 311.2 real FPS, with full seconds from 290 to 327. World rendering costs 0.915 ms GPU and FG evaluation adds 1.434 ms. There are two renderer submits per real frame: their CPU spans total 2.526 ms, including about **2.435 ms in resource-completion waits** (9587 wait calls / 1579 real frames, averaging 401 us per call). The extra submit presents the real image after the generated image and encounters RenderPearl's resource-lifetime synchronization again. These spans include one another and must not be added as independent costs. Reflex sleep totals only **25.8 us per real frame**. The two presents average 29 us each and two acquires about 4 us each. This localizes the cost to FG work and renderer submission/completion serialization, rather than a 317 FPS Reflex or out-of-band presentation cap. The base rate counts real frames; generated/displayed cadence is a separate metric.
 
 Both diagnostic campaigns used the same frozen route, preserved focus and protected world hashes, and ran without another game or benchmark parent. No new pacing option or FPS-cap workaround was added for either result.
+
+## Reflex oversleep scales with how little CPU work a frame has (2026-10-14)
+
+Native reference (`tools/reflex-reference.cpp`, Streamline sequence, 1100 us GPU target, RTX 5070, driver 617.42):
+
+| Simulated CPU work | Reflex Off | Reflex On | `vkLatencySleepNV` median |
+|---|---|---|---|
+| 50 us | 942 FPS | 604 FPS | 1338 us |
+| 350 us | 924 FPS | 618 FPS | 1056 us |
+| 700 us | 940 FPS | 785 FPS | 6 us |
+
+The driver keeps the GPU queue empty by sleeping roughly a whole GPU frame when the CPU part of a frame is
+tiny, instead of overlapping the next frame's CPU work with the current GPU frame. The cost is therefore
+largest when CPU time is small and the GPU frame is around 1 ms, which is exactly Minecraft with DLSS
+Transformer at 650 to 900 FPS. At ordinary GPU-bound rates it disappears: Vitrail Set B measured 308 FPS On
+against 307.8 Off. Raising Windows timer resolution (1 ms or 0.5 ms) did not change it.
+
+This matches the hard ceiling of about 1250 FPS players see with Reflex On in Valorant and Fortnite: a fixed
+driver pacing cost of roughly 0.8 ms per frame. Reflexium's behavior with Reflex On is the same as those games.
