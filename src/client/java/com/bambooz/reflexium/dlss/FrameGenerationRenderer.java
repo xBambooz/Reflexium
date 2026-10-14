@@ -2,6 +2,7 @@ package com.bambooz.reflexium.dlss;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.debug.FrameProfiler;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -118,9 +119,11 @@ public final class FrameGenerationRenderer {
 			NgxBridge.Image vectors = UpscalingRenderer.ngxImage(motion.getColorTexture(), motion.getColorTextureView());
 			for (int i = 0; i < count; i++) {
 				NgxBridge.Image outputImg = UpscalingRenderer.ngxImage(generated[i].getColorTexture(), generated[i].getColorTextureView());
+				long timing = FrameProfiler.start(FrameProfiler.FG_EVALUATE, commands);
 				int result = mode == FrameGeneration.FSR ? fsr.evaluateFrameGeneration(commands.address(), color, depth, vectors,
 						outputImg, constants, frameId, resetting)
 						: ngx.evaluateFrameGeneration(commands.address(), color, depth, vectors, outputImg, constants, frameId, count, i + 1, resetting);
+				FrameProfiler.end(FrameProfiler.FG_EVALUATE, timing, commands);
 				check(result, "evaluation");
 				UpscalingRenderer.barrier(commands);
 			}
@@ -140,10 +143,15 @@ public final class FrameGenerationRenderer {
 	/** Replays already prepared GUI draws against each scene, preserving destination-dependent blends such as the crosshair. */
 	public void drawGuiCopies(GameRenderer renderer, Runnable draw) {
 		for (int i = 0; i < ready; i++) {
+			VkCommandBuffer commands = UpscalingRenderer.get().commandBuffer();
+			long timing = FrameProfiler.start(FrameProfiler.FG_GUI, commands);
 			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(generated[i].getDepthTexture(), 0);
 			UpscalingRenderer.swap(renderer.mainRenderTarget(), generated[i]);
 			try { draw.run(); }
-			finally { UpscalingRenderer.swap(renderer.mainRenderTarget(), generated[i]); }
+			finally {
+				UpscalingRenderer.swap(renderer.mainRenderTarget(), generated[i]);
+				FrameProfiler.end(FrameProfiler.FG_GUI, timing, commands);
+			}
 		}
 	}
 
