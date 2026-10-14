@@ -2,8 +2,8 @@
 #extension GL_ARB_separate_shader_objects : require
 
 // DLSS motion vectors from depth reprojection: previous-frame pixel position minus current pixel
-// position, in render pixels. Covers camera rotation and translation; moving entities are treated as
-// static. Pixels covered by the first-person hand get zero motion (the hand moves with the camera).
+// position, in render pixels. Covers camera rotation and translation; ObjectVelocityPass overwrites
+// visible moving-object surfaces. Pixels covered by the first-person hand get zero motion.
 
 uniform sampler2D DepthSampler;     // world depth before the hand was drawn
 uniform sampler2D HandDepthSampler; // depth containing only the hand (0 = no hand)
@@ -33,6 +33,5 @@ void main() {
     vec2 deltaNdc = previousNdc - (ndc - JitterNdcAndSize.xy);
 
     // The Vulkan viewport is positive-height. Minecraft flips Y only in its final swapchain blit.
-    // ponytail: camera-only vectors treat moving entities as static; add per-object velocities to fix their trails.
     fragColor = vec4(deltaNdc * 0.5 * JitterNdcAndSize.zw, 0.0, 1.0);
 }

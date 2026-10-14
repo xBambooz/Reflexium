@@ -61,6 +61,28 @@ public final class DebugServer {
 	private DebugServer() {
 	}
 
+	/** Optional dev harness integration, loaded reflectively so release users need no test dependency. */
+	public static void registerHarnessEndpoints() {
+		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("agentharness")) return;
+		try {
+			Class<?> api = Class.forName("com.bambooz.agentharness.api.AgentHarness");
+			if (!(boolean) api.getMethod("isActive").invoke(null)) return;
+			Class<?> handler = Class.forName("com.bambooz.agentharness.api.EndpointHandler");
+			Object endpoint = java.lang.reflect.Proxy.newProxyInstance(handler.getClassLoader(), new Class<?>[] {handler}, (proxy, method, args) -> {
+				if (!method.getName().equals("handle")) return method.getName().equals("toString") ? "Reflexium debug endpoint" : null;
+				@SuppressWarnings("unchecked")
+				Map<String, String> params = (Map<String, String>) args[0].getClass().getMethod("params").invoke(args[0]);
+				return params.containsKey("key") ? set(params) : status();
+			});
+			api.getMethod("register", String.class, String.class, handler)
+					.invoke(null, "reflexium", "Upscaling status and runtime settings", endpoint);
+			api.getMethod("statusContributor", String.class, Supplier.class)
+					.invoke(null, "reflexium", (Supplier<JsonObject>) DebugServer::statusNow);
+		} catch (ReflectiveOperationException | LinkageError e) {
+			ReflexiumClient.LOGGER.warn("Minecraft agent harness integration could not register", e);
+		}
+	}
+
 	/** Called from the client entrypoint. Does nothing unless -Dreflexium.debugPort=<port> is set. */
 	public static void startIfRequested() {
 		String raw = System.getProperty("reflexium.debugPort");
@@ -336,6 +358,15 @@ public final class DebugServer {
 		o.add("jitter_sign", sign);
 		o.addProperty("jitter_enabled", DebugSettings.jitterEnabled());
 		o.addProperty("mv_debug", DebugSettings.motionVectorView());
+		o.addProperty("object_motion", DebugSettings.objectMotion());
+		o.addProperty("object_vertices_captured", info.capturedVertices());
+		o.addProperty("object_vertices_drawn", info.drawnVertices());
+		o.addProperty("object_entities", info.entities());
+		o.addProperty("object_block_entities", info.blockEntities());
+		o.addProperty("mip_bias", info.mipBias());
+		o.addProperty("reactive_mask", info.reactiveMask());
+		o.addProperty("evaluated_frames", info.evaluatedFrames());
+		o.addProperty("pack_hand_mask", info.packHandMask());
 		o.addProperty("fps", mc.getFps());
 		o.addProperty("frame_time_ms", Math.round(DebugSettings.frameTimeMs() * 100f) / 100f);
 		o.addProperty("frames", DebugSettings.frames());
@@ -418,8 +449,16 @@ public final class DebugServer {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.setJitterEnabled(on);
 			}
+			case "object_motion" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.setObjectMotion(on);
+			}
+			case "object_static" -> {
+				boolean on = flag(Map.of("v", value), "v", false);
+				yield () -> DebugSettings.setDrawStaticObjects(on);
+			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static");
 		};
 		return call(() -> {
 			apply.run();

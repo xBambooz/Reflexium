@@ -25,6 +25,7 @@ public final class ReflexiumClient implements ClientModInitializer {
 				VitrailCompat.version(),
 				ApertureCompat.status());
 		DebugServer.startIfRequested();
+		DebugServer.registerHarnessEndpoints();
 	}
 
 	/** NVIDIA Reflex and NGX are only shipped for Windows drivers in this mod. */

@@ -344,7 +344,7 @@
     <div class="panel">
       <div class="panel-header">
         <div class="panel-tag">Frame pacing</div>
-        <div class="panel-title">Frame cap and VRR auto-cap</div>
+        <div class="panel-title">Frame cap and VSync headroom</div>
       </div>
 
       <div class="compare-text" style="font-size: 12px; color: #CBD5E1;">
@@ -353,7 +353,7 @@
 
       <div class="cap-formula-box">
         <div class="formula-text">Cap = floor(hz - hz * hz / 3600)</div>
-        <div class="formula-sub">Automatic cap applied only when VSync is enabled</div>
+        <div class="formula-sub">VSync proxy; actual G-Sync engagement is not detected</div>
       </div>
 
       <table class="vrr-table">
@@ -418,7 +418,7 @@
 
       <div class="stat-grid">
         <div class="stat-card">
-          <div class="stat-name">Total PC Latency</div>
+          <div class="stat-name">Total frame span</div>
           <div class="stat-val" style="color: #76B900;">11.2 ms</div>
           <div class="stat-desc">From input sample to swapchain presentation end.</div>
         </div>
@@ -440,7 +440,7 @@
       </div>
 
       <div class="compare-text" style="font-size: 11.5px; color: #94A3B8;">
-        Queried directly from the driver via <code>vkGetLatencyTimingsNV</code>. Operates on all hardware and remains active when Reflex is Off for reliable before/after comparisons.
+        Queried from the driver via <code>vkGetLatencyTimingsNV</code> on supported NVIDIA Vulkan devices. Remains active with Reflex Off for comparisons.
       </div>
     </div>
 

@@ -156,9 +156,9 @@
   <div class="header">
     <div class="title-group">
       <h1>Sub-pixel jitter and motion vector reconstruction</h1>
-      <p>How camera offsets reveal fine spatial detail and how depth reprojection tracks pixels across frames</p>
+      <p>Halton sampling, camera reprojection, actual object geometry and shader-pack hand coverage</p>
     </div>
-    <div class="badge-tag">dlss_motion.fsh & Halton(2,3)</div>
+    <div class="badge-tag">Camera pass + object velocity pass</div>
   </div>
 
   <!-- 2x2 Grid -->
@@ -192,7 +192,7 @@
       </div>
 
       <div class="code-snippet">
-        Phase counts: DLAA = 8, Quality = 18, Balanced = 24, Performance = 32, Ultra Perf = 72
+        Phases = clamp(ceil(8 * displayRatio^2), 8, 64); Ultra Performance reaches the 64-phase cap.
       </div>
     </div>
 
@@ -249,51 +249,51 @@
         <div class="content-box">
           <div class="box-title">1. Depth capture</div>
           <div class="box-text">
-            <code>captureWorldDepth</code> copies world depth before vanilla clears it for the hand pass.
+            Vanilla: save depth before its HUD hand. Vitrail: save before the always-on-top clear, or at level end.
           </div>
         </div>
         <div class="content-box">
           <div class="box-title">2. Velocity zeroing</div>
           <div class="box-text">
-            <code>dlss_motion.fsh</code> checks <code>HandDepthSampler</code> and outputs <code>vec4(0.0)</code> on hand pixels.
+            Vanilla uses hand-only depth. Vitrail compares raw depth before and after each hand half to build its mask.
           </div>
         </div>
       </div>
 
       <div class="box-text" style="font-size: 11.5px; color: #CBD5E1;">
-        Why zero motion works: keeping hand velocity at zero prevents reprojection tearing during camera turns, keeping the weapon model stable on screen.
+        Masked pixels keep zero velocity in both motion passes. The hand receives the world's projection jitter; zero velocity is a deliberate approximation for independent animation.
       </div>
     </div>
 
     <!-- Panel 4: Moving Mobs and Per-Object Motion Vectors -->
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-tag">Future roadmap</div>
-        <div class="panel-title">Moving mobs and per-entity motion vectors</div>
+        <div class="panel-tag">Object motion implemented</div>
+        <div class="panel-title">Replay actual moving geometry into velocity</div>
       </div>
 
       <div class="content-box">
         <div class="box-title">
-          <span>Current limitation</span>
-          <span class="accent-red">Static terrain assumption</span>
+          <span>Capture animated vertices</span>
+          <span class="accent-green">Entities + block entities</span>
         </div>
         <div class="box-text">
-          Depth reprojection assumes all pixels belong to stationary terrain. When zombies, animals, or other players walk or swing limbs, their movement does not match world matrices, creating ghost trails.
+          Submit-node attribution records final camera-relative quad positions and pairs them with the previous frame. This follows body translation, animated limbs, chest lids and moving blocks without model-specific code.
         </div>
       </div>
 
       <div class="content-box">
         <div class="box-title">
-          <span>Planned solution</span>
-          <span class="accent-green">Multiple Render Targets (MRT)</span>
+          <span>Second pass after camera vectors</span>
+          <span class="accent-orange">Depth-matched visible surfaces</span>
         </div>
         <div class="box-text">
-          Bind the motion buffer as Color Attachment 1 during entity forward passes (<code>entityCutout</code>, <code>entitySolid</code>), writing per-vertex clip delta (<code>Pos_prev_clip - Pos_curr_clip</code>) to eliminate mob ghosting completely.
+          Replays moving quads into RG16F velocity. World-depth equality rejects occluded faces and cutout holes; the hand mask rejects hand coverage. Static or unmatched geometry keeps camera vectors. Transparent surfaces without depth writes also keep that fallback.
         </div>
       </div>
 
       <div class="code-snippet">
-        Planned: layout(location = 1) out vec4 outMotion; // Exact entity vertex velocity
+        Limits: new/topology-changed meshes, teleports, shader-only deformation; capture capped at 196,608 vertices.
       </div>
     </div>
 

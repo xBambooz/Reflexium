@@ -238,9 +238,9 @@
             <div class="comp-why">Provides Sodium settings page, Video Settings controls, and BetterF3 column stats.</div>
           </div>
           <div class="component-card">
-            <div class="comp-name">dlss_motion.fsh</div>
-            <div class="comp-role">Camera depth reprojection</div>
-            <div class="comp-why">Reconstructs camera motion vectors from depth while clamping hand velocity to zero.</div>
+            <div class="comp-name">ObjectMotion + motion shaders</div>
+            <div class="comp-role">Camera pass + geometry replay</div>
+            <div class="comp-why">Depth reprojection covers terrain; a second pass adds animated object velocity on visible depth-matched quads.</div>
           </div>
         </div>
       </div>
@@ -261,7 +261,7 @@
           <div class="comp-name">reflexium_ngx.dll &rarr; NVIDIA NGX</div>
           <div class="comp-role">Static nvsdk_ngx_s.lib bridge</div>
           <div class="comp-why">
-            Bridges Java FFM to NVIDIA NGX C API on Minecraft's Vulkan device; loads nvngx_dlss.dll auto-downloaded by DlssRuntimeInstaller.
+            Bridges Java FFM to NVIDIA NGX on Minecraft's Vulkan device. First use downloads the pinned nvngx_dlss.dll and activates DLSS in the same session.
           </div>
         </div>
 
@@ -269,7 +269,7 @@
           <div class="comp-name">reflexium_fsr.dll &rarr; AMD FidelityFX</div>
           <div class="comp-role">FidelityFX SDK 1.1.4 bridge</div>
           <div class="comp-why">
-            Bridges Java FFM to amd_fidelityfx_vk.dll; provides universal FSR 3.1 temporal upscaling and RCAS sharpening on any Vulkan GPU.
+            Bridges Java FFM to amd_fidelityfx_vk.dll for FSR 3.1 temporal upscaling, RCAS sharpening and a vanilla opaque/translucent reactive mask. Windows Vulkan GPUs only.
           </div>
         </div>
       </div>
@@ -317,10 +317,10 @@
           <span class="panel-tag tag-ecosystem">Vitrail Shaders</span>
         </div>
         <div class="full-card" style="border-left: 3px solid #A855F7;">
-          <div class="comp-name">VitrailCompat.isDrawingPack()</div>
-          <div class="comp-role">Shader pack detection</div>
+          <div class="comp-name">VitrailCompat + optional mixins</div>
+          <div class="comp-role">Reviewed Vitrail 0.12.x hooks</div>
           <div class="comp-why">
-            Reflex low latency works fully alongside Vitrail shaders; upscaling currently pauses while a shader pack draws (deep integration planned).
+            The pack follows the reduced main target. Reflexium owns scale, jitter and hand coverage. Complementary TAA is overridden in memory; saved options return when upscaling is off.
           </div>
         </div>
       </div>
@@ -333,18 +333,18 @@
         </div>
 
         <div class="full-card" style="border-left: 3px solid #FBBF24;">
-          <div class="comp-name">tools/rxdbg.ps1</div>
-          <div class="comp-role">Loopback HTTP CLI</div>
+          <div class="comp-name">mc-agent-harness</div>
+          <div class="comp-role">Standalone Fabric 26.3 test mod + MCP</div>
           <div class="comp-why">
-            PowerShell script wrapping dev endpoints for inspecting mod status, changing settings, capturing screenshots, and scripting camera motion.
+            Launches any compatible Loom project with isolated game directories, configurable ports and a background window on a chosen monitor. No desktop input injection.
           </div>
         </div>
 
         <div class="full-card">
-          <div class="comp-name">DebugServer (Port 25599)</div>
-          <div class="comp-role">-Dreflexium.debugPort</div>
+          <div class="comp-name">MCP + Reflexium plugin endpoints</div>
+          <div class="comp-role">Status, camera, UI, screenshots, sequences</div>
           <div class="comp-why">
-            In-game HTTP control server enabled in dev builds to automate camera turns, benchmark sequences, and verify reprojection math.
+            The harness runs game actions on the render thread while the PC remains usable. Reflexium adds settings and upscaler telemetry; legacy rxdbg HTTP tooling remains available.
           </div>
         </div>
       </div>
@@ -356,7 +356,7 @@
   <!-- Footer -->
   <div class="footer-note">
     <div>
-      <strong>Separation of concerns:</strong> Reflex paces the CPU game loop for ultra-low latency; DLSS/FSR upscales the 3D world for high framerates; the GUI remains untouched at full display resolution.
+      <strong>Limits:</strong> Unknown pack TAA and shader-only deformation need pack-specific support. Pack reactive masks are disabled. Aperture's private renderer API remains unverified.
     </div>
     <div>
       Reflexium: Client-side Fabric mod for Minecraft 26.3

@@ -1,0 +1,15 @@
+// Optional source-contract check against an installed Vitrail jar, without launching Minecraft.
+// gradlew -I tools/vitrail-check.gradle vitrailCompatCheck -PvitrailCheckJar=<path>
+gradle.projectsEvaluated {
+	rootProject.tasks.register('vitrailCompatCheck', JavaExec) {
+		dependsOn rootProject.tasks.named('testClasses'), rootProject.tasks.named('clientClasses')
+		def jar = rootProject.findProperty('vitrailCheckJar') ? rootProject.file(rootProject.property('vitrailCheckJar')) :
+				['run/mods/vitrail-0.12.0-beta+mc26.3.jar', 'run/mods/vitrail-0.12.0-beta+mc26.3.jar.disabled']
+						.collect { rootProject.file(it) }.find { it.isFile() }
+		classpath = rootProject.sourceSets.test.runtimeClasspath + rootProject.files(jar)
+		doFirst {
+			if (jar == null || !jar.isFile()) throw new GradleException('Set -PvitrailCheckJar=<supported Vitrail jar>')
+		}
+		mainClass = 'com.bambooz.reflexium.compat.VitrailCompatCheck'
+	}
+}

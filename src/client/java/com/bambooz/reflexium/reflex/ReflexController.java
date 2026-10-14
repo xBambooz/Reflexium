@@ -31,8 +31,8 @@ import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
  * <p>
  * Per frame (hooks in MinecraftMixin):
  * <pre>
- *   run():       latency sleep, SIMULATION_START   (before SDL event polling, so input is sampled late)
- *                INPUT_SAMPLE                      (after polling)
+ *   run():       latency sleep, SIMULATION_START,
+ *                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
  *   runTick():   SIMULATION_END                    (before renderFrame)
  *   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
  *                RENDERSUBMIT_END, PRESENT_START   (before present)
@@ -176,9 +176,6 @@ public final class ReflexController {
 			lastLatencyLog = System.nanoTime();
 			ReflexiumClient.LOGGER.info("{} | {}", statusLine(), latencyLine());
 		}
-	}
-
-	public void afterInputPoll() {
 		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
 	}
 
@@ -206,14 +203,14 @@ public final class ReflexController {
 	 */
 	public void updateFrameLimit(int fpsLimit, boolean vsync, Window window) {
 		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
-		// Vulkan cannot see G-Sync, so VSync on is the signal; NVIDIA's driver Reflex auto-cap keys off the same pair.
+		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
 		int fps = Math.min(userFps, vrrFps);
 		requestedIntervalUs = fps == NO_CAP ? 0 : 1_000_000 / fps;
 		requestedCapIsVrr = vrrFps < userFps;
 	}
 
-	/** NVIDIA's automatic variable refresh cap, just below the refresh rate. Unknown refresh rate means no cap. */
+	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */
 	private int vrrCap(Window window) {
 		float hz = refreshRate(window);
 		return hz <= 0 ? NO_CAP : Math.max(1, (int) Math.floor(hz - hz * hz / 3600f));

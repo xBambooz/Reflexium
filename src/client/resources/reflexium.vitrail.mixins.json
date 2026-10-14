@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.bambooz.reflexium.mixin.compat.vitrail",
+	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"RenderScaleMixin",
+		"CameraBobMixin",
+		"FrameStateMixin",
+		"HandDrawMixin",
+		"GeometryProgramMixin",
+		"PackSessionMixin"
+	],
+	"injectors": { "defaultRequire": 1 }
+}

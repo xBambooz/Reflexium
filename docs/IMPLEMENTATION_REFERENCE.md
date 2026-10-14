@@ -1,6 +1,10 @@
 # Reflexium Implementation Reference
 
-This document serves as the authoritative technical reference for NVIDIA Reflex, NVIDIA DLSS Super Resolution, and AMD FidelityFX Super Resolution (FSR 3.1) within Reflexium. All specifications, conventions, formulas, and constraints documented here are sourced directly from official vendor SDK documentation, Khronos Vulkan specifications, and official developer integration guides.
+This is a working integration reference for Reflexium. Vendor requirements, API-specific conventions,
+project choices and runtime evidence must be distinguished. Reflexium uses raw NGX and
+`VK_NV_low_latency2`, not Streamline; Streamline behavior must not be assumed to apply to these
+interfaces unchanged. Current acceptance and remaining limits are in [DLSS.md](DLSS.md) and
+[VITRAIL.md](VITRAIL.md). No vendor certification is claimed.
 
 Primary Sources Cited:
 * NVIDIA Reflex Vulkan Extension Specification (`VK_NV_low_latency2`): https://registry.khronos.org/vulkan/specs/latest/man/html/VK_NV_low_latency2.html
@@ -28,7 +32,9 @@ The extension introduces four core functions:
 4. `vkGetLatencyTimingsNV(device, swapchain, pTimingInfo)`
 
 ### 1.3 Latency Markers and Execution Sequence
-Latency markers delimit sub-stages of frame generation. The marker sequence per frame must follow this strict ordering:
+Latency markers delimit application stages. Reflexium sleeps, marks simulation start and then marks
+input immediately before SDL polling. Simulation ends before render submission starts. The marker
+placement requirements are listed individually below; INPUT_SAMPLE need not precede SIMULATION_START.
 
 1. `VK_LATENCY_MARKER_INPUT_SAMPLE_NV`:
    * Requirement: Must be invoked on the CPU immediately prior to gathering/polling input events (e.g., GLFW/SDL mouse and keyboard polling).
@@ -60,7 +66,9 @@ typedef struct VkLatencySleepInfoNV {
 } VkLatencySleepInfoNV;
 ```
 Placement rule:
-`vkLatencySleepNV` must be issued at the start of the frame, followed immediately by `vkWaitSemaphores` on the timeline semaphore. Once the wait returns, the application immediately emits `VK_LATENCY_MARKER_INPUT_SAMPLE_NV`, gathers user input, emits `VK_LATENCY_MARKER_SIMULATION_START_NV`, and proceeds into simulation. This guarantees that user input is sampled at the absolute latest point before rendering.
+Reflexium calls `vkLatencySleepNV` and waits on its timeline semaphore at frame start, then emits
+SIMULATION_START and INPUT_SAMPLE before SDL polling. INPUT_SAMPLE was previously after polling;
+the 2026-10-13 correction follows the [Khronos placement requirement](https://docs.vulkan.org/refpages/latest/refpages/source/VkLatencyMarkerNV.html).
 
 ### 1.5 Present ID Requirements
 To accurately attribute queue submissions to swapchain presentations across multi-threaded or deferred pipelines, an explicit 64-bit frame identifier must be propagated across three points:
@@ -93,7 +101,7 @@ typedef struct VkLatencySleepModeInfoNV {
 ### 1.8 VRR Auto-Cap Formula (G-Sync / V-Sync Integration)
 When Variable Refresh Rate (G-Sync / FreeSync) is active in combination with V-Sync, the framerate must remain within the monitor refresh window. If the framerate reaches or exceeds the monitor refresh rate ($Hz$), hardware V-Sync engages, causing queue backpressure and dramatic latency spikes.
 
-The industry-standard auto-cap formula reverse-engineered and validated by Blur Busters is:
+Reflexium uses this refresh-headroom heuristic:
 $$\text{Cap}(Hz) = \left\lfloor Hz - \frac{Hz^2}{3600} \right\rfloor$$
 
 Representative values:
@@ -106,6 +114,10 @@ Representative values:
 
 This formula provides non-linear headroom subtraction because millisecond variance per frame represents a much larger percentage of total frame time at high refresh rates.
 
+This is a project policy, not an official Vulkan G-Sync detection API. The current implementation
+uses Minecraft VSync as a proxy and cannot determine whether G-Sync is actually engaged. It also
+applies headroom on fixed-refresh VSync displays. Do not claim that it activates only under G-Sync.
+
 ### 1.9 UI Naming, Branding, and Certification Rules
 According to NVIDIA RTX UI Developer Guidelines:
 * Feature Label: "NVIDIA Reflex Low Latency" (or "NVIDIA Reflex").
@@ -114,11 +126,15 @@ According to NVIDIA RTX UI Developer Guidelines:
 * Frame Generation Rule: If DLSS Frame Generation is enabled, NVIDIA Reflex Low Latency must be forced "On" and locked from user deactivation.
 
 ### 1.10 PC Latency (PCL) Stats Display Rules
-* Architecture: PC Latency tracking via markers is universal and vendor-agnostic.
-* Core Guideline: Latency marker dispatches must run continuously regardless of whether Reflex Low Latency is toggled "Off", "On", or "On + Boost", and on all IHV hardware (NVIDIA, AMD, Intel).
+* Streamline PCL Stats is vendor-agnostic. Raw `VK_NV_low_latency2` timings require extension support;
+  Reflexium does not implement Streamline's cross-vendor PCL collection.
+* On supported Vulkan devices, Reflexium dispatches markers with Reflex Off, On and On + Boost.
 * Calculation:
   $$\text{PC Latency} = \text{gpuRenderEndTimeUs} - \text{inputSampleTimeUs}$$
 * Polling: Applications obtain frame metrics by querying `vkGetLatencyTimingsNV` with `VkLatencyTimingsFrameReportNV`.
+
+Reflexium's displayed total is currently input-to-present-end, not the input-to-GPU-end PCL formula
+above. Treat its label as a driver timing diagnostic, not an NVIDIA-certified PC Latency result.
 
 ---
 
@@ -321,22 +337,22 @@ Status definitions:
 
 | Feature / Requirement | Status | Reflexium Code Location | Explanation |
 | :--- | :--- | :--- | :--- |
-| Reflex Marker Sequence | OK (reviewed) | `ReflexController.beginFrame/afterInputPoll` | Sleep, then SIMULATION_START, then SDL input poll, then INPUT_SAMPLE at the moment input is read. Matches the documented order; an earlier draft of this table marked it WRONG by mistake. |
+| Reflex Marker Sequence | OK (corrected) | `ReflexController.beginFrame`, `MinecraftMixin` | Sleep, SIMULATION_START and INPUT_SAMPLE before SDL polling. The previous after-poll marker omitted input collection from timing. |
 | Reflex Sleep Placement | OK | `ReflexController.java:122, 251` | `vkLatencySleepNV` and timeline semaphore wait execute before input gathering. |
 | Reflex Present ID Attribution | OK | `VulkanLifecycle.java:78, 101` | Present ID is chained via `VkLatencySubmissionPresentIdNV` on submit and `VkPresentIdKHR` on present. |
 | Reflex Boost Mode | OK | `ReflexController.java:231` | `lowLatencyBoost` correctly passed to `VkLatencySleepModeInfoNV`. |
 | Reflex Frame Limiter | OK | `ReflexController.java:171` | `minimumIntervalUs` calculated as `1000000 / fps` and applied via `vkSetLatencySleepModeNV`. |
-| Reflex VRR Auto-Cap Formula | OK | `ReflexController.java:181` | Uses `floor(hz - hz * hz / 3600f)`, matching driver VRR headroom subtraction. |
+| Reflex VRR Auto-Cap | PARTIAL | `ReflexController.updateFrameLimit` | Refresh-headroom formula is implemented, but VSync is only a proxy. Actual G-Sync engagement is not detected. |
 | Reflex PCL Markers when Off | OK (reviewed) | `ReflexController.marker` | marker() only requires a swapchain with low_latency2; it is not gated on the Reflex mode, so PC Latency stats keep working with Reflex Off. Earlier draft said WRONG by mistake. |
 | Reflex UI Naming | OK | `ReflexiumConfig.java`, UI screens | Uses "NVIDIA Reflex" with "Off", "On", "On + Boost". |
 | DLSS Required Buffer Formats | OK | `UpscalingRenderer.java:441` | Passes RGBA8/D32_FLOAT/RG16F, valid under NGX Vulkan requirements. |
-| DLSS Jitter Sign Convention | OK | `UpscalingRenderer.java:55, 617` | `JITTER_SIGN = -1.0f` matches translation sign in projection matrix. |
+| DLSS Jitter Sign Convention | SMOKE CHECKED | `UpscalingRenderer.JITTER_SIGN` | Uses +1 on both axes, based on captured stability tests. Do not copy a sign from another renderer's projection convention. |
 | DLSS Halton Phase Count | OK | `UpscalingRenderer.java:601` | Formula `ceil(8 * ratio^2)` matches DLSS Programming Guide Section 3.7. |
 | DLSS Motion Vector Convention | OK | `dlss_motion.fsh:32`, `UpscalingRenderer.java:50` | `previous - current` in render pixels with `MVLowRes` and `MVScale = {1, 1}`. |
 | DLSS Depth Inversion Flag | OK | `UpscalingRenderer.java:50` | `NVSDK_NGX_DLSS_Feature_Flags_DepthInverted` matches reverse-Z depth. |
 | DLSS History Reset Trigger | OK | `UpscalingRenderer.java:323` | Sets `InReset` on $>8$ block teleport, $>15$ deg turn, or $>250$ ms frametime jump. |
 | DLSS Exposure & Pre-Exposure | OK | `reflexium_ngx.cpp:218` | `InPreExposure = 1.0f`, auto-exposure disabled for pre-tonemapped LDR color. |
-| DLSS Texture Mip LOD Bias | MISSING | Not implemented | Sampler mip LOD bias `log2(render/display) - 1.0` is missing; textures blur at low scales. |
+| DLSS Texture Mip LOD Bias | IMPLEMENTED | `MipBiasSamplers`, `MaterialSamplerMixin` | Material-only `log2(render/display) - 1.0`, zero in Native AA; replacements close when resolution changes. |
 | DLSS Pipeline Order & UI | OK | `UpscalingRenderer.java:264, 335` | Swaps world pass; DLSS evaluates before GUI rendering. |
 | DLSS DLAA Mode Support | OK | `UpscaleQuality.java:10` | DLAA runs at $1.0\times$ render scale through DLSS neural network. |
 | DLSS Render Presets Assignment | OK | `reflexium_ngx.cpp:181` | Sets NGX preset hints; applies single preset globally across modes. |
@@ -345,16 +361,18 @@ Status definitions:
 | FSR 3.1 Jitter Offset Sign | OK | `UpscalingRenderer.java:521` | Subpixel pixel offset passed directly to `ffxDispatchDescUpscale`. |
 | FSR 3.1 MV Scale & Direction | OK | `reflexium_fsr.cpp:115` | `motionVectorScale = {1.0f, 1.0f}` matches render-pixel velocity output. |
 | FSR 3.1 Inverted Depth Planes | OK | `reflexium_fsr.cpp:124` | Swaps near/far planes when `FFX_UPSCALE_ENABLE_DEPTH_INVERTED` is active. |
-| FSR 3.1 Reactive Mask | MISSING | `reflexium_fsr.cpp:111` | `reactive` texture is null; causes ghosting on particles and water. |
+| FSR 3.1 Reactive Mask | PARTIAL | `ReactiveCaptureMixin`, `rx_fsr_generate_reactive` | AMD's opaque/final-color mask is supplied on vanilla. Disabled under packs because the color pair is not comparable. |
 | FSR 3.1 RCAS Sharpening | OK | `reflexium_fsr.cpp:118` | Dispatches internal RCAS sharpening with user slider value. |
-| Moving Entities Motion Vectors | MISSING | `dlss_motion.fsh:20` | Zeroes hand velocity; mobs lack per-object motion vectors and streak during motion. |
+| Moving Entities Motion Vectors | IMPLEMENTED WITH LIMITS | `ObjectMotion`, `ObjectVelocityPass` | Captures previous/current animated opaque geometry and writes depth-matched velocity. Translucency, shader-only deformation and unstable topology retain limitations. |
 
 ---
 
 ## 5. Moving Objects Handling in a Forward Renderer
 
 ### 5.1 The Moving Object Dilemma in Minecraft
-Reflexium currently generates motion vectors via camera depth reprojection in a post-process fullscreen pass (`dlss_motion.fsh`). Camera reprojection operates on the assumption that world geometry is static relative to the world coordinate frame:
+The base pass (`dlss_motion.fsh`) generates camera vectors with depth reprojection. ObjectVelocityPass
+then overwrites matched visible opaque object surfaces using previous/current animated positions.
+Camera reprojection alone assumes world geometry is static relative to the world coordinate frame:
 $$\vec{P}_{prev} = M_{prev} \cdot M_{curr}^{-1} \cdot \vec{P}_{curr}$$
 
 While this accurately accounts for camera translation and rotation across static terrain blocks, it completely fails for dynamic objects:

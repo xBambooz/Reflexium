@@ -24,3 +24,4 @@ Thumbs.db
 
 # Dev client run directory
 /run/
+/logs/

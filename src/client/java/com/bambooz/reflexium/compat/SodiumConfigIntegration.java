@@ -77,6 +77,7 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setName(Component.translatable("reflexium.option.fsr_sharpness"))
 										.setTooltip(Component.translatable("reflexium.option.fsr_sharpness.tooltip"))
 										.setRange(0, 100, 5)
+										.setValueFormatter(value -> Component.literal(value + "%"))
 										.setDefaultValue(20)
 										.setStorageHandler(SAVED_ON_SET)
 										.setBinding(config::setFsrSharpness, config::fsrSharpness))

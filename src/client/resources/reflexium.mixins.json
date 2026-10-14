@@ -4,6 +4,12 @@
 	"package": "com.bambooz.reflexium.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"EntityRenderStateMixin",
+		"EntityRendererMotionMixin",
+		"EntityRenderDispatcherMotionMixin",
+		"BlockEntityRenderDispatcherMotionMixin",
+		"FeatureSubmitMotionMixin",
+		"RenderTypeFeatureMotionMixin",
 		"DebugScreenEntriesMixin",
 		"DebugScreenEntryListMixin",
 		"MinecraftMixin",

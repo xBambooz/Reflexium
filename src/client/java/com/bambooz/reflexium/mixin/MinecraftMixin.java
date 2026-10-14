@@ -21,12 +21,6 @@ public abstract class MinecraftMixin {
 		ReflexController.get().beginFrame();
 	}
 
-	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.AFTER,
-			target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents(Lcom/mojang/blaze3d/platform/SDLEventHandler;)V"))
-	private void reflexium$inputSampled(CallbackInfo ci) {
-		ReflexController.get().afterInputPoll();
-	}
-
 	/** Dev debug harness scripted motion; a no-op unless -Dreflexium.debugPort is set. */
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void reflexium$debugTick(CallbackInfo ci) {

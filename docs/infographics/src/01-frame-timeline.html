@@ -349,7 +349,7 @@
           <div class="sub-step">
             <span class="sub-step-num">Step E</span>
             <span class="sub-step-name">Motion vectors</span>
-            <span class="sub-step-desc">Depth reprojection builds 2D camera velocity; hand given zero motion.</span>
+            <span class="sub-step-desc">Camera reprojection plus visible object velocity; hand given zero motion.</span>
           </div>
           <div class="sub-step">
             <span class="sub-step-num">Step F</span>
@@ -415,7 +415,7 @@
       <div class="marker-arrow"></div>
       <div class="marker-item">
         <div class="marker-badge">INPUT_SAMPLE</div>
-        <div class="marker-desc">Emitted right after SDL poll</div>
+        <div class="marker-desc">Emitted immediately before SDL poll</div>
       </div>
       <div class="marker-arrow"></div>
       <div class="marker-item">
@@ -447,10 +447,10 @@
 
   <!-- Latency calculation explanation -->
   <div class="latency-bar-container">
-    <div class="latency-tag">Driver PC Latency Span</div>
+    <div class="latency-tag">Driver frame latency span</div>
     <div class="latency-explain">
       Measured by the driver from <strong>INPUT_SAMPLE</strong> to <strong>PRESENT_END</strong>:
-      <code>PC Latency = presentEndTimeUs - inputSampleTimeUs</code>.
+      <code>Frame latency = presentEndTimeUs - inputSampleTimeUs</code>.
       Timing queries run continuously through <code>vkGetLatencyTimingsNV</code> so latency data is available in F3 even when Reflex is toggled Off.
     </div>
   </div>

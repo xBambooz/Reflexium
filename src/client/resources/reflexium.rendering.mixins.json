@@ -1,0 +1,8 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.bambooz.reflexium.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": ["MaterialSamplerMixin", "SamplerLodBiasMixin", "ReactiveCaptureMixin"],
+	"injectors": {"defaultRequire": 1}
+}

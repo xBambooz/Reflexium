@@ -24,10 +24,10 @@ This chart shows how Reflexium swaps internal render targets so the 3D world ren
 
 ### [04-jitter-and-motion-vectors.png](file:///C:/Users/Ryan/source/repos/Reflexium/docs/infographics/04-jitter-and-motion-vectors.png)
 **Sub-pixel jitter and motion vector reconstruction**
-This graphic illustrates how Halton sub-pixel camera jitter provides temporal sampling coverage to reconstruct fine geometry details across multiple frames. It explains camera-relative depth reprojection math, the rationale behind masking the first-person hand to zero velocity, and the planned multi-target forward pass for moving entities.
+This graphic illustrates Halton temporal sampling, camera-relative depth reprojection, vanilla and Vitrail hand masks, and the implemented second pass that replays animated entity and block-entity geometry into visible surface velocity. It includes the transparent, unmatched topology and shader-deformation limits.
 
 ---
 
 ### [05-components-map.png](file:///C:/Users/Ryan/source/repos/Reflexium/docs/infographics/05-components-map.png)
 **Reflexium system architecture**
-This architectural map connects Minecraft 26.3's Vulkan engine, Reflexium Java mixins and controllers, native C++ bridges, and the underlying GPU driver. It also outlines mod ecosystem compatibility with Vitrail shaders and the local HTTP developer debug harness.
+This architectural map connects Minecraft 26.3's Vulkan engine, Reflexium Java mixins and controllers, native C++ bridges, and the GPU driver. It includes Vitrail scale/TAA/jitter ownership, same-session DLSS runtime installation, and the reusable standalone MCP Minecraft test harness.

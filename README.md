@@ -12,7 +12,7 @@ NVIDIA Reflex, DLSS and AMD FSR 3.1 for Minecraft Java's Vulkan renderer. Client
 ## Requirements
 
 - Minecraft 26.3, Fabric Loader 0.19.5+, Java 25
-- Windows with an NVIDIA GPU and a driver that exposes `VK_NV_low_latency2` (GeForce 900 series or newer, current driver)
+- Windows x64 for the bundled native runtimes. Reflex requires an NVIDIA driver exposing `VK_NV_low_latency2`; DLSS requires an RTX GPU. FSR also supports AMD and Intel Vulkan GPUs, which were not part of this acceptance run.
 - Graphics API set to **Vulkan** (Options, Video Settings, Graphics API). On OpenGL the mod does nothing.
 - Optional: [Mod Menu](https://modrinth.com/mod/modmenu) for the settings screen
 
@@ -20,11 +20,11 @@ Fabric API is not required.
 
 ## Upscaling
 
-- DLSS: requires an NVIDIA RTX GPU and `nvngx_dlss.dll` in `<game>/reflexium/`. The native NGX bridge is bundled.
+- DLSS: requires an NVIDIA RTX GPU. A missing `nvngx_dlss.dll` is downloaded from NVIDIA, hash-checked and enabled in the same session. Existing DLLs are preserved. The native NGX bridge is bundled.
 - FSR 3.1: works on any Vulkan GPU (AMD, Intel, NVIDIA).
 - Auto mode picks DLSS when available, otherwise FSR 3.1.
-- Paused while a Vitrail shader pack draws.
-- Moving entities have no motion vectors yet (camera motion only).
+- Vitrail 0.12.x shader upscaling is supported, with Complementary Reimagined r5.9.3 tested. Reflexium owns render scale and jitter while active.
+- Opaque moving entities and animated block entities receive per-vertex motion vectors. Shader-only deformation and translucent objects still have limitations; see [validation](docs/DLSS.md).
 
 ## Settings
 
@@ -53,7 +53,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 ## Shaders
 
 - **[Vitrail Shaders](https://github.com/avpbynf/Vitrail-Shaders)**: verified with Vitrail `0.12.0-beta+mc26.3`, Sodium `0.9.2+mc26.3` and Complementary Reimagined `r5.9.3` on Windows/NVIDIA. Reflex sleep, frame limiting and driver latency readings work through the shared Vulkan backend. Install Vitrail's Minecraft 26.3 jar and its Sodium/Fabric API dependencies. See [the compatibility check](docs/VITRAIL.md) for evidence and repeat steps.
-- DLSS and FSR pause while Vitrail draws a shader pack, then resume when shaders are disabled. Moving entities also lack independent motion vectors and may trail. Reflex remains available with shaders.
+- DLSS and FSR run after Vitrail's final world pass and before the full-resolution GUI. Known Complementary packs have their own TAA disabled in memory while upscaling. Unsupported Vitrail versions pause shader upscaling.
 - **Aperture** (the Iris team's Vulkan shader loader): shared Vulkan hooks are the intended integration point; runtime compatibility and DLSS integration remain unverified.
 - **Iris** is OpenGL-only, so Reflex is unavailable while it is in use.
 
@@ -65,7 +65,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 | `VulkanGpuSurface.configure` | creates the swapchain with `VkSwapchainLatencyCreateInfoNV` and applies the sleep mode |
 | `VulkanQueue.Submission.close` | tags every `vkQueueSubmit2` with `VkLatencySubmissionPresentIdNV` |
 | `VulkanGpuSurface.present` | tags the present with `VkPresentIdKHR` |
-| `Minecraft.run` | Reflex sleep before SDL event polling, then the input sample marker |
+| `Minecraft.run` | Reflex sleep, simulation-start and input-sample markers before SDL event polling |
 | `Minecraft.runTick` / `renderFrame` | simulation, render submit and present markers; skips vanilla's limiter when Reflex enforces the cap |
 
 ## Building
@@ -76,7 +76,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 
 The jar is written to `build/libs/Reflexium-<version>-fabric-<minecraft>.jar` and copied into the Modrinth profile `26.3 Testing Instance` when it exists. One release line per Minecraft version.
 
-The build checks resource JSON and camera reprojection math before installing. To rebuild the bundled native bridge, use `native\build.cmd` with Visual Studio 2022 C++ Build Tools and the Windows SDK installed. `NGX_SDK` can point to an existing NVIDIA DLSS SDK checkout. See [native build notes](native/README.md).
+The build checks resource JSON, native FSR call signatures, camera reprojection, jitter phases and object-motion history before installing. To rebuild the bundled native bridge, use `native\build.cmd` with Visual Studio 2022 C++ Build Tools and the Windows SDK installed. `NGX_SDK` can point to an existing NVIDIA DLSS SDK checkout. See [native build notes](native/README.md).
 
 ## License
 

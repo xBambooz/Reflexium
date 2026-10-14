@@ -74,7 +74,7 @@ RX_EXPORT int rx_fsr_create(void* device, void* physicalDevice, void* gdpa,
 }
 
 RX_EXPORT int rx_fsr_evaluate(void* commandBuffer, const RxImage* color, const RxImage* depth,
-        const RxImage* motion, const RxImage* output, float jitterX, float jitterY,
+        const RxImage* motion, const RxImage* output, const RxImage* reactive, float jitterX, float jitterY,
         int reset, float frameTimeMs, float nearPlane, float farPlane, float fov, float sharpness) {
     if (!context) return -1;
     ffxDispatchDescUpscale dispatch = {};
@@ -84,6 +84,7 @@ RX_EXPORT int rx_fsr_evaluate(void* commandBuffer, const RxImage* color, const R
     dispatch.depth = resource(depth, false);
     dispatch.motionVectors = resource(motion, false);
     dispatch.output = resource(output, true);
+    if (reactive) dispatch.reactive = resource(reactive, false);
     dispatch.jitterOffset = {jitterX, jitterY};
     dispatch.motionVectorScale = {1.0f, 1.0f};
     dispatch.renderSize = {static_cast<uint32_t>(color->width), static_cast<uint32_t>(color->height)};
@@ -98,5 +99,24 @@ RX_EXPORT int rx_fsr_evaluate(void* commandBuffer, const RxImage* color, const R
     dispatch.cameraFar = nearPlane;
     dispatch.cameraFovAngleVertical = fov;
     dispatch.viewSpaceToMetersFactor = 1.0f;
+    return ffxDispatch(&context, &dispatch.header);
+}
+
+// AMD's opaque/pre-upscale comparison. Run before hand/post effects so the two inputs share exposure.
+RX_EXPORT int rx_fsr_generate_reactive(void* commandBuffer, const RxImage* opaque,
+        const RxImage* color, const RxImage* reactive) {
+    if (!context) return -1;
+    ffxDispatchDescUpscaleGenerateReactiveMask dispatch = {};
+    dispatch.header.type = FFX_API_DISPATCH_DESC_TYPE_UPSCALE_GENERATEREACTIVEMASK;
+    dispatch.commandList = commandBuffer;
+    dispatch.colorOpaqueOnly = resource(opaque, false);
+    dispatch.colorPreUpscale = resource(color, false);
+    dispatch.outReactive = resource(reactive, true);
+    dispatch.renderSize = {static_cast<uint32_t>(color->width), static_cast<uint32_t>(color->height)};
+    dispatch.scale = 1.0f;
+    dispatch.cutoffThreshold = 0.2f;
+    dispatch.binaryValue = 0.9f;
+    // Tonemap/inverse-tonemap flags are unnecessary for Minecraft's LDR color target.
+    dispatch.flags = FFX_UPSCALE_AUTOREACTIVEFLAGS_APPLY_THRESHOLD | FFX_UPSCALE_AUTOREACTIVEFLAGS_USE_COMPONENTS_MAX;
     return ffxDispatch(&context, &dispatch.header);
 }

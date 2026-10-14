@@ -9,6 +9,17 @@ and is never started in normal play or from the release jar's defaults.
 
 ## Quick start
 
+For unattended testing on the second monitor, use the standalone harness at
+`C:\Users\Ryan\source\repos\mc-agent-harness`. Its launcher injects the test mod without changing
+this project's dependencies and exposes authenticated screenshot, camera, world and window commands
+through HTTP or MCP. See that repository's `README.md`. Reflexium registers a `reflexium` endpoint
+and a status contributor when the harness is active. No debug port is needed for this integration.
+
+Shutdown must verify the recorded exact game PID and game directory against authenticated status,
+then verify that PID's Windows command line contains the injected harness jar and test directory.
+The MCP `quit` command performs these checks. Never close clients by process name or close a launcher
+instance to free the test port.
+
 ```powershell
 .\tools\run-debug.ps1                          # starts runClient in the background, waits for /status
 .\tools\rxdbg.ps1 join "Reflexium Vitrail Smoke"   # loads the save folder, returns when terrain is ready
@@ -56,6 +67,8 @@ game runs on the render thread.
 | `jitter_sign_x`, `jitter_sign_y` | `1`, `-1`, `default` | Runtime override of the sign UpscalingRenderer applies to the jitter handed to the upscaler. `default` restores the built-in value (`1`, measured in build/jitter-tuning, or `-Dreflexium.dlss.jitterSign`). `jitter_sign` sets both |
 | `jitter` | `0`, `1` | `0` zeroes the projection jitter and the jitter given to the upscaler, for A/B |
 | `mv_debug` | `0`, `1` | Draws the motion vector texture over the upscaled world (see below) |
+| `object_motion` | `0`, `1` | Enables the opaque entity/block-entity velocity pass; `0` gives a camera-only A/B |
+| `object_static` | `0`, `1` | Also redraws static tracked objects for depth-match debugging |
 
 Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are saved to
 `run\config\reflexium.properties` like menu changes. The jitter and `mv_debug` overrides are runtime
@@ -70,11 +83,16 @@ A fullscreen overlay of the motion vector texture drawn after upscaling and befo
   motion still shows),
 - black means no motion; the first-person hand is always black.
 
-What to expect: a still camera is solid black. A pure `turn` gives a nearly uniform color across the
-screen. `move` forward gives a radial pattern around the screen center, brighter for near blocks.
-Moving entities are drawn with camera-only vectors (they are treated as static), so they show the same
-color as the terrain around them. Frames are very short at several hundred fps, so per-frame motion is
-small; use `set mv_debug 1` with a fast `turn` (for example `turn 180 20`) to see it clearly.
+What to expect: with a still camera, static terrain is black while moving opaque objects have their
+own vectors, including animated limbs. A pure `turn` gives a smooth color field across the scene.
+`move` forward gives a radial pattern around the screen center, brighter for near blocks. The hand
+stays black. Frames are very short at several hundred fps, so per-frame motion is small; use
+`set mv_debug 1` with a fast `turn` (for example `turn 180 20`) to see it clearly.
+
+Status includes `evaluated_frames` (must advance to prove the upscaler ran), `pack_hand_mask`,
+`object_vertices_captured`, `object_vertices_drawn`, tracked entity counts, `mip_bias` and
+`reactive_mask`. Vertex counts report geometry submitted to the velocity pass, not the number of
+fragments that passed its depth test. A nonzero count alone does not prove correct velocities.
 
 ## Worked recipe: tuning the jitter sign
 

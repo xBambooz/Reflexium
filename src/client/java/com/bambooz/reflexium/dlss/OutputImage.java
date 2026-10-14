@@ -25,17 +25,23 @@ final class OutputImage {
 	final long view;
 	final int width;
 	final int height;
+	private final int format;
 	private final long allocation;
 	private final VulkanDevice device;
 
 	OutputImage(VulkanDevice device, VkCommandBuffer commandBuffer, int width, int height) {
+		this(device, commandBuffer, width, height, FORMAT);
+	}
+
+	OutputImage(VulkanDevice device, VkCommandBuffer commandBuffer, int width, int height, int format) {
 		this.device = device;
+		this.format = format;
 		this.width = width;
 		this.height = height;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkImageCreateInfo info = VkImageCreateInfo.calloc(stack).sType$Default()
 					.imageType(VK10.VK_IMAGE_TYPE_2D)
-					.format(FORMAT)
+					.format(format)
 					.mipLevels(1)
 					.arrayLayers(1)
 					.samples(VK10.VK_SAMPLE_COUNT_1_BIT)
@@ -55,7 +61,7 @@ final class OutputImage {
 			VkImageViewCreateInfo viewInfo = VkImageViewCreateInfo.calloc(stack).sType$Default()
 					.image(image)
 					.viewType(VK10.VK_IMAGE_VIEW_TYPE_2D)
-					.format(FORMAT);
+					.format(format);
 			viewInfo.subresourceRange().aspectMask(VK10.VK_IMAGE_ASPECT_COLOR_BIT).levelCount(1).layerCount(1);
 			LongBuffer pView = stack.callocLong(1);
 			int viewResult = VK10.vkCreateImageView(device.vkDevice(), viewInfo, null, pView);
@@ -80,7 +86,7 @@ final class OutputImage {
 	}
 
 	NgxBridge.Image asNgx() {
-		return new NgxBridge.Image(image, view, FORMAT, width, height, VK10.VK_IMAGE_ASPECT_COLOR_BIT);
+		return new NgxBridge.Image(image, view, format, width, height, VK10.VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 
 	/** Caller guarantees the GPU no longer uses the image (device idle). */

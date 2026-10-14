@@ -26,6 +26,8 @@ import net.minecraft.client.renderer.state.WindowRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import com.mojang.renderpearl.api.textures.GpuSampler;
 import org.joml.Quaternionf;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK;
@@ -66,6 +68,7 @@ public final class UpscalingRenderer {
 	private float cameraNear = 0.05f, cameraFar = 1024f, cameraFov = 1.22f;
 	private boolean ngxReady;
 	private boolean ngxInitialized;
+	private boolean awaitingRuntime;
 	private String unavailable = "needs the Vulkan renderer";
 	private boolean failed;
 
@@ -81,14 +84,26 @@ public final class UpscalingRenderer {
 	private TextureTarget worldDepth;
 	private TextureTarget motionTarget;
 	private OutputImage output;
+	private OutputImage reactive;
+	private TextureTarget opaqueTarget;
+	private final MipBiasSamplers materialSamplers = new MipBiasSamplers();
+	private float mipBias;
 	private MotionVectorPass motionPass;
+	private ObjectVelocityPass objectVelocityPass;
 	private MotionDebugPass motionDebugPass;
+	private PackHandMaskPass packHandMaskPass;
+	private TextureTarget packHandBefore;
+	private TextureTarget packHandMask;
+	private boolean packHandCaptured;
 	private volatile String lastError = "";
 
 	// Per-frame state.
 	private boolean activeThisFrame;
 	private boolean swapped;
 	private boolean worldDepthCaptured;
+	private boolean opaqueCaptured;
+	private boolean reactiveGenerated;
+	private boolean reactiveMaskFailed;
 	private int jitterIndex;
 	private float jitterX;
 	private float jitterY;
@@ -138,6 +153,12 @@ public final class UpscalingRenderer {
 		}
 		ngxReady = false;
 		failed = false;
+		initializeNgx();
+	}
+
+	/** Render-thread only: also runs once when a first-use download finishes. */
+	private void initializeNgx() {
+		awaitingRuntime = false;
 		DlssStatus prerequisites = DlssSupport.status();
 		if (!ReflexiumConfig.get().dlssDetection()) {
 			unavailable = "DLSS detection is off";
@@ -145,6 +166,8 @@ public final class UpscalingRenderer {
 		}
 		if (!prerequisites.prerequisitesMet()) {
 			unavailable = prerequisites.summary();
+			awaitingRuntime = DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.DOWNLOADING
+					|| DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.INSTALLED;
 			return;
 		}
 		if (prerequisites.featureDlls().stream().noneMatch(dll -> dll.equals("nvngx_dlss.dll"))) {
@@ -195,6 +218,7 @@ public final class UpscalingRenderer {
 		}
 		ngxInitialized = false;
 		ngxReady = false;
+		awaitingRuntime = false;
 		device = null;
 		fsr = null;
 		session = null;
@@ -207,14 +231,31 @@ public final class UpscalingRenderer {
 	/** GameRenderer.render HEAD: decide whether this frame upscales and (re)build for the current size and mode. */
 	public void beginFrame(GameRenderer gameRenderer) {
 		DebugSettings.onFrame();
+		if (awaitingRuntime && device != null) {
+			DlssRuntimeInstaller.Phase phase = DlssRuntimeInstaller.state().phase();
+			if (phase != DlssRuntimeInstaller.Phase.DOWNLOADING) {
+				awaitingRuntime = false;
+				if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY) {
+					DlssSupport.probe(session);
+					initializeNgx();
+				} else {
+					unavailable = DlssSupport.status().summary();
+				}
+			}
+		}
 		activeThisFrame = false;
 		worldDepthCaptured = false;
+		opaqueCaptured = false;
+		reactiveGenerated = false;
+		packHandCaptured = false;
 		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
+		VitrailCompat.configureUpscaling(available(selected) && !failed);
 		boolean wanted = available(selected) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
-				&& window.width > 0 && window.height > 0 && !VitrailCompat.isDrawingPack();
+				&& window.width > 0 && window.height > 0 && VitrailCompat.canUpscale();
 		if (!wanted) {
+			ObjectMotion.get().beginFrame(false, false);
 			if (renderSizeApplied) {
 				restoreDisplaySize(gameRenderer, window);
 			}
@@ -269,6 +310,8 @@ public final class UpscalingRenderer {
 		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
 				gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
 		updateGlobals(renderWidth, renderHeight);
+		if (packHandMask != null) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
+		ObjectMotion.get().beginFrame(DebugSettings.objectMotion(), DebugSettings.drawStaticObjects());
 	}
 
 	/** Jitters the level projection and records the matrices motion vectors need. */
@@ -296,15 +339,76 @@ public final class UpscalingRenderer {
 		return swapped;
 	}
 
+	public boolean isUpscalingRequestedThisFrame() { return activeThisFrame; }
+	public Matrix4f jitterShaderProjection(Matrix4fc projection) {
+		return swapped ? jitter(new Matrix4f(projection)) : new Matrix4f(projection);
+	}
+
+	public GpuSampler materialSampler(GpuSampler sampler) {
+		return swapped ? materialSamplers.get(sampler, mipBias) : sampler;
+	}
+	public static float creatingSamplerBias() { return MipBiasSamplers.creatingBias(); }
+
+	/** Vitrail draws the hand inside its level chain, before vanilla's HUD depth target exists. */
+	public void capturePackHandBefore() {
+		if (!swapped || packHandBefore == null) return;
+		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), packHandBefore.getDepthTexture(),
+				0, 0, 0, 0, 0, renderWidth, renderHeight);
+	}
+
+	public void capturePackHandAfter() {
+		if (!swapped || packHandBefore == null) return;
+		packHandMaskPass.render(packHandMask, packHandBefore.getDepthTextureView(),
+				Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTextureView());
+		packHandCaptured = true;
+	}
+
+	public boolean supportsReactiveMask() {
+		return swapped && builtUpscaler == Upscaler.FSR && opaqueTarget != null && !VitrailCompat.isDrawingPack();
+	}
+
+	/** Called after opaque rendering ends, before any transparency writes to the scene. */
+	public void captureOpaqueColor() {
+		if (!supportsReactiveMask()) return;
+		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getColorTexture(), opaqueTarget.getColorTexture(),
+				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		opaqueCaptured = true;
+	}
+
 	/** render3dHud HEAD: keep the world depth, which vanilla clears before drawing the hand. */
 	public void captureWorldDepth(GameRenderer gameRenderer) {
-		if (!swapped) {
+		if (!swapped || worldDepthCaptured) {
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
+		if (opaqueCaptured && reactive != null && !reactiveMaskFailed) {
+			try {
+			VkCommandBuffer commands = commandBuffer();
+			barrier(commands);
+			int result = fsr.generateReactive(commands.address(), ngxImage(opaqueTarget.getColorTexture(), opaqueTarget.getColorTextureView()),
+					ngxImage(main.getColorTexture(), main.getColorTextureView()), reactive.asNgx());
+			barrier(commands);
+			if (result != 0) throw new IllegalStateException("FSR reactive mask returned " + result);
+			reactiveGenerated = true;
+			} catch (RuntimeException e) {
+				reactiveMaskFailed = true;
+				lastError = "reactive mask disabled: " + e;
+				ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
+			}
+		}
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), worldDepth.getDepthTexture(),
 				0, 0, 0, 0, 0, renderWidth, renderHeight);
 		worldDepthCaptured = true;
+	}
+
+	/** Shader packs draw their hand inside renderLevel and suppress vanilla's render3dHud. */
+	public void afterLevel(GameRenderer gameRenderer) {
+		if (swapped && !worldDepthCaptured) {
+			captureWorldDepth(gameRenderer);
+			renderMotionVectors(gameRenderer, false);
+		}
 	}
 
 	/** render3dHud RETURN: motion vectors, with the hand (now in {@code handDepth}) given zero motion. */
@@ -315,6 +419,7 @@ public final class UpscalingRenderer {
 		RenderTarget handTarget = handInHud3dTarget
 				? ((GameRendererAccessor) gameRenderer).reflexium$hud3DTarget()
 				: gameRenderer.mainRenderTarget();
+		GpuTextureView handDepth = packHandCaptured ? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
 		Object level = Minecraft.getInstance().level;
 		if (!havePrevious || level != previousLevel || currentCamera.distanceToSqr(previousCamera) > RESET_DISTANCE * RESET_DISTANCE
 				|| Math.abs(currentOrientation.dot(previousOrientation)) < 0.9659258f
@@ -327,11 +432,15 @@ public final class UpscalingRenderer {
 		Matrix4f currentToPrevious = DlssMath.reprojection(previousUnjittered, currentJittered,
 				(float) delta.x, (float) delta.y, (float) delta.z);
 		try {
-			motionPass.render(motionTarget, worldDepth.getDepthTextureView(), handTarget.getDepthTextureView(),
+			motionPass.render(motionTarget, worldDepth.getDepthTextureView(), handDepth,
 					currentToPrevious, jitterNdcX(), jitterNdcY());
+			objectVelocityPass.render(ObjectMotion.get(), motionTarget, worldDepth.getDepthTextureView(), handDepth,
+					currentJittered, currentUnjittered, previousUnjittered, (float) delta.x, (float) delta.y, (float) delta.z, resetNext);
 		} catch (RuntimeException e) {
 			worldDepthCaptured = false;
 			fail("motion vector pass failed", e);
+		} finally {
+			ObjectMotion.get().endFrame();
 		}
 		previousLevel = level;
 	}
@@ -346,7 +455,10 @@ public final class UpscalingRenderer {
 			if (worldDepthCaptured) {
 				evaluate(main);
 			} else {
-				throw new IllegalStateException("world depth was not captured");
+				// Pack warmup can replace the level call while still presenting a loading frame.
+				// Keep that frame visible and start fresh when actual scene rendering resumes.
+				main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
+				resetNext = true;
 			}
 		} catch (RuntimeException e) {
 			fail("evaluate failed", e);
@@ -362,11 +474,12 @@ public final class UpscalingRenderer {
 		previousUnjittered.set(currentUnjittered);
 		previousCamera = currentCamera;
 		previousOrientation.set(currentOrientation);
-		havePrevious = true;
+		havePrevious = worldDepthCaptured;
 	}
 
 	/** GameRenderer.render finally: restore the target even when rendering throws. */
 	public void endFrame(GameRenderer gameRenderer) {
+		ObjectMotion.get().endFrame();
 		if (swapped) {
 			swap(gameRenderer.mainRenderTarget(), renderTarget);
 			swapped = false;
@@ -390,8 +503,8 @@ public final class UpscalingRenderer {
 		if (failed) {
 			return name + ": stopped after an error (see log); change upscaling settings to retry";
 		}
-		if (VitrailCompat.isDrawingPack()) {
-			return name + ": paused while a Vitrail shader pack draws";
+		if (!VitrailCompat.canUpscale()) {
+			return name + ": " + VitrailCompat.upscalingProblem();
 		}
 		if (renderTarget == null) {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
@@ -402,13 +515,16 @@ public final class UpscalingRenderer {
 	/** Debug harness snapshot (see DebugServer). Values describe the most recent frame. */
 	public record DebugInfo(boolean active, String builtUpscaler, int jitterIndex, float jitterX, float jitterY,
 			float jitterSignX, float jitterSignY, int renderWidth, int renderHeight, int displayWidth, int displayHeight,
-			String lastError) {
+			String lastError, int capturedVertices, int drawnVertices, int entities, int blockEntities, float mipBias, boolean reactiveMask,
+			long evaluatedFrames, boolean packHandMask) {
 	}
 
 	public DebugInfo debugInfo() {
 		return new DebugInfo(activeThisFrame, builtUpscaler.serializedName(), jitterIndex, jitterX, jitterY,
 				DebugSettings.jitterSignX(JITTER_SIGN), DebugSettings.jitterSignY(JITTER_SIGN),
-				renderWidth, renderHeight, displayWidth, displayHeight, lastError);
+				renderWidth, renderHeight, displayWidth, displayHeight, lastError,
+				ObjectMotion.get().capturedVertices(), ObjectMotion.get().drawnVertices(), ObjectMotion.get().trackedEntities(),
+				ObjectMotion.get().trackedBlockEntities(), mipBias, reactiveGenerated, evaluatedFrames, packHandCaptured);
 	}
 
 	public boolean isReady() {
@@ -423,6 +539,7 @@ public final class UpscalingRenderer {
 	/** Clears a previous failure so a mode change retries. */
 	public void onModeChanged() {
 		failed = false;
+		lastError = "";
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -446,9 +563,20 @@ public final class UpscalingRenderer {
 		motionTarget = new TextureTarget("Reflexium DLSS motion", renderWidth, renderHeight, MotionVectorPass.FORMAT, GpuFormat.D32_FLOAT);
 		if (motionPass == null) {
 			motionPass = new MotionVectorPass();
+			objectVelocityPass = new ObjectVelocityPass();
 		}
 		VkCommandBuffer commandBuffer = commandBuffer();
 		output = new OutputImage(device, commandBuffer, displayWidth, displayHeight);
+		mipBias = DlssMath.mipBias(renderWidth, displayWidth);
+		if (VitrailCompat.isLoaded()) {
+			packHandBefore = new TextureTarget("Reflexium pack before hand", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
+			packHandMask = new TextureTarget("Reflexium pack hand mask", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
+			if (packHandMaskPass == null) packHandMaskPass = new PackHandMaskPass();
+		}
+		if (selected == Upscaler.FSR) {
+			opaqueTarget = new TextureTarget("Reflexium opaque scene", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, null);
+			reactive = new OutputImage(device, commandBuffer, renderWidth, renderHeight, VK10.VK_FORMAT_R8_UNORM);
+		}
 		int result = selected == Upscaler.FSR
 				? fsr.create(session.device().address(), session.physicalDevice().address(),
 						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight)
@@ -464,6 +592,7 @@ public final class UpscalingRenderer {
 		builtModel = ReflexiumConfig.get().dlssModel();
 		renderSizeApplied = false;
 		resetNext = true;
+		reactiveMaskFailed = false;
 		havePrevious = false;
 		jitterIndex = 0;
 		lastEvaluateNs = 0;
@@ -517,6 +646,7 @@ public final class UpscalingRenderer {
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), output.asNgx(),
+				reactiveGenerated ? reactive.asNgx() : null,
 				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
 				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
@@ -530,7 +660,7 @@ public final class UpscalingRenderer {
 		}
 		resetNext = false;
 		if (++evaluatedFrames == 1) {
-			ReflexiumClient.LOGGER.info("{} evaluated first world frame: {}x{} -> {}x{} (camera motion vectors)",
+			ReflexiumClient.LOGGER.info("{} evaluated first world frame: {}x{} -> {}x{} (camera and object motion vectors)",
 					builtUpscaler, renderWidth, renderHeight, displayWidth, displayHeight);
 		}
 		barrier(commandBuffer);
@@ -595,8 +725,7 @@ public final class UpscalingRenderer {
 
 	/** Halton(2,3) sub-pixel offsets in render pixels, phase count scaled with the upscale ratio. */
 	private void advanceJitter() {
-		float ratio = (float) displayWidth / renderWidth;
-		int phases = Math.max(8, Math.min(64, (int) Math.ceil(8.0f * ratio * ratio)));
+		int phases = DlssMath.jitterPhases(renderWidth, displayWidth);
 		jitterIndex = jitterIndex % phases + 1;
 		if (!DebugSettings.jitterEnabled()) {
 			jitterX = 0.0f;
@@ -642,6 +771,17 @@ public final class UpscalingRenderer {
 	}
 
 	private void releaseFeatureResources() {
+		materialSamplers.close();
+		if (packHandBefore != null) { packHandBefore.destroyBuffers(); packHandBefore = null; }
+		if (packHandMask != null) { packHandMask.destroyBuffers(); packHandMask = null; }
+		if (reactive != null) {
+			reactive.destroy();
+			reactive = null;
+		}
+		if (opaqueTarget != null) {
+			opaqueTarget.destroyBuffers();
+			opaqueTarget = null;
+		}
 		if (fsr != null) fsr.release();
 		if (bridge != null && ngxReady) {
 			bridge.release();
@@ -671,6 +811,11 @@ public final class UpscalingRenderer {
 			motionPass.close();
 			motionPass = null;
 		}
+		if (objectVelocityPass != null) {
+			objectVelocityPass.close();
+			objectVelocityPass = null;
+		}
+		packHandMaskPass = null;
 		motionDebugPass = null;
 		renderSizeApplied = false;
 		builtMode = null;

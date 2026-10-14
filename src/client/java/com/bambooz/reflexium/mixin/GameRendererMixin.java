@@ -60,6 +60,11 @@ public abstract class GameRendererMixin {
 		return UpscalingRenderer.get().jitterLevelProjection(projection, self.gameRenderState().levelRenderState.cameraRenderState);
 	}
 
+	@Inject(method = "renderLevel", at = @At("RETURN"))
+	private void reflexium$shaderPackMotion(CallbackInfo ci) {
+		UpscalingRenderer.get().afterLevel((GameRenderer) (Object) this);
+	}
+
 	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lnet/minecraft/client/renderer/Projection;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private GpuBufferSlice reflexium$jitterHud(ProjectionMatrixBuffer buffer, Projection projection, Operation<GpuBufferSlice> original) {

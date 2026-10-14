@@ -85,9 +85,15 @@ tasks.register("dlssMathCheck", JavaExec) {
 	mainClass = "com.bambooz.reflexium.dlss.DlssMathCheck"
 }
 
+tasks.register("objectMotionCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.dlss.ObjectMotionCheck"
+}
+
 // The assertion main above is the test runner; no JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
-tasks.named("check") { dependsOn "dlssMathCheck" }
+tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck" }
 
 // Reflexium-<mod_version>-fabric-<minecraft_version>.jar
 def releaseVersion = "${project.version}-fabric-${project.minecraft_version}"

@@ -12,6 +12,9 @@ import java.util.Set;
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (mixinClassName.contains(".vitrail.")) {
+			return VitrailCompat.isSupportedVersion();
+		}
 		if (mixinClassName.endsWith(".BetterF3ConfigMixin")) {
 			return FabricLoader.getInstance().isModLoaded("betterf3");
 		}

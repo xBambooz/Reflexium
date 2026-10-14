@@ -56,7 +56,7 @@ public final class DlssRuntimeInstaller {
 		public String message() {
 			return switch (phase) {
 				case DOWNLOADING -> String.format(Locale.ROOT, "downloading DLSS runtime (%.1f MB)", downloadedBytes / 1048576.0);
-				case INSTALLED -> "DLSS runtime installed, restart to enable";
+				case INSTALLED -> "DLSS runtime installed, enabling";
 				case FAILED -> "DLSS runtime download failed: " + detail;
 				case DISABLED -> detail;
 				case IDLE, READY -> "";

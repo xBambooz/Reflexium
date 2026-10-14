@@ -12,6 +12,21 @@ import java.nio.file.Path;
 /** Run by Gradle check, no Minecraft runtime or graphics device needed. */
 public final class DlssMathCheck {
 	public static void main(String[] args) throws Exception {
+		// Signature-polymorphic calls can compile a conditional MemorySegment as Object.
+		// Check the actual bytecode ABI, since invokeExact rejects that only during native dispatch.
+		var bytecode = new org.objectweb.asm.tree.ClassNode();
+		try (var in = FsrBridge.class.getResourceAsStream("FsrBridge.class")) {
+			new org.objectweb.asm.ClassReader(in).accept(bytecode, 0);
+		}
+		int dispatches = 0;
+		for (var method : bytecode.methods) for (var instruction : method.instructions) {
+			if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call
+					&& call.owner.equals("java/lang/invoke/MethodHandle") && call.name.equals("invokeExact")) {
+				if (call.desc.contains("Ljava/lang/Object;")) throw new AssertionError("Untyped native ABI: " + call.desc);
+				dispatches++;
+			}
+		}
+		if (dispatches != 4) throw new AssertionError("Expected four FSR ABI calls, got " + dispatches);
 		try (var paths = Files.walk(Path.of("src"))) {
 			for (Path path : paths.filter(p -> p.toString().endsWith(".json")).toList()) {
 				try (var reader = new JsonReader(Files.newBufferedReader(path))) {
@@ -23,7 +38,7 @@ public final class DlssMathCheck {
 		}
 		// Reverse-Z, Vulkan [0,1] depth, matching Minecraft's Projection.
 		Matrix4f projection = new Matrix4f().setPerspective((float) Math.toRadians(70), 16f / 9f, 1024, 0.05f, true);
-		for (int frame = 1; frame <= 64; frame++) {
+		for (int frame = 1; frame <= 72; frame++) {
 			float jx = 2 * (DlssMath.halton(frame, 2) - 0.5f) / 1280;
 			float jy = 2 * (DlssMath.halton(frame, 3) - 0.5f) / 720;
 			for (boolean moving : new boolean[] {false, true}) {
@@ -51,6 +66,13 @@ public final class DlssMathCheck {
 		}
 		near(DlssMath.halton(1, 2), 0.5f);
 		near(DlssMath.halton(2, 2), 0.25f);
+		near(DlssMath.jitterPhases(1920, 1920), 8);
+		near(DlssMath.jitterPhases(1280, 1920), 18);
+		near(DlssMath.jitterPhases(960, 1920), 32);
+		near(DlssMath.jitterPhases(640, 1920), 72);
+		near(DlssMath.mipBias(960, 1920), -2);
+		near(DlssMath.mipBias(1280, 1920), -1.5849625f);
+		near(DlssMath.mipBias(1920, 1920), 0);
 		System.out.println("DLSS reprojection checks passed: translation, rotation, reverse depth and jitter.");
 	}
 

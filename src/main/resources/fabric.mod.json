@@ -3,7 +3,7 @@
 	"id": "reflexium",
 	"version": "${version}",
 	"name": "Reflexium",
-	"description": "NVIDIA Reflex low latency and DLSS Super Resolution for Minecraft's Vulkan renderer.",
+	"description": "NVIDIA Reflex low latency, DLSS and AMD FSR 3.1 for Minecraft's Vulkan renderer.",
 	"authors": ["Bambooz"],
 	"contact": {
 		"sources": "https://github.com/xBambooz/Reflexium",
@@ -19,7 +19,9 @@
 	},
 	"mixins": [
 		{ "config": "reflexium.mixins.json", "environment": "client" },
-		{ "config": "reflexium.compat.mixins.json", "environment": "client" }
+		{ "config": "reflexium.rendering.mixins.json", "environment": "client" },
+		{ "config": "reflexium.compat.mixins.json", "environment": "client" },
+		{ "config": "reflexium.vitrail.mixins.json", "environment": "client" }
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",

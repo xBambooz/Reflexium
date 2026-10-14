@@ -9,6 +9,12 @@ public final class DebugSettings {
 	private static volatile float jitterSignY = Float.NaN;
 	private static volatile boolean jitterEnabled = true;
 	private static volatile boolean motionVectorView;
+	private static volatile boolean objectMotion = true;
+	private static volatile boolean drawStaticObjects;
+	public static boolean objectMotion() { return objectMotion; }
+	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
+	public static boolean drawStaticObjects() { return drawStaticObjects; }
+	public static void setDrawStaticObjects(boolean enabled) { drawStaticObjects = enabled; }
 
 	private static volatile long frames;
 	private static volatile float frameTimeMs;
