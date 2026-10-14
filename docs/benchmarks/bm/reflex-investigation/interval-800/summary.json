@@ -1,0 +1,62 @@
+[
+    {
+        "mode":  "cnn-performance-smart_reflex-0-reflex_submission-0-reflex_mode-off",
+        "captures":  1,
+        "fps":  1259.3696625650769,
+        "fps_vs_first_pct":  0,
+        "low1":  390.43328471247492,
+        "low1_vs_first_pct":  0,
+        "forward_fps":  1259.3696625650769,
+        "reverse_fps":  null
+    },
+    {
+        "mode":  "tf-performance-smart_reflex-0-reflex_submission-0-reflex_mode-off",
+        "captures":  1,
+        "fps":  894.50624267601,
+        "fps_vs_first_pct":  -28.971907989741087,
+        "low1":  429.2284326026155,
+        "low1_vs_first_pct":  9.9364345738889313,
+        "forward_fps":  894.50624267601,
+        "reverse_fps":  null
+    },
+    {
+        "mode":  "tf-performance-smart_reflex-0-reflex_submission-0-reflex_interval_us-0",
+        "captures":  1,
+        "fps":  642.56257898711488,
+        "fps_vs_first_pct":  -48.977444980026988,
+        "low1":  334.70678531445139,
+        "low1_vs_first_pct":  -14.272988902332429,
+        "forward_fps":  642.56257898711488,
+        "reverse_fps":  null
+    },
+    {
+        "mode":  "tf-performance-smart_reflex-0-reflex_submission-0-reflex_interval_us-800",
+        "captures":  1,
+        "fps":  619.75844802948791,
+        "fps_vs_first_pct":  -50.788202507025026,
+        "low1":  313.50665025981857,
+        "low1_vs_first_pct":  -19.702888422872832,
+        "forward_fps":  619.75844802948791,
+        "reverse_fps":  null
+    },
+    {
+        "mode":  "cnn-performance-smart_reflex-0-reflex_submission-0-reflex_interval_us-0",
+        "captures":  1,
+        "fps":  1040.7139284674381,
+        "fps_vs_first_pct":  -17.362315497761159,
+        "low1":  352.87700092169371,
+        "low1_vs_first_pct":  -9.61912963400101,
+        "forward_fps":  1040.7139284674381,
+        "reverse_fps":  null
+    },
+    {
+        "mode":  "cnn-performance-smart_reflex-0-reflex_submission-0-reflex_interval_us-800",
+        "captures":  1,
+        "fps":  620.37607780298254,
+        "fps_vs_first_pct":  -50.7391597365142,
+        "low1":  333.34563537463896,
+        "low1_vs_first_pct":  -14.621614389223181,
+        "forward_fps":  620.37607780298254,
+        "reverse_fps":  null
+    }
+]

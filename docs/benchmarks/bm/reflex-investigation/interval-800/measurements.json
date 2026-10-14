@@ -1,0 +1,80 @@
+[
+  {
+    "label": "s0f1",
+    "model": "cnn",
+    "reflex": "OFF",
+    "interval_us": -1,
+    "fps": 1259.3696625650769,
+    "low1_fps": 390.4332847124749,
+    "driver_us": 0.0,
+    "wait_us": 0.0,
+    "latency_us": 1490.890625,
+    "valid_latency_reports": 64,
+    "sleeping": false
+  },
+  {
+    "label": "s0f2",
+    "model": "transformer",
+    "reflex": "OFF",
+    "interval_us": -1,
+    "fps": 894.50624267601,
+    "low1_fps": 429.2284326026155,
+    "driver_us": 0.0,
+    "wait_us": 0.0,
+    "latency_us": 2166.78125,
+    "valid_latency_reports": 64,
+    "sleeping": false
+  },
+  {
+    "label": "s0f3",
+    "model": "transformer",
+    "reflex": "ON",
+    "interval_us": 0,
+    "fps": 642.5625789871149,
+    "low1_fps": 334.7067853144514,
+    "driver_us": 1037.6817733990147,
+    "wait_us": 4.753756157635468,
+    "latency_us": 1436.953125,
+    "valid_latency_reports": 64,
+    "sleeping": true
+  },
+  {
+    "label": "s0f4",
+    "model": "transformer",
+    "reflex": "ON",
+    "interval_us": 800,
+    "fps": 619.7584480294879,
+    "low1_fps": 313.50665025981857,
+    "driver_us": 1158.913061752344,
+    "wait_us": 4.9696734561913996,
+    "latency_us": 1410.640625,
+    "valid_latency_reports": 64,
+    "sleeping": true
+  },
+  {
+    "label": "s0f5",
+    "model": "cnn",
+    "reflex": "ON",
+    "interval_us": 0,
+    "fps": 1040.713928467438,
+    "low1_fps": 352.8770009216937,
+    "driver_us": 312.1261727078891,
+    "wait_us": 3.8877576403695806,
+    "latency_us": 1196.140625,
+    "valid_latency_reports": 64,
+    "sleeping": true
+  },
+  {
+    "label": "s0f6",
+    "model": "cnn",
+    "reflex": "ON",
+    "interval_us": 800,
+    "fps": 620.3760778029825,
+    "low1_fps": 333.34563537463896,
+    "driver_us": 1221.197635244574,
+    "wait_us": 4.801198574667962,
+    "latency_us": 979.546875,
+    "valid_latency_reports": 64,
+    "sleeping": true
+  }
+]

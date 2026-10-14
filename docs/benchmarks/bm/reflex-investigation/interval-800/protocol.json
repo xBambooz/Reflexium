@@ -1,0 +1,46 @@
+{
+  "diagnostics": true,
+  "scene_source": "C:\\Users\\Ryan\\Documents\\Minecraft FPS Lab\\baseline\\scene",
+  "passes": 1,
+  "warmup_seconds": 5,
+  "scene_sha256": "720F539F755CCC56A18EBFD9A932A3FB633A142139DCC1550754FC220BDB8316",
+  "route_seconds": 48.0,
+  "conditioning": "disabled (-Quick)",
+  "render_distance": 16,
+  "quick": true,
+  "explore_orders": [
+    "forward"
+  ],
+  "source": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A",
+  "note": "The runner initially recorded its default conditioning label. Actual settings.json has conditioningRun=false; corrected here.",
+  "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/bm-quick-bench.ps1 -Quick -Explore -Diagnostics -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar -Set A -Port 25621 -Label reflex-interval-800-20261014 -Modes cnn-performance@smart_reflex=0@reflex_submission=0@reflex_mode=off,tf-performance@smart_reflex=0@reflex_submission=0@reflex_mode=off,tf-performance@smart_reflex=0@reflex_submission=0@reflex_interval_us=0,tf-performance@smart_reflex=0@reflex_submission=0@reflex_interval_us=800,cnn-performance@smart_reflex=0@reflex_submission=0@reflex_interval_us=0,cnn-performance@smart_reflex=0@reflex_submission=0@reflex_interval_us=800",
+  "world_files": 63,
+  "world_hashes_unchanged": true,
+  "focus_unchanged_on_launch": true,
+  "raw_captures": [
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-17-29_benchmark-route_xmq3fq.bmresult.json.gz",
+      "sha256": "ac75e81ec28feffd4db2caf43fa5143f2e30418b6e198f7eb735d203b921a6e4"
+    },
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-18-35_benchmark-route_74qbz0.bmresult.json.gz",
+      "sha256": "5985eab9d9a6131589f5ec96a2b9fc7bb5a82dc09af49c4c5e2b1b8820fbbf9e"
+    },
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-19-35_benchmark-route_uj9liu.bmresult.json.gz",
+      "sha256": "fd4f185eb31db2cbe722e7fb73125ff72d67fa80571b187cc5c6d8b9723a3db6"
+    },
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-20-34_benchmark-route_sxjj2g.bmresult.json.gz",
+      "sha256": "5ea479a4084e871257828d6c4843f783a93074639c26b56eedaea021f40f0c74"
+    },
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-21-34_benchmark-route_wxayzt.bmresult.json.gz",
+      "sha256": "14155704bc8da625b48d681f41e507375f213f4315b574b2145c33f621d61ff9"
+    },
+    {
+      "path": "C:\\Users\\Ryan\\source\\repos\\Reflexium-reflex-investigate\\build\\bm-bench\\reflex-interval-800-20261014-A\\data\\results\\2026-10\\2026-10-14_18-22-33_benchmark-route_842zam.bmresult.json.gz",
+      "sha256": "bb8013a4f0ed61110ce9c42862ac391b57e619747a82d10b4e9ff8c70b521f5c"
+    }
+  ]
+}
