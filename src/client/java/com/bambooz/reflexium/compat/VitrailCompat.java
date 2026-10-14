@@ -81,16 +81,25 @@ public final class VitrailCompat {
 			Class<?> type = pack.getClass();
 			String name = (String) type.getMethod("packFileName").invoke(pack);
 			Set<?> declared = (Set<?>) type.getMethod("declared").invoke(pack);
-			// Complementary's TAA_DEFINE=0 disables both its jitter and its final TAA resolve.
-			// ponytail: other packs keep their TAA; add a reviewed mapping when testing that pack.
-			if (!(name.startsWith("ComplementaryReimagined_") || name.startsWith("ComplementaryUnbound_"))
-					|| !declared.contains("TAA_DEFINE")) {
+			String[] aaKeys = {"TAA_DEFINE", "TAA", "FXAA", "ANTIALIASING", "ANTI_ALIASING"};
+			boolean hasAnyAa = false;
+			for (String key : aaKeys) {
+				if (declared.contains(key)) {
+					hasAnyAa = true;
+					break;
+				}
+			}
+			if (!hasAnyAa) {
 				return pack;
 			}
 			Map<?, ?> original = (Map<?, ?>) type.getMethod("forced").invoke(pack);
 			Map<Object, Object> forced = new LinkedHashMap<>(original);
-			forced.put("TAA_DEFINE", Class.forName("dev.vitrail.pack.option.OptionValue")
-					.getMethod("of", String.class).invoke(null, "0"));
+			Method optionValueOf = Class.forName("dev.vitrail.pack.option.OptionValue").getMethod("of", String.class);
+			for (String key : aaKeys) {
+				if (declared.contains(key)) {
+					forced.put(key, optionValueOf.invoke(null, "0"));
+				}
+			}
 			RecordComponent[] components = type.getRecordComponents();
 			Class<?>[] types = new Class<?>[components.length];
 			Object[] values = new Object[components.length];
@@ -99,11 +108,11 @@ public final class VitrailCompat {
 				values[i] = components[i].getName().equals("forced") ? Map.copyOf(forced)
 						: components[i].getAccessor().invoke(pack);
 			}
-			ReflexiumClient.LOGGER.info("Vitrail {}: Reflexium owns TAA while upscaling (TAA_DEFINE=0)", name);
+			ReflexiumClient.LOGGER.info("Vitrail {}: Reflexium owns antialiasing while upscaling (disabled pack AA)", name);
 			return type.getConstructor(types).newInstance(values);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			integrationBroken = true;
-			ReflexiumClient.LOGGER.error("Vitrail pack TAA override failed; upscaling is paused", e);
+			ReflexiumClient.LOGGER.error("Vitrail pack antialiasing override failed; upscaling is paused", e);
 			return pack;
 		}
 	}
@@ -139,28 +148,34 @@ public final class VitrailCompat {
 			}
 			Optional<?> current = (Optional<?>) session.invoke(null);
 			if (current.isEmpty()) {
-				return Optional.of("drawing a shader pack");
+				return Optional.of("no shader pack active");
 			}
-			if (packFileName == null) {
-				packFileName = current.get().getClass().getMethod("packFileName");
-			}
-			return Optional.of("drawing " + packFileName.invoke(current.get()));
+			Object pack = current.get();
+			String name = (String) packFileName.invoke(pack);
+			return Optional.of(name);
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			broken = true;
-			return Optional.empty();
+			return Optional.of("could not read active pack name");
 		}
 	}
 
 	private static boolean lookUp() {
-		if (!lookedUp) {
-			lookedUp = true;
-			try {
-				drawingPack = Class.forName("dev.vitrail.render.PackChain").getMethod("drawingPack");
-				session = Class.forName("dev.vitrail.render.PackChoice").getMethod("session");
-			} catch (ReflectiveOperationException | LinkageError e) {
-				broken = true;
-			}
+		if (lookedUp) {
+			return !broken;
 		}
-		return !broken;
+		lookedUp = true;
+		try {
+			Class<?> chain = Class.forName("dev.vitrail.render.PackChain");
+			drawingPack = chain.getMethod("drawingPack");
+			Class<?> choice = Class.forName("dev.vitrail.render.PackChoice");
+			session = choice.getMethod("session");
+			Class<?> sessionClass = Class.forName("dev.vitrail.settings.PackSession");
+			packFileName = sessionClass.getMethod("packFileName");
+			return true;
+		} catch (ReflectiveOperationException | LinkageError e) {
+			broken = true;
+			ReflexiumClient.LOGGER.warn("Vitrail reflection failed; shader pack integration disabled", e);
+			return false;
+		}
 	}
 }
