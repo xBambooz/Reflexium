@@ -156,6 +156,8 @@ Final retained-path captures, with CNN E preserved, give Ultra Performance PSNR 
 
 The client remains running on the secondary monitor with the original pack enabled, Reflex On, Auto DLSS model, Ultra Performance quality, FG off, object motion on and debug overlays/profiling off. The temporary tagged pigs were removed. The harness launches reported `focus_unchanged=true`.
 
+Final-session note: the long-running client exited after the measurements without a new Minecraft crash report or Windows Java fault event. Its cause was not established. A fresh harness session was launched and checked for advancing evaluations, a valid Vitrail hand mask and inactive profiling; see [final-session.json](benchmarks/per-frame/final-session.json). Separate watchdog reports during earlier deliberate quits were `Client shutdown from post-main`, with `DestroyJavaVM` and an HTTP dispatcher still alive and the render thread already gone. Those indicate a debug HTTP-server shutdown lifetime issue, rather than evidence of a GPU wait. The external harness was not modified in this task.
+
 ## Official reference and target calculation
 
 [NVIDIA's DLSS guide, revision 310.6.0, pages 5 to 8](https://github.com/NVIDIA/DLSS/blob/main/doc/DLSS_Programming_Guide_Release.pdf) gives RTX 5070 library-only 1080p Performance-input costs of 0.27 ms for E/F and 0.64 ms for J/K. It does not publish costs for every input quality or DLAA. See [the research handoff](PERFORMANCE_RESEARCH.md) for the full table. Lower-resolution native controls replace a pixel-count estimate of render cost.
