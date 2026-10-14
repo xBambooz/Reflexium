@@ -25,7 +25,6 @@ public final class ReflexiumConfig {
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
-	private volatile boolean dlssDetection = true;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DlssModel.AUTO;
@@ -50,17 +49,7 @@ public final class ReflexiumConfig {
 		save();
 	}
 
-	/** Enable NGX device extensions and probe DLSS feature support. Takes effect on the next game start. */
-	public boolean dlssDetection() {
-		return dlssDetection;
-	}
-
-	public void setDlssDetection(boolean enabled) {
-		dlssDetection = enabled;
-		save();
-	}
-
-	/** DLSS Super Resolution preset. Needs DLSS detection (device extensions) and the Vulkan renderer. */
+	/** DLSS Super Resolution preset. Needs the Vulkan renderer. */
 	public UpscaleQuality upscaleQuality() {
 		return upscaleQuality;
 	}
@@ -71,15 +60,37 @@ public final class ReflexiumConfig {
 	}
 
 	public Upscaler upscaler() { return upscaler; }
-	public void setUpscaler(Upscaler value) { upscaler = value; save(); }
+	public void setUpscaler(Upscaler value) {
+		upscaler = value;
+		if (value == Upscaler.OFF) {
+			frameGeneration = FrameGeneration.OFF;
+		} else if (value == Upscaler.FSR && (frameGeneration == FrameGeneration.DLSS || frameGeneration == FrameGeneration.DLSS_MULTI)) {
+			frameGeneration = FrameGeneration.OFF;
+		} else if (value == Upscaler.DLSS && frameGeneration == FrameGeneration.FSR) {
+			frameGeneration = FrameGeneration.OFF;
+		}
+		save();
+	}
+
 	public DlssModel dlssModel() { return dlssModel; }
 	public void setDlssModel(DlssModel value) { dlssModel = value; save(); }
 	public int fsrSharpness() { return fsrSharpness; }
 	public void setFsrSharpness(int value) { fsrSharpness = Math.clamp(value, 0, 100); save(); }
 	public FrameGeneration frameGeneration() { return frameGeneration; }
-	public void setFrameGeneration(FrameGeneration value) { frameGeneration = value; save(); }
+	public void setFrameGeneration(FrameGeneration value) {
+		if (upscaler == Upscaler.OFF && value != FrameGeneration.OFF) {
+			value = FrameGeneration.OFF;
+		} else if (upscaler == Upscaler.FSR && (value == FrameGeneration.DLSS || value == FrameGeneration.DLSS_MULTI)) {
+			value = FrameGeneration.OFF;
+		} else if (upscaler == Upscaler.DLSS && value == FrameGeneration.FSR) {
+			value = FrameGeneration.OFF;
+		}
+		frameGeneration = value;
+		save();
+	}
+
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
-	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 3, 8); save(); }
+	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 2, 8); save(); }
 
 	/** Reflexium's BetterF3 module was added to the BetterF3 layout once; from then on the player's layout wins. */
 	public boolean betterF3ModulePlaced() {
@@ -109,13 +120,12 @@ public final class ReflexiumConfig {
 
 		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
-		config.dlssDetection = parseBoolean(props, "dlss_detection", config.dlssDetection);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
 		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
-		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 3, 8); }
+		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
@@ -135,7 +145,6 @@ public final class ReflexiumConfig {
 	private synchronized void save() {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
-		props.setProperty("dlss_detection", Boolean.toString(dlssDetection));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());
 		props.setProperty("dlss_model", dlssModel.serializedName());

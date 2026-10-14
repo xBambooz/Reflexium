@@ -12,14 +12,17 @@ import com.bambooz.reflexium.gui.ReflexiumOptions;
 import com.bambooz.reflexium.gui.ReflexiumConfigScreen;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
+import com.bambooz.reflexium.vulkan.VulkanSession;
 import net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint;
 import net.caffeinemc.mods.sodium.api.config.StorageEventHandler;
-import net.caffeinemc.mods.sodium.api.config.option.OptionFlag;
 import net.caffeinemc.mods.sodium.api.config.option.OptionImpact;
 import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Reflexium page in Sodium's Video Settings, which replaces the vanilla screen that
@@ -57,6 +60,14 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setTooltip(Component.translatable("reflexium.option.upscaler.tooltip"))
 										.setElementNameProvider(Upscaler::label)
 										.setDefaultValue(Upscaler.AUTO)
+										.setAllowedValuesProvider(state -> {
+											VulkanSession session = VulkanSession.current();
+											if (session != null && session.isNvidia()) {
+												return Set.of(Upscaler.AUTO, Upscaler.OFF, Upscaler.DLSS, Upscaler.FSR);
+											} else {
+												return Set.of(Upscaler.AUTO, Upscaler.OFF, Upscaler.FSR);
+											}
+										})
 										.setStorageHandler(SAVED_ON_SET)
 										.setBinding(ReflexiumOptions::setUpscaler, config::upscaler))
 								.addOption(builder.createEnumOption(id("dlss_mode"), UpscaleQuality.class)
@@ -73,8 +84,14 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setElementNameProvider(DlssModel::label)
 										.setDefaultValue(DlssModel.AUTO)
 										.setStorageHandler(SAVED_ON_SET)
-										.setBinding(ReflexiumOptions::setDlssModel, config::dlssModel)
-										.setEnabled(UpscalingRenderer.get().dlssReady()))
+										.setEnabledProvider(state -> {
+											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
+											boolean dlssActive = (u == Upscaler.DLSS || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.DLSS));
+											VulkanSession session = VulkanSession.current();
+											return dlssActive && UpscalingRenderer.get().dlssReady() && session != null && session.isNvidia();
+										}, id("upscaler"))
+										.setControlHiddenWhenDisabled(true)
+										.setBinding(ReflexiumOptions::setDlssModel, config::dlssModel))
 								.addOption(builder.createIntegerOption(id("fsr_sharpness"))
 										.setName(Component.translatable("reflexium.option.fsr_sharpness"))
 										.setTooltip(Component.translatable("reflexium.option.fsr_sharpness.tooltip"))
@@ -82,14 +99,12 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setValueFormatter(value -> Component.literal(value + "%"))
 										.setDefaultValue(20)
 										.setStorageHandler(SAVED_ON_SET)
-										.setBinding(config::setFsrSharpness, config::fsrSharpness))
-								.addOption(builder.createBooleanOption(id("dlss_detection"))
-										.setName(Component.translatable("reflexium.option.dlss_detection"))
-										.setTooltip(Component.translatable("reflexium.option.dlss_detection.tooltip"))
-										.setFlags(OptionFlag.REQUIRES_GAME_RESTART)
-										.setDefaultValue(true)
-										.setStorageHandler(SAVED_ON_SET)
-										.setBinding(config::setDlssDetection, config::dlssDetection)))
+										.setEnabledProvider(state -> {
+											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
+											return u == Upscaler.FSR || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.FSR);
+										}, id("upscaler"))
+										.setControlHiddenWhenDisabled(true)
+										.setBinding(config::setFsrSharpness, config::fsrSharpness)))
 						.addOptionGroup(builder.createOptionGroup()
 								.setName(Component.translatable("reflexium.group.frame_generation"))
 								.addOption(builder.createEnumOption(id("frame_generation"), FrameGeneration.class)
@@ -98,16 +113,45 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setElementNameProvider(FrameGeneration::label)
 										.setDefaultValue(FrameGeneration.OFF)
 										.setStorageHandler(SAVED_ON_SET)
+										.setEnabledProvider(state -> {
+											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
+											return u != Upscaler.OFF;
+										}, id("upscaler"))
+										.setControlHiddenWhenDisabled(true)
+										.setAllowedValuesProvider(state -> {
+											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
+											Set<FrameGeneration> allowed = new LinkedHashSet<>();
+											allowed.add(FrameGeneration.OFF);
+											VulkanSession session = VulkanSession.current();
+											boolean nvidia = session != null && session.isNvidia();
+											boolean dlssActive = (u == Upscaler.DLSS || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.DLSS));
+											boolean fsrActive = (u == Upscaler.FSR || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.FSR));
+											if (dlssActive && nvidia) {
+												if (FrameGenerationRenderer.get().isDlssFgSupported()) {
+													allowed.add(FrameGeneration.DLSS);
+												}
+												if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
+													allowed.add(FrameGeneration.DLSS_MULTI);
+												}
+											} else if (fsrActive) {
+												allowed.add(FrameGeneration.FSR);
+											}
+											return allowed;
+										}, id("upscaler"))
 										.setBinding(ReflexiumOptions::setFrameGeneration, config::frameGeneration))
 								.addOption(builder.createIntegerOption(id("fg_multiplier"))
 										.setName(Component.translatable("reflexium.option.fg_multiplier"))
 										.setTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip"))
-										.setRange(3, Math.max(4, FrameGenerationRenderer.get().maximumMultiplier()), 1)
+										.setRange(2, Math.max(2, FrameGenerationRenderer.get().maximumMultiplier()), 1)
 										.setValueFormatter(value -> Component.literal(value + "x"))
-										.setDefaultValue(Math.min(4, Math.max(3, FrameGenerationRenderer.get().maximumMultiplier())))
+										.setDefaultValue(Math.min(4, Math.max(2, FrameGenerationRenderer.get().maximumMultiplier())))
 										.setStorageHandler(SAVED_ON_SET)
-										.setEnabled(FrameGenerationRenderer.get().maximumMultiplier() > 3)
-										.setBinding(ReflexiumOptions::setFrameGenerationMultiplier, () -> Math.min(config.frameGenerationMultiplier(), Math.max(3, FrameGenerationRenderer.get().maximumMultiplier())))))
+										.setEnabledProvider(state -> {
+											FrameGeneration fg = state.readEnumOption(id("frame_generation"), FrameGeneration.class);
+											return fg == FrameGeneration.DLSS_MULTI && FrameGenerationRenderer.get().isDlssMfgSupported();
+										}, id("frame_generation"))
+										.setControlHiddenWhenDisabled(true)
+										.setBinding(ReflexiumOptions::setFrameGenerationMultiplier, () -> Math.min(config.frameGenerationMultiplier(), Math.max(2, FrameGenerationRenderer.get().maximumMultiplier())))))
 						.addOptionGroup(builder.createOptionGroup()
 								.addOption(builder.createExternalButtonOption(id("status"))
 										.setName(Component.translatable("reflexium.option.status"))

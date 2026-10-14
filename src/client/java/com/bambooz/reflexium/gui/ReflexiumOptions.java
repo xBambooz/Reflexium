@@ -82,13 +82,6 @@ public final class ReflexiumOptions {
 				ReflexiumConfig.get().fsrSharpness(), ReflexiumConfig.get()::setFsrSharpness);
 	}
 
-	public static OptionInstance<Boolean> dlssDetection() {
-		ReflexiumConfig config = ReflexiumConfig.get();
-		return OptionInstance.createBoolean("reflexium.option.dlss_detection",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.dlss_detection.tooltip")),
-				config.dlssDetection(), config::setDlssDetection);
-	}
-
 	public static OptionInstance<FrameGeneration> frameGeneration() {
 		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, FrameGeneration.OFF), FrameGeneration::serializedName);
 		return new OptionInstance<>("reflexium.option.frame_generation",
@@ -101,18 +94,18 @@ public final class ReflexiumOptions {
 		FrameGenerationRenderer.get().retry();
 	}
 	public static OptionInstance<Integer> frameGenerationMultiplier() {
-		int maximum = Math.max(3, FrameGenerationRenderer.get().maximumMultiplier());
+		int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 		return new OptionInstance<>("reflexium.option.fg_multiplier",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
 				(caption, value) -> Component.literal(value + "x"),
-				new OptionInstance.Enum<>(java.util.stream.IntStream.rangeClosed(3, maximum).boxed().toList(), Codec.INT),
+				new OptionInstance.Enum<>(java.util.stream.IntStream.rangeClosed(2, maximum).boxed().toList(), Codec.INT),
 				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
 	}
 	public static void addFrameGeneration(net.minecraft.client.gui.components.OptionsList list) {
 		list.addBig(frameGeneration());
 		OptionInstance<Integer> multiplier = frameGenerationMultiplier();
 		list.addBig(multiplier);
-		list.findOption(multiplier).active = FrameGenerationRenderer.get().maximumMultiplier() > 3;
+		list.findOption(multiplier).active = FrameGenerationRenderer.get().isDlssMfgSupported();
 	}
 	public static void setFrameGenerationMultiplier(int value) {
 		ReflexiumConfig.get().setFrameGenerationMultiplier(value); FrameGenerationRenderer.get().retry();

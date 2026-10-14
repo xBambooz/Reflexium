@@ -1,7 +1,6 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.dlss.NgxBridge;
 import com.bambooz.reflexium.dlss.DlssSupport;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
@@ -75,18 +74,16 @@ public final class DeviceExtensions {
 		}
 
 		Set<String> ngx = new LinkedHashSet<>();
-		if (ReflexiumConfig.get().dlssDetection()) {
-			Set<String> wanted = new LinkedHashSet<>(DlssSupport.DEVICE_EXTENSIONS);
-			NgxBridge.get().ifPresent(bridge -> wanted.addAll(Arrays.asList(bridge.requiredDeviceExtensions())));
-			for (String name : wanted) {
-				if (physicalDevice.hasDeviceExtension(name)) {
-					ngx.add(name);
-				} else {
-					ReflexiumClient.LOGGER.info("NGX wants {} but {} does not support it", name, physicalDevice.deviceName());
-				}
+		Set<String> wanted = new LinkedHashSet<>(DlssSupport.DEVICE_EXTENSIONS);
+		NgxBridge.get().ifPresent(bridge -> wanted.addAll(Arrays.asList(bridge.requiredDeviceExtensions())));
+		for (String name : wanted) {
+			if (physicalDevice.hasDeviceExtension(name)) {
+				ngx.add(name);
+			} else {
+				ReflexiumClient.LOGGER.info("NGX wants {} but {} does not support it", name, physicalDevice.deviceName());
 			}
-			extensions.addAll(ngx);
 		}
+		extensions.addAll(ngx);
 
 		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, presentId, presentMetering, Set.copyOf(ngx)));
 		extensions.removeAll(vanilla.extensions());
