@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Benchmark Mod captures two Reflexium jars in fresh-JVM ABBA order without desktop input.
+Benchmark Mod captures two Reflexium jars in fresh-JVM ABBA order without desktop input, on the FPS Lab standard scene.
 .EXAMPLE
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/bm-quick-bench.ps1 -OldJar build/perf-jars/ac1e339.jar -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar -IncludeFG -Label candidate
 #>
@@ -11,6 +11,9 @@ param(
     [ValidateSet('A','B')][string]$Set = 'A',
     [switch]$IncludeFG,
     [switch]$Explore,
+    [switch]$Diagnostics,
+    # Benchmark Mod scene the FPS Lab freezes as its standard (route plus world). Copied read-only into the run's data directory.
+    [string]$SceneSource = 'C:\Users\Ryan\Documents\Minecraft FPS Lab\baseline\scene',
     [string]$Modes,
     [ValidateRange(1,5)][int]$Passes = 3,
     [ValidateRange(0,60)][int]$WarmupSeconds = 10,
@@ -35,10 +38,21 @@ public static class BmQuickStats {
     }
 }
 '@
+function SceneInfo($json) {
+    if ($json.id -notmatch '^[a-zA-Z0-9_-]+$' -or $json.keyframes.Count -lt 2) { throw 'Source must be an existing BM scene with at least two keyframes.' }
+    $distance = [int]$json.environment.renderDistanceHint
+    if ($distance -lt 2 -or $distance -gt 32) { throw 'Scene must specify renderDistanceHint in 2..32.' }
+    return $distance
+}
 if ($SelfCheck) {
     $s = [BmQuickStats]::Calculate(@(1,2,3,4))
     if ($s[0] -ne 400 -or $s[1] -ne 250 -or $s[2] -ne 4) { throw 'BM statistics check failed' }
-    Write-Host 'BM statistics check passed'; exit
+    $fixture = @{id='check';keyframes=@(@{},@{});environment=@{renderDistanceHint=16}}
+    if ((SceneInfo $fixture) -ne 16) { throw 'Scene distance check failed' }
+    $fixture.keyframes = @(); $rejected = $false
+    try { SceneInfo $fixture | Out-Null } catch { $rejected = $true }
+    if (!$rejected) { throw 'Placeholder scene accepted' }
+    Write-Host 'BM statistics and scene checks passed'; exit
 }
 if ($Explore -and !$NewJar) { throw 'Specify -NewJar for -Explore.' }
 if (!$Explore -and (!$OldJar -or !$NewJar)) { throw 'Specify -OldJar and -NewJar.' }
@@ -51,7 +65,12 @@ $out = Join-Path $root "build\bm-bench\$Label-$Set"
 if (Test-Path -LiteralPath $out) { throw "Output already exists: $out. Use a new label; partial ABBA blocks cannot resume." }
 $client = Join-Path $out 'client'
 $data = Join-Path $out 'data'
-$scene = Join-Path $data 'scenes\reflexium-quick'
+$sceneSource = (Resolve-Path -LiteralPath $SceneSource).Path
+$sceneJson = Get-Content (Join-Path $sceneSource 'scene.json') -Raw | ConvertFrom-Json
+$sceneId = $sceneJson.id
+$renderDistance = SceneInfo $sceneJson
+if (!(Test-Path (Join-Path $sceneSource 'world'))) { throw 'Source scene has no world.' }
+$scene = Join-Path $data "scenes\$sceneId"
 New-Item -ItemType Directory -Force $client,$scene | Out-Null
 foreach ($name in @('mods','config','vitrail','shaderpacks')) {
     if (Test-Path (Join-Path $root "run\$name")) { Copy-Item (Join-Path $root "run\$name") $client -Recurse }
@@ -63,24 +82,21 @@ foreach ($pattern in @('Reflexium-*.jar','benchmark-mod-*.jar','reflexium-bm-dri
 }
 Copy-Item $bm (Join-Path $client 'mods')
 Copy-Item (Join-Path $root 'build\libs\reflexium-bm-driver.jar') (Join-Path $client 'mods')
-Copy-Item (Join-Path $root 'run\saves\Reflexium Vitrail Smoke') (Join-Path $scene 'world') -Recurse
+Copy-Item (Join-Path $sceneSource '*') $scene -Recurse
 function WriteJson($path,$value) { [IO.File]::WriteAllText($path,($value | ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false)) }
 WriteJson (Join-Path $client 'config\benchmarkmod.json') @{dataDirectory=$data}
 [IO.File]::WriteAllText((Join-Path $client 'config\reflexium.properties'), "reflex_mode=on`nupscaler=off`nframe_generation=off`nfsr_sharpness=20`n")
 WriteJson (Join-Path $data 'settings.json') @{schema=1;warmupSeconds=$WarmupSeconds;measuredRuns=$Passes;conditioningRun=$true;recordMetrics=$true;gpuUsageSampling=$true;onboardingSeen=$true;overlay=@{enabled=$false}}
-$poses = @(@(-25.5,69,23.5,0,0),@(-25.5,69,27.5,90,0),@(-21.5,69,27.5,180,-8),@(-21.5,69,23.5,270,0),@(-25.5,69,23.5,360,0))
-$keys = foreach ($p in $poses) { @{dimension='minecraft:overworld';x=$p[0];y=$p[1];z=$p[2];yaw=$p[3];pitch=$p[4];segmentSeconds=4;easing='LINEAR'} }
-$keys[-1].segmentSeconds=0
-WriteJson (Join-Path $scene 'scene.json') @{schema=1;id='reflexium-quick';name='Reflexium Quick';version=1;routeSeconds=16;environment=@{timeOfDay=6000;weather='clear';freezeTime=$true;freezeWeather=$true;randomTickSpeed=0;mobSpawning=$false;renderDistanceHint=12};keyframes=@($keys)}
 $pack = Join-Path $client 'vitrail\pack.txt'
 if (Test-Path $pack) { [IO.File]::WriteAllText($pack,((Get-Content $pack -Raw) -replace 'enabled=(true|false)',('enabled=' + ($Set -eq 'B').ToString().ToLower()))) }
 $options = Join-Path $client 'options.txt'
 $optionText = Get-Content $options -Raw
-foreach ($entry in @{enableVsync='false';maxFps='260';renderDistance='12';simulationDistance='12';fullscreen='false';preferredGraphicsBackend='"vulkan"'}.GetEnumerator()) { $optionText = $optionText -replace "(?m)^$($entry.Key):[^\r\n]*", "$($entry.Key):$($entry.Value)" }
+foreach ($entry in @{enableVsync='false';maxFps='260';renderDistance=[string]$renderDistance;simulationDistance='12';fullscreen='false';preferredGraphicsBackend='"vulkan"'}.GetEnumerator()) { $optionText = $optionText -replace "(?m)^$($entry.Key):[^\r\n]*", "$($entry.Key):$($entry.Value)" }
 [IO.File]::WriteAllText($options,$optionText)
-function WorldHashes { @(Get-ChildItem (Join-Path $scene 'world') -File -Recurse | Where-Object Name -NotIn @('session.lock') | Sort-Object FullName | ForEach-Object { @{path=$_.FullName.Substring($scene.Length);sha256=(Get-FileHash -LiteralPath $_.FullName).Hash} }) }
+function WorldHashes { @(Get-ChildItem (Join-Path $scene 'world') -File -Recurse | Where-Object { $_.Name -ne 'session.lock' -and $_.FullName -notmatch '\\players\\(stats|advancements)\\' } | Sort-Object FullName | ForEach-Object { @{path=$_.FullName.Substring($scene.Length);sha256=(Get-FileHash -LiteralPath $_.FullName).Hash} }) }
 $hashes = WorldHashes
 WriteJson (Join-Path $out 'world-before.json') $hashes
+WriteJson (Join-Path $out 'protocol.json') @{scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning='Benchmark Mod per JVM'}
 $definitions = @(
     @{id='native';upscaler='off';quality='performance';model='transformer';fg='off';mult=2},
     @{id='cnn-performance';upscaler='dlss';quality='performance';model='cnn';fg='off';mult=2},
@@ -96,7 +112,7 @@ $definitions = @(
 $chosen = if ($Modes) { @($Modes.Split(',')) } elseif ($IncludeFG) { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance','fg2','fg4') } else { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance') }
 # A mode may carry runtime overrides after '@', for example tf-performance@reflex_marker=1. Only keys listed
 # here are accepted; each is restored to its shipped value before the next capture that does not set it.
-$knobs = @{reflex_marker='0';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on'}
+$knobs = @{reflex_marker='0';reflex_submission='1';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on'}
 $selected = foreach ($entry in $chosen) {
     $parts = $entry.Split('@')
     $base = $definitions | Where-Object id -eq $parts[0]
@@ -145,8 +161,8 @@ $owned=$false
 try {
     # ABBA across fresh JVMs: old forward, new forward, new reversed, old reversed. -Explore is one JVM
     # of the new jar, forward then reversed, for comparing runtime overrides cheaply.
-    $launches = if ($Explore) { @(@{arm='explore';jar=$new;orders=@('f','r')}) }
-        else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) }
+    $launches = @(if ($Explore) { @{arm='explore';jar=$new;orders=@('f','r')} }
+        else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) })
     $touched = [Collections.Generic.HashSet[string]]::new()
     for ($slot=0;$slot -lt $launches.Count;$slot++) {
         $arm=$launches[$slot].arm
@@ -162,7 +178,7 @@ try {
         $driver=Call 'bm'
         if ($driver.data_directory -ne $data) { throw 'BM data directory mismatch' }
         SetOption 'frame_generation' 'off'; SetOption 'upscaler' 'off'
-        $order=@(@{id='conditioning';upscaler='off';quality='performance';model='transformer';fg='off';mult=2;overrides=@{};direction='c'})
+        $order=@()  # Benchmark Mod conditions the first capture of a JVM itself (conditioningRun), so no extra warm-up capture.
         foreach ($direction in $launches[$slot].orders) {
             $matrix=@($selected); if ($direction -eq 'r') { [array]::Reverse($matrix) }
             foreach ($m in $matrix) { $copy=$m.Clone(); $copy.direction=$direction; $order += $copy }
@@ -178,27 +194,37 @@ try {
             SetOption 'frame_generation' $mode.fg
             $beforeMode=Call 'reflexium'
             if ($beforeMode.upscaler -ne $mode.upscaler -or $beforeMode.quality -ne $mode.quality -or $beforeMode.dlss_model -ne $mode.model -or $beforeMode.frame_generation -ne $mode.fg) { throw "Mode switch failed: $($mode.id)" }
+            if ($mode.mult -gt 2 -and $beforeMode.fg_multiplier -ne $mode.mult) { throw "FG multiplier switch failed: $($mode.id)" }
             $captureLabel="s$slot$($mode.direction)$index"
             $results=Join-Path $data 'results'
             $existing=@(Get-ChildItem $results -Filter '*.bmresult.json.gz' -Recurse -ErrorAction SilentlyContinue | ForEach-Object Name)
-            Call 'bm' @{scene='reflexium-quick';label=$captureLabel} | Out-Null
+            Call 'bm' @{scene=$sceneId;label=$captureLabel} | Out-Null
+            $diagnosticAt = (Get-Date).AddSeconds(30); $diagnosticTaken = !$Diagnostics
             # Only enumerate atomic result files during capture. No render-thread polling.
             $deadline=(Get-Date).AddMinutes(8); $fresh=$null
             while (!$fresh) {
                 if ((Get-Date) -gt $deadline -or !(Get-Process -Id $session.game_pid -ErrorAction SilentlyContinue)) { throw "BM capture did not finish: $captureLabel" }
                 Start-Sleep -Seconds 1
+                if (!$diagnosticTaken -and (Get-Date) -ge $diagnosticAt) {
+                    Call 'reflexium' @{profile='reset'} | Out-Null
+                    Start-Sleep -Seconds 5
+                    WriteJson (Join-Path $out "$captureLabel-profile.json") (Call 'reflexium' @{profile='off'})
+                    WriteJson (Join-Path $out "$captureLabel-latency.json") (Call 'reflexium' @{reflex_timings='1'})
+                    WriteJson (Join-Path $out "$captureLabel-status.json") (Call 'reflexium')
+                    $diagnosticTaken = $true
+                }
                 $fresh=@(Get-ChildItem $results -Filter '*.bmresult.json.gz' -Recurse -ErrorAction SilentlyContinue | Where-Object Name -NotIn $existing)
             }
             if ($fresh.Count -ne 1) { throw 'Unexpected concurrent BM writer' }
             $result=ReadCapture $fresh[0].FullName
             $afterMode=Call 'reflexium'
-            if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne 'reflexium-quick' -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
+            if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne $sceneId -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
             if ($mode.upscaler -ne 'off' -and ($afterMode.evaluated_frames -eq $beforeMode.evaluated_frames -or $afterMode.last_error)) { throw "Upscaler failed during $captureLabel (evaluated $($beforeMode.evaluated_frames) to $($afterMode.evaluated_frames)): $($afterMode.last_error)" }
             if ($mode.fg -ne 'off' -and ($afterMode.fg_evaluated_frames -eq $beforeMode.fg_evaluated_frames -or $afterMode.fg_generated_presents -eq $beforeMode.fg_generated_presents)) { throw "FG did not evaluate and present: $captureLabel" }
             # Use BM's raw real-frame intervals; displayed FG FPS is not a throughput measurement.
             $frames=@($result.runs | ForEach-Object { $_.frames.ms })
             $stats=[BmQuickStats]::Calculate([double[]]$frames)
-            $row=[ordered]@{slot=$slot;arm=$arm;direction=$mode.direction;label=$captureLabel;set=$Set;mode=$mode.id;conditioning=($mode.id -eq 'conditioning');jar_sha256=(Get-FileHash $jar).Hash;bm_sha256=(Get-FileHash $bm).Hash;avg_fps=$stats[0];low_1pct_fps=$stats[1];p99_ms=$stats[2];focusLost=$result.flags.focusLost;background_capture=$true;capture=$fresh[0].FullName;frames=$frames.Count;route_hash=$result.scene.routeHash;fg_presents=$afterMode.fg_generated_presents;visible_sections=@($result.runs | ForEach-Object {$_.chunks.visible})}
+            $row=[ordered]@{slot=$slot;arm=$arm;direction=$mode.direction;label=$captureLabel;set=$Set;mode=$mode.id;conditioning=($mode.id -eq 'conditioning');diagnostics=[bool]$Diagnostics;jar_sha256=(Get-FileHash $jar).Hash;bm_sha256=(Get-FileHash $bm).Hash;avg_fps=$stats[0];low_1pct_fps=$stats[1];p99_ms=$stats[2];focusLost=$result.flags.focusLost;background_capture=$true;capture=$fresh[0].FullName;frames=$frames.Count;route_hash=$result.scene.routeHash;fg_presents=$afterMode.fg_generated_presents;visible_sections=@($result.runs | ForEach-Object {$_.chunks.visible})}
             $rows.Add($row)
             [IO.File]::AppendAllText((Join-Path $out 'runs.jsonl'),(($row | ConvertTo-Json -Depth 8 -Compress)+[Environment]::NewLine))
             Write-Host ("{0}: {1:N1} base FPS, {2:N1} 1% low" -f $captureLabel,$stats[0],$stats[1])

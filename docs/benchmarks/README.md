@@ -48,3 +48,24 @@ these files by `Benchmark Mod/tools/mctest/build_upscaling.py`.
   calls compete with the render thread, so those attempts were archived in `logs/` and the run restarted.
   The size of that effect was not measured separately.
 - FG rows: the frame stamps measure base frames only. Displayed numbers come from the status `fps` samples.
+
+## Quick paired verification with Benchmark Mod
+
+`tools/bm-quick-bench.ps1` launches the old and new Reflexium jars in four fresh JVMs in old, new, new, old order. The harness opens each client on the secondary monitor without changing desktop focus. Its debug endpoint switches modes; Benchmark Mod records the frame intervals. The script copies FPS Lab's existing `benchmark-route` scene from `C:\Users\Ryan\Documents\Minecraft FPS Lab\baseline\scene`, without writing to that source. This scene has a 48-second route and render distance 16, taken from its `scene.json`. No world or keyframes are authored by this script. `-SceneSource` may select another existing BM scene with a world and at least two keyframes. The built-in `vanilla-tour` and `hermitcraft-s10` entries currently contain no keyframes and are rejected.
+
+Benchmark Mod performs its own first-capture conditioning and world reload in each JVM. The script adds no conditioning capture. It checks the copied world's hashes and writes raw BM results, `protocol.json`, `runs.jsonl` and `summary.json` under `build/bm-bench/<label>-<set>/`. Both arms use a fixed 4 GiB heap and the selected jar is isolated from this worktree's compiled classes.
+
+Build the candidate and driver first, then run the shaderless reduced set:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\GraalVM\graalvm-jdk-25.0.4+7.1'
+.\gradlew.bat build bmDriverJar
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\bm-quick-bench.ps1 -SelfCheck
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\bm-quick-bench.ps1 -OldJar build\perf-jars\ac1e339.jar -NewJar build\libs\Reflexium-1.2.0-alpha-fabric-26.3.jar -Label candidate-A -Set A -IncludeFG
+```
+
+The default modes are native, DLSS CNN Performance, DLSS Transformer Performance, DLSS Transformer DLAA, and FSR Performance. `-IncludeFG` adds DLSS FG 2x and MFG 4x when FG or present code changed. Use `-Set B` with a new label when shader or pass code changed; it enables Complementary Reimagined before the world loads. The normal capture uses three BM passes and a 10-second warmup. Jar paths may be absolute. The script requires an unused port (default 25601), the local harness and BM jar, and the frozen FPS Lab scene.
+
+`-Explore` compares runtime variants forward and reversed in one JVM. Overrides follow `@`, for example `-Modes 'tf-performance,tf-performance@reflex_mode=off'`; each touched override resets before the next mode that omits it. `-Diagnostics` records a five-second CPU/GPU profile and driver latency reports during each capture. Its FPS is instrumented diagnostic evidence and must not be treated as final acceptance. Do not repeat exploratory sweeps.
+
+The A/A noise bands recorded in `ai-brain/minecraft/fps-lab.md` are about 2.4% for average FPS and 16.8% for 1% low for one launch per arm; the summary scales these by the square root of two for its two launches per arm. The reported FG FPS is the rate of real frames, so multiply by the FG factor only when describing displayed frames. Keep both native controls and all raw BM files; no single 1% low pair is conclusive. Do not resume a partial ABBA block: run the entire command with a new label.
