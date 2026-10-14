@@ -3,6 +3,9 @@
 Benchmark Mod captures two Reflexium jars in fresh-JVM ABBA order without desktop input, on the FPS Lab standard scene.
 .EXAMPLE
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/bm-quick-bench.ps1 -OldJar build/perf-jars/ac1e339.jar -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar -IncludeFG -Label candidate
+.EXAMPLE
+Quick rough check (about 8 minutes): only the modes the change touches, one launch per jar, one pass. Full ABBA runs are for overnight.
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/bm-quick-bench.ps1 -Quick -OldJar build/perf-jars/ac1e339.jar -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar -Modes native,tf-performance,fg2 -Label quick
 #>
 param(
     [string]$OldJar,
@@ -10,6 +13,8 @@ param(
     [string]$Label = (Get-Date -Format 'yyyyMMdd-HHmmss'),
     [ValidateSet('A','B')][string]$Set = 'A',
     [switch]$IncludeFG,
+    # Rough verification: one launch per jar, one measured pass, no BM conditioning run (about 1 min per mode).
+    [switch]$Quick,
     [switch]$Explore,
     [switch]$Diagnostics,
     # Benchmark Mod scene the FPS Lab freezes as its standard (route plus world). Copied read-only into the run's data directory.
@@ -24,6 +29,10 @@ param(
     [switch]$SelfCheck
 )
 $ErrorActionPreference = 'Stop'
+if ($Quick) {
+    if (!$PSBoundParameters.ContainsKey('Passes')) { $Passes = 1 }
+    if (!$PSBoundParameters.ContainsKey('WarmupSeconds')) { $WarmupSeconds = 5 }
+}
 Add-Type -AssemblyName System.Net.Http
 Add-Type @'
 using System;
@@ -86,7 +95,7 @@ Copy-Item (Join-Path $sceneSource '*') $scene -Recurse
 function WriteJson($path,$value) { [IO.File]::WriteAllText($path,($value | ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false)) }
 WriteJson (Join-Path $client 'config\benchmarkmod.json') @{dataDirectory=$data}
 [IO.File]::WriteAllText((Join-Path $client 'config\reflexium.properties'), "reflex_mode=on`nupscaler=off`nframe_generation=off`nfsr_sharpness=20`n")
-WriteJson (Join-Path $data 'settings.json') @{schema=1;warmupSeconds=$WarmupSeconds;measuredRuns=$Passes;conditioningRun=$true;recordMetrics=$true;gpuUsageSampling=$true;onboardingSeen=$true;overlay=@{enabled=$false}}
+WriteJson (Join-Path $data 'settings.json') @{schema=1;warmupSeconds=$WarmupSeconds;measuredRuns=$Passes;conditioningRun=!$Quick;recordMetrics=$true;gpuUsageSampling=$true;onboardingSeen=$true;overlay=@{enabled=$false}}
 $pack = Join-Path $client 'vitrail\pack.txt'
 if (Test-Path $pack) { [IO.File]::WriteAllText($pack,((Get-Content $pack -Raw) -replace 'enabled=(true|false)',('enabled=' + ($Set -eq 'B').ToString().ToLower()))) }
 $options = Join-Path $client 'options.txt'
@@ -162,6 +171,7 @@ try {
     # ABBA across fresh JVMs: old forward, new forward, new reversed, old reversed. -Explore is one JVM
     # of the new jar, forward then reversed, for comparing runtime overrides cheaply.
     $launches = @(if ($Explore) { @{arm='explore';jar=$new;orders=@('f','r')} }
+        elseif ($Quick) { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')}) }
         else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) })
     $touched = [Collections.Generic.HashSet[string]]::new()
     for ($slot=0;$slot -lt $launches.Count;$slot++) {
@@ -251,7 +261,7 @@ try {
             $a=@($rows | Where-Object { $_.mode -eq $id -and $_.arm -eq 'old' }); $b=@($rows | Where-Object { $_.mode -eq $id -and $_.arm -eq 'new' })
             $af=($a.avg_fps | Measure-Object -Average).Average; $bf=($b.avg_fps | Measure-Object -Average).Average
             $al=($a.low_1pct_fps | Measure-Object -Average).Average; $bl=($b.low_1pct_fps | Measure-Object -Average).Average
-            [ordered]@{mode=$id;old_fps=$af;new_fps=$bf;fps_change_pct=100*($bf/$af-1);old_low1=$al;new_low1=$bl;low1_change_pct=100*($bl/$al-1);fps_noise_band_pct=2.4/[Math]::Sqrt(2);low1_noise_band_pct=16.8/[Math]::Sqrt(2)}
+            [ordered]@{mode=$id;old_fps=$af;new_fps=$bf;fps_change_pct=100*($bf/$af-1);old_low1=$al;new_low1=$bl;low1_change_pct=100*($bl/$al-1);fps_noise_band_pct=$(if ($Quick) { 2.4 } else { 2.4/[Math]::Sqrt(2) });low1_noise_band_pct=$(if ($Quick) { 16.8 } else { 16.8/[Math]::Sqrt(2) })}
         }
         WriteJson (Join-Path $out 'summary.json') @($summary)
         $summary | ForEach-Object { [pscustomobject]$_ } | Format-Table mode,old_fps,new_fps,fps_change_pct,old_low1,new_low1,low1_change_pct
