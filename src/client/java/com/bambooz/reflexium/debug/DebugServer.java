@@ -355,6 +355,10 @@ public final class DebugServer {
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
 		o.addProperty("reflex_mode", config.reflexMode().name());
 		o.addProperty("reflex_status", com.bambooz.reflexium.reflex.ReflexController.get().statusLine());
+		o.addProperty("smart_reflex", config.smartReflex());
+		o.addProperty("reflex_pacing_paused", com.bambooz.reflexium.reflex.ReflexController.get().isPacingPaused());
+		o.addProperty("reflex_sleeping", com.bambooz.reflexium.reflex.ReflexController.get().isSleeping());
+		o.addProperty("reflex_latency", com.bambooz.reflexium.reflex.ReflexController.get().latencyLine());
 		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
@@ -493,6 +497,10 @@ public final class DebugServer {
 			case "reflex_mode" -> {
 				var mode = parseEnum(com.bambooz.reflexium.reflex.ReflexMode.class, value);
 				yield () -> com.bambooz.reflexium.reflex.ReflexController.get().setMode(mode);
+			}
+			case "smart_reflex" -> {
+				boolean enabled = flag(Map.of("v", value), "v", true);
+				yield () -> ReflexiumConfig.get().setSmartReflex(enabled);
 			}
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);

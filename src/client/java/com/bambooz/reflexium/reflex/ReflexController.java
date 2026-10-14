@@ -71,6 +71,7 @@ public final class ReflexController {
 	private int requestedIntervalUs;
 	private boolean requestedCapIsVrr;
 	private boolean sleepFailed;
+	private final SmartPacing smartPacing = new SmartPacing();
 
 	private long lastTimingRefresh;
 	private long lastRefreshRead;
@@ -107,6 +108,7 @@ public final class ReflexController {
 	public void onSwapchainDestroyed() {
 		swapchain = 0;
 		frameOpen = false;
+		smartPacing.reset();
 	}
 
 	public void shutdown() {
@@ -121,6 +123,7 @@ public final class ReflexController {
 		frameOpen = false;
 		appliedMode = null;
 		latency = LatencyReport.unavailable("no data yet");
+		smartPacing.reset();
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -132,7 +135,17 @@ public final class ReflexController {
 	}
 
 	public boolean isSleeping() {
-		return isAvailable() && mode().enabled() && sleepSemaphore != 0 && !sleepFailed;
+		return isAvailable() && mode().enabled() && sleepSemaphore != 0 && !sleepFailed && !isPacingPaused();
+	}
+
+	public boolean isPacingPaused() {
+		return isAvailable() && smartPacing.paused && canPausePacing();
+	}
+
+	private boolean canPausePacing() {
+		// Keep explicit and VRR caps paced, and never bypass Reflex for any requested FG mode.
+		return mode().enabled() && ReflexiumConfig.get().smartReflex() && requestedIntervalUs == 0
+				&& ReflexiumConfig.get().frameGeneration() == com.bambooz.reflexium.dlss.FrameGeneration.OFF;
 	}
 
 	public ReflexMode mode() {
@@ -170,6 +183,7 @@ public final class ReflexController {
 		frameId++;
 		frameOpen = true;
 		applySleepMode();
+		smartPacing.update(System.nanoTime(), canPausePacing());
 		if (isSleeping()) {
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
@@ -269,6 +283,8 @@ public final class ReflexController {
 		StringBuilder line = new StringBuilder("Reflex: ").append(mode.displayName());
 		if (sleepFailed) {
 			line.append(" (sleep failed, markers only)");
+		} else if (isPacingPaused()) {
+			line.append(" (paused, high FPS)");
 		} else if (appliedIntervalUs > 0) {
 			line.append(", cap ").append(Math.round(1_000_000.0 / appliedIntervalUs)).append(" FPS");
 			if (requestedCapIsVrr) {
@@ -292,6 +308,38 @@ public final class ReflexController {
 
 	// ---------------------------------------------------------------------------------------------
 	// Vulkan
+
+	/** Half-second frame-time mean with 320/280 FPS hysteresis, independent of generated frames. */
+	static final class SmartPacing {
+		private long start;
+		private int frames;
+		boolean paused;
+
+		void reset() {
+			start = 0;
+			frames = 0;
+			paused = false;
+		}
+
+		void update(long now, boolean allowed) {
+			if (!allowed) {
+				reset();
+				return;
+			}
+			if (start == 0) {
+				start = now;
+				return;
+			}
+			frames++;
+			long elapsed = now - start;
+			if (elapsed < 500_000_000L) return;
+			double meanNs = (double) elapsed / frames;
+			if (meanNs < 1_000_000_000.0 / 320) paused = true;
+			else if (meanNs > 1_000_000_000.0 / 280) paused = false;
+			start = now;
+			frames = 0;
+		}
+	}
 
 	private void applySleepMode() {
 		if (!isAvailable()) {

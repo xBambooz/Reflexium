@@ -39,6 +39,8 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 					ReflexController.get().setMode(mode);
 				}));
 
+		list.addBig(ReflexiumOptions.smartReflex());
+
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));
 
 		List<Upscaler> allowedUpscalers = new ArrayList<>();

@@ -26,6 +26,7 @@ public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 		VulkanSession session = VulkanSession.current();
 		if (session != null && session.lowLatency2()) {
 			list.addBig(ReflexiumOptions.reflexMode());
+			list.addBig(ReflexiumOptions.smartReflex());
 		}
 		if (UpscalingRenderer.get().isReady()) {
 			list.addBig(ReflexiumOptions.upscaler());

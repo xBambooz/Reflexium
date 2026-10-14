@@ -25,6 +25,7 @@ public final class ReflexiumConfig {
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
+	private volatile boolean smartReflex = true;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DlssModel.AUTO;
@@ -48,6 +49,9 @@ public final class ReflexiumConfig {
 		reflexMode = mode;
 		save();
 	}
+
+	public boolean smartReflex() { return smartReflex; }
+	public void setSmartReflex(boolean value) { smartReflex = value; save(); }
 
 	/** DLSS Super Resolution preset. Needs the Vulkan renderer. */
 	public UpscaleQuality upscaleQuality() {
@@ -132,6 +136,7 @@ public final class ReflexiumConfig {
 
 		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
+		config.smartReflex = parseBoolean(props, "smart_reflex", config.smartReflex);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
@@ -157,6 +162,7 @@ public final class ReflexiumConfig {
 	private synchronized void save() {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
+		props.setProperty("smart_reflex", Boolean.toString(smartReflex));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());
 		props.setProperty("dlss_model", dlssModel.serializedName());

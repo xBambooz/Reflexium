@@ -4,6 +4,8 @@
   "reflexium.group.reflex": "NVIDIA Reflex",
   "reflexium.group.upscaling": "Upscaling and Anti-Aliasing",
   "reflexium.option.reflex_mode": "NVIDIA Reflex",
+  "reflexium.option.smart_reflex": "Smart Reflex",
+  "reflexium.option.smart_reflex.tooltip": "Pauses Reflex's frame pacing when FPS is very high (above about 300), where latency is already minimal and pacing costs FPS. Reflex resumes automatically at lower FPS. Frame generation and FPS caps keep pacing active. Interim workaround while a driver scheduling issue is investigated.",
   "reflexium.option.reflex_mode.tooltip": "Reduces input latency by starting each frame just in time for the GPU. On + Boost also keeps GPU clocks high when CPU-bound.",
   "reflexium.option.upscaler": "Upscaler",
   "reflexium.option.upscaler.tooltip": "Renders the world at a lower resolution and upscales it to display resolution. FSR works on any GPU, DLSS needs an NVIDIA RTX GPU. Auto uses DLSS when available, otherwise FSR.",

@@ -36,6 +36,12 @@ public final class ReflexiumOptions {
 				value -> ReflexController.get().setMode(value));
 	}
 
+	public static OptionInstance<Boolean> smartReflex() {
+		return OptionInstance.createBoolean("reflexium.option.smart_reflex",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.smart_reflex.tooltip")),
+				ReflexiumConfig.get().smartReflex(), ReflexiumConfig.get()::setSmartReflex);
+	}
+
 	public static OptionInstance<UpscaleQuality> upscaleQuality() {
 		return new OptionInstance<>(
 				"reflexium.option.quality",

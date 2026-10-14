@@ -6,6 +6,23 @@ import static org.lwjgl.system.MemoryUtil.memPutLong;
 
 public final class ReflexTimingCheck {
 	public static void main(String[] args) {
+		var pacing = new ReflexController.SmartPacing();
+		long now = 1;
+		pacing.update(now, true);
+		for (int i = 0; i < 199; i++) pacing.update(now += 2_500_000, true);
+		if (pacing.paused) throw new AssertionError("must observe half a second before pausing");
+		pacing.update(now += 2_500_000, true);
+		if (!pacing.paused) throw new AssertionError("400 FPS must pause pacing");
+		for (int i = 0; i < 151; i++) pacing.update(now += 3_333_333, true);
+		if (!pacing.paused) throw new AssertionError("300 FPS must retain paused state");
+		for (int i = 0; i < 250; i++) pacing.update(now += 4_000_000, true);
+		if (pacing.paused) throw new AssertionError("250 FPS must resume pacing");
+		for (int i = 0; i < 302; i++) pacing.update(now += 3_333_333, true);
+		if (pacing.paused) throw new AssertionError("300 FPS must retain sleeping state");
+		for (int i = 0; i < 400; i++) pacing.update(now += 2_500_000, true);
+		if (!pacing.paused) throw new AssertionError("400 FPS must pause again");
+		pacing.update(++now, false);
+		if (pacing.paused) throw new AssertionError("FG, caps and disabled Smart Reflex must reset immediately");
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			var report = VkLatencyTimingsFrameReportNV.calloc(stack).sType$Default();
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.SIMSTARTTIMEUS, 1000);
