@@ -37,7 +37,12 @@ try {
                 $before = (Status).plugins.reflexium
                 Call 'wait' @{ticks=30} | Out-Null
                 $after = (Status).plugins.reflexium
-                if ($after.fg_status -notlike "*${multiplier}x*" -or $after.fg_evaluated_frames -le $before.fg_evaluated_frames -or $after.last_error) {
+				$expectedStatus = switch ($mode) {
+					'dlss' { 'Frame generation: DLSS FG' }
+					'fsr' { 'Frame generation: FSR FG' }
+					'dlss_multi' { "Frame generation: DLSS MFG ${multiplier}x" }
+				}
+                if ($after.fg_status -ne $expectedStatus -or $after.fg_evaluated_frames -le $before.fg_evaluated_frames -or $after.last_error) {
                     throw "Interpolation failed for $mode/${multiplier}x/$upscaler`: $($after.fg_status) $($after.last_error)"
                 }
                 $generated = $after.fg_generated_presents - $before.fg_generated_presents

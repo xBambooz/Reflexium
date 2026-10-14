@@ -25,6 +25,7 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.debug.DebugSettings;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
 import java.util.Optional;
@@ -63,16 +64,17 @@ public final class SharpBlockOutlineRenderer {
 			return;
 		}
 
+		BlockOutlineRenderState outline = this.capturedOutline;
+		CameraRenderState camera = this.capturedCamera;
+		clear();
+		boolean visible = outline != null && camera != null && outline.shape() != null && !outline.shape().isEmpty();
+		if (!visible && DebugSettings.lazyOutlineDepth) return;
 		VkCommandBuffer commands = UpscalingRenderer.get().commandBuffer();
 		long timing = FrameProfiler.start(FrameProfiler.OUTLINE_DEPTH, commands);
 		upscaleDepth(displayTarget, motionTarget);
 		FrameProfiler.end(FrameProfiler.OUTLINE_DEPTH, timing, commands);
 
-		BlockOutlineRenderState outline = this.capturedOutline;
-		CameraRenderState camera = this.capturedCamera;
-		clear();
-
-		if (outline == null || camera == null || outline.shape() == null || outline.shape().isEmpty()) {
+		if (!visible) {
 			return;
 		}
 

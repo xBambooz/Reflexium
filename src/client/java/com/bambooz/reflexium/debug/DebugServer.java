@@ -348,6 +348,11 @@ public final class DebugServer {
 		o.addProperty("upscaler_built", info.builtUpscaler());
 		o.addProperty("quality", config.upscaleQuality().serializedName());
 		o.addProperty("dlss_model", config.dlssModel().serializedName());
+		o.addProperty("dlss_preset_hint", upscaling.presetHint());
+		o.addProperty("history_reset_frames", upscaling.historyResetFrames());
+		o.addProperty("transient_motion_uniforms", upscaling.usesTransientUniforms());
+		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
+		o.addProperty("reflex_mode", config.reflexMode().name());
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
@@ -464,6 +469,25 @@ public final class DebugServer {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "perf_uniforms", "perf_depth", "perf_outline" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> {
+					switch (key) {
+						case "perf_uniforms" -> DebugSettings.fastUniforms = on;
+						case "perf_depth" -> DebugSettings.directDepth = on;
+						case "perf_outline" -> DebugSettings.lazyOutlineDepth = on;
+					}
+				};
+			}
+			case "dlss_preset" -> {
+				int preset = Integer.parseInt(value);
+				if (preset != -1 && preset != 5 && preset != 6 && preset != 10 && preset != 11) throw new BadRequest("Preset must be -1, 5, 6, 10 or 11");
+				yield () -> DebugSettings.dlssPreset = preset;
+			}
+			case "reflex_mode" -> {
+				var mode = parseEnum(com.bambooz.reflexium.reflex.ReflexMode.class, value);
+				yield () -> com.bambooz.reflexium.reflex.ReflexController.get().setMode(mode);
+			}
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
 				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };

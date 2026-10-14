@@ -65,6 +65,7 @@ public final class UpscalingRenderer {
 	private String fsrUnavailable = "needs Windows x64 and Vulkan";
 	private Upscaler builtUpscaler = Upscaler.OFF;
 	private DlssModel builtModel;
+	private int builtPreset;
 	private float cameraNear = 0.05f, cameraFar = 1024f, cameraFov = 1.22f;
 	private boolean ngxReady;
 	private boolean ngxInitialized;
@@ -85,6 +86,7 @@ public final class UpscalingRenderer {
 
 	private TextureTarget renderTarget;
 	private TextureTarget worldDepth;
+	private GpuTextureView directWorldDepth;
 	private TextureTarget motionTarget;
 	private OutputImage reactive;
 	private TextureTarget opaqueTarget;
@@ -102,6 +104,7 @@ public final class UpscalingRenderer {
 	// Per-frame state.
 	private boolean activeThisFrame;
 	private boolean swapped;
+	private long worldTiming;
 	private boolean worldDepthCaptured;
 	private boolean opaqueCaptured;
 	private boolean reactiveGenerated;
@@ -123,6 +126,9 @@ public final class UpscalingRenderer {
 	private boolean resetNext = true;
 	private long lastEvaluateNs;
 	private long evaluatedFrames;
+	private long historyResetFrames;
+	public long historyResetFrames() { return historyResetFrames; }
+	public int presetHint() { return builtPreset; }
 
 	// Global uniform state captured before the world pass.
 	private GlobalSettingsUniform globals;
@@ -219,11 +225,10 @@ public final class UpscalingRenderer {
 	}
 
 	public void onDeviceClosing() {
-		if (session != null) VK10.vkDeviceWaitIdle(session.device());
-		FrameProfiler.close();
 		if (device != null) {
 			destroyResources();
 		}
+		FrameProfiler.close();
 		if (bridge != null && ngxInitialized) {
 			FrameGenerationRenderer.get().onDeviceClosing();
 			bridge.shutdown();
@@ -261,6 +266,7 @@ public final class UpscalingRenderer {
 		}
 		activeThisFrame = false;
 		worldDepthCaptured = false;
+		directWorldDepth = null;
 		opaqueCaptured = false;
 		reactiveGenerated = false;
 		packHandCaptured = false;
@@ -281,7 +287,7 @@ public final class UpscalingRenderer {
 			return;
 		}
 		try {
-			if (mode != builtMode || selected != builtUpscaler || ReflexiumConfig.get().dlssModel() != builtModel
+			if (mode != builtMode || selected != builtUpscaler || ReflexiumConfig.get().dlssModel() != builtModel || requestedPreset() != builtPreset
 					|| window.width != displayWidth || window.height != displayHeight || renderTarget == null) {
 				build(gameRenderer, mode, window.width, window.height);
 			}
@@ -325,11 +331,12 @@ public final class UpscalingRenderer {
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		swap(main, renderTarget);
+		worldTiming = FrameProfiler.start(FrameProfiler.WORLD, commandBuffer());
 		swapped = true;
 		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
 				gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
 		updateGlobals(renderWidth, renderHeight);
-		if (packHandMask != null) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
+		if (packHandMask != null && VitrailCompat.isDrawingPack()) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
 		ObjectMotion.get().beginFrame(DebugSettings.objectMotion(), DebugSettings.drawStaticObjects());
 	}
 
@@ -372,16 +379,22 @@ public final class UpscalingRenderer {
 	/** Vitrail draws the hand inside its level chain, before vanilla's HUD depth target exists. */
 	public void capturePackHandBefore() {
 		if (!swapped || packHandBefore == null) return;
+		VkCommandBuffer commands = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.PACK_HAND, commands);
 		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), packHandBefore.getDepthTexture(),
 				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		FrameProfiler.end(FrameProfiler.PACK_HAND, timing, commands);
 	}
 
 	public void capturePackHandAfter() {
 		if (!swapped || packHandBefore == null) return;
+		VkCommandBuffer commands = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.PACK_HAND, commands);
 		packHandMaskPass.render(packHandMask, packHandBefore.getDepthTextureView(),
 				Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTextureView());
 		packHandCaptured = true;
+		FrameProfiler.end(FrameProfiler.PACK_HAND, timing, commands);
 	}
 
 	public boolean supportsReactiveMask() {
@@ -423,11 +436,16 @@ public final class UpscalingRenderer {
 				ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
 			}
 		}
-		VkCommandBuffer commands = commandBuffer();
-		long timing = FrameProfiler.start(FrameProfiler.DEPTH, commands);
-		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), worldDepth.getDepthTexture(),
-				0, 0, 0, 0, 0, renderWidth, renderHeight);
-		FrameProfiler.end(FrameProfiler.DEPTH, timing, commands);
+		if (usesDirectDepth()) {
+			// Vanilla uses its separate hand depth while active. Packs retain their final scene depth.
+			directWorldDepth = main.getDepthTextureView();
+		} else {
+			VkCommandBuffer commands = commandBuffer();
+			long timing = FrameProfiler.start(FrameProfiler.DEPTH, commands);
+			RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getDepthTexture(), worldDepth.getDepthTexture(),
+					0, 0, 0, 0, 0, renderWidth, renderHeight);
+			FrameProfiler.end(FrameProfiler.DEPTH, timing, commands);
+		}
 		worldDepthCaptured = true;
 	}
 
@@ -461,11 +479,12 @@ public final class UpscalingRenderer {
 		try {
 			VkCommandBuffer commands = commandBuffer();
 			long timing = FrameProfiler.start(FrameProfiler.MOTION, commands);
-			motionPass.render(motionTarget, worldDepth.getDepthTextureView(), handDepth,
+			GpuTextureView sceneDepth = directWorldDepth != null ? directWorldDepth : worldDepth.getDepthTextureView();
+			motionPass.render(motionTarget, sceneDepth, handDepth,
 					currentToPrevious, jitterNdcX(), jitterNdcY());
 			FrameProfiler.end(FrameProfiler.MOTION, timing, commands);
 			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
-			objectVelocityPass.render(ObjectMotion.get(), motionTarget, worldDepth.getDepthTextureView(), handDepth,
+			objectVelocityPass.render(ObjectMotion.get(), motionTarget, sceneDepth, handDepth,
 					currentJittered, currentUnjittered, previousUnjittered, (float) delta.x, (float) delta.y, (float) delta.z, resetNext);
 			FrameProfiler.end(FrameProfiler.OBJECTS, timing, commands);
 		} catch (RuntimeException e) {
@@ -504,6 +523,7 @@ public final class UpscalingRenderer {
 			swapped = false;
 			updateGlobals(displayWidth, displayHeight);
 		}
+		FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
 			drawMotionVectorView(main);
 		}
@@ -636,7 +656,7 @@ public final class UpscalingRenderer {
 				? fsr.create(session.device().address(), session.physicalDevice().address(),
 						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight)
 				: bridge.create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS,
-						ReflexiumConfig.get().dlssModel().preset());
+						requestedPreset());
 		drainLog();
 		if (result != 0) {
 			throw new IllegalStateException(selected + " feature creation failed (0x" + Integer.toHexString(result) + ")");
@@ -645,6 +665,7 @@ public final class UpscalingRenderer {
 		builtMode = mode;
 		builtUpscaler = selected;
 		builtModel = ReflexiumConfig.get().dlssModel();
+		builtPreset = requestedPreset();
 		renderSizeApplied = false;
 		resetNext = true;
 		reactiveMaskFailed = false;
@@ -652,6 +673,7 @@ public final class UpscalingRenderer {
 		jitterIndex = 0;
 		lastEvaluateNs = 0;
 		evaluatedFrames = 0;
+		historyResetFrames = 0;
 		ReflexiumClient.LOGGER.info("{} {}: rendering {}x{}, output {}x{}; DLSS model {}", selected, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight, builtModel);
 	}
 
@@ -707,6 +729,7 @@ public final class UpscalingRenderer {
 			return;
 		}
 		NgxBridge.Image outputImage = ngxImage(renderTarget.getColorTexture(), renderTarget.getColorTextureView());
+		if (resetNext) historyResetFrames++;
 		timing = FrameProfiler.start(FrameProfiler.EVALUATE, commandBuffer);
 		int result = builtUpscaler == Upscaler.FSR ? fsr.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
@@ -778,9 +801,24 @@ public final class UpscalingRenderer {
 	}
 
 	private void updateGlobals(int width, int height) {
+		if (usesTransientUniforms() && renderWidth == displayWidth && renderHeight == displayHeight) return;
 		if (globals != null) {
 			globals.update(width, height, glintAlpha, gameTime, worldPartialTicks, menuBlurRadius, cameraPos, useRgss);
 		}
+	}
+
+	private int requestedPreset() {
+		return DebugSettings.dlssPreset >= 0 ? DebugSettings.dlssPreset : ReflexiumConfig.get().dlssModel().preset();
+	}
+
+	public boolean usesTransientUniforms() {
+		// FSR showed no repeatable gain and a state-sensitive regression; retain its existing upload path.
+		return DebugSettings.fastUniforms && builtUpscaler != Upscaler.FSR;
+	}
+
+	public boolean usesDirectDepth() {
+		// The FSR candidate did not retain a measurable frame-time benefit in the paired retest.
+		return DebugSettings.directDepth && builtUpscaler != Upscaler.FSR;
 	}
 
 	/** Halton(2,3) sub-pixel offsets in render pixels, phase count scaled with the upscale ratio. */
@@ -863,11 +901,9 @@ public final class UpscalingRenderer {
 
 	void waitForGpu() {
 		if (device != null) {
-			try {
-				((VulkanCommandEncoderAccessor) device.createCommandEncoder()).reflexium$commandBuffer();
-				device.createCommandEncoder().submit();
-			} catch (RuntimeException ignored) {
-			}
+			device.createCommandEncoder().submit();
+			int result = VK10.vkDeviceWaitIdle(session.device());
+			if (result != VK10.VK_SUCCESS) throw new IllegalStateException("wait before releasing upscaler resources: " + result);
 		}
 	}
 

@@ -97,6 +97,7 @@ final class ObjectVelocityPass implements AutoCloseable {
 		}
 		CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 		GpuBufferSlice slice;
+		GpuBufferSlice uniformSlice;
 		try (GpuBufferSlice.MappedView view = encoder.transientMemory().allocateGpuMapped((long) vertices * VERTEX_BYTES, 16L, GpuBuffer.USAGE_VERTEX)) {
 			motion.writeVertices(view.data().asFloatBuffer());
 			slice = view.slice();
@@ -108,12 +109,12 @@ final class ObjectVelocityPass implements AutoCloseable {
 					.putMat4f(previous)
 					.putVec4(target.width, target.height, 0.0f, 0.0f)
 					.get();
-			encoder.writeToBuffer(uniforms.slice(), data);
+			uniformSlice = MotionVectorPass.uploadUniforms(uniforms, data);
 		}
 		GpuSampler nearest = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST);
 		try (RenderPass pass = encoder.createRenderPass(() -> "Reflexium object motion vectors", target.getColorTextureView(), Optional.empty())) {
 			pass.setPipeline(RenderSystem.getCompiledPipeline(PIPELINE));
-			pass.setUniform("ReflexiumObjectMotion", uniforms);
+			pass.setUniform("ReflexiumObjectMotion", uniformSlice);
 			pass.setUniform("DepthSampler", worldDepth, nearest);
 			pass.setUniform("HandDepthSampler", handDepth, nearest);
 			pass.setVertexBuffer(0, slice);

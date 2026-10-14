@@ -327,7 +327,9 @@ public final class ReflexController {
 					.sType$Default()
 					.signalSemaphore(sleepSemaphore)
 					.value(value);
+			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, null);
 			int result = vkLatencySleepNV(device, swapchain, info);
+			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, timing, null);
 			if (result != VK_SUCCESS) {
 				failSleep("vkLatencySleepNV", result);
 				return;
@@ -337,7 +339,9 @@ public final class ReflexController {
 					.semaphoreCount(1)
 					.pSemaphores(stack.longs(sleepSemaphore))
 					.pValues(stack.longs(value));
+			timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, null);
 			result = vkWaitSemaphores(device, wait, SLEEP_TIMEOUT_NS);
+			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, timing, null);
 			if (result != VK_SUCCESS && result != org.lwjgl.vulkan.VK12.VK_TIMEOUT) {
 				failSleep("vkWaitSemaphores", result);
 			}

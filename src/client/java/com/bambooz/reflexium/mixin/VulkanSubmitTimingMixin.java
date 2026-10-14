@@ -14,9 +14,17 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 public abstract class VulkanSubmitTimingMixin {
 	@WrapMethod(method = "awaitSubmitCompletion")
 	private boolean reflexium$wait(long index, long timeout, Operation<Boolean> original) {
-		long timing = FrameProfiler.start(FrameProfiler.FENCE, null);
+		int label = timeout == 0 ? FrameProfiler.FENCE_POLL : FrameProfiler.FENCE;
+		long timing = FrameProfiler.start(label, null);
 		try { return original.call(index, timeout); }
-		finally { FrameProfiler.end(FrameProfiler.FENCE, timing, null); }
+		finally { FrameProfiler.end(label, timing, null); }
+	}
+	@com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method = "submit", at = @At(value = "INVOKE",
+			target = "Lcom/mojang/renderpearl/backend/vulkan/VulkanCommandPool;reset()V"))
+	private void reflexium$timeReset(com.mojang.renderpearl.backend.vulkan.VulkanCommandPool pool, Operation<Void> original) {
+		long timing = FrameProfiler.start(FrameProfiler.POOL_RESET, null);
+		try { original.call(pool); }
+		finally { FrameProfiler.end(FrameProfiler.POOL_RESET, timing, null); }
 	}
 	@Unique private long reflexium$submitStart;
 	@Inject(method = "submit", at = @At("HEAD"))

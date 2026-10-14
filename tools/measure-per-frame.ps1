@@ -3,6 +3,9 @@ param(
     [int]$Port = 25601,
     [int]$Seconds = 5,
     [int]$Passes = 2,
+	[int]$WarmupSeconds = 2,
+	[float]$Pitch = 0,
+	[ValidateSet('current','legacy','optimized')][string]$Paths = 'current',
     [switch]$Profile,
     [string[]]$Modes = @('native','cnn-native_aa','cnn-quality','cnn-balanced','cnn-performance','cnn-ultra_performance','transformer-native_aa','transformer-quality','transformer-balanced','transformer-performance','transformer-ultra_performance','fsr-native_aa','fsr-quality','fsr-balanced','fsr-performance','fsr-ultra_performance')
 )
@@ -32,21 +35,30 @@ function Measure-Modes {
     $status = Call-Harness status
     if (!$status.world_loaded -or $status.pid -ne $session.game_pid) { throw 'Expected recorded client with a loaded world' }
     Set-Rx frame_generation off
-    Call-Harness camera @{x=-25.5;y=69;z=23.5;yaw=0;pitch=0} | Out-Null
+	if ($Paths -ne 'current') {
+		foreach ($key in 'perf_uniforms','perf_depth','perf_outline') { Set-Rx $key $(if ($Paths -eq 'legacy') {'0'} else {'1'}) }
+	}
+    Call-Harness camera @{x=-25.5;y=69;z=23.5;yaw=0;pitch=$Pitch} | Out-Null
     for ($pass=1; $pass -le $Passes; $pass++) {
         $order = @($Modes)
         if ($pass % 2 -eq 0) { [array]::Reverse($order) }
         foreach ($mode in $order) {
             $parts = $mode.Split('-',2)
+			if ($Paths -ne 'current') {
+				Set-Rx dlss_preset $(if ($parts[0] -eq 'cnn') {'5'} else {'-1'})
+				Set-Rx perf_uniforms $(if ($Paths -eq 'optimized' -and $parts[0] -ne 'fsr') {'1'} else {'0'})
+				Set-Rx perf_depth $(if ($Paths -eq 'optimized' -and $parts[0] -ne 'fsr') {'1'} else {'0'})
+			}
             if ($mode -eq 'native') { Set-Rx upscaler off }
             else {
                 Set-Rx upscaler $(if ($parts[0] -eq 'fsr') {'fsr'} else {'dlss'})
                 Set-Rx quality $parts[1]
                 if ($parts[0] -ne 'fsr') { Set-Rx dlss_model $parts[0] }
             }
-            Start-Sleep -Seconds 2
+            Start-Sleep -Seconds $WarmupSeconds
             $before = (Call-Harness status).plugins.reflexium
             if ($mode -ne 'native' -and !$before.upscaling_active) { throw "Inactive $mode : $($before.status_line)" }
+			if ($mode -ne 'native' -and $before.quality -ne $parts[1]) { throw "Incorrect quality for $mode" }
             if ($Profile) { Call-Harness reflexium @{profile='reset'} | Out-Null }
             $mark = (Call-Harness reflexium @{frame_mark='1'}).frames
             Start-Sleep -Seconds $Seconds

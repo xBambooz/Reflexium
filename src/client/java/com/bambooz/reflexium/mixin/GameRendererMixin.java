@@ -18,11 +18,25 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** DLSS frame hooks; see {@link UpscalingRenderer} for the sequence. Every hook is a no-op while DLSS is off. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+	@Unique private boolean reflexium$originalConsistentDepth;
+	@ModifyVariable(method = "render3dHud", at = @At("HEAD"), argsOnly = true)
+	private boolean reflexium$preserveWorldDepth(boolean consistentDepthRequired) {
+		reflexium$originalConsistentDepth = consistentDepthRequired;
+		return consistentDepthRequired || UpscalingRenderer.get().isUpscalingThisFrame() && UpscalingRenderer.get().usesDirectDepth();
+	}
+
+	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;integrate3DHudDepth()V"))
+	private void reflexium$integrateOnlyForPostEffects(GameRenderer renderer, Operation<Void> original) {
+		// The motion pass already combines world and hand depth for SR and FG.
+		if (reflexium$originalConsistentDepth) original.call(renderer);
+	}
 	@WrapMethod(method = "render")
 	private void reflexium$frame(Operation<Void> original) {
 		GameRenderer self = (GameRenderer) (Object) this;

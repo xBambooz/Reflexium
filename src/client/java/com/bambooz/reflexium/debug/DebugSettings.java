@@ -11,6 +11,10 @@ public final class DebugSettings {
 	private static volatile boolean motionVectorView;
 	private static volatile boolean objectMotion = true;
 	private static volatile boolean drawStaticObjects;
+	public static boolean fastUniforms = true;
+	public static boolean directDepth = true;
+	public static boolean lazyOutlineDepth = true;
+	public static int dlssPreset = -1;
 	public static boolean objectMotion() { return objectMotion; }
 	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
 	public static boolean drawStaticObjects() { return drawStaticObjects; }
