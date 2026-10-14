@@ -27,12 +27,14 @@ try {
     if (!$saved.fg_sdk_scheduler -and $saved.fg_max_multiplier -ge 2) { $modes += 'dlss' }
     if (!$saved.fg_sdk_scheduler -and $saved.fg_max_multiplier -ge 3) { $modes += 'dlss_multi' }
     foreach ($mode in $modes) {
-        SetOption 'frame_generation' $mode
         $multipliers = if ($mode -eq 'dlss_multi') { 3..$saved.fg_max_multiplier } else { @(2) }
         foreach ($multiplier in $multipliers) {
             if ($mode -eq 'dlss_multi') { SetOption 'fg_multiplier' ([string]$multiplier) }
-            foreach ($upscaler in @('auto', 'fsr', 'off')) {
+			# Config rejects FG with upscaler Off or an explicitly mismatched backend.
+			$upscalers = if ($mode -eq 'fsr') { @('auto', 'fsr') } else { @('auto', 'dlss') }
+            foreach ($upscaler in $upscalers) {
                 SetOption 'upscaler' $upscaler
+				SetOption 'frame_generation' $mode
                 Call 'wait' @{ticks=20} | Out-Null
                 $before = (Status).plugins.reflexium
                 Call 'wait' @{ticks=30} | Out-Null
