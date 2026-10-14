@@ -46,6 +46,31 @@ documented inconsistent driver timestamps. That diagnostic was restored to 1 aft
 verification. Smart Reflex does not conceal or change the latency validity checks.
 These functional samples are not the Benchmark Mod throughput result.
 
+Functional evidence: [functional.json](benchmarks/bm/smart-reflex/functional.json).
+
+The Benchmark Mod old/new comparison is incomplete. Attempts under
+`build/bm-bench/smart-reflex-A`, `smart-reflex-clean-A` and
+`smart-reflex-exclusive-A` were stopped after detecting simultaneous Minecraft
+rendering from the separate Reflex investigation worktree. Their partial FPS
+values are excluded from acceptance. The investigation continued with further
+API-trace campaigns; a coordinated GPU window is needed before retrying.
+
+Retry with no other game clients or benchmark orchestration processes running:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/bm-quick-bench.ps1 `
+  -OldJar build/smart-reflex/old.jar `
+  -NewJar build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar `
+  -Modes native,tf-performance -Passes 1 -WarmupSeconds 3 `
+  -Port 25614 -Label smart-reflex-final
+```
+
+SHA-256 of the saved old jar:
+`EA0CE88418BAEB94E82B97A4496B226817A1E051C7826EF310FCC11A4B5A29C2`.
+SHA-256 of the built jar and the installed copy in Modrinth's
+`26.3 Testing Instance/mods`:
+`5E9D9734FFF1B113FA3C36F41E2D442D3EBACED6DD4B182E1C457383749B9C52`.
+
 Pre-implementation comparison: [Reflex AntiLag](https://modrinth.com/mod/reflex-antilag)
 and its [scheduler source](https://github.com/Tythee/Minecraft-Reflex/blob/multi-version/src/main/java/io/tythee/ReflexScheduler.java)
 use measured timing to decide whether to sleep independently of marker collection.

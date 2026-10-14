@@ -1,0 +1,248 @@
+{
+    "states":  [
+                   {
+                       "name":  "high",
+                       "fps":  424.0,
+                       "reflex_status":  "Reflex: On (paused, high FPS)",
+                       "smart_reflex":  true,
+                       "sleeping":  false,
+                       "paused":  true,
+                       "latency":  "Reflex latency: inconsistent driver timestamps",
+                       "explicit_submission":  true,
+                       "fg_evaluations":  0,
+                       "fg_presents":  0,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "high-valid-latency",
+                       "fps":  426.0,
+                       "reflex_status":  "Reflex: On (paused, high FPS)",
+                       "smart_reflex":  true,
+                       "sleeping":  false,
+                       "paused":  true,
+                       "latency":  "Reflex render latency: 4.4 ms, sim 0.0, submit 2.2, GPU 2.2",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  0,
+                       "fg_presents":  0,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "low",
+                       "fps":  99.0,
+                       "reflex_status":  "Reflex: On",
+                       "smart_reflex":  true,
+                       "sleeping":  true,
+                       "paused":  false,
+                       "latency":  "Reflex render latency: 13.6 ms, sim 0.0, submit 3.3, GPU 10.4",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  0,
+                       "fg_presents":  0,
+                       "window":  {
+                                      "x":  1600,
+                                      "y":  -540,
+                                      "width":  3840,
+                                      "height":  2160,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  1920,
+                                      "gui_height":  1080
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "boost-high",
+                       "fps":  427.0,
+                       "reflex_status":  "Reflex: On + Boost (paused, high FPS)",
+                       "smart_reflex":  true,
+                       "sleeping":  false,
+                       "paused":  true,
+                       "latency":  "Reflex render latency: 4.4 ms, sim 0.0, submit 2.2, GPU 2.2",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  0,
+                       "fg_presents":  0,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "fg",
+                       "fps":  194.0,
+                       "reflex_status":  "Reflex: On + Boost",
+                       "smart_reflex":  true,
+                       "sleeping":  true,
+                       "paused":  false,
+                       "latency":  "Reflex render latency: 4.9 ms, sim 0.0, submit 1.4, GPU 0.0",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  752,
+                       "fg_presents":  751,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "disabled",
+                       "fps":  393.0,
+                       "reflex_status":  "Reflex: On",
+                       "smart_reflex":  false,
+                       "sleeping":  true,
+                       "paused":  false,
+                       "latency":  "Reflex render latency: 3.3 ms, sim 0.0, submit 1.2, GPU 2.1",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  1890,
+                       "fg_presents":  1889,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   },
+                   {
+                       "name":  "reenabled",
+                       "fps":  427.0,
+                       "reflex_status":  "Reflex: On (paused, high FPS)",
+                       "smart_reflex":  true,
+                       "sleeping":  false,
+                       "paused":  true,
+                       "latency":  "Reflex render latency: 4.8 ms, sim 0.0, submit 2.2, GPU 2.6",
+                       "explicit_submission":  false,
+                       "fg_evaluations":  1890,
+                       "fg_presents":  1889,
+                       "window":  {
+                                      "x":  2560,
+                                      "y":  0,
+                                      "width":  1920,
+                                      "height":  1080,
+                                      "placement":  "display 2 \u0027XF250Q\u0027 at 2560,0",
+                                      "gui_width":  960,
+                                      "gui_height":  540
+                                  },
+                       "focus":  {
+                                     "os_input_focus":  false,
+                                     "os_foreground":  false,
+                                     "os_minimized":  false,
+                                     "hwnd":  33948504,
+                                     "foreground_hwnd":  4655136,
+                                     "os_cursor":  {
+                                                       "x":  1206,
+                                                       "y":  730
+                                                   }
+                                 }
+                   }
+               ],
+    "paused_profile":  {
+                           "reflex_sleep":  {
+                                                "cpu_samples":  0,
+                                                "cpu_us":  0.0,
+                                                "gpu_samples":  0,
+                                                "gpu_us":  0.0
+                                            },
+                           "reflex_semaphore_wait":  {
+                                                         "cpu_samples":  0,
+                                                         "cpu_us":  0.0,
+                                                         "gpu_samples":  0,
+                                                         "gpu_us":  0.0
+                                                     },
+                           "reflex_driver_call":  {
+                                                      "cpu_samples":  0,
+                                                      "cpu_us":  0.0,
+                                                      "gpu_samples":  0,
+                                                      "gpu_us":  0.0
+                                                  }
+                       }
+}
