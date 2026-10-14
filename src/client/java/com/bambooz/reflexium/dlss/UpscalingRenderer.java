@@ -77,6 +77,9 @@ public final class UpscalingRenderer {
 	private int displayHeight;
 	private int renderWidth;
 	private int renderHeight;
+	/** Window size seen by the latest frame. This is what the world renders at whenever upscaling is not applied. */
+	private int windowWidth;
+	private int windowHeight;
 	private boolean renderSizeApplied;
 
 	private TextureTarget renderTarget;
@@ -257,6 +260,8 @@ public final class UpscalingRenderer {
 		reactiveGenerated = false;
 		packHandCaptured = false;
 		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
+		windowWidth = window.width;
+		windowHeight = window.height;
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
@@ -540,10 +545,20 @@ public final class UpscalingRenderer {
 			long evaluatedFrames, boolean packHandMask) {
 	}
 
+	/**
+	 * Resolution the world renders at right now. The upscaled render size only counts while upscaling is applied;
+	 * with the upscaler off (or a frame that skipped upscaling) the render size equals the window.
+	 */
+	public int[] currentRenderSize() {
+		boolean upscaling = renderSizeApplied && ReflexiumConfig.get().upscaler() != Upscaler.OFF;
+		return upscaling ? new int[] {renderWidth, renderHeight} : new int[] {windowWidth, windowHeight};
+	}
+
 	public DebugInfo debugInfo() {
+		int[] render = currentRenderSize();
 		return new DebugInfo(activeThisFrame, builtUpscaler.serializedName(), jitterIndex, jitterX, jitterY,
 				DebugSettings.jitterSignX(JITTER_SIGN), DebugSettings.jitterSignY(JITTER_SIGN),
-				renderWidth, renderHeight, displayWidth, displayHeight, lastError,
+				render[0], render[1], windowWidth, windowHeight, lastError,
 				ObjectMotion.get().capturedVertices(), ObjectMotion.get().drawnVertices(), ObjectMotion.get().trackedEntities(),
 				ObjectMotion.get().trackedBlockEntities(), mipBias, reactiveGenerated, evaluatedFrames, packHandCaptured);
 	}

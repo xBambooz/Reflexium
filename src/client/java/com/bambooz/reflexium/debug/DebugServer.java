@@ -469,7 +469,8 @@ public final class DebugServer {
 			}
 			case "fg_multiplier" -> {
 				int multiplier = integer(Map.of("v", value), "v", 4);
-				if (multiplier < 3 || multiplier > 8) throw new BadRequest("FG multiplier must be 3..8");
+				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
+				if (multiplier < 2 || multiplier > maximum) throw new BadRequest("FG multiplier must be 2.." + maximum + " on this GPU");
 				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); };
 			}
 			case "upscaler" -> {

@@ -92,6 +92,18 @@ public final class ReflexiumConfig {
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
 	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 2, 8); save(); }
 
+	/**
+	 * Clamps the stored multiplier into 2..maximum once the driver reports its limit. Called on NGX init, because
+	 * load runs before the GPU is known. 2 is the floor because it is DLSS FG, which every supported GPU runs.
+	 */
+	public void limitFrameGenerationMultiplier(int maximum) {
+		int clamped = Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
+		if (clamped != frameGenerationMultiplier) {
+			frameGenerationMultiplier = clamped;
+			save();
+		}
+	}
+
 	/** Reflexium's BetterF3 module was added to the BetterF3 layout once; from then on the player's layout wins. */
 	public boolean betterF3ModulePlaced() {
 		return betterF3ModulePlaced;

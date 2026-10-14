@@ -48,6 +48,7 @@ public final class FrameGenerationRenderer {
 	}
 	void onNgxReady(NgxBridge bridge) {
 		ngx = bridge; support = bridge.frameGenerationSupport();
+		ReflexiumConfig.get().limitFrameGenerationMultiplier(maximumMultiplier());
 		ReflexiumClient.LOGGER.info("DLSS frame generation on Minecraft device: {}", support);
 	}
 	void onDeviceClosing() {
@@ -88,8 +89,10 @@ public final class FrameGenerationRenderer {
 			float near, float far, float fov, float frameMs, boolean reset) {
 		if (!wantsMotion()) return;
 		try {
-			FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
-			int count = mode == FrameGeneration.DLSS_MULTI ? Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier()) - 1 : 1;
+			FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
+			int count = requested == FrameGeneration.DLSS_MULTI ? Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier()) - 1 : 1;
+			// DLSS MFG at 2x asks NGX for one generated frame, the same call as DLSS FG, so it shares that path and feature instance.
+			FrameGeneration mode = requested == FrameGeneration.DLSS_MULTI && count == 1 ? FrameGeneration.DLSS : requested;
 			if (built != mode || generated.length != count || width != scene.width || height != scene.height) {
 				UpscalingRenderer.get().waitForGpu();
 				release();
