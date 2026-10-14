@@ -1,0 +1,151 @@
+{
+    "ok":  true,
+    "enabled":  false,
+    "skipped_gpu_frames":  0,
+    "spans":  {
+                  "depth_copy":  {
+                                     "cpu_samples":  0,
+                                     "cpu_us":  0.0,
+                                     "gpu_samples":  0,
+                                     "gpu_us":  0.0
+                                 },
+                  "camera_motion":  {
+                                        "cpu_samples":  4686,
+                                        "cpu_us":  4.5128254374733245,
+                                        "gpu_samples":  277,
+                                        "gpu_us":  21.104173285198556
+                                    },
+                  "object_motion":  {
+                                        "cpu_samples":  4686,
+                                        "cpu_us":  0.2380281690140845,
+                                        "gpu_samples":  277,
+                                        "gpu_us":  0.0032346570397111915
+                                    },
+                  "evaluate":  {
+                                   "cpu_samples":  4686,
+                                   "cpu_us":  46.29989329918907,
+                                   "gpu_samples":  277,
+                                   "gpu_us":  677.8114079422382
+                               },
+                  "outline_depth":  {
+                                        "cpu_samples":  0,
+                                        "cpu_us":  0.0,
+                                        "gpu_samples":  0,
+                                        "gpu_us":  0.0
+                                    },
+                  "outline":  {
+                                  "cpu_samples":  0,
+                                  "cpu_us":  0.0,
+                                  "gpu_samples":  0,
+                                  "gpu_us":  0.0
+                              },
+                  "barrier_before":  {
+                                         "cpu_samples":  4686,
+                                         "cpu_us":  0.43787878787878787,
+                                         "gpu_samples":  277,
+                                         "gpu_us":  2.0376028880866426
+                                     },
+                  "barrier_after":  {
+                                        "cpu_samples":  4686,
+                                        "cpu_us":  0.5793213828425096,
+                                        "gpu_samples":  277,
+                                        "gpu_us":  1.259552346570397
+                                    },
+                  "reactive":  {
+                                   "cpu_samples":  0,
+                                   "cpu_us":  0.0,
+                                   "gpu_samples":  0,
+                                   "gpu_us":  0.0
+                               },
+                  "opaque_copy":  {
+                                      "cpu_samples":  0,
+                                      "cpu_us":  0.0,
+                                      "gpu_samples":  0,
+                                      "gpu_us":  0.0
+                                  },
+                  "pack_hand":  {
+                                    "cpu_samples":  0,
+                                    "cpu_us":  0.0,
+                                    "gpu_samples":  0,
+                                    "gpu_us":  0.0
+                                },
+                  "reflex_sleep":  {
+                                       "cpu_samples":  0,
+                                       "cpu_us":  0.0,
+                                       "gpu_samples":  0,
+                                       "gpu_us":  0.0
+                                   },
+                  "submit_including_wait":  {
+                                                "cpu_samples":  4686,
+                                                "cpu_us":  766.6699530516432,
+                                                "gpu_samples":  0,
+                                                "gpu_us":  0.0
+                                            },
+                  "submit_fence_wait":  {
+                                            "cpu_samples":  23541,
+                                            "cpu_us":  141.10798181895416,
+                                            "gpu_samples":  0,
+                                            "gpu_us":  0.0
+                                        },
+                  "acquire":  {
+                                  "cpu_samples":  4686,
+                                  "cpu_us":  4.206999573196756,
+                                  "gpu_samples":  0,
+                                  "gpu_us":  0.0
+                              },
+                  "present":  {
+                                  "cpu_samples":  4686,
+                                  "cpu_us":  30.43017498932992,
+                                  "gpu_samples":  0,
+                                  "gpu_us":  0.0
+                              },
+                  "world_including_upscaling":  {
+                                                    "cpu_samples":  4686,
+                                                    "cpu_us":  136.20019206145966,
+                                                    "gpu_samples":  277,
+                                                    "gpu_us":  979.1846353790613
+                                                },
+                  "queue_submit":  {
+                                       "cpu_samples":  4686,
+                                       "cpu_us":  48.09511310285958,
+                                       "gpu_samples":  0,
+                                       "gpu_us":  0.0
+                                   },
+                  "reflex_driver_call":  {
+                                             "cpu_samples":  0,
+                                             "cpu_us":  0.0,
+                                             "gpu_samples":  0,
+                                             "gpu_us":  0.0
+                                         },
+                  "reflex_semaphore_wait":  {
+                                                "cpu_samples":  0,
+                                                "cpu_us":  0.0,
+                                                "gpu_samples":  0,
+                                                "gpu_us":  0.0
+                                            },
+                  "fence_poll":  {
+                                     "cpu_samples":  1302,
+                                     "cpu_us":  4.162980030721966,
+                                     "gpu_samples":  0,
+                                     "gpu_us":  0.0
+                                 },
+                  "command_pool_reset":  {
+                                             "cpu_samples":  4686,
+                                             "cpu_us":  4.076568501920614,
+                                             "gpu_samples":  0,
+                                             "gpu_us":  0.0
+                                         },
+                  "fg_evaluate":  {
+                                      "cpu_samples":  0,
+                                      "cpu_us":  0.0,
+                                      "gpu_samples":  0,
+                                      "gpu_us":  0.0
+                                  },
+                  "fg_gui":  {
+                                 "cpu_samples":  0,
+                                 "cpu_us":  0.0,
+                                 "gpu_samples":  0,
+                                 "gpu_us":  0.0
+                             }
+              }
+}

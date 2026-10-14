@@ -1,0 +1,31 @@
+{
+    "world_hashes_match":  true,
+    "environment":  "DISABLE_VULKAN_OBS_CAPTURE=1",
+    "capture_files":  [
+                          {
+                              "label":  "s0f1",
+                              "sha256":  "04131116D1DD79748CFD5530F81D27C19BD4B4F7AD668CD9058E82A9055480F5",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-obs-hook-20261014-A\\data\\results\\2026-10\\2026-10-14_15-51-43_benchmark-route_3uca92.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0f2",
+                              "sha256":  "A97AB6A75FAC39AC0EF16BE71E2E63C2BDB50CCC33031A5E4443560237B88C73",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-obs-hook-20261014-A\\data\\results\\2026-10\\2026-10-14_15-52-43_benchmark-route_enci66.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r3",
+                              "sha256":  "6E6C477C3775ABFD106FF7796BD4A59A3E7F8C7A279BE33587D45D42E6F84156",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-obs-hook-20261014-A\\data\\results\\2026-10\\2026-10-14_15-53-43_benchmark-route_3vfx40.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r4",
+                              "sha256":  "C78DD7315E9677C2C29B280A22DA63ACA5D84A9C1F06837EC224487642E4A249",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-obs-hook-20261014-A\\data\\results\\2026-10\\2026-10-14_15-54-43_benchmark-route_p6g0z5.bmresult.json.gz"
+                          }
+                      ],
+    "focus_unchanged":  true
+}

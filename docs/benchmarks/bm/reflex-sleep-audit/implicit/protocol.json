@@ -1,0 +1,10 @@
+{
+    "diagnostics":  true,
+    "scene_source":  "C:\\Users\\Ryan\\Documents\\Minecraft FPS Lab\\baseline\\scene",
+    "passes":  1,
+    "warmup_seconds":  5,
+    "scene_sha256":  "720F539F755CCC56A18EBFD9A932A3FB633A142139DCC1550754FC220BDB8316",
+    "route_seconds":  48.0,
+    "conditioning":  "Benchmark Mod per JVM",
+    "render_distance":  16
+}

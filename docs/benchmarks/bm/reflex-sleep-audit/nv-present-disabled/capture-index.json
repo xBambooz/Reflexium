@@ -1,0 +1,31 @@
+{
+    "world_hashes_match":  true,
+    "environment":  "DISABLE_LAYER_NV_PRESENT_1=1",
+    "capture_files":  [
+                          {
+                              "label":  "s0f1",
+                              "sha256":  "92653B5C55B24E295A0C122B2A62A354A3091214DF4B12B0A82E968368DA658B",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-nv-present-20261014-A\\data\\results\\2026-10\\2026-10-14_16-00-02_benchmark-route_nhxsmq.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0f2",
+                              "sha256":  "8D049F0D83A3445D2C58786CC5E4F99D992E934376AC6D4A689C5E0EDC8081AB",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-nv-present-20261014-A\\data\\results\\2026-10\\2026-10-14_16-01-02_benchmark-route_rtvgdd.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r3",
+                              "sha256":  "53F0AA82B764F6E8518BFAAF7ED90BCB6D422E5F7D49DC075FC1E18769D4CEF6",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-nv-present-20261014-A\\data\\results\\2026-10\\2026-10-14_16-02-03_benchmark-route_sty6ec.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r4",
+                              "sha256":  "FC747354FDE4A3B33549F2DAB90C8C5ED4A8AD9EB9C4D551EF4AF241C0813662",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-no-nv-present-20261014-A\\data\\results\\2026-10\\2026-10-14_16-03-03_benchmark-route_vgrsrx.bmresult.json.gz"
+                          }
+                      ],
+    "focus_unchanged":  true
+}

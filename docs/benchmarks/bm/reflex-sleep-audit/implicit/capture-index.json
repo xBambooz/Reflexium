@@ -1,0 +1,31 @@
+{
+    "world_hashes_match":  true,
+    "environment":  "default",
+    "capture_files":  [
+                          {
+                              "label":  "s0f1",
+                              "sha256":  "F9C109DC6C40909A0EFD8AD8165C52ED1F2CA707DA3AB2D1CB9B1C9843E1C60E",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-implicit-latency-20261014-A\\data\\results\\2026-10\\2026-10-14_15-46-07_benchmark-route_en3ry6.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0f2",
+                              "sha256":  "CE741090C0182BFBA9C1B93DCBC9B8AD84373997BD332A0BDCFFCEE21F7850D4",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-implicit-latency-20261014-A\\data\\results\\2026-10\\2026-10-14_15-47-07_benchmark-route_o0upss.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r3",
+                              "sha256":  "42CE8A02EC39594238CB03098FBF681D93B39C7597E89C45B68302617CF9A05B",
+                              "mode":  "tf-performance-reflex_mode-off-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-implicit-latency-20261014-A\\data\\results\\2026-10\\2026-10-14_15-48-07_benchmark-route_wm3g54.bmresult.json.gz"
+                          },
+                          {
+                              "label":  "s0r4",
+                              "sha256":  "6FA369FCF13D4A08D121A2CA68DE54A1B9C3D4D2672C6F9FE11D50A5E2562EEF",
+                              "mode":  "tf-performance-reflex_submission-0",
+                              "capture":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\bm-bench\\reflex-implicit-latency-20261014-A\\data\\results\\2026-10\\2026-10-14_15-49-07_benchmark-route_z9h8op.bmresult.json.gz"
+                          }
+                      ],
+    "focus_unchanged":  true
+}
