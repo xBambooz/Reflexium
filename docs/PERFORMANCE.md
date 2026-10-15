@@ -316,3 +316,7 @@ against 307.8 Off. Raising Windows timer resolution (1 ms or 0.5 ms) did not cha
 
 This matches the hard ceiling of about 1250 FPS players see with Reflex On in Valorant and Fortnite: a fixed
 driver pacing cost of roughly 0.8 ms per frame. Reflexium's behavior with Reflex On is the same as those games.
+
+## Preventing overlapping measurements
+
+The BM runner now refuses to start while another Minecraft client, BM/FPS Lab parent process or native Reflex reference is active, and checks again before each fresh JVM. This includes other worktrees and the gap between another campaign's launches. The check ignores its own shell ancestors and Gradle daemons. Its offline check covers client, parent, native-reference and allowed-process cases; a live invocation correctly refused the concurrent BM campaign without creating a new client. It does not close another agent's process or reserve the GPU against a later launch. This changes measurement reliability, with no claimed rendering speedup.

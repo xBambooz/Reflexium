@@ -53,6 +53,28 @@ function SceneInfo($json) {
     if ($distance -lt 2 -or $distance -gt 32) { throw 'Scene must specify renderDistanceHint in 2..32.' }
     return $distance
 }
+function FindCompetingGpuWork($processes, [uint32[]]$ignored) {
+    @($processes | Where-Object {
+        $_.ProcessId -notin $ignored -and (
+            ($_.Name -match '^javaw?\.exe$' -and $_.CommandLine -match 'net\.fabricmc\.(devlaunchinjector\.Main|loader\..*KnotClient)|net\.minecraft\.client\.main\.Main') -or
+            ($_.Name -match '^(powershell|pwsh|python|pythonw)\.exe$' -and $_.CommandLine -match 'bm-quick-bench\.ps1|upscaling-quality\.ps1|mctest\.ps1.{0,250}\brun\b|lab\.py.{0,250}\brun\b') -or
+            $_.Name -eq 'reflex-reference.exe'
+        )
+    })
+}
+function AssertGpuIdle {
+    $processes = @(Get-CimInstance Win32_Process)
+    # The invoking shell can contain this script's name, so exclude our full ancestor chain.
+    $ignored = [Collections.Generic.List[uint32]]::new()
+    $current = [uint32]$PID
+    while ($current -gt 0 -and !$ignored.Contains($current)) {
+        $ignored.Add($current)
+        $parent = $processes | Where-Object ProcessId -eq $current | Select-Object -First 1
+        if (!$parent) { break }; $current = [uint32]$parent.ParentProcessId
+    }
+    $busy = @(FindCompetingGpuWork $processes $ignored.ToArray())
+    if ($busy.Count) { throw ('GPU measurement refused while other Minecraft/benchmark work is active: ' + (($busy | ForEach-Object { "$($_.Name) PID $($_.ProcessId)" }) -join ', ')) }
+}
 if ($SelfCheck) {
     $s = [BmQuickStats]::Calculate(@(1,2,3,4))
     if ($s[0] -ne 400 -or $s[1] -ne 250 -or $s[2] -ne 4) { throw 'BM statistics check failed' }
@@ -61,11 +83,23 @@ if ($SelfCheck) {
     $fixture.keyframes = @(); $rejected = $false
     try { SceneInfo $fixture | Out-Null } catch { $rejected = $true }
     if (!$rejected) { throw 'Placeholder scene accepted' }
-    Write-Host 'BM statistics and scene checks passed'; exit
+    $processes = @(
+        @{ProcessId=1;Name='java.exe';CommandLine='net.fabricmc.devlaunchinjector.Main'},
+        @{ProcessId=2;Name='javaw.exe';CommandLine='net.fabricmc.loader.impl.launch.knot.KnotClient'},
+        @{ProcessId=3;Name='java.exe';CommandLine='org.gradle.launcher.daemon.bootstrap.GradleDaemon'},
+        @{ProcessId=4;Name='powershell.exe';CommandLine='-File tools/bm-quick-bench.ps1 -Label other'},
+        @{ProcessId=5;Name='powershell.exe';CommandLine='-File tools/bm-quick-bench.ps1 -Label ours'},
+        @{ProcessId=6;Name='reflex-reference.exe';CommandLine='reflex-reference.exe'},
+        @{ProcessId=7;Name='python.exe';CommandLine='lab.py run --experiment other'}
+    )
+    $busy = @(FindCompetingGpuWork $processes @(5))
+    if (($busy.ProcessId -join ',') -ne '1,2,4,6,7') { throw 'Concurrent GPU work detection failed' }
+    Write-Host 'BM statistics, scene and concurrent GPU work checks passed'; exit
 }
 if ($Explore -and !$NewJar) { throw 'Specify -NewJar for -Explore.' }
 if (!$Explore -and (!$OldJar -or !$NewJar)) { throw 'Specify -OldJar and -NewJar.' }
 if ($Label -notmatch '^[a-zA-Z0-9_-]+$') { throw 'Label must contain letters, digits, underscores or hyphens' }
+AssertGpuIdle
 $root = Split-Path -Parent $PSScriptRoot
 $old = if ($OldJar) { (Resolve-Path -LiteralPath $OldJar).Path } else { $null }
 $new = (Resolve-Path -LiteralPath $NewJar).Path
@@ -175,6 +209,7 @@ try {
         else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) })
     $touched = [Collections.Generic.HashSet[string]]::new()
     for ($slot=0;$slot -lt $launches.Count;$slot++) {
+        AssertGpuIdle
         $arm=$launches[$slot].arm
         $jar=$launches[$slot].jar
         Write-Host "Launch $($slot+1)/$($launches.Count): $arm, Set $Set"
