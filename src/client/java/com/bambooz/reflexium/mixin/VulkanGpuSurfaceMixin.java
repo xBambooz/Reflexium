@@ -149,7 +149,7 @@ public abstract class VulkanGpuSurfaceMixin {
 		fg.onPresentResult(info, result);
 		long id = reflex.currentFrameId();
 		if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(id)) com.bambooz.reflexium.vulkan.FrameTrace.event(id,
-				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedback());
+				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedbackRaw());
 		return result;
 	}
 

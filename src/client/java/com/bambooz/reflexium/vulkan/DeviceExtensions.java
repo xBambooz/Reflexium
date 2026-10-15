@@ -103,10 +103,14 @@ public final class DeviceExtensions {
 		try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
 			var count = stack.callocInt(1);
 			if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, null) != 0) return 0;
-			var extensions = org.lwjgl.vulkan.VkExtensionProperties.calloc(count.get(0), stack);
-			if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, extensions) != 0) return 0;
-			for (var extension : extensions) if (extension.extensionNameString().equals(NVLowLatency2.VK_NV_LOW_LATENCY_2_EXTENSION_NAME)) return extension.specVersion();
-			return 0;
+			var extensions = org.lwjgl.vulkan.VkExtensionProperties.calloc(count.get(0));
+			try {
+				if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, extensions) != 0) return 0;
+				for (var extension : extensions) if (extension.extensionNameString().equals(NVLowLatency2.VK_NV_LOW_LATENCY_2_EXTENSION_NAME)) return extension.specVersion();
+				return 0;
+			} finally {
+				extensions.free();
+			}
 		}
 	}
 }

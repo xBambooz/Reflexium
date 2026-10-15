@@ -19,10 +19,16 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Owns interpolation images and full-resolution GUI composition. No generated image advances simulation. */
 public final class FrameGenerationRenderer {
 	private static final FrameGenerationRenderer INSTANCE = new FrameGenerationRenderer();
+	private static final Logger LOG = LoggerFactory.getLogger("Reflexium");
+	/** Seeded into presentConfigFeedback. Surviving unchanged means the driver did not report, not success or rejection. */
+	public static final int FEEDBACK_UNREPORTED = Integer.MAX_VALUE;
+	private enum MeteringConfig { NONE, RESET, BATCH }
 	private final MemorySegment constants = Arena.global().allocate(FrameGenerationConstants.FLOATS * 4L, 4);
 	private VulkanDevice device;
 	private VulkanSession session;
@@ -39,8 +45,12 @@ public final class FrameGenerationRenderer {
 	private String problem = "";
 	private int presentBatch, presentIndex;
 	private boolean generatedPresent;
-	private int lastMeteringFeedback;
+	private int lastMeteringFeedback = FEEDBACK_UNREPORTED, lastMeteringResult;
 	private boolean batchRejected, resetMetering;
+	private MeteringConfig chained = MeteringConfig.NONE;
+	private long batchConfigs, resetConfigs, feedbackUnreported, feedbackStatus, feedbackAccepted, feedbackRejected, rejectionStreak;
+	private long batchesStarted, batchesCompleted, configLogs;
+	private String meteringProblem = "";
 	private long fsrFrameId;
 
 	public static FrameGenerationRenderer get() { return INSTANCE; }
@@ -184,57 +194,105 @@ public final class FrameGenerationRenderer {
 		return generated[index];
 	}
 	public int meteringFeedback() { return lastMeteringFeedback; }
+	public String meteringFeedbackRaw() { return "0x" + Integer.toHexString(lastMeteringFeedback); }
+	public int meteringResult() { return lastMeteringResult; }
+	public long meteringBatchConfigs() { return batchConfigs; }
+	public long meteringResetConfigs() { return resetConfigs; }
+	public long meteringUnreported() { return feedbackUnreported; }
+	public long meteringAccepted() { return feedbackAccepted; }
+	/** Positive non-sentinel feedback, such as the 0x1 NVIDIA writes; neither confirmed success nor rejection. */
+	public long meteringStatus() { return feedbackStatus; }
+	public long meteringRejected() { return feedbackRejected; }
+	public long meteringRejectionStreak() { return rejectionStreak; }
+	public boolean meteringResetPending() { return resetMetering; }
+	public String meteringProblem() { return meteringProblem; }
+	public long batchesStarted() { return batchesStarted; }
+	public long batchesCompleted() { return batchesCompleted; }
+	public boolean failed() { return failed; }
+	public String problem() { return problem; }
 	public String statusLine() {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
 		return "Frame generation: " + (reason.isEmpty() ? mode.label().getString()
-				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "") : reason);
+				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "")
+				+ (meteringProblem.isEmpty() ? "" : " (" + meteringProblem + ")") : reason);
 	}
 
 	public void beginPresentBatch(int frames) {
 		if (frames < 2 || frames > 8) throw new IllegalArgumentException("FG batch must contain 2..8 presents");
-		presentBatch = frames; presentIndex = 0; batchRejected = false;
+		presentBatch = frames; presentIndex = 0; batchRejected = false; batchesStarted++;
 		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
 	}
 	public boolean batchRejected() { return batchRejected; }
 	public boolean inPresentBatch() { return presentBatch > 1; }
 	public void beginPresent(boolean generated) { generatedPresent = generated; }
 	public boolean isGeneratedPresent() { return generatedPresent; }
-	public void endPresentBatch() { presentBatch = 0; generatedPresent = false; ready = 0; }
+	public void endPresentBatch() {
+		if (presentBatch > 1 && !batchRejected && presentIndex == presentBatch) batchesCompleted++;
+		presentBatch = 0; generatedPresent = false; ready = 0;
+	}
+	/**
+	 * A pending reset goes out on the next present as a one-frame configuration. When that present opens a
+	 * batch, the batch ends at its real image, so a reset is never consumed as a generation batch's configuration.
+	 */
 	public VkPresentInfoKHR chainMetering(VkPresentInfoKHR info) {
-		if (!resetMetering && (presentBatch <= 1 || presentIndex++ != 0)) return info;
+		chained = MeteringConfig.NONE;
+		boolean first = presentBatch > 1 && presentIndex++ == 0;
+		if (!resetMetering && !first) return info;
+		chained = resetMetering ? MeteringConfig.RESET : MeteringConfig.BATCH;
+		if (resetMetering) resetConfigs++; else batchConfigs++;
 		VkSetPresentConfigNV metering = VkSetPresentConfigNV.calloc(MemoryStack.stackGet()).sType$Default()
-				.numFramesPerBatch(resetMetering ? 1 : presentBatch).presentConfigFeedback(-1).pNext(info.pNext());
-		resetMetering = false;
+				.numFramesPerBatch(resetMetering ? 1 : presentBatch).presentConfigFeedback(FEEDBACK_UNREPORTED).pNext(info.pNext());
 		return info.pNext(metering.address());
 	}
 	public void onPresentResult(VkPresentInfoKHR info, int result) {
-		if (result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
+		boolean delivered = result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR;
+		if (delivered) {
 			if (generatedPresent) presented++;
 			else realPresented++;
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}
-		if (presentBatch > 1) {
-			long next = info.pNext();
-			while (next != 0) {
-				VkBaseOutStructure header = VkBaseOutStructure.create(next);
-				if (header.sType() == NVPresentMetering.VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV) {
-					lastMeteringFeedback = VkSetPresentConfigNV.create(next).presentConfigFeedback();
-					if (lastMeteringFeedback != VK10.VK_SUCCESS) {
-						failed = true; problem = "present metering rejected: " + lastMeteringFeedback;
-						batchRejected = resetMetering = true;
-						invalidate();
-					}
-					break;
-				}
-				next = header.pNext() == null ? 0 : header.pNext().address();
-			}
-		}
+		MeteringConfig kind = chained;
+		chained = MeteringConfig.NONE;
+		if (kind != MeteringConfig.NONE) onMeteringFeedback(kind, readFeedback(info), result, delivered);
 		if (result != VK10.VK_SUCCESS) {
 			batchRejected = resetMetering = true;
 			invalidate();
 		}
+	}
+	private static int readFeedback(VkPresentInfoKHR info) {
+		for (long next = info.pNext(); next != 0; ) {
+			VkBaseOutStructure header = VkBaseOutStructure.create(next);
+			if (header.sType() == NVPresentMetering.VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV) return VkSetPresentConfigNV.create(next).presentConfigFeedback();
+			next = header.pNext() == null ? 0 : header.pNext().address();
+		}
+		return FEEDBACK_UNREPORTED;
+	}
+	/** Metering responses are transient: they abandon the batch and reset pacing, never set the NGX failure latch. */
+	private void onMeteringFeedback(MeteringConfig kind, int raw, int result, boolean delivered) {
+		lastMeteringFeedback = raw; lastMeteringResult = result;
+		// NVIDIA 617.42 writes 0x1 synchronously for every config, including one-frame resets, while ac1e339 ignored
+		// feedback and sustained generation. Positive values are counted as status; only negative values reject.
+		boolean rejected = delivered && raw < 0;
+		if (configLogs < 4 || rejected && (feedbackRejected < 5 || feedbackRejected % 1000 == 0)) {
+			configLogs++;
+			LOG.info("Present metering {} config: frames={}, seeded=0x{}, feedback=0x{}, result={}, rejections={}", kind,
+					kind == MeteringConfig.RESET ? 1 : presentBatch, Integer.toHexString(FEEDBACK_UNREPORTED), Integer.toHexString(raw), result, feedbackRejected);
+		}
+		boolean reset = kind == MeteringConfig.RESET;
+		if (reset && presentBatch > 1 && presentIndex == 1) batchRejected = true;
+		if (!delivered) { resetMetering = true; return; }
+		if (rejected) {
+			feedbackRejected++; rejectionStreak++;
+			meteringProblem = "present metering rejected: 0x" + Integer.toHexString(raw) + ", " + rejectionStreak + " consecutive";
+			batchRejected = resetMetering = true;
+			invalidate();
+			return;
+		}
+		if (raw == 0) feedbackAccepted++; else if (raw == FEEDBACK_UNREPORTED) feedbackUnreported++; else feedbackStatus++;
+		if (reset) resetMetering = false;
+		else { rejectionStreak = 0; meteringProblem = ""; }
 	}
 	public void onProxyPresentResult(int result) {
 		// SDK present-count telemetry is exposed separately. Its callbacks are asynchronous and do

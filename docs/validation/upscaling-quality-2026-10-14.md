@@ -32,7 +32,7 @@ The earlier worker capture `build/validation/scout/capture/wall_test.*` predates
 
 ## Comparisons and their limits
 
-Fresh shaderless native, DLAA, Quality and Performance stills and turn/strafe/hand sequences are under `build/validation/recovery/shaders-off`. Shader-on captures are being recorded under the matching `shaders-on` tree. The earlier worker baseline and after1 trees are preserved, not relabeled as new measurements.
+Fresh shaderless native, DLAA, Quality and Performance stills and turn/strafe/hand sequences are under `build/validation/recovery/shaders-off`. Shader-on native, DLAA, Quality and Performance captures are under the matching `build/validation/recovery/shaders-on` tree (177 files, `index.json`); the TAA-bypass comparison is in `pack-taa`. Both trees are ignored build output, not committed. The earlier worker baseline and after1 trees are preserved, not relabeled as new measurements.
 
 The initial cutout comparison was invalid: the arena placed nonpersistent leaves without supporting logs, so they decayed between modes. The screenshots show different geometry and dropped saplings. The capture script now places persistent leaves. Those comparisons must be recaptured; do not interpret their low image correlation as reconstruction failure.
 
