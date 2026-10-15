@@ -1,0 +1,122 @@
+[
+  {
+    "mode": "native",
+    "complete_trace_frames": 32,
+    "per_frame_event_counts": [
+      {
+        "pattern": [
+          "marker=0",
+          "marker=6",
+          "marker=1",
+          "marker=2",
+          "submit queue=<graphics> tag=implicit",
+          "submit queue=<graphics> tag=implicit",
+          "marker=3",
+          "marker=4",
+          "present role=real result=0 feedback=0x7fffffff",
+          "marker=5"
+        ],
+        "frames": 32
+      }
+    ],
+    "cpu_us_per_real_frame": {
+      "reflex_sleep": 67.834,
+      "submit_including_wait": 194.044,
+      "reflex_driver_call": 61.113,
+      "reflex_semaphore_wait": 5.952,
+      "acquire_reuse_wait": 0.169
+    },
+    "gpu_us": {
+      "evaluate": 0.0,
+      "fg_evaluate": 0.0,
+      "world_including_upscaling": 0.0
+    },
+    "reflex_valid": true,
+    "fg_ratio": null,
+    "fg_window_ratios": null
+  },
+  {
+    "mode": "tf-performance",
+    "complete_trace_frames": 32,
+    "per_frame_event_counts": [
+      {
+        "pattern": [
+          "marker=0",
+          "marker=6",
+          "marker=1",
+          "marker=2",
+          "submit queue=<graphics> tag=implicit",
+          "submit queue=<graphics> tag=implicit",
+          "marker=3",
+          "marker=4",
+          "present role=real result=0 feedback=0x7fffffff",
+          "marker=5"
+        ],
+        "frames": 32
+      }
+    ],
+    "cpu_us_per_real_frame": {
+      "reflex_sleep": 1010.726,
+      "submit_including_wait": 213.902,
+      "reflex_driver_call": 1004.062,
+      "reflex_semaphore_wait": 6.34,
+      "acquire_reuse_wait": 0.09
+    },
+    "gpu_us": {
+      "evaluate": 748.693,
+      "fg_evaluate": 0.0,
+      "world_including_upscaling": 1009.209
+    },
+    "reflex_valid": true,
+    "fg_ratio": null,
+    "fg_window_ratios": null
+  },
+  {
+    "mode": "fg2",
+    "complete_trace_frames": 32,
+    "per_frame_event_counts": [
+      {
+        "pattern": [
+          "marker=0",
+          "marker=6",
+          "marker=1",
+          "marker=2",
+          "submit queue=<graphics> tag=implicit",
+          "submit queue=<graphics> tag=implicit",
+          "marker=3",
+          "marker=4",
+          "marker=10",
+          "marker=11",
+          "present role=generated result=0 feedback=0x0",
+          "marker=8",
+          "submit queue=<graphics> tag=implicit",
+          "submit queue=<graphics> tag=implicit",
+          "marker=9",
+          "marker=10",
+          "marker=11",
+          "present role=real result=0 feedback=0x0",
+          "marker=5"
+        ],
+        "frames": 32
+      }
+    ],
+    "cpu_us_per_real_frame": {
+      "reflex_sleep": 176.566,
+      "submit_including_wait": 2553.419,
+      "reflex_driver_call": 4.152,
+      "reflex_semaphore_wait": 172.234,
+      "acquire_reuse_wait": 0.165
+    },
+    "gpu_us": {
+      "evaluate": 638.568,
+      "fg_evaluate": 1400.148,
+      "world_including_upscaling": 937.753
+    },
+    "reflex_valid": true,
+    "fg_ratio": 0.9359707041003162,
+    "fg_window_ratios": [
+      1,
+      1
+    ]
+  }
+]

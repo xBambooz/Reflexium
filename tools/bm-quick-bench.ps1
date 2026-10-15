@@ -17,6 +17,7 @@ param(
     [switch]$Quick,
     [switch]$Explore,
     [switch]$Diagnostics,
+    [switch]$Trace,
     # Benchmark Mod scene the FPS Lab freezes as its standard (route plus world). Copied read-only into the run's data directory.
     [string]$SceneSource = 'C:\Users\Ryan\Documents\Minecraft FPS Lab\baseline\scene',
     [string]$Modes,
@@ -29,6 +30,7 @@ param(
     [switch]$SelfCheck
 )
 $ErrorActionPreference = 'Stop'
+if ($Trace -and !$Diagnostics) { throw '-Trace requires -Diagnostics; traced FPS is not acceptance evidence.' }
 if ($Quick) {
     if (!$PSBoundParameters.ContainsKey('Passes')) { $Passes = 1 }
     if (!$PSBoundParameters.ContainsKey('WarmupSeconds')) { $WarmupSeconds = 5 }
@@ -93,7 +95,26 @@ function FgDelta($before, $after) {
 # generated presents per real present. The whole-capture ratio includes menu, load and cut frames in its real
 # denominator, so it only rejects (CoarseFraction of the expected ratio). Functional acceptance needs at least two
 # instrumented steady windows (Diagnostics), each within WindowFraction of the expected ratio.
-$FgCoarseFraction = 0.6; $FgWindowFraction = 0.9
+$FgCoarseFraction = 0.9; $FgWindowFraction = 0.9
+function ReflexAcceptance($mode, $before, $after, [string]$captureLog) {
+    $requested = if ($mode.overrides.ContainsKey('reflex_mode')) { $mode.overrides.reflex_mode } else { 'on' }
+    $effective = if ($requested -eq 'off' -and $mode.fg -ne 'off') { 'on' } else { $requested }
+    $display = if ($effective -eq 'on_boost') { 'On + Boost' } else { $effective }
+    $reason = ''
+    foreach ($status in @($before, $after)) {
+        if ($status.reflex_mode -ine $requested) { $reason = 'requested Reflex mode mismatch'; break }
+        if ($status.reflex_status -notmatch ('^Reflex: ' + [regex]::Escape($display) + ' \(requested ') -or
+            $status.reflex_status -match 'pacing failed|signal pending|markers only|unavailable|paused' -or
+            ($effective -ne 'off' -and $status.reflex_sleeping -ne $true)) {
+            $reason = "Reflex not applied: $($status.reflex_status)"; break
+        }
+    }
+    $beforeTimeouts = if ($before.reflex_status -match 'sleep timeouts (\d+)') { [long]$Matches[1] } else { 0 }
+    $afterTimeouts = if ($after.reflex_status -match 'sleep timeouts (\d+)') { [long]$Matches[1] } else { 0 }
+    if ($afterTimeouts -gt $beforeTimeouts) { $reason = 'Reflex timeout counter advanced during capture' }
+    if ($captureLog -match 'Reflex sleep (disabled|suspended)|pacing failed') { $reason = 'Reflex pacing failed or suspended during capture' }
+    [ordered]@{reflex_valid=($reason -eq '');reflex_invalid_reason=$reason;reflex_before=$before.reflex_status;reflex_after=$after.reflex_status;reflex_requested=$requested}
+}
 function FgAcceptance($mode, $before, $after, $windows, [int]$maxMultiplier, [long]$bmFrames = 0) {
     $effective = if ($mode.fg -eq 'dlss_multi') { [Math]::Min([int]$mode.mult, [Math]::Max(2, $maxMultiplier)) } else { 2 }
     $expected = $effective - 1
@@ -129,6 +150,22 @@ function FgAcceptance($mode, $before, $after, $windows, [int]$maxMultiplier, [lo
     $r
 }
 if ($SelfCheck) {
+    $on = [pscustomobject]@{reflex_mode='ON';reflex_status='Reflex: On (requested On)';reflex_sleeping=$true}
+    $off = [pscustomobject]@{reflex_mode='OFF';reflex_status='Reflex: Off (requested Off)';reflex_sleeping=$false}
+    $native = @{fg='off';overrides=@{}}
+    if (!(ReflexAcceptance $native $on $on '').reflex_valid) { throw 'Healthy Reflex rejected' }
+    if ((ReflexAcceptance $native $on $off '').reflex_valid) { throw 'Disabled Reflex accepted' }
+    if ((ReflexAcceptance $native $on $on 'Reflex sleep suspended until the driver signals it').reflex_valid) { throw 'Recovered timeout accepted' }
+    if (!(ReflexAcceptance @{fg='off';overrides=@{reflex_mode='off'}} $off $off '').reflex_valid) { throw 'Intentional Off rejected' }
+    $boost = [pscustomobject]@{reflex_mode='ON_BOOST';reflex_status='Reflex: On + Boost (requested On + Boost)';reflex_sleeping=$true}
+    if (!(ReflexAcceptance @{fg='off';overrides=@{reflex_mode='on_boost'}} $boost $boost '').reflex_valid) { throw 'Boost rejected' }
+    $forced = [pscustomobject]@{reflex_mode='OFF';reflex_status='Reflex: On (requested Off)';reflex_sleeping=$true}
+    if (!(ReflexAcceptance @{fg='dlss';overrides=@{reflex_mode='off'}} $forced $forced '').reflex_valid) { throw 'FG forced Reflex rejected' }
+    if ((ReflexAcceptance $native $on ([pscustomobject]@{}) '').reflex_valid) { throw 'Missing Reflex telemetry accepted' }
+    $recovered = [pscustomobject]@{reflex_mode='ON';reflex_status='Reflex: On (requested On), sleep timeouts 11 recovered 11';reflex_sleeping=$true}
+    if ((ReflexAcceptance $native $on $recovered '').reflex_valid) { throw 'Unlogged recovered timeout accepted' }
+    if (!(ReflexAcceptance $native $recovered $recovered '').reflex_valid) { throw 'Historical timeout rejected' }
+    if ((ReflexAcceptance $native $on ([pscustomobject]@{reflex_mode='ON';reflex_status='Reflex: On (requested On) (pacing failed: 2)';reflex_sleeping=$false}) '').reflex_valid) { throw 'Latched pacing accepted' }
     $fgMode = @{fg='dlss';mult=2}; $mfgMode = @{fg='dlss_multi';mult=6}
     function Snap($eval,$gen,$real,$rej=0,$cfg=0) { [ordered]@{fg_evaluated_frames=$eval;fg_generated_presents=$gen;fg_real_presents=$real;fg_batches_started=$null;fg_batches_completed=$null;fg_metering_batch_configs=$cfg;fg_metering_reset_configs=0;fg_metering_unreported=0;fg_metering_accepted=0;fg_metering_rejected=$rej;fg_failed=$false} }
     $b = Snap 100 100 1000
@@ -137,6 +174,7 @@ if ($SelfCheck) {
     if (!(FgAcceptance $fgMode $b (Snap 19100 18100 21000) @() 6).fg_valid) { throw 'Correct 2x ratio rejected' }
     if (!(FgAcceptance $mfgMode $b (Snap 19100 90100 21000) @() 6).fg_valid) { throw 'Correct 6x ratio rejected' }
     if ((FgAcceptance $mfgMode $b (Snap 19100 18100 21000) @() 6).fg_valid) { throw '2x ratio accepted for 6x' }
+    if ((FgAcceptance $mfgMode $b (Snap 19100 80100 21000) @() 6).fg_valid) { throw '80 percent FG coverage accepted' }
     if ((FgAcceptance $fgMode $b (Snap 10100 10100 21000) @() 6).fg_valid) { throw 'Generation stopped mid-capture accepted' }
     $windows = @((Snap 5000 4000 6000),(Snap 8000 7000 9000),(Snap 8000 7000 12000))
     $stopped = FgAcceptance $fgMode $b (Snap 19100 18100 21000) $windows 6
@@ -198,6 +236,10 @@ function WriteJson($path,$value) { [IO.File]::WriteAllText($path,($value | Conve
 function WorldHashes { @(Get-ChildItem (Join-Path $scene 'world') -File -Recurse | Where-Object { $_.Name -ne 'session.lock' -and $_.FullName -notmatch '\\players\\(stats|advancements)\\' } | Sort-Object FullName | ForEach-Object { @{path=$_.FullName.Substring($scene.Length);sha256=(Get-FileHash -LiteralPath $_.FullName).Hash} }) }
 
 $resuming = Test-Path -LiteralPath $out
+if ($resuming) {
+    $priorProtocol = Get-Content (Join-Path $out 'protocol.json') -Raw | ConvertFrom-Json
+    if ($priorProtocol.validation_version -ne 2) { throw 'Capture validation changed. Use a fresh label; historical captures are preserved.' }
+}
 if (!$resuming) {
     New-Item -ItemType Directory -Force $client,$scene | Out-Null
     foreach ($name in @('mods','config','vitrail','shaderpacks')) {
@@ -222,7 +264,7 @@ if (!$resuming) {
     [IO.File]::WriteAllText($options,$optionText)
     $hashes = WorldHashes
     WriteJson (Join-Path $out 'world-before.json') $hashes
-    WriteJson (Join-Path $out 'protocol.json') @{scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;quick=[bool]$Quick;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning=$(if ($Quick) { 'disabled (-Quick)' } else { 'Benchmark Mod per JVM' })}
+    WriteJson (Join-Path $out 'protocol.json') @{validation_version=2;fg_coarse_fraction=$FgCoarseFraction;trace=[bool]$Trace;scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;quick=[bool]$Quick;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning=$(if ($Quick) { 'disabled (-Quick)' } else { 'Benchmark Mod per JVM' })}
 } else {
     $beforeJson = Join-Path $out 'world-before.json'
     if (Test-Path $beforeJson) {
@@ -422,6 +464,8 @@ try {
             if ($mode.mult -gt 2) { SetOption 'fg_multiplier' $mode.mult }
             SetOption 'frame_generation' $mode.fg
             $beforeMode=ReadReflexium
+            $captureLogPath = Join-Path $client 'logs\latest.log'
+            $captureLogStart = @(Get-Content -LiteralPath $captureLogPath).Count
             if ($beforeMode.upscaler -ne $mode.upscaler -or $beforeMode.quality -ne $mode.quality -or $beforeMode.dlss_model -ne $mode.model -or $beforeMode.frame_generation -ne $mode.fg) { throw "Mode switch failed: $($mode.id)" }
             if ($mode.mult -gt 2 -and $beforeMode.fg_multiplier -ne $mode.mult) { throw "FG multiplier switch failed: $($mode.id)" }
             $results=Join-Path $data 'results'
@@ -456,6 +500,7 @@ try {
                     WriteJson (Join-Path $out "$captureLabel-profile.json") (Call 'reflexium' @{profile='off'})
                     WriteJson (Join-Path $out "$captureLabel-latency.json") (Call 'reflexium' @{reflex_timings='1'})
                     WriteJson (Join-Path $out "$captureLabel-status.json") (Call 'reflexium')
+                    if ($Trace) { SetOption 'reflex_trace' '32' }
                     $diagnosticTaken = $true
                 }
                 $fresh=@(Get-ChildItem $results -Filter '*.bmresult.json.gz' -Recurse -ErrorAction SilentlyContinue | Where-Object Name -NotIn $existing)
@@ -463,6 +508,8 @@ try {
             if ($fresh.Count -ne 1) { throw 'Unexpected concurrent BM writer' }
             $result=ReadCapture $fresh[0].FullName
             $afterMode=ReadReflexium
+            $captureLog = (Get-Content -LiteralPath $captureLogPath | Select-Object -Skip $captureLogStart) -join "`n"
+            $reflex = ReflexAcceptance $mode $beforeMode $afterMode $captureLog
             if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne $sceneId -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
             if ($mode.upscaler -ne 'off' -and ($afterMode.evaluated_frames -eq $beforeMode.evaluated_frames -or $afterMode.last_error)) { throw "Upscaler failed during $captureLabel (evaluated $($beforeMode.evaluated_frames) to $($afterMode.evaluated_frames)): $($afterMode.last_error)" }
             # Use BM's raw real-frame intervals; displayed FG FPS is not a throughput measurement.
@@ -472,7 +519,10 @@ try {
             $fg = if ($mode.fg -ne 'off') { FgAcceptance $mode (FgSnapshot $beforeMode) (FgSnapshot $afterMode) $fgWindows ([int]$afterMode.fg_max_multiplier) $frames.Count } else { $null }
             if ($fg -and !$fg.fg_valid) { Write-Warning "${captureLabel}: FG capture invalid: $($fg.fg_invalid_reason)" }
             $row=[ordered]@{slot=$slot;arm=$arm;direction=$mode.direction;label=$captureLabel;set=$Set;mode=$mode.id;conditioning=($mode.id -eq 'conditioning');diagnostics=[bool]$Diagnostics;jar_sha256=(Get-FileHash $jar).Hash;bm_sha256=(Get-FileHash $bm).Hash;avg_fps=$stats[0];low_1pct_fps=$stats[1];p99_ms=$stats[2];focusLost=$result.flags.focusLost;background_capture=$true;capture=$fresh[0].FullName;frames=$frames.Count;route_hash=$result.scene.routeHash;fg_presents=$afterMode.fg_generated_presents;visible_sections=@($result.runs | ForEach-Object {$_.chunks.visible})}
-            $row.valid = !$fg -or $fg.fg_valid
+            $row.valid = $reflex.reflex_valid -and (!$fg -or $fg.fg_valid)
+            foreach ($key in $reflex.Keys) { $row[$key] = $reflex[$key] }
+            $row.invalid_reason = (@($reflex.reflex_invalid_reason; if ($fg) { $fg.fg_invalid_reason }) | Where-Object { $_ }) -join '; '
+            if (!$row.valid) { Write-Warning "${captureLabel}: $($row.invalid_reason)" }
             if ($fg) { foreach ($key in $fg.Keys) { $row[$key] = $fg[$key] } }
             $rows.Add($row)
             [IO.File]::AppendAllText((Join-Path $out 'runs.jsonl'),(($row | ConvertTo-Json -Depth 8 -Compress)+[Environment]::NewLine))
@@ -492,7 +542,7 @@ try {
             $r = @($rows | Where-Object { $_.mode -eq $id -and !$_.conditioning -and $_.valid -ne $false })
             $f = ($r.avg_fps | Measure-Object -Average).Average; $l = ($r.low_1pct_fps | Measure-Object -Average).Average
             $invalid=@($rows | Where-Object { $_.mode -eq $id -and $_.valid -eq $false })
-            [ordered]@{mode=$id;captures=$r.Count;invalid=@($invalid | ForEach-Object { "$($_.label): $($_.fg_invalid_reason)" });fps=$f;fps_vs_first_pct=$(if ($r.Count -and $baseFps) { 100*($f/$baseFps-1) } else { $null });low1=$l;low1_vs_first_pct=$(if ($r.Count -and $baseLow) { 100*($l/$baseLow-1) } else { $null });forward_fps=(($r | Where-Object direction -eq 'f').avg_fps | Measure-Object -Average).Average;reverse_fps=(($r | Where-Object direction -eq 'r').avg_fps | Measure-Object -Average).Average}
+            [ordered]@{mode=$id;captures=$r.Count;invalid=@($invalid | ForEach-Object { "$($_.label): $($_.invalid_reason)" });fps=$f;fps_vs_first_pct=$(if ($r.Count -and $baseFps) { 100*($f/$baseFps-1) } else { $null });low1=$l;low1_vs_first_pct=$(if ($r.Count -and $baseLow) { 100*($l/$baseLow-1) } else { $null });forward_fps=(($r | Where-Object direction -eq 'f').avg_fps | Measure-Object -Average).Average;reverse_fps=(($r | Where-Object direction -eq 'r').avg_fps | Measure-Object -Average).Average}
         }
         WriteJson (Join-Path $out 'summary.json') @($summary)
         $summary | ForEach-Object { [pscustomobject]$_ } | Format-Table mode,captures,fps,fps_vs_first_pct,low1,low1_vs_first_pct,forward_fps,reverse_fps
@@ -503,7 +553,7 @@ try {
             $al=($a.low_1pct_fps | Measure-Object -Average).Average; $bl=($b.low_1pct_fps | Measure-Object -Average).Average
             $invalid=@($rows | Where-Object { $_.mode -eq $id -and $_.valid -eq $false })
             $comparable = $a.Count -gt 0 -and $b.Count -gt 0
-            [ordered]@{mode=$id;old_valid=$a.Count;new_valid=$b.Count;invalid=@($invalid | ForEach-Object { "$($_.arm) $($_.label): $($_.fg_invalid_reason)" });old_fps=$af;new_fps=$bf;fps_change_pct=$(if ($comparable) { 100*($bf/$af-1) } else { $null });old_low1=$al;new_low1=$bl;low1_change_pct=$(if ($comparable) { 100*($bl/$al-1) } else { $null });fps_noise_band_pct=$(if ($Quick) { 2.4 } else { 2.4/[Math]::Sqrt(2) });low1_noise_band_pct=$(if ($Quick) { 16.8 } else { 16.8/[Math]::Sqrt(2) })}
+            [ordered]@{mode=$id;old_valid=$a.Count;new_valid=$b.Count;invalid=@($invalid | ForEach-Object { "$($_.arm) $($_.label): $($_.invalid_reason)" });old_fps=$af;new_fps=$bf;fps_change_pct=$(if ($comparable) { 100*($bf/$af-1) } else { $null });old_low1=$al;new_low1=$bl;low1_change_pct=$(if ($comparable) { 100*($bl/$al-1) } else { $null });fps_noise_band_pct=$(if ($Quick) { 2.4 } else { 2.4/[Math]::Sqrt(2) });low1_noise_band_pct=$(if ($Quick) { 16.8 } else { 16.8/[Math]::Sqrt(2) })}
         }
         WriteJson (Join-Path $out 'summary.json') @($summary)
         $summary | ForEach-Object { [pscustomobject]$_ } | Format-Table mode,old_fps,new_fps,fps_change_pct,old_low1,new_low1,low1_change_pct
