@@ -102,7 +102,12 @@ tasks.register("objectMotionCheck", JavaExec) {
 
 // The assertion main above is the test runner; no JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
-tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck" }
+tasks.register("upscalingContractCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.dlss.UpscalingContractCheck"
+}
+tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck", "upscalingContractCheck" }
 
 tasks.register("frameProfilerCheck", JavaExec) {
 	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")

@@ -18,8 +18,23 @@ public final class DebugSettings {
 	public static boolean reflexSubmission = true;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
+	private static volatile float mipBiasOffset;
+	private static volatile boolean handMotion = true;
+	private static volatile boolean packTaaRetained = true;
+	private static volatile boolean packResolveBypass = true;
+	public static boolean packResolveBypass() { return packResolveBypass; }
+	public static void setPackResolveBypass(boolean bypass) { packResolveBypass = bypass; }
 	public static boolean objectMotion() { return objectMotion; }
 	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
+	/** Dev-only offset added to the vendor texture LOD baseline while upscaling (+1 reproduces the pre-2026-10-14 bias). */
+	public static float mipBiasOffset() { return mipBiasOffset; }
+	public static void setMipBiasOffset(float offset) { mipBiasOffset = offset; }
+	/** False restores zero motion for the first-person hand, for matched A/B captures. */
+	public static boolean handMotion() { return handMotion; }
+	public static void setHandMotion(boolean enabled) { handMotion = enabled; }
+	/** Dev A/B for known shader packs: keep (default) or drop the pack's own full-scene TAA while upscaling. */
+	public static boolean packTaaRetained() { return packTaaRetained; }
+	public static void setPackTaaRetained(boolean retained) { packTaaRetained = retained; }
 	public static boolean drawStaticObjects() { return drawStaticObjects; }
 	public static void setDrawStaticObjects(boolean enabled) { drawStaticObjects = enabled; }
 

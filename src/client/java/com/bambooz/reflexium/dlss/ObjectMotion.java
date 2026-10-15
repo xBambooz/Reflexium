@@ -17,6 +17,10 @@ import net.minecraft.client.renderer.feature.TextFeatureRenderer;
 import net.minecraft.client.renderer.feature.submit.SubmitNode;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+
 import java.nio.FloatBuffer;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -82,6 +86,15 @@ public final class ObjectMotion {
 	private int lastDrawVertices;
 	private int capturedVertices;
 
+	// First-person hand and held item. Its vertices are recorded in model space and drawn with the hand's own
+	// view and projection, so the camera delta of world tracks never applies to them.
+	private final Track handTrack = new Track();
+	private final Matrix4f handView = new Matrix4f();
+	private boolean handSeen;
+	private int lastHandVertices;
+	private final Vector3f scratchNow = new Vector3f();
+	private final Vector3f scratchBefore = new Vector3f();
+
 	ObjectMotion() {
 	}
 
@@ -96,7 +109,7 @@ public final class ObjectMotion {
 	void beginFrame(boolean enabled, boolean drawStatic) {
 		if (!enabled) {
 			capturedVertices = 0;
-			if (active || !entityTracks.isEmpty() || !blockTracks.isEmpty()) {
+			if (active || !entityTracks.isEmpty() || !blockTracks.isEmpty() || handTrack.hadPrevious) {
 				clearAll();
 			}
 			active = false;
@@ -111,6 +124,14 @@ public final class ObjectMotion {
 		current = null;
 		lastCapture = null;
 		capturedVertices = 0;
+		handSeen = false;
+	}
+
+	/** Camera cut or history reset: nothing recorded so far may be matched against what follows. */
+	void discardHistory() {
+		for (Track track : entityTracks.values()) track.hadPrevious = false;
+		for (Track track : blockTracks.values()) track.hadPrevious = false;
+		handTrack.hadPrevious = false;
 	}
 
 	/** After the velocity pass (or instead of it when the frame ended early). Always leaves a clean state. */
@@ -171,6 +192,20 @@ public final class ObjectMotion {
 		enter(track);
 	}
 
+	/**
+	 * First-person hand and held item submission. {@code modelView} is the GPU modelview the hand is drawn
+	 * with: vanilla concatenates the camera rotation there, while Vitrail's own hand draw uses identity.
+	 */
+	public void enterHand(Matrix4fc modelView) {
+		if (!active) {
+			return;
+		}
+		contexts.add(context);
+		handView.set(modelView);
+		handSeen = true;
+		enter(handTrack);
+	}
+
 	public void leaveContext() {
 		context = contexts.isEmpty() ? null : contexts.remove(contexts.size() - 1);
 	}
@@ -201,6 +236,13 @@ public final class ObjectMotion {
 		slot.overflow = false;
 		slot.feature = type;
 		slot.model = node instanceof ModelFeatureRenderer.Submit<?> model ? model.model() : null;
+		if (track == handTrack) {
+			if (slot.view == null) {
+				slot.view = new Matrix4f();
+				slot.previousView = new Matrix4f();
+			}
+			slot.view.set(handView);
+		}
 		if (node instanceof MovingBlockFeatureRenderer.Submit moving) slot.model = moving.movingBlockRenderState().blockState;
 		submitSlots.put(node, slot);
 	}
@@ -289,6 +331,64 @@ public final class ObjectMotion {
 		return total;
 	}
 
+	/**
+	 * Hand and held item quads that are the visible hand surface and moved since last frame. Positions are
+	 * compared in eye space, so a camera turn that carries the hand along produces no vector.
+	 */
+	int prepareHandDraws(boolean reset, boolean projectionChanged) {
+		for (Slot slot : handTrack.slots) slot.draw = false;
+		int total = 0;
+		if (!reset && handSeen && handTrack.frame == frame && handTrack.hadPrevious) {
+			for (int i = 0; i < handTrack.cursor; i++) {
+				Slot slot = handTrack.slots.get(i);
+				if (slot.overflow || slot.count == 0 || slot.count % 4 != 0 || slot.count != slot.previousCount
+						|| slot.feature != slot.previousFeature || slot.model != slot.previousModel
+						|| slot.signature != slot.previousSignature || total + slot.count > MAX_VERTICES) {
+					continue;
+				}
+				if (handMoving(slot, projectionChanged)) {
+					slot.draw = true;
+					total += slot.count;
+				}
+			}
+		}
+		lastHandVertices = total;
+		return total;
+	}
+
+	private boolean handMoving(Slot slot, boolean projectionChanged) {
+		boolean moving = drawStatic || projectionChanged;
+		for (int v = 0, n = slot.count * 3; v < n; v += 3) {
+			slot.view.transformPosition(slot.positions[v], slot.positions[v + 1], slot.positions[v + 2], scratchNow);
+			slot.previousView.transformPosition(slot.previous[v], slot.previous[v + 1], slot.previous[v + 2], scratchBefore);
+			float dx = scratchNow.x - scratchBefore.x;
+			float dy = scratchNow.y - scratchBefore.y;
+			float dz = scratchNow.z - scratchBefore.z;
+			if (!Float.isFinite(dx + dy + dz) || dx * dx + dy * dy + dz * dz > TELEPORT_BLOCKS * TELEPORT_BLOCKS) return false;
+			moving |= Math.abs(dx) > STATIC_EPSILON || Math.abs(dy) > STATIC_EPSILON || Math.abs(dz) > STATIC_EPSILON;
+		}
+		return moving;
+	}
+
+	/** Eye-space position now and last frame per vertex, matching {@link #writeVertices}. */
+	void writeHandVertices(FloatBuffer out) {
+		for (int i = 0; i < handTrack.cursor; i++) {
+			Slot slot = handTrack.slots.get(i);
+			if (!slot.draw) {
+				continue;
+			}
+			for (int v = 0, n = slot.count * 3; v < n; v += 3) {
+				slot.view.transformPosition(slot.positions[v], slot.positions[v + 1], slot.positions[v + 2], scratchNow);
+				slot.previousView.transformPosition(slot.previous[v], slot.previous[v + 1], slot.previous[v + 2], scratchBefore);
+				out.put(scratchNow.x).put(scratchNow.y).put(scratchNow.z);
+				out.put(scratchBefore.x).put(scratchBefore.y).put(scratchBefore.z);
+				out.put(slot.culling[v / 3]);
+			}
+		}
+	}
+
+	public int handVertices() { return lastHandVertices; }
+	public int handSlots() { return handSeen ? handTrack.cursor : 0; }
 	/** Writes position (relative to this frame's camera) and previous position (relative to last frame's camera) per vertex. */
 	void writeVertices(FloatBuffer out) {
 		for (Track track : entityTracks.values()) {
@@ -322,6 +422,35 @@ public final class ObjectMotion {
 	private void rotate() {
 		rotate(entityTracks.values().iterator());
 		rotate(blockTracks.values().iterator());
+		rotateHand();
+	}
+
+	private void rotateHand() {
+		if (handTrack.frame != frame) {
+			for (Slot slot : handTrack.slots) recycleSlot(slot);
+			handTrack.slots.clear();
+			handTrack.hadPrevious = false;
+			return;
+		}
+		while (handTrack.slots.size() > handTrack.cursor) {
+			recycleSlot(handTrack.slots.remove(handTrack.slots.size() - 1));
+		}
+		for (int i = 0; i < handTrack.cursor; i++) {
+			Slot slot = handTrack.slots.get(i);
+			float[] swap = slot.previous;
+			slot.previous = slot.positions;
+			slot.positions = swap;
+			slot.previousCount = slot.count;
+			slot.previousFeature = slot.feature;
+			slot.previousModel = slot.model;
+			slot.previousSignature = slot.overflow ? 0 : slot.signature;
+			Matrix4f view = slot.previousView;
+			slot.previousView = slot.view;
+			slot.view = view;
+			slot.count = 0;
+			slot.draw = false;
+		}
+		handTrack.hadPrevious = true;
 	}
 
 	private void rotate(Iterator<Track> tracks) {
@@ -360,6 +489,11 @@ public final class ObjectMotion {
 		}
 		entityTracks.clear();
 		blockTracks.clear();
+		for (Slot slot : handTrack.slots) recycleSlot(slot);
+		handTrack.slots.clear();
+		handTrack.hadPrevious = false;
+		handTrack.frame = -1;
+		lastHandVertices = 0;
 		submitSlots.clear();
 		context = null;
 		current = null;
@@ -423,6 +557,8 @@ public final class ObjectMotion {
 		boolean overflow;
 		Object feature, previousFeature, model, previousModel;
 		int signature, previousSignature;
+		/** Hand slots only: the modelview this frame's and last frame's vertices were submitted for. */
+		Matrix4f view, previousView;
 
 		void add(float x, float y, float z, boolean cull) {
 			int at = count * 3;

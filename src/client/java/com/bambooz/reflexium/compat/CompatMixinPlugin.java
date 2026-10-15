@@ -15,7 +15,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
 		if (mixinClassName.contains(".vitrail.")) {
 			return VitrailCompat.isSupportedVersion();
 		}
-		if (mixinClassName.endsWith(".BetterF3ConfigMixin")) {
+		if (mixinClassName.contains(".BetterF3")) {
 			return FabricLoader.getInstance().isModLoaded("betterf3");
 		}
 		return true;

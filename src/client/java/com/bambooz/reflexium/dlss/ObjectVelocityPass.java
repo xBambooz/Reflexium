@@ -92,14 +92,27 @@ final class ObjectVelocityPass implements AutoCloseable {
 	int render(ObjectMotion motion, RenderTarget target, GpuTextureView worldDepth, GpuTextureView handDepth,
 			Matrix4f currentJittered, Matrix4f current, Matrix4f previous, float camDx, float camDy, float camDz, boolean reset) {
 		int vertices = motion.prepareDraws(camDx, camDy, camDz, reset);
-		if (vertices == 0) {
-			return 0;
-		}
+		return vertices == 0 ? 0 : draw(motion, target, worldDepth, handDepth, currentJittered, current, previous, vertices, false);
+	}
+
+	/**
+	 * Hand and held-item quads. Vertices are already in eye space, so the matrices are the hand projection
+	 * (jittered for rasterization, unjittered now and previous). Visibility is tested against the hand-only depth.
+	 */
+	int renderHand(ObjectMotion motion, RenderTarget target, GpuTextureView worldDepth, GpuTextureView handDepth,
+			Matrix4f currentJittered, Matrix4f current, Matrix4f previous, boolean reset) {
+		int vertices = motion.prepareHandDraws(reset, !current.equals(previous, 1.0e-6f));
+		return vertices == 0 ? 0 : draw(motion, target, worldDepth, handDepth, currentJittered, current, previous, vertices, true);
+	}
+
+	private int draw(ObjectMotion motion, RenderTarget target, GpuTextureView worldDepth, GpuTextureView handDepth,
+			Matrix4f currentJittered, Matrix4f current, Matrix4f previous, int vertices, boolean hand) {
 		CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 		GpuBufferSlice slice;
 		GpuBufferSlice uniformSlice;
 		try (GpuBufferSlice.MappedView view = encoder.transientMemory().allocateGpuMapped((long) vertices * VERTEX_BYTES, 16L, GpuBuffer.USAGE_VERTEX)) {
-			motion.writeVertices(view.data().asFloatBuffer());
+			if (hand) motion.writeHandVertices(view.data().asFloatBuffer());
+			else motion.writeVertices(view.data().asFloatBuffer());
 			slice = view.slice();
 		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -107,7 +120,7 @@ final class ObjectVelocityPass implements AutoCloseable {
 					.putMat4f(currentJittered)
 					.putMat4f(current)
 					.putMat4f(previous)
-					.putVec4(target.width, target.height, 0.0f, 0.0f)
+					.putVec4(target.width, target.height, hand ? 1.0f : 0.0f, 0.0f)
 					.get();
 			uniformSlice = MotionVectorPass.uploadUniforms(uniforms, data);
 		}

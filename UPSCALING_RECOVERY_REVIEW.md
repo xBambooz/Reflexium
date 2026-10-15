@@ -1,0 +1,30 @@
+# Upscaling recovery review
+
+Date: 2026-10-14. Historical recovery handoff. All six review findings below have been addressed and checked; current outcomes and remaining requirements are in docs/validation/upscaling-quality-2026-10-14.md. Codex completed the recovery after Ryan authorized the provider change. The final owned client is closed and saved settings restored. The queued FG/Reflex phase may now proceed. Historical process IDs below are not current ownership evidence.
+
+## Previous task and current state
+
+The first Sonnet 5.5 task, `reflexium-upscaling-quality-sonnet55-20261014-r1`, terminated with `Claude API rate limit reached. Try again later.` It has no pending child runs. Its partial implementation remains in this checkout, including untracked sources and tools. Preserve that work and the unrelated changes listed in UPSCALING_QUALITY_SPEC.md. The original 12-item spec remains authoritative.
+
+The parent attempted one recovery delegation, `reflexium-upscaling-quality-sonnet55-20261014-r2`, on the same provider/model. It immediately terminated with the same API rate-limit error and no pending child runs. The provider returned no reset time. Ryan then explicitly authorized continuing implementation and validation with Codex. Codex now owns recovery and the subsequent FG/Reflex work; the earlier Sonnet-specific handoff instructions are superseded. No child implementation agent is running.
+
+The parent ran `.\gradlew.bat build --console=plain` with Java 25 after safely closing the worker's authenticated harness client on port 25632 (PID 27924, game directory Reflexium/run). Build and all five assertion checks passed. This establishes compilation and numerical checks only. The worker's required `docs/validation/upscaling-quality-2026-10-14.md` does not exist. No parent live acceptance has been performed. No implementation commit has been made.
+
+Existing baseline, after1, scout and input/output captures are under ignored `build/validation`. Reuse genuine matching evidence, inspect it, and retain its provenance. Existing scripts are tools/upscaling-quality.ps1, tools/compare-upscaling.ps1 and tools/CaptureAnalysis.java. PowerShell script execution needs a process-local execution-policy bypass on this PC. Never change the machine execution policy.
+
+Another agent's benchmark started after the parent's build: bm-quick-bench.ps1 label `perf-d057-quick-20261014`, parent PowerShell PID 21648 (ancestor 15972), game PID 28680 in build/bm-bench/perf-d057-quick-20261014-A/client, using frozen ac1e339.jar and d057dbf.jar. Do not close it or compete for its GPU. Check the parent command and lifetime, including gaps between JVM launches, before building or launching another client. Continue source review and implementation while it runs. Recheck current process identities because PIDs can be reused. No new client from the upscaling task is currently running.
+
+## Review findings to address
+
+1. `UpscalingRenderer.postEffectsNeedDepth` sets `postEffectsNeedDepth = false` when the applied list is empty without invalidating `depthProbeChains`. If the same chain is subsequently re-enabled, equality skips inspection and leaves depth disabled. Fix this transition and leave a meaningful small regression check.
+2. Same-frame capture metadata calls `observedInputs()`, which reads `lastBinds`, `lastBiased` and `lastBias`. Those arrays are published in `endFrame`, so capture metadata currently describes the previous frame's material bindings while claiming this frame. Capture the current frame's observed counters, retaining a clear distinction from completed-frame status. Check reset reason/counters for the same timing issue.
+3. `CaptureEncodePass.render` writes both motion and depth modes into one persistent uniform buffer during one capture. Trace actual RenderPearl writeToBuffer behavior and prove that both queued draws retain independent mode data. Reuse the existing transient-uniform helper or immutable slices if the single-buffer writes can alias. Validate the decoder against known numeric values and the actual PNGs, not just file existence.
+4. Sampler replacement recreates filtering/addressing state, but native original bias is not explicitly carried into the new sampler. Check original nonzero bias through AppliedLodBias and preserve the original bias plus the upscaler adjustment as required by item 2. Verify observed telemetry reports the actual total consistently. Do not introduce another replacement chain or close borrowed samplers.
+5. `VitrailCompat.isSupportedVersion` was expanded from 0.12.x to 0.13.x although the comment promises source-reviewed versions. Supply actual reviewed class/signature evidence and validation for the added version, or retain the supported installed version guard.
+6. docs/DLSS.md already claims a completed 2026-10-14 quality pass and refers to a missing validation report. Replace premature acceptance prose with measured findings only. Complete the required report and update docs/VITRAIL.md as specified.
+
+## Remaining major requirements
+
+The partial docs explicitly acknowledge that full-scene shader-pack TAA still precedes SR and that the input remains the final tone-mapped image. They also acknowledge missing independent vectors for particles, translucent geometry and shader-generated deformation. Original items 10 and 11 require investigation and a supported implementation where feasible. Do not mark them complete through documentation alone, a TAA-off toggle, sharper still crops, or an unused producer API. Explain the actual architectural boundary and evidence if any requirement remains unresolved. Finish the remaining live acceptance matrix, inspect motion sequences, and briefly regress FG with the changed shared inputs.
+
+The parent will review your result before automatically launching the separate FG/Reflex Sonnet implementation from FRAME_GENERATION_REFLEX_SPEC.md. Do not launch that task yourself or edit its implementation scope proactively. Do not start nested agents. Do not commit or push this checkout; the parent handles the final combined review and commit.

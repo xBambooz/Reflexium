@@ -155,6 +155,8 @@ public final class FrameGenerationRenderer {
 		}
 	}
 
+	/** Drops this frame's generated images; history stays valid for the next world frame. */
+	public void skipGeneratedFrames() { ready = 0; }
 	public int generatedCount() { return ready; }
 	public int displayMultiplier() {
 		if (!wantsMotion() || failed) {

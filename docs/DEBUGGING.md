@@ -69,6 +69,11 @@ game runs on the render thread.
 | `mv_debug` | `0`, `1` | Draws the motion vector texture over the upscaled world (see below) |
 | `object_motion` | `0`, `1` | Enables the opaque entity/block-entity velocity pass; `0` gives a camera-only A/B |
 | `object_static` | `0`, `1` | Also redraws static tracked objects for depth-match debugging |
+| `hand_motion` | `0`, `1` | `0` returns the first-person hand to zero motion, for matched hand A/B captures |
+| `mip_bias_offset` | `-4` to `4` | Dev-only offset added to the vendor texture LOD baseline `log2(render/display) - 1` while upscaling. `1` reproduces the pre-2026-10-14 `log2(render/display)` bias. Replacement samplers are rebuilt after a device idle. Never applied at native size |
+| `dlss_preset` | `-1`, `5`, `6`, `10`, `11`, `12`, `13` | `-1` is the quality-aware mapping (Transformer: K for DLAA/Quality/Balanced, M Performance, L Ultra Performance). The value is a hint passed to NGX, not the model NGX reports |
+| `shaders` | `0`, `1` | Vitrail only: flips `vitrail/pack.txt` `enabled=` in the active game directory and reloads the pack |
+| `pack_taa` | `retain`, `off` | Known Complementary packs only: keep or drop the pack's own full-scene TAA (in memory) while upscaling, for A/B |
 
 ### Frame timing (`/reflexium` with `frame_mark` or `frame_stats_from`)
 
@@ -98,6 +103,32 @@ Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are sav
 `run\config\reflexium.properties` like menu changes. The jitter and `mv_debug` overrides are runtime
 only and reset on restart.
 
+## Upscaler input and output capture
+
+`POST /reflexium` through the authenticated harness with `capture=<name>` (optional `dir=`, `extras=0|1`)
+arms one capture of the next evaluated frame. The render thread schedules readbacks of the render-resolution
+color the upscaler consumed, the display-resolution output of that same evaluation, the motion vectors and the
+scene depth. It writes `<name>_input.png`, `<name>_output.png`, `<name>_motion.png`, `<name>_depth.png` and
+`<name>.json` (sizes, requested model and preset, jitter index, phase count, sign and values sent, world and
+hand matrices, camera, reset reason, pack identity and the `observed` block). The normal frame path only reads
+one volatile reference and does no readback while no request is armed. A request that does not complete within
+20 seconds is cancelled, and late readbacks close their images.
+
+Screenshot readback reads four 8-bit channels and forces alpha opaque, so motion and depth are packed into
+RGB (see `dlss_capture_encode.fsh`): motion is two 12-bit values at 1/32 pixel over ±64 pixels, depth is a
+24-bit fixed point value. `tools/CaptureAnalysis.java` decodes them:
+
+```powershell
+java tools\CaptureAnalysis.java capture-check build\validation\x\wall.json       # motion against the metadata's own matrices
+java tools\CaptureAnalysis.java motion-stats <x_motion.png> 0 0 960 540
+java tools\CaptureAnalysis.java metrics <native.png> <test.png> 200 150 700 450   # detail correlation, Laplacian, PSNR
+java tools\CaptureAnalysis.java crop <in.png> <out.png> 200 150 300 200 3
+```
+
+`tools\upscaling-quality.ps1` is the single driver for the validation matrix (arena, scenes, stills,
+motion sequences, hand swing and equip) and `tools\compare-upscaling.ps1` computes the matched-crop metrics.
+Absolute Laplacian energy rewards shimmer, so the metrics report a high-pass correlation with the native image.
+
 ## Motion vector view (`mv_debug 1`)
 
 A fullscreen overlay of the motion vector texture drawn after upscaling and before the GUI:
@@ -105,18 +136,30 @@ A fullscreen overlay of the motion vector texture drawn after upscaling and befo
 - hue is the direction of motion (render pixels, previous position minus current position),
 - brightness is the magnitude, full at 4 render pixels per frame (square-root scaled so sub-pixel
   motion still shows),
-- black means no motion; the first-person hand is always black.
+- black means no motion. The first-person hand is black while it is still on screen, and carries its own
+  vector while the swing or equip animation moves it (`hand_motion 0` restores the all-black hand).
 
 What to expect: with a still camera, static terrain is black while moving opaque objects have their
 own vectors, including animated limbs. A pure `turn` gives a smooth color field across the scene.
 `move` forward gives a radial pattern around the screen center, brighter for near blocks. The hand
-stays black. Frames are very short at several hundred fps, so per-frame motion is small; use
+stays black unless it animates. Frames are very short at several hundred fps, so per-frame motion is small; use
 `set mv_debug 1` with a fast `turn` (for example `turn 180 20`) to see it clearly.
 
 Status includes `evaluated_frames` (must advance to prove the upscaler ran), `pack_hand_mask`,
 `object_vertices_captured`, `object_vertices_drawn`, tracked entity counts, `mip_bias` and
 `reactive_mask`. Vertex counts report geometry submitted to the velocity pass, not the number of
 fragments that passed its depth test. A nonzero count alone does not prove correct velocities.
+
+The `observed` object holds what the last frame actually did, separate from the requested settings:
+
+- `material_binds`: per binding path (`Sampler0` vanilla, `u_BlockTex` Sodium terrain, `pack_atlas` and
+  `pack_pbr` Vitrail) the number of binds, how many carried a sampler whose real Vulkan `mipLodBias` equals
+  the requested bias, and the bias read back from the sampler actually bound. `mip_bias_requested` alone does
+  not prove a material used it.
+- `jitter_phases`, `resets_by_reason` and `last_reset_reason` (first frame, level, teleport, frame gap, camera
+  mode or entity, rotation cut, loading frame, feature rebuild, menu), `physical_camera` (near, far and
+  vertical FOV taken from the unbobbed projection, with a counter of rejected values), `hand_vertices_drawn`,
+  `post_effects_need_depth` and `post_depth_resolved`.
 
 ## Worked recipe: tuning the jitter sign
 

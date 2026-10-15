@@ -61,10 +61,16 @@ public abstract class GameRendererMixin {
 		UpscalingRenderer.get().beforeLevel((GameRenderer) (Object) this);
 	}
 
+	/** Super resolution belongs before post effects: reconstruct the scene, then let them run at display size. */
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
+	private void reflexium$upscale(CallbackInfo ci) {
+		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
+	}
+
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V",
 			shift = At.Shift.AFTER))
-	private void reflexium$upscale(CallbackInfo ci) {
-		UpscalingRenderer.get().afterPostEffects((GameRenderer) (Object) this);
+	private void reflexium$completeScene(CallbackInfo ci) {
+		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
 	}
 
 	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE",
@@ -86,7 +92,10 @@ public abstract class GameRendererMixin {
 		if (!dlss.isUpscalingThisFrame()) {
 			return original.call(buffer, projection);
 		}
-		return buffer.getBuffer(dlss.jitterHudProjection(projection.getMatrix(new Matrix4f())));
+		Matrix4f unjittered = projection.getMatrix(new Matrix4f());
+		Matrix4f jittered = dlss.jitterHudProjection(unjittered);
+		dlss.noteHandProjection(unjittered, jittered);
+		return buffer.getBuffer(jittered);
 	}
 
 	@Inject(method = "render3dHud", at = @At("HEAD"))

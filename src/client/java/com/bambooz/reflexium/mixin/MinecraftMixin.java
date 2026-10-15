@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.debug.DebugServer;
+import com.bambooz.reflexium.debug.FpsText;
 import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
@@ -24,6 +25,7 @@ public abstract class MinecraftMixin {
 	private void reflexium$generatedFps(CallbackInfoReturnable<Integer> cir) {
 		int mult = FrameGenerationRenderer.get().displayMultiplier();
 		if (mult > 1) {
+			FpsText.record(fps * mult, fps);
 			cir.setReturnValue(fps * mult);
 		}
 	}

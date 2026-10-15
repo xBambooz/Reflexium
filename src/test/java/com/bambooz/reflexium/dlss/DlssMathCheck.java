@@ -89,12 +89,13 @@ public final class DlssMathCheck {
 		}
 		near(DlssMath.halton(1, 2), 0.5f);
 		near(DlssMath.halton(2, 2), 0.25f);
-		near(DlssMath.jitterPhases(1920, 1920), 8);
-		near(DlssMath.jitterPhases(1280, 1920), 18);
-		near(DlssMath.jitterPhases(960, 1920), 32);
-		near(DlssMath.jitterPhases(640, 1920), 72);
-		near(DlssMath.mipBias(960, 1920), -1);
-		near(DlssMath.mipBias(1280, 1920), -0.5849625f);
+		near(DlssMath.jitterPhases(1920, 1920, Upscaler.FSR), 8);
+		near(DlssMath.jitterPhases(1920, 1920, Upscaler.DLSS), 32);
+		near(DlssMath.jitterPhases(1280, 1920, Upscaler.FSR), 18);
+		near(DlssMath.jitterPhases(960, 1920, Upscaler.FSR), 32);
+		near(DlssMath.jitterPhases(640, 1920, Upscaler.DLSS), 72);
+		near(DlssMath.mipBias(960, 1920), -2);
+		near(DlssMath.mipBias(1280, 1920), -1.5849625f);
 		near(DlssMath.mipBias(1920, 1920), 0);
 		System.out.println("DLSS reprojection checks passed: translation, rotation, reverse depth and jitter.");
 	}

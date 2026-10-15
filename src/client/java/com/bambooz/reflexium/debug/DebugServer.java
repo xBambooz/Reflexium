@@ -78,6 +78,7 @@ public final class DebugServer {
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
 				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));
+					if (params.containsKey("capture")) return captureUpscale(params);
 				if (params.containsKey("reflex_timings")) return call(() -> com.bambooz.reflexium.reflex.ReflexController.get().timingReports());
 				return status();
 			});
@@ -90,6 +91,59 @@ public final class DebugServer {
 		}
 	}
 
+	/**
+	 * Arms one capture of the upscaler's real input and output from the same evaluated frame and writes
+	 * name_input.png (render resolution), name_output.png (display resolution), name_motion.png and name_depth.png
+	 * (encoded, see tools/CaptureAnalysis.java) and name.json with the observed frame metadata.
+	 */
+	private static JsonObject captureUpscale(Map<String, String> params) throws Exception {
+		Minecraft mc = Minecraft.getInstance();
+		String name = params.get("capture").replaceAll("[^A-Za-z0-9_.-]", "_");
+		if (name.isEmpty() || name.equals("1")) name = "capture_" + stamp();
+		Path dir = resolve(mc, params.getOrDefault("dir", "screenshots/upscaling"));
+		boolean extras = !"0".equals(params.get("extras"));
+		com.bambooz.reflexium.dlss.UpscaleCapture request = UpscalingRenderer.get().requestCapture(extras);
+		JsonObject result = new JsonObject();
+		try {
+			JsonObject meta = request.metadata.get(20, TimeUnit.SECONDS);
+			Files.createDirectories(dir);
+			String[] names = {"input", "output", "motion", "depth"};
+			NativeImage[] images = new NativeImage[4];
+			try {
+				images[0] = request.input.get(20, TimeUnit.SECONDS);
+				images[1] = request.output.get(20, TimeUnit.SECONDS);
+				if (extras) {
+					images[2] = request.motion.get(20, TimeUnit.SECONDS);
+					images[3] = request.depth.get(20, TimeUnit.SECONDS);
+				}
+				JsonObject files = new JsonObject();
+				for (int i = 0; i < images.length; i++) {
+					if (images[i] == null) continue;
+					Path file = dir.resolve(name + "_" + names[i] + ".png");
+					images[i].writeToFile(file);
+					JsonObject entry = new JsonObject();
+					entry.addProperty("path", file.toAbsolutePath().toString());
+					entry.addProperty("width", images[i].getWidth());
+					entry.addProperty("height", images[i].getHeight());
+					files.add(names[i], entry);
+				}
+				meta.add("files", files);
+				Path json = dir.resolve(name + ".json");
+				Files.writeString(json, GSON.toJson(meta), StandardCharsets.UTF_8);
+				result.add("capture", meta);
+				result.addProperty("json", json.toAbsolutePath().toString());
+			} finally {
+				UpscalingRenderer.get().cancelCapture(request);
+			}
+		} catch (TimeoutException | java.util.concurrent.CancellationException e) {
+			UpscalingRenderer.get().cancelCapture(request);
+			throw new TimeoutException("upscaler capture did not complete (no evaluated world frame within 20 s)");
+		} catch (Exception e) {
+			UpscalingRenderer.get().cancelCapture(request);
+			throw e;
+		}
+		return result;
+	}
 	/** Called from the client entrypoint. Does nothing unless -Dreflexium.debugPort=<port> is set. */
 	public static void startIfRequested() {
 		String raw = System.getProperty("reflexium.debugPort");
@@ -395,6 +449,8 @@ public final class DebugServer {
 		o.addProperty("reactive_mask", info.reactiveMask());
 		o.addProperty("evaluated_frames", info.evaluatedFrames());
 		o.addProperty("pack_hand_mask", info.packHandMask());
+		o.add("observed", upscaling.observedInputs());
+		o.addProperty("pack", com.bambooz.reflexium.compat.VitrailCompat.status());
 		o.addProperty("fps", mc.getFps());
 		o.addProperty("frame_time_ms", Math.round(DebugSettings.frameTimeMs() * 100f) / 100f);
 		o.addProperty("frames", DebugSettings.frames());
@@ -488,8 +544,30 @@ public final class DebugServer {
 			}
 			case "dlss_preset" -> {
 				int preset = Integer.parseInt(value);
-				if (preset != -1 && preset != 5 && preset != 6 && preset != 10 && preset != 11) throw new BadRequest("Preset must be -1, 5, 6, 10 or 11");
+				if (preset != -1 && preset != 5 && preset != 6 && preset != 10 && preset != 11 && preset != 12 && preset != 13) throw new BadRequest("Preset must be -1 (quality-aware mapping), 5 (E), 6 (F), 10 (J), 11 (K), 12 (L) or 13 (M)");
 				yield () -> DebugSettings.dlssPreset = preset;
+			}
+			case "mip_bias_offset" -> {
+				float offset;
+				try { offset = Float.parseFloat(value.trim()); } catch (NumberFormatException e) { throw new BadRequest("'mip_bias_offset' must be a number"); }
+				if (!Float.isFinite(offset) || offset < -4.0f || offset > 4.0f) throw new BadRequest("mip_bias_offset must be finite within -4..4 (+1 reproduces the pre-baseline bias)");
+				yield () -> DebugSettings.setMipBiasOffset(offset);
+			}
+			case "hand_motion" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.setHandMotion(on);
+			}
+			case "pack_taa" -> {
+				boolean retained = value.trim().equalsIgnoreCase("retain") || flag(Map.of("v", value.equals("retain") ? "1" : value.equals("off") ? "0" : value), "v", true);
+				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackTaa(retained);
+			}
+			case "pack_resolve" -> {
+				boolean bypass = flag(Map.of("v", value), "v", true);
+				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackResolveBypass(bypass);
+			}
+			case "shaders" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackEnabled(on);
 			}
 			case "reflex_submission" -> {
 				boolean enabled = flag(Map.of("v", value), "v", true);
@@ -566,7 +644,7 @@ public final class DebugServer {
 				yield () -> DebugSettings.setDrawStaticObjects(on);
 			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|shaders|pack_taa|pack_resolve");
 		};
 		return call(() -> {
 			apply.run();

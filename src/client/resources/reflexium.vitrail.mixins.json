@@ -10,7 +10,8 @@
 		"FrameStateMixin",
 		"HandDrawMixin",
 		"GeometryProgramMixin",
-		"PackSessionMixin"
+		"PackSessionMixin",
+		"ShaderPackSourceMixin"
 	],
 	"injectors": { "defaultRequire": 1 }
 }

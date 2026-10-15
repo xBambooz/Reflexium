@@ -5,7 +5,8 @@
 	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"BetterF3ConfigMixin"
+		"BetterF3ConfigMixin",
+		"BetterF3FpsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
