@@ -211,6 +211,18 @@ DLAA audit: explicit Transformer is K=11, CNN is E=5, and Auto leaves per-qualit
 
 The final reduced-set, uninstrumented ABBA against `ac1e339` remains for the verification agent. It must use a fresh label, defaults of three BM passes and ten-second warmups, and `-IncludeFG` because FG profiling code changed. The exact command is in [the benchmark README](benchmarks/README.md). Do not treat this diagnostic set as that final comparison.
 
+### Pinned candidate quick check, 14 October 2026
+
+A clean `d057dbf` worktree built and passed `build bmDriverJar` with its install directory redirected away from the active Modrinth profile. Its jar was pinned as `build/perf-jars/d057dbf.jar`, SHA-256 `36E7F13025848664376B9FF06FE1D129E574097BCAE85BDCB1F1F7A7FD587085`. A `-Quick` Benchmark Mod run then compared it with `ac1e339` on the frozen shaderless scene. Each arm used one fresh JVM, one BM pass and a five-second warmup, with no conditioning capture. [Protocol, six capture hashes, rows, world hashes and summary](benchmarks/bm/quick-perf-d057/) are retained. Both launches preserved desktop focus; all six captures had the same route hash, and the 63 protected world files were unchanged.
+
+| Mode | Old FPS | Candidate FPS | Change | 1% low change |
+| --- | ---: | ---: | ---: | ---: |
+| Native | 1830.7 | 1835.0 | +0.24% | +1.77% |
+| Transformer Performance | 638.2 | 644.7 | +1.02% | -3.87% |
+| DLSS FG 2x, real frames | 318.7 | 319.1 | +0.12% | -2.50% |
+
+All throughput changes are within the quick run's 2.4% single-pair noise band; its 1% low band is 16.8%. This is a regression screen, not evidence of an optimization. The full reduced-set ABBA remains the verification handoff. No performance code change was retained from this quick check.
+
 ## VK_NV_low_latency2 sleep audit, 14 October 2026
 
 The frozen `benchmark-route` was captured in one JVM per set, forward and reverse, with one BM pass, five seconds of warmup and `-Diagnostics`. All sets used `reflex_submission=0` so the driver reports avoided the previously observed inverted explicit-attribution timestamps. The second set changed only the benchmark process environment to `DISABLE_VULKAN_OBS_CAPTURE=1`, the disable variable in the installed OBS Vulkan layer manifest. The third used `DISABLE_LAYER_NV_PRESENT_1=1` to isolate NVIDIA's presentation layer; a separate `vulkaninfo` probe still reported `VK_NV_low_latency2` revision 3 with that layer disabled. The copied world's hashes matched before and after all sets, and the launcher reported unchanged foreground focus. These instrumented FPS values are diagnostic, not final uninstrumented acceptance. [Capture summaries, profiles, driver reports, world hashes and raw BM capture hashes](benchmarks/bm/reflex-sleep-audit/).
