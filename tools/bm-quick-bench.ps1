@@ -53,6 +53,28 @@ function SceneInfo($json) {
     if ($distance -lt 2 -or $distance -gt 32) { throw 'Scene must specify renderDistanceHint in 2..32.' }
     return $distance
 }
+function FindCompetingGpuWork($processes, [uint32[]]$ignored) {
+    @($processes | Where-Object {
+        $_.ProcessId -notin $ignored -and (
+            ($_.Name -match '^javaw?\.exe$' -and $_.CommandLine -match 'net\.fabricmc\.(devlaunchinjector\.Main|loader\..*KnotClient)|net\.minecraft\.client\.main\.Main') -or
+            ($_.Name -match '^(powershell|pwsh|python|pythonw)\.exe$' -and $_.CommandLine -match 'bm-quick-bench\.ps1|upscaling-quality\.ps1|mctest\.ps1.{0,250}\brun\b|lab\.py.{0,250}\brun\b') -or
+            $_.Name -eq 'reflex-reference.exe'
+        )
+    })
+}
+function AssertGpuIdle {
+    $processes = @(Get-CimInstance Win32_Process)
+    # The invoking shell can contain this script's name, so exclude our full ancestor chain.
+    $ignored = [Collections.Generic.List[uint32]]::new()
+    $current = [uint32]$PID
+    while ($current -gt 0 -and !$ignored.Contains($current)) {
+        $ignored.Add($current)
+        $parent = $processes | Where-Object ProcessId -eq $current | Select-Object -First 1
+        if (!$parent) { break }; $current = [uint32]$parent.ParentProcessId
+    }
+    $busy = @(FindCompetingGpuWork $processes $ignored.ToArray())
+    if ($busy.Count) { throw ('GPU measurement refused while other Minecraft/benchmark work is active: ' + (($busy | ForEach-Object { "$($_.Name) PID $($_.ProcessId)" }) -join ', ')) }
+}
 if ($SelfCheck) {
     $s = [BmQuickStats]::Calculate(@(1,2,3,4))
     if ($s[0] -ne 400 -or $s[1] -ne 250 -or $s[2] -ne 4) { throw 'BM statistics check failed' }
@@ -61,11 +83,23 @@ if ($SelfCheck) {
     $fixture.keyframes = @(); $rejected = $false
     try { SceneInfo $fixture | Out-Null } catch { $rejected = $true }
     if (!$rejected) { throw 'Placeholder scene accepted' }
-    Write-Host 'BM statistics and scene checks passed'; exit
+    $processes = @(
+        @{ProcessId=1;Name='java.exe';CommandLine='net.fabricmc.devlaunchinjector.Main'},
+        @{ProcessId=2;Name='javaw.exe';CommandLine='net.fabricmc.loader.impl.launch.knot.KnotClient'},
+        @{ProcessId=3;Name='java.exe';CommandLine='org.gradle.launcher.daemon.bootstrap.GradleDaemon'},
+        @{ProcessId=4;Name='powershell.exe';CommandLine='-File tools/bm-quick-bench.ps1 -Label other'},
+        @{ProcessId=5;Name='powershell.exe';CommandLine='-File tools/bm-quick-bench.ps1 -Label ours'},
+        @{ProcessId=6;Name='reflex-reference.exe';CommandLine='reflex-reference.exe'},
+        @{ProcessId=7;Name='python.exe';CommandLine='lab.py run --experiment other'}
+    )
+    $busy = @(FindCompetingGpuWork $processes @(5))
+    if (($busy.ProcessId -join ',') -ne '1,2,4,6,7') { throw 'Concurrent GPU work detection failed' }
+    Write-Host 'BM statistics, scene and concurrent GPU work checks passed'; exit
 }
 if ($Explore -and !$NewJar) { throw 'Specify -NewJar for -Explore.' }
 if (!$Explore -and (!$OldJar -or !$NewJar)) { throw 'Specify -OldJar and -NewJar.' }
 if ($Label -notmatch '^[a-zA-Z0-9_-]+$') { throw 'Label must contain letters, digits, underscores or hyphens' }
+AssertGpuIdle
 $root = Split-Path -Parent $PSScriptRoot
 $old = if ($OldJar) { (Resolve-Path -LiteralPath $OldJar).Path } else { $null }
 $new = (Resolve-Path -LiteralPath $NewJar).Path
@@ -154,6 +188,14 @@ function ReadCapture($path) {
     try { $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose(); $gzip.Dispose(); $file.Dispose() }
 }
 function SetOption($key,$value) { Call 'reflexium' @{key=$key;value=[string]$value} | Out-Null }
+function ReadReflexium {
+    try { return Call 'reflexium' }
+    catch {
+        if ($_.Exception.Message -notmatch 'TimeoutException') { throw }
+        Write-Warning 'Read-only Reflexium status timed out; retrying once.'
+        return Call 'reflexium'
+    }
+}
 function StopOwned {
     $s=Status
     $p=Get-CimInstance Win32_Process -Filter "ProcessId = $($session.game_pid)"
@@ -175,6 +217,7 @@ try {
         else { @(@{arm='old';jar=$old;orders=@('f')},@{arm='new';jar=$new;orders=@('f')},@{arm='new';jar=$new;orders=@('r')},@{arm='old';jar=$old;orders=@('r')}) })
     $touched = [Collections.Generic.HashSet[string]]::new()
     for ($slot=0;$slot -lt $launches.Count;$slot++) {
+        AssertGpuIdle
         $arm=$launches[$slot].arm
         $jar=$launches[$slot].jar
         Write-Host "Launch $($slot+1)/$($launches.Count): $arm, Set $Set"
@@ -202,7 +245,7 @@ try {
             SetOption 'quality' $mode.quality; SetOption 'dlss_model' $mode.model
             if ($mode.mult -gt 2) { SetOption 'fg_multiplier' $mode.mult }
             SetOption 'frame_generation' $mode.fg
-            $beforeMode=Call 'reflexium'
+            $beforeMode=ReadReflexium
             if ($beforeMode.upscaler -ne $mode.upscaler -or $beforeMode.quality -ne $mode.quality -or $beforeMode.dlss_model -ne $mode.model -or $beforeMode.frame_generation -ne $mode.fg) { throw "Mode switch failed: $($mode.id)" }
             if ($mode.mult -gt 2 -and $beforeMode.fg_multiplier -ne $mode.mult) { throw "FG multiplier switch failed: $($mode.id)" }
             $captureLabel="s$slot$($mode.direction)$index"
@@ -227,7 +270,7 @@ try {
             }
             if ($fresh.Count -ne 1) { throw 'Unexpected concurrent BM writer' }
             $result=ReadCapture $fresh[0].FullName
-            $afterMode=Call 'reflexium'
+            $afterMode=ReadReflexium
             if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne $sceneId -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
             if ($mode.upscaler -ne 'off' -and ($afterMode.evaluated_frames -eq $beforeMode.evaluated_frames -or $afterMode.last_error)) { throw "Upscaler failed during $captureLabel (evaluated $($beforeMode.evaluated_frames) to $($afterMode.evaluated_frames)): $($afterMode.last_error)" }
             if ($mode.fg -ne 'off' -and ($afterMode.fg_evaluated_frames -eq $beforeMode.fg_evaluated_frames -or $afterMode.fg_generated_presents -eq $beforeMode.fg_generated_presents)) { throw "FG did not evaluate and present: $captureLabel" }

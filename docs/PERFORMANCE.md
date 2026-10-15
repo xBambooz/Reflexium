@@ -328,3 +328,23 @@ against 307.8 Off. Raising Windows timer resolution (1 ms or 0.5 ms) did not cha
 
 This matches the hard ceiling of about 1250 FPS players see with Reflex On in Valorant and Fortnite: a fixed
 driver pacing cost of roughly 0.8 ms per frame. Reflexium's behavior with Reflex On is the same as those games.
+
+## Preventing overlapping measurements
+
+The BM runner now refuses to start while another Minecraft client, BM/FPS Lab parent process or native Reflex reference is active, and checks again before each fresh JVM. This includes other worktrees and the gap between another campaign's launches. The check ignores its own shell ancestors and Gradle daemons. Its offline check covers client, parent, native-reference and allowed-process cases; a live invocation correctly refused the concurrent BM campaign without creating a new client. It does not close another agent's process or reserve the GPU against a later launch. This changes measurement reliability, with no claimed rendering speedup.
+
+## Rejected FG submit batching experiment, 14 October 2026
+
+The isolated `perf/fg-submit-batch` experiment recorded every generated/real swapchain blit before the ordinary encoder submit, then issued the same metered presents in order. It retained per-image acquire waits, present signals and RenderPearl's command-pool/transient-memory completion wait. It used the sequential path when the actual swapchain could not safely supply the entire batch. The [WSI acquisition limit](https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#vkAcquireNextImageKHR) bounds the number held simultaneously to `imageCount - surface.minImageCount + 1`.
+
+One completed, uninstrumented `-Quick` pair used the unchanged frozen 48-second BM route, one pass per mode, five-second warmups, no conditioning and two fresh JVMs. Both launches preserved foreground focus and the copied world's hashes. Baseline runtime SHA-256 was `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`; experimental runtime was `7F01BEE11E842BF2E5B41FDB9C054C04943038F65103C0AF2AF43D8CD504ABEB`. [Rows](benchmarks/bm/fg-batch/runs.jsonl), [summary](benchmarks/bm/fg-batch/summary.json), [protocol](benchmarks/bm/fg-batch/protocol.json), and [raw capture paths, hashes and BM summaries](benchmarks/bm/fg-batch/captures.json) are retained.
+
+| Mode | Baseline real FPS | Candidate real FPS | Raw change |
+| --- | ---: | ---: | ---: |
+| Native | 1841.0 | 1515.1 | -17.7% |
+| DLSS FG 2x | 302.0 | 308.5 | +2.2% |
+| DLSS MFG 4x | 159.2 | 207.5 | +30.3% |
+
+The unchanged native path drifted well beyond the 2.4% single-pair FPS noise band. FG 2x's change was within that band. The apparent MFG gain is therefore unconfirmed, and the batching runtime change was removed. This is not a completed ABBA or a measured shipped improvement. The rejected patch and experimental jars remain only under the ignored worktree build directory. No preset, exposure, sharpening, outline or Vitrail TAA change was retained.
+
+The first attempt ended after a completed baseline MFG capture when the read-only `/reflexium` response timed out. Its partial artifacts remain at `build/perf-batch/build/bm-bench/fg-batch-quick1-A` and are excluded. The runner now retries that read once on `TimeoutException`, while setting mutations still fail immediately. A requested reverse pair was refused because another agent's quality-validation client had launched after this pair ended. No other client was stopped to obtain measurements. A trustworthy gain still requires a repeat with stable controls and exclusive access; the original cross-session FG regression's precise cause remains unproven.
