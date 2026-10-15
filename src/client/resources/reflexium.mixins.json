@@ -15,6 +15,7 @@
 		"DebugScreenEntriesMixin",
 		"DebugScreenEntryListMixin",
 		"MinecraftMixin",
+		"MouseHandlerReflexMixin",
 		"GameRendererAccessor",
 		"PostChainAccessor",
 		"PostPassAccessor",

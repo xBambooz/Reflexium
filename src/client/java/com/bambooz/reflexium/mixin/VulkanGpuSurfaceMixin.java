@@ -37,6 +37,12 @@ import java.nio.LongBuffer;
 public abstract class VulkanGpuSurfaceMixin {
 	@WrapMethod(method = "acquireNextTexture")
 	private void reflexium$timeAcquire(Operation<Void> original) {
+		int next = (currentAcquireSemaphore + 1) % acquireSemaphores.length;
+		var completion = reflexium$acquireCompletion[next];
+		if (completion != null) {
+			if (!completion.awaitCompletion(5_000_000_000L)) throw new IllegalStateException("Acquire semaphore's previous wait has not completed");
+			completion.close(); reflexium$acquireCompletion[next] = null;
+		}
 		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, null);
 		try { original.call(); }
 		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, timing, null); }
@@ -45,34 +51,29 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Shadow @Final private VulkanDevice device;
 	@Shadow private com.mojang.renderpearl.api.device.SurfaceException eatenException;
 	@Shadow private boolean swapchainOutOfDate;
-	@Mutable @Shadow @Final private long[] acquireSemaphores;
+	@Shadow @Final private long[] acquireSemaphores;
+	@Shadow private int currentAcquireSemaphore;
+	@Unique private com.mojang.renderpearl.api.commands.GpuFence[] reflexium$acquireCompletion;
 	@Unique private GpuTextureView reflexium$realView;
 	@Unique private boolean reflexium$presenting;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
-	private void reflexium$expandAcquireSemaphores(VulkanDevice device, long windowHandle, CallbackInfo ci) {
-		for (long sem : acquireSemaphores) {
-			VK12.vkDestroySemaphore(device.vkDevice(), sem, null);
-		}
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			VkSemaphoreCreateInfo info = VkSemaphoreCreateInfo.calloc(stack).sType$Default();
-			LongBuffer handle = stack.callocLong(1);
-			long[] expanded = new long[16];
-			for (int i = 0; i < expanded.length; i++) {
-				VulkanUtils.crashIfFailure(
-						device, VK12.vkCreateSemaphore(device.vkDevice(), info, null, handle), "Failed to create VkSemaphore(binary)");
-				expanded[i] = handle.get(0);
-			}
-			acquireSemaphores = expanded;
-		}
+	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
+		reflexium$acquireCompletion = new com.mojang.renderpearl.api.commands.GpuFence[acquireSemaphores.length];
+	}
+	@Unique private void reflexium$blit(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
+		original.call(encoder, view);
+		// This fence covers the submission consuming this binary acquire signal, independent of FG
+		// multiplier or ring size. RenderPearl's timeline wait takes nanoseconds despite its parameter name.
+		reflexium$acquireCompletion[currentAcquireSemaphore] = encoder.createFence();
 	}
 
 	@WrapMethod(method = "blitFromTexture")
 	private void reflexium$firstGenerated(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
-		if (FsrSwapchain.owns(swapchain) || reflexium$presenting || fg.generatedCount() == 0) { original.call(encoder, view); return; }
+		if (FsrSwapchain.owns(swapchain) || reflexium$presenting || fg.generatedCount() == 0) { reflexium$blit(encoder, view, original); return; }
 		reflexium$realView = view;
-		original.call(encoder, fg.generatedView(0));
+		reflexium$blit(encoder, fg.generatedView(0), original);
 	}
 
 	@WrapMethod(method = "present")
@@ -87,11 +88,15 @@ public abstract class VulkanGpuSurfaceMixin {
 			fg.beginPresent(true);
 			original.call();
 			for (int i = 1; i <= count && !swapchainOutOfDate; i++) {
+				if (fg.batchRejected()) i = count; // valid swapchain: abandon remaining interpolation and deliver the real image
 				surface.acquireNextTexture();
 				fg.beginPresent(i < count);
+				var reflex = com.bambooz.reflexium.reflex.ReflexController.get();
+				reflex.beginReplacementSubmit();
 				CommandEncoderBackend encoder = device.createCommandEncoder();
 				surface.blitFromTexture(encoder, i < count ? fg.generatedView(i) : reflexium$realView);
 				encoder.submit();
+				reflex.endReplacementSubmit();
 				original.call();
 			}
 		} catch (com.mojang.renderpearl.api.device.SurfaceException resized) {
@@ -117,13 +122,18 @@ public abstract class VulkanGpuSurfaceMixin {
 
 	@Inject(method = "destroySwapchain", at = @At("HEAD"))
 	private void reflexium$swapchainDestroyed(CallbackInfo ci) {
+		reflexium$realView = null;
 		VulkanLifecycle.onSwapchainDestroyed();
 	}
 
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",
 			target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkQueuePresentKHR(Lorg/lwjgl/vulkan/VkQueue;Lorg/lwjgl/vulkan/VkPresentInfoKHR;)I"))
 	private int reflexium$tagPresent(org.lwjgl.vulkan.VkQueue queue, VkPresentInfoKHR info, Operation<Integer> original) {
-		if (FsrSwapchain.owns(swapchain)) return FsrSwapchain.present(info);
+		if (FsrSwapchain.owns(swapchain)) {
+			int result = FsrSwapchain.present(info);
+			FrameGenerationRenderer.get().onProxyPresentResult(result);
+			return result;
+		}
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
@@ -137,6 +147,9 @@ public abstract class VulkanGpuSurfaceMixin {
 			if (fg.inPresentBatch()) reflex.afterBatchPresent(fg.isGeneratedPresent());
 		}
 		fg.onPresentResult(info, result);
+		long id = reflex.currentFrameId();
+		if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(id)) com.bambooz.reflexium.vulkan.FrameTrace.event(id,
+				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedback());
 		return result;
 	}
 

@@ -19,17 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-	@Shadow private static int fps;
-
-	@Inject(method = "getFps", at = @At("HEAD"), cancellable = true)
-	private void reflexium$generatedFps(CallbackInfoReturnable<Integer> cir) {
-		int mult = FrameGenerationRenderer.get().displayMultiplier();
-		if (mult > 1) {
-			FpsText.record(fps * mult, fps);
-			cir.setReturnValue(fps * mult);
-		}
-	}
-
 	@Inject(method = "run", at = @At(value = "INVOKE",
 			target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents(Lcom/mojang/blaze3d/platform/SDLEventHandler;)V"))
 	private void reflexium$sleepBeforeInput(CallbackInfo ci) {

@@ -1,6 +1,6 @@
 # Frame generation and Reflex audit and implementation specification
 
-Date: 2026-10-14. Parent reviewer: Codex. Requested implementation model: Claude Sonnet 5.5.
+Date: 2026-10-14. Status: implementation and verification recorded in docs/validation/frame-generation-reflex-2026-10-14.md. Implementers: Codex and Antigravity (Gemini 3.8 Flash High).
 
 ## Scope, sequencing and project context
 

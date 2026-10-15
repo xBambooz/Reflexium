@@ -85,7 +85,7 @@ public final class DeviceExtensions {
 		}
 		extensions.addAll(ngx);
 
-		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, presentId, presentMetering, Set.copyOf(ngx)));
+		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, extensionRevision(physicalDevice), presentId, presentMetering, Set.copyOf(ngx)));
 		extensions.removeAll(vanilla.extensions());
 		if (extensions.isEmpty() && features.isEmpty()) {
 			return vanilla;
@@ -98,5 +98,15 @@ public final class DeviceExtensions {
 		FeatureSet requested = new FeatureSet("FSR", extension == null ? Set.of() : Set.of(extension), Set.of(feature));
 		return (extension == null || device.hasDeviceExtension(extension)) && requested.allFeaturesSupported(device.vkPhysicalDevice())
 				? vanilla.composite(requested) : vanilla;
+	}
+	private static int extensionRevision(VulkanPhysicalDevice device) {
+		try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
+			var count = stack.callocInt(1);
+			if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, null) != 0) return 0;
+			var extensions = org.lwjgl.vulkan.VkExtensionProperties.calloc(count.get(0), stack);
+			if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, extensions) != 0) return 0;
+			for (var extension : extensions) if (extension.extensionNameString().equals(NVLowLatency2.VK_NV_LOW_LATENCY_2_EXTENSION_NAME)) return extension.specVersion();
+			return 0;
+		}
 	}
 }

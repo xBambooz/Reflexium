@@ -63,14 +63,13 @@ public final class ReflexController {
 	private volatile long frameId;
 	private long lastPresentedId;
 	private volatile boolean frameOpen;
-	private boolean batchedPresent;
-
-	private ReflexMode appliedMode;
+	private boolean simulationOpen;
+	private long pendingSleepValue;
+	private final PacingState pacing = new PacingState();
 	private ReflexMode loggedMode;
-	private int appliedIntervalUs = -1;
 	private int requestedIntervalUs;
 	private boolean requestedCapIsVrr;
-	private boolean sleepFailed;
+	private long timingFloorId, timingSeenId, timingSeenAt;
 	private final SmartPacing smartPacing = new SmartPacing();
 
 	private long lastTimingRefresh;
@@ -100,28 +99,40 @@ public final class ReflexController {
 			return;
 		}
 		swapchain = newSwapchain;
-		appliedMode = null;
-		appliedIntervalUs = -1;
+		pacing.reset();
+		resetTiming();
 		applySleepMode();
 	}
 
 	public void onSwapchainDestroyed() {
+		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
 		swapchain = 0;
 		frameOpen = false;
+		simulationOpen = false;
+		pacing.reset();
+		resetTiming();
 		smartPacing.reset();
 	}
 
 	public void shutdown() {
 		if (device != null && sleepSemaphore != 0) {
-			vkDestroySemaphore(device, sleepSemaphore, null);
+			// A timeout does not cancel the driver's pending signal. Never free its destination early.
+			if (drainSleep()) vkDestroySemaphore(device, sleepSemaphore, null);
+			else ReflexiumClient.LOGGER.error("Reflex signal still pending at device teardown; retaining semaphore for device destruction");
 		}
 		device = null;
 		swapchain = 0;
 		sleepSemaphore = 0;
 		sleepValue = 0;
+		pendingSleepValue = 0;
 		presentIdEnabled = false;
 		frameOpen = false;
-		appliedMode = null;
+		simulationOpen = false;
+		pacing.reset();
+		requestedIntervalUs = 0;
+		lastRefreshRead = 0;
+		refreshRateHz = 0;
+		resetTiming();
 		latency = LatencyReport.unavailable("no data yet");
 		smartPacing.reset();
 	}
@@ -135,7 +146,8 @@ public final class ReflexController {
 	}
 
 	public boolean isSleeping() {
-		return isAvailable() && mode().enabled() && sleepSemaphore != 0 && !sleepFailed && !isPacingPaused();
+		return isAvailable() && pacing.canSleep() && pacing.applied != null && pacing.applied.enabled()
+				&& sleepSemaphore != 0 && !isPacingPaused();
 	}
 
 	public boolean isPacingPaused() {
@@ -155,7 +167,8 @@ public final class ReflexController {
 
 	public void setMode(ReflexMode mode) {
 		ReflexiumConfig.get().setReflexMode(mode);
-		sleepFailed = false;
+		pacing.reset();
+		resetTiming();
 		applySleepMode();
 	}
 
@@ -163,6 +176,7 @@ public final class ReflexController {
 	public long currentFrameId() {
 		return frameOpen ? frameId : 0;
 	}
+	public long lastFrameId() { return frameId; }
 
 	/** Id to attach to vkQueuePresentKHR, or 0 when this present must not be tagged. */
 	public long takePresentId() {
@@ -184,12 +198,14 @@ public final class ReflexController {
 		frameOpen = true;
 		applySleepMode();
 		smartPacing.update(System.nanoTime(), canPausePacing());
-		if (isSleeping()) {
+		// The raw Vulkan reference also sleeps in Off (mode=false, interval=0) for reporting.
+		if (pacing.canSleep() && sleepSemaphore != 0 && !isPacingPaused()) {
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, timing, null);
 		}
 		marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
+		simulationOpen = true;
 		if (LOG_LATENCY && System.nanoTime() - lastLatencyLog > LATENCY_LOG_INTERVAL_NS) {
 			lastLatencyLog = System.nanoTime();
 			ReflexiumClient.LOGGER.info("{} | {}", statusLine(), latencyLine());
@@ -198,6 +214,7 @@ public final class ReflexController {
 	}
 
 	public void endSimulation() {
+		simulationOpen = false;
 		marker(VK_LATENCY_MARKER_SIMULATION_END_NV);
 	}
 
@@ -207,22 +224,24 @@ public final class ReflexController {
 
 	public void beforePresent() {
 		marker(VK_LATENCY_MARKER_RENDERSUBMIT_END_NV);
-		batchedPresent = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().generatedCount() > 0
-				&& !com.bambooz.reflexium.dlss.FsrSwapchain.active();
-		if (!batchedPresent) marker(VK_LATENCY_MARKER_PRESENT_START_NV);
+		marker(VK_LATENCY_MARKER_PRESENT_START_NV);
 	}
 
 	public void afterPresent() {
-		if (!batchedPresent) marker(VK_LATENCY_MARKER_PRESENT_END_NV);
-		batchedPresent = false;
+		marker(VK_LATENCY_MARKER_PRESENT_END_NV);
+		frameOpen = false;
+		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
 	}
 
 	public void beforeBatchPresent(boolean generated) {
-		marker(generated ? VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV : VK_LATENCY_MARKER_PRESENT_START_NV);
+		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV);
 	}
 	public void afterBatchPresent(boolean generated) {
-		marker(generated ? VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV : VK_LATENCY_MARKER_PRESENT_END_NV);
+		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV);
 	}
+	public void beginReplacementSubmit() { marker(VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV); }
+	public void endReplacementSubmit() { marker(VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV); }
+	public void triggerFlash() { if (simulationOpen) marker(VK_LATENCY_MARKER_TRIGGER_FLASH_NV); }
 
 	/**
 	 * Called every frame with vanilla's effective FPS cap (menu and AFK throttles included). Reflex paces
@@ -234,7 +253,7 @@ public final class ReflexController {
 		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
 		int fps = Math.min(userFps, vrrFps);
-		requestedIntervalUs = fps == NO_CAP ? 0 : 1_000_000 / fps;
+		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
 		requestedCapIsVrr = vrrFps < userFps;
 	}
 
@@ -261,7 +280,7 @@ public final class ReflexController {
 
 	/** True when vanilla's post-present sleep should be skipped because the Reflex sleep paces frames. */
 	public boolean ownsFrameLimit() {
-		return requestedIntervalUs > 0 && isSleeping();
+		return isSleeping() && pacing.ownsCap(mode(), requestedIntervalUs);
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -280,15 +299,16 @@ public final class ReflexController {
 			return "Reflex: unavailable (" + (session.isNvidia() ? "driver lacks VK_NV_low_latency2" : "not an NVIDIA GPU") + ")";
 		}
 		if (com.bambooz.reflexium.dlss.FsrSwapchain.active()) return "Reflex: unavailable (FSR presentation scheduler)";
-		StringBuilder line = new StringBuilder("Reflex: ").append(mode.displayName());
-		if (sleepFailed) {
-			line.append(" (sleep failed, markers only)");
+		StringBuilder line = new StringBuilder("Reflex: ").append(pacing.configured ? pacing.applied.displayName() : "markers only")
+				.append(" (requested ").append(ReflexiumConfig.get().reflexMode().displayName()).append(")");
+		if (pacing.failed) {
+			line.append(" (pacing failed: ").append(pacing.lastResult).append(", native limiter)");
 		} else if (isPacingPaused()) {
 			line.append(" (paused, high FPS)");
-		} else if (appliedIntervalUs > 0) {
-			line.append(", cap ").append(Math.round(1_000_000.0 / appliedIntervalUs)).append(" FPS");
+		} else if (pacing.interval > 0) {
+			line.append(", base cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
 			if (requestedCapIsVrr) {
-				line.append(" (VSync)");
+				line.append(" (VSync headroom heuristic)");
 			}
 		}
 		if (!presentIdEnabled) {
@@ -298,6 +318,7 @@ public final class ReflexController {
 	}
 
 	public String latencyLine() {
+		if (!isAvailable()) return LatencyReport.unavailable("no native swapchain").format();
 		long now = System.nanoTime();
 		if (isAvailable() && now - lastTimingRefresh > TIMING_REFRESH_NS) {
 			lastTimingRefresh = now;
@@ -347,7 +368,7 @@ public final class ReflexController {
 		}
 		ReflexMode mode = mode();
 		int interval = mode.enabled() ? Math.max(requestedIntervalUs, com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs) : 0;
-		if (mode == appliedMode && interval == appliedIntervalUs) {
+		if (!pacing.shouldApply(mode, interval)) {
 			return;
 		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -357,6 +378,8 @@ public final class ReflexController {
 					.lowLatencyBoost(mode == ReflexMode.ON_BOOST)
 					.minimumIntervalUs(interval);
 			int result = vkSetLatencySleepModeNV(device, swapchain, info);
+			pacing.configuration(mode, interval, result);
+			resetTiming();
 			if (result != VK_SUCCESS) {
 				ReflexiumClient.LOGGER.warn("vkSetLatencySleepModeNV failed ({})", result);
 			} else if (mode != loggedMode) {
@@ -364,11 +387,10 @@ public final class ReflexController {
 				ReflexiumClient.LOGGER.info("Reflex mode: {}", mode.displayName());
 			}
 		}
-		appliedMode = mode;
-		appliedIntervalUs = interval;
 	}
 
 	private void sleep() {
+		if (!drainSleep()) { failSleep("pending Reflex signal", org.lwjgl.vulkan.VK12.VK_TIMEOUT); return; }
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			long value = ++sleepValue;
 			VkLatencySleepInfoNV info = VkLatencySleepInfoNV.calloc(stack)
@@ -382,6 +404,7 @@ public final class ReflexController {
 				failSleep("vkLatencySleepNV", result);
 				return;
 			}
+			pendingSleepValue = value;
 			VkSemaphoreWaitInfo wait = VkSemaphoreWaitInfo.calloc(stack)
 					.sType$Default()
 					.semaphoreCount(1)
@@ -390,7 +413,9 @@ public final class ReflexController {
 			timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, null);
 			result = vkWaitSemaphores(device, wait, SLEEP_TIMEOUT_NS);
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, timing, null);
-			if (result != VK_SUCCESS && result != org.lwjgl.vulkan.VK12.VK_TIMEOUT) {
+			pacing.sleepResult(result);
+			if (result == VK_SUCCESS) pendingSleepValue = 0;
+			else {
 				failSleep("vkWaitSemaphores", result);
 			}
 		}
@@ -398,8 +423,24 @@ public final class ReflexController {
 
 	private void failSleep(String call, int result) {
 		// A broken sleep must never stall the game; keep markers and drop to un-paced frames.
-		sleepFailed = true;
+		pacing.sleepResult(result);
 		ReflexiumClient.LOGGER.warn("{} failed ({}); Reflex sleep disabled until the mode is changed", call, result);
+	}
+
+	private boolean drainSleep() {
+		if (pendingSleepValue == 0) return true;
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			int result = vkWaitSemaphores(device, VkSemaphoreWaitInfo.calloc(stack).sType$Default().semaphoreCount(1)
+					.pSemaphores(stack.longs(sleepSemaphore)).pValues(stack.longs(pendingSleepValue)), SLEEP_TIMEOUT_NS);
+			if (result == VK_SUCCESS) { pendingSleepValue = 0; return true; }
+			return false;
+		}
+	}
+
+	private void resetTiming() {
+		timingFloorId = frameId;
+		timingSeenId = timingSeenAt = lastTimingRefresh = 0;
+		latency = LatencyReport.unavailable("waiting for current frame data");
 	}
 
 	private void marker(int marker) {
@@ -407,6 +448,7 @@ public final class ReflexController {
 			return;
 		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
+			if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "marker=" + marker);
 			vkSetLatencyMarkerNV(device, swapchain, VkSetLatencyMarkerInfoNV.calloc(stack)
 					.sType$Default()
 					.presentID(frameId)
@@ -473,9 +515,12 @@ public final class ReflexController {
 					latest = report;
 				}
 			}
-			if (latest == null) {
+			if (latest == null || latest.presentID() <= timingFloorId || latest.presentID() > frameId) {
 				return LatencyReport.unavailable("waiting for driver data");
 			}
+			long now = System.nanoTime();
+			if (latest.presentID() != timingSeenId) { timingSeenId = latest.presentID(); timingSeenAt = now; }
+			if (now - timingSeenAt > 1_000_000_000L) return LatencyReport.unavailable("stale driver data");
 			return LatencyReport.from(latest);
 		} catch (RuntimeException e) {
 			return LatencyReport.unavailable("timing query failed");
@@ -508,7 +553,8 @@ public final class ReflexController {
 	record LatencyReport(boolean available, String reason, double totalMs, double simMs, double submitMs, double gpuMs) {
 		static LatencyReport from(VkLatencyTimingsFrameReportNV report) {
 			long start = report.inputSampleTimeUs() > 0 ? report.inputSampleTimeUs() : report.simStartTimeUs();
-			if (start <= 0 || report.gpuRenderEndTimeUs() <= start) return unavailable("incomplete driver data");
+			if (start <= 0 || report.gpuRenderEndTimeUs() <= start || report.gpuRenderStartTimeUs() <= 0
+					|| report.gpuRenderEndTimeUs() < report.gpuRenderStartTimeUs()) return unavailable("incomplete driver data");
 			if (report.driverStartTimeUs() > 0 && report.driverEndTimeUs() > 0
 					&& report.driverStartTimeUs() > report.driverEndTimeUs()) return unavailable("inconsistent driver timestamps");
 			return new LatencyReport(true, "", (report.gpuRenderEndTimeUs() - start) / 1000.0,

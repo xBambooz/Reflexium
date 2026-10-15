@@ -15,7 +15,7 @@ public final class DebugSettings {
 	public static boolean directDepth = true;
 	public static int dlssPreset = -1;
 	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
-	public static boolean reflexSubmission = true;
+	public static boolean reflexSubmission = false;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
 	private static volatile float mipBiasOffset;

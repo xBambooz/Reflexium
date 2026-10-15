@@ -34,16 +34,20 @@ public final class FrameGenerationRenderer {
 	private boolean failed, resetNext = true;
 	private int ready, width, height;
 	private long frameId, evaluated, presented;
+	private long realPresented;
+	private final PresentationStats delivery = new PresentationStats();
 	private String problem = "";
 	private int presentBatch, presentIndex;
-	private int activeBatchMultiplier = 1;
 	private boolean generatedPresent;
 	private int lastMeteringFeedback;
+	private boolean batchRejected, resetMetering;
+	private long fsrFrameId;
 
 	public static FrameGenerationRenderer get() { return INSTANCE; }
 
 	void onDeviceCreated(VulkanDevice device, VulkanSession session, FsrBridge fsr) {
 		this.device = device; this.session = session; this.fsr = fsr;
+		resetMetering = false; presentBatch = 0; generatedPresent = false;
 		retry();
 		if (fsr != null) FsrSwapchain.onDeviceCreated(device, session);
 	}
@@ -61,8 +65,8 @@ public final class FrameGenerationRenderer {
 	public boolean isDlssMfgSupported() { return isDlssFgSupported() && maximumMultiplier() >= 3; }
 	public boolean wantsMotion() { return ReflexiumConfig.get().frameGeneration() != FrameGeneration.OFF && !failed && unavailableReason().isEmpty(); }
 	public boolean needsReflex() { return wantsMotion() && ReflexiumConfig.get().frameGeneration().nvidia(); }
-	public void retry() { failed = false; problem = ""; resetNext = true; }
-	public void invalidate() { ready = 0; resetNext = true; activeBatchMultiplier = 1; }
+	public void retry() { failed = false; problem = ""; resetNext = true; delivery.reset(); }
+	public void invalidate() { ready = 0; resetNext = true; delivery.reset(); }
 
 	private String unavailableReason() {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
@@ -80,6 +84,8 @@ public final class FrameGenerationRenderer {
 	}
 
 	void beginFrame() {
+		// Completion of SDK presentation consumers precedes overwriting the generated target.
+		FsrSwapchain.waitForPresents();
 		frameId++;
 		ready = 0;
 		if (!wantsMotion()) resetNext = true;
@@ -89,6 +95,9 @@ public final class FrameGenerationRenderer {
 			Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z, float jitterX, float jitterY,
 			float near, float far, float fov, float frameMs, boolean reset) {
 		if (!wantsMotion()) return;
+		if (ReflexiumConfig.get().frameGeneration().nvidia() && !com.bambooz.reflexium.reflex.ReflexController.get().isSleeping()) {
+			invalidate(); return;
+		}
 		try {
 			FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
 			int count = requested == FrameGeneration.DLSS_MULTI ? Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier()) - 1 : 1;
@@ -117,11 +126,12 @@ public final class FrameGenerationRenderer {
 			NgxBridge.Image color = UpscalingRenderer.ngxImage(scene.getColorTexture(), scene.getColorTextureView());
 			NgxBridge.Image depth = UpscalingRenderer.ngxImage(motion.getDepthTexture(), motion.getDepthTextureView());
 			NgxBridge.Image vectors = UpscalingRenderer.ngxImage(motion.getColorTexture(), motion.getColorTextureView());
+			long evaluationId = mode == FrameGeneration.FSR ? ++fsrFrameId : frameId;
 			for (int i = 0; i < count; i++) {
 				NgxBridge.Image outputImg = UpscalingRenderer.ngxImage(generated[i].getColorTexture(), generated[i].getColorTextureView());
 				long timing = FrameProfiler.start(FrameProfiler.FG_EVALUATE, commands);
 				int result = mode == FrameGeneration.FSR ? fsr.evaluateFrameGeneration(commands.address(), color, depth, vectors,
-						outputImg, constants, frameId, resetting)
+						outputImg, constants, evaluationId, resetting)
 						: ngx.evaluateFrameGeneration(commands.address(), color, depth, vectors, outputImg, constants, frameId, count, i + 1, resetting);
 				FrameProfiler.end(FrameProfiler.FG_EVALUATE, timing, commands);
 				check(result, "evaluation");
@@ -156,27 +166,14 @@ public final class FrameGenerationRenderer {
 	}
 
 	/** Drops this frame's generated images; history stays valid for the next world frame. */
-	public void skipGeneratedFrames() { ready = 0; }
+	public void skipGeneratedFrames() { ready = 0; delivery.reset(); }
 	public int generatedCount() { return ready; }
-	public int displayMultiplier() {
-		if (!wantsMotion() || failed) {
-			return 1;
-		}
-		if (FsrSwapchain.active()) {
-			return 2;
-		}
-		if (activeBatchMultiplier > 1) {
-			return activeBatchMultiplier;
-		}
-		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
-		if (mode == FrameGeneration.DLSS_MULTI) {
-			return Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
-		}
-		return mode != FrameGeneration.OFF ? 2 : 1;
-	}
+	public int submittedFps() { return delivery.totalRate(System.nanoTime()); }
+	public int submittedRealFps() { return delivery.realRate(System.nanoTime()); }
+	public long realPresents() { return realPresented; }
 	public void scheduleProxyPresent() {
 		if (FsrSwapchain.active() && built == FrameGeneration.FSR) {
-			FsrSwapchain.schedule(ready == 0 ? null : UpscalingRenderer.ngxImage(generated[0].getColorTexture(), generated[0].getColorTextureView()), frameId);
+			FsrSwapchain.schedule(ready == 0 ? null : UpscalingRenderer.ngxImage(generated[0].getColorTexture(), generated[0].getColorTextureView()), fsrFrameId);
 		}
 	}
 	public GpuTextureView generatedView(int index) { return generated[index].getColorTextureView(); }
@@ -195,31 +192,55 @@ public final class FrameGenerationRenderer {
 				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "") : reason);
 	}
 
-	public void beginPresentBatch(int frames) { presentBatch = frames; presentIndex = 0; activeBatchMultiplier = frames; }
+	public void beginPresentBatch(int frames) {
+		if (frames < 2 || frames > 8) throw new IllegalArgumentException("FG batch must contain 2..8 presents");
+		presentBatch = frames; presentIndex = 0; batchRejected = false;
+		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
+	}
+	public boolean batchRejected() { return batchRejected; }
 	public boolean inPresentBatch() { return presentBatch > 1; }
 	public void beginPresent(boolean generated) { generatedPresent = generated; }
 	public boolean isGeneratedPresent() { return generatedPresent; }
 	public void endPresentBatch() { presentBatch = 0; generatedPresent = false; ready = 0; }
 	public VkPresentInfoKHR chainMetering(VkPresentInfoKHR info) {
-		if (presentBatch <= 1 || presentIndex++ != 0) return info;
+		if (!resetMetering && (presentBatch <= 1 || presentIndex++ != 0)) return info;
 		VkSetPresentConfigNV metering = VkSetPresentConfigNV.calloc(MemoryStack.stackGet()).sType$Default()
-				.numFramesPerBatch(presentBatch).pNext(info.pNext());
+				.numFramesPerBatch(resetMetering ? 1 : presentBatch).presentConfigFeedback(-1).pNext(info.pNext());
+		resetMetering = false;
 		return info.pNext(metering.address());
 	}
 	public void onPresentResult(VkPresentInfoKHR info, int result) {
 		if (result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
 			if (generatedPresent) presented++;
+			else realPresented++;
+			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}
-		if (presentBatch > 1 && presentIndex == 1) {
+		if (presentBatch > 1) {
 			long next = info.pNext();
 			while (next != 0) {
 				VkBaseOutStructure header = VkBaseOutStructure.create(next);
 				if (header.sType() == NVPresentMetering.VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV) {
-					lastMeteringFeedback = VkSetPresentConfigNV.create(next).presentConfigFeedback(); break;
+					lastMeteringFeedback = VkSetPresentConfigNV.create(next).presentConfigFeedback();
+					if (lastMeteringFeedback != VK10.VK_SUCCESS) {
+						failed = true; problem = "present metering rejected: " + lastMeteringFeedback;
+						batchRejected = resetMetering = true;
+						invalidate();
+					}
+					break;
 				}
 				next = header.pNext() == null ? 0 : header.pNext().address();
 			}
 		}
+		if (result != VK10.VK_SUCCESS) {
+			batchRejected = resetMetering = true;
+			invalidate();
+		}
+	}
+	public void onProxyPresentResult(int result) {
+		// SDK present-count telemetry is exposed separately. Its callbacks are asynchronous and do
+		// not identify generated scanout; keep the overlay's rate unmultiplied on this route.
+		if (result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR) realPresented++;
+		if (result != VK10.VK_SUCCESS) invalidate();
 	}
 
 	void release() {

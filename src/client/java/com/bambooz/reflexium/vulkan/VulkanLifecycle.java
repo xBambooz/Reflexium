@@ -22,6 +22,8 @@ import org.lwjgl.vulkan.VkSwapchainLatencyCreateInfoNV;
  * as long as the Vulkan call that reads them.
  */
 public final class VulkanLifecycle {
+	private static org.lwjgl.vulkan.VkQueue graphicsQueue;
+	private static boolean queueTagged;
 	private VulkanLifecycle() {
 	}
 
@@ -35,10 +37,13 @@ public final class VulkanLifecycle {
 				physicalDevice.deviceName(),
 				physicalDevice.driverInfo(),
 				extensions.lowLatency2(),
+				extensions.lowLatencyRevision(),
 				extensions.presentId(),
 				extensions.presentMetering(),
 				extensions.ngxExtensions());
 		VulkanSession.publish(session);
+		graphicsQueue = vulkanDevice.graphicsQueue().vkQueue();
+		queueTagged = false;
 		ReflexiumClient.LOGGER.info("Vulkan device {} ({}): low_latency2={}, present_id={}, present_metering={}",
 				session.deviceName(), session.driverInfo(), session.lowLatency2(), session.presentId(), session.presentMetering());
 
@@ -53,6 +58,8 @@ public final class VulkanLifecycle {
 		UpscalingRenderer.get().onDeviceClosing();
 		ReflexController.get().shutdown();
 		VulkanSession.clear();
+		graphicsQueue = null;
+		queueTagged = false;
 	}
 
 	public static void onSwapchainCreated(long swapchain) {
@@ -65,9 +72,14 @@ public final class VulkanLifecycle {
 	}
 
 	public static VkSwapchainCreateInfoKHR chainSwapchainLatency(VkSwapchainCreateInfoKHR info) {
-		info.minImageCount(Math.max(info.minImageCount(), 8));
 		VulkanSession session = VulkanSession.current();
-		if (session == null || !session.lowLatency2()) {
+		if (session != null) {
+			var caps = org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR.calloc(MemoryStack.stackGet());
+			if (org.lwjgl.vulkan.KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(session.physicalDevice(), info.surface(), caps) == 0) {
+				info.minImageCount(validImageCount(info.minImageCount(), caps.minImageCount(), caps.maxImageCount()));
+			}
+		}
+		if (session == null || !session.lowLatency2() || com.bambooz.reflexium.dlss.FsrSwapchain.canCreate(info)) {
 			return info;
 		}
 		VkSwapchainLatencyCreateInfoNV latency = VkSwapchainLatencyCreateInfoNV.calloc(MemoryStack.stackGet())
@@ -91,15 +103,23 @@ public final class VulkanLifecycle {
 		return info.pNext(presentId.address());
 	}
 
-	public static VkSubmitInfo2.Buffer chainSubmissionIds(VkSubmitInfo2.Buffer submits) {
-		if (com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().isGeneratedPresent()) return submits;
+	public static int validImageCount(int original, int minimum, int maximum) {
+		int count = Math.max(original, minimum);
+		return maximum == 0 ? count : Math.min(count, maximum);
+	}
+
+	public static VkSubmitInfo2.Buffer chainSubmissionIds(org.lwjgl.vulkan.VkQueue queue, VkSubmitInfo2.Buffer submits) {
 		long id = ReflexController.get().currentFrameId();
 		VulkanSession session = VulkanSession.current();
-		if (id == 0 || session == null || !session.lowLatency2()) {
+		if (session == null || !session.explicitAttributionSupported() || graphicsQueue == null || queue.address() != graphicsQueue.address()) {
 			return submits;
 		}
-		// Zero clears explicit attribution on this queue when comparing the implicit path.
-		if (!com.bambooz.reflexium.debug.DebugSettings.reflexSubmission) id = 0;
+		// Only this queue is ever explicitly tagged. Clearing it returns the entire device to implicit
+		// attribution; zero alone would not exclude work if another queue still held a nonzero ID.
+		if (!com.bambooz.reflexium.debug.DebugSettings.reflexSubmission
+				|| com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().inPresentBatch()) id = 0;
+		if (id == 0 && !queueTagged) return submits;
+		queueTagged = id != 0;
 		MemoryStack stack = MemoryStack.stackGet();
 		for (int i = submits.position(); i < submits.limit(); i++) {
 			VkSubmitInfo2 submit = submits.get(i);
@@ -110,5 +130,14 @@ public final class VulkanLifecycle {
 			submit.pNext(tag.address());
 		}
 		return submits;
+	}
+	public static void clearSubmissionAttribution() {
+		if (!queueTagged || graphicsQueue == null) return;
+		try (var stack = MemoryStack.stackPush()) {
+			var clear = VkSubmitInfo2.calloc(1, stack).sType$Default();
+			clear.pNext(VkLatencySubmissionPresentIdNV.calloc(stack).sType$Default().presentID(0).address());
+			org.lwjgl.vulkan.KHRSynchronization2.vkQueueSubmit2KHR(graphicsQueue, clear, 0);
+			queueTagged = false;
+		}
 	}
 }

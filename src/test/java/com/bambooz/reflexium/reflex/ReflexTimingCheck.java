@@ -6,6 +6,26 @@ import static org.lwjgl.system.MemoryUtil.memPutLong;
 
 public final class ReflexTimingCheck {
 	public static void main(String[] args) {
+		var state = new PacingState();
+		state.reset();
+		if (!state.shouldApply(ReflexMode.ON, 8334)) throw new AssertionError("initial configure");
+		state.configuration(ReflexMode.ON, 8334, 0);
+		if (state.ownsCap(ReflexMode.ON, 8334)) throw new AssertionError("configuration is not completed sleep");
+		state.sleepResult(0);
+		if (!state.ownsCap(ReflexMode.ON, 8334) || state.ownsCap(ReflexMode.ON, 10000)) throw new AssertionError("cap ownership must match effective interval");
+		state.configuration(ReflexMode.ON_BOOST, 8334, -1);
+		if (state.applied != ReflexMode.ON || state.canSleep() || state.ownsCap(ReflexMode.ON_BOOST, 8334)
+				|| state.shouldApply(ReflexMode.ON_BOOST, 8334)) throw new AssertionError("failed config must retain old record, fall back, and not spam");
+		for (int result : new int[]{2, -4}) {
+			state.reset(); // explicit mode retry or new swapchain/device
+			state.configuration(ReflexMode.ON_BOOST, 8334, 0);
+			state.sleepResult(result);
+			for (int frame = 0; frame < 10; frame++) if (state.canSleep() || state.ownsCap(ReflexMode.ON_BOOST, 8334)) throw new AssertionError("failed wait must stay in fallback");
+		}
+		state.reset(); state.configuration(ReflexMode.OFF, 0, 0); state.sleepResult(0);
+		if (!state.canSleep() || state.ownsCap(ReflexMode.OFF, 0)) throw new AssertionError("Off reporting sleep never owns cap");
+		state.reset(); state.configuration(ReflexMode.ON, 8334, 0); state.sleepResult(0);
+		if (!state.ownsCap(ReflexMode.ON, 8334)) throw new AssertionError("lifecycle recovery");
 		var pacing = new ReflexController.SmartPacing();
 		long now = 1;
 		pacing.update(now, true);

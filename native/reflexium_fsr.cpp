@@ -40,7 +40,7 @@ struct RxImage {
     int32_t format, width, height, aspect;
 };
 static_assert(sizeof(RxImage) == 32);
-RX_EXPORT void rx_fsr_sc_pause();
+RX_EXPORT int rx_fsr_sc_pause();
 
 static FfxApiResource resource(const RxImage* image, bool output) {
     VkImageCreateInfo info = {};
@@ -128,15 +128,22 @@ RX_EXPORT int rx_fsr_generate_reactive(void* commandBuffer, const RxImage* opaqu
     return ffxDispatch(&context, &dispatch.header);
 }
 
-RX_EXPORT void rx_fsr_fg_release() {
-    rx_fsr_sc_pause();
-    if (fgContext) { ffxDestroyContext(&fgContext, nullptr); fgContext = nullptr; }
+RX_EXPORT int rx_fsr_fg_release() {
+    auto result = rx_fsr_sc_pause();
+    if (result != 0) return result;
+    if (fgContext) {
+        result = ffxDestroyContext(&fgContext, nullptr);
+        if (result != 0) return result;
+        fgContext = nullptr;
+    }
+    return 0;
 }
 
 RX_EXPORT int rx_fsr_fg_create(void* device, void* physicalDevice, void* gdpa,
         uint32_t renderWidth, uint32_t renderHeight, uint32_t displayWidth, uint32_t displayHeight) {
     if (!device || !physicalDevice || !gdpa || !renderWidth || !renderHeight || !displayWidth || !displayHeight) return -1;
-    rx_fsr_fg_release();
+    auto releaseResult = rx_fsr_fg_release();
+    if (releaseResult != 0) return releaseResult;
     realDeviceProcAddr = reinterpret_cast<PFN_vkGetDeviceProcAddr>(gdpa);
     fgBackend = {};
     fgBackend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_VK;

@@ -414,6 +414,9 @@ public final class DebugServer {
 		o.addProperty("reflex_sleeping", com.bambooz.reflexium.reflex.ReflexController.get().isSleeping());
 		o.addProperty("reflex_latency", com.bambooz.reflexium.reflex.ReflexController.get().latencyLine());
 		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);
+		var session = com.bambooz.reflexium.vulkan.VulkanSession.current();
+		o.addProperty("reflex_extension_revision", session == null ? 0 : session.lowLatencyRevision());
+		o.addProperty("reflex_attribution", DebugSettings.reflexSubmission && session != null && session.explicitAttributionSupported() ? "explicit (graphics queue only)" : "implicit");
 		o.addProperty("reflex_interval_us", DebugSettings.reflexIntervalUs);
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
@@ -422,6 +425,10 @@ public final class DebugServer {
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		o.addProperty("fg_evaluated_frames", FrameGenerationRenderer.get().evaluatedFrames());
 		o.addProperty("fg_generated_presents", FrameGenerationRenderer.get().generatedPresents());
+		o.addProperty("fg_real_presents", FrameGenerationRenderer.get().realPresents());
+		o.addProperty("fg_submitted_fps", FrameGenerationRenderer.get().submittedFps());
+		o.addProperty("fg_submitted_real_fps", FrameGenerationRenderer.get().submittedRealFps());
+		o.addProperty("fg_display_feedback", "unavailable");
 		o.addProperty("fg_metering_feedback", FrameGenerationRenderer.get().meteringFeedback());
 		o.addProperty("fg_sdk_present_count", com.bambooz.reflexium.dlss.FsrSwapchain.presentCount());
 		o.addProperty("fg_sdk_scheduler", com.bambooz.reflexium.dlss.FsrSwapchain.active());
@@ -568,6 +575,11 @@ public final class DebugServer {
 			case "shaders" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackEnabled(on);
+			}
+			case "reflex_trace" -> {
+				int frames = Integer.parseInt(value);
+				if (frames < 0 || frames > 32) throw new BadRequest("Reflex trace must be 0..32 frames");
+				yield () -> com.bambooz.reflexium.vulkan.FrameTrace.arm(frames);
 			}
 			case "reflex_submission" -> {
 				boolean enabled = flag(Map.of("v", value), "v", true);

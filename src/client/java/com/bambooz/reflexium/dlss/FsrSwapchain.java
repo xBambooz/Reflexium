@@ -25,12 +25,12 @@ public final class FsrSwapchain {
 		Linker linker = Linker.nativeLinker();
 		init = bind(linker, lib, "init", FunctionDescriptor.ofVoid(ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT));
 		create = bind(linker, lib, "create", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
-		destroy = bind(linker, lib, "destroy", FunctionDescriptor.ofVoid(ADDRESS));
+		destroy = bind(linker, lib, "destroy", FunctionDescriptor.of(JAVA_INT, ADDRESS));
 		images = bind(linker, lib, "images", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
 		acquire = bind(linker, lib, "acquire", FunctionDescriptor.of(JAVA_INT, JAVA_LONG, JAVA_LONG, JAVA_LONG, ADDRESS));
 		present = bind(linker, lib, "present", FunctionDescriptor.of(JAVA_INT, ADDRESS));
 		schedule = bind(linker, lib, "schedule", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_LONG));
-		wait = bind(linker, lib, "wait", FunctionDescriptor.ofVoid());
+		wait = bind(linker, lib, "wait", FunctionDescriptor.of(JAVA_INT));
 		count = bind(linker, lib, "present_count", FunctionDescriptor.of(JAVA_LONG));
 	}
 	private static MethodHandle bind(Linker linker, SymbolLookup lib, String name, FunctionDescriptor signature) {
@@ -108,7 +108,9 @@ public final class FsrSwapchain {
 	public static void destroy(VkAllocationCallbacks allocator) {
 		try {
 			MemorySegment alloc = allocator == null ? MemorySegment.NULL : MemorySegment.ofAddress(allocator.address());
-			instance.destroy.invokeExact(alloc); proxy = 0;
+			int result = (int) instance.destroy.invokeExact(alloc);
+			if (result != 0) throw new IllegalStateException("FSR swapchain drain/destroy failed: " + result);
+			proxy = 0;
 		} catch (Throwable e) { throw error(e); }
 	}
 	public static int images(IntBuffer count, LongBuffer images) {
@@ -135,7 +137,7 @@ public final class FsrSwapchain {
 	}
 	static void waitForPresents() {
 		if (!active()) return;
-		try { instance.wait.invokeExact(); }
+		try { int result = (int) instance.wait.invokeExact(); if (result != 0) throw new IllegalStateException("FSR presentation drain failed: " + result); }
 		catch (Throwable e) { throw error(e); }
 	}
 	public static long presentCount() {

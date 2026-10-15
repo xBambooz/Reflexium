@@ -28,31 +28,38 @@ by the vendors for quality and latency, rather than enforced as an initializatio
 
 On supported NVIDIA devices, `VK_NV_present_metering` paces a batch of generated frames followed
 by the real frame. The extension and feature are queried before device creation. Only the first
-present in each batch carries `VkSetPresentConfigNV`. The driver feedback is exposed in diagnostics.
-The extension is provisional; driver and displayed-frame acceptance remain necessary.
+present in each batch carries `VkSetPresentConfigNV`. The driver feedback is checked on return;
+if feedback is rejected or present fails, the batch is abandoned cleanly and normal real delivery
+is restored. Swapchain recreation queries physical surface capabilities and bounds image counts
+between `minImageCount` and `maxImageCount` (allowing unbounded when max is 0).
 VSync must be off for this route. DLSS FG enables Reflex while requested, preserving the saved
 Reflex preference. Real presents retain simulation-frame IDs; generated presents use out-of-band
-markers and do not consume the real present ID.
+markers (`VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV` / `END_NV`) and do not consume the real present ID.
 
-Vulkan presentation surfaces initialize with an expanded acquire semaphore ring (16 semaphores)
-to allow multi-frame present batches to cycle through distinct binary semaphores without GPU stalls
-or semaphore reuse hazards.
+Vulkan presentation surfaces track binary acquire semaphores with completion fences (`reflexium$acquireCompletion`)
+tied to the command submission that consumes each signal. Before any binary acquire semaphore is reused,
+its prior consuming submission is guaranteed complete, replacing arbitrary ring sizing with an explicit
+GPU synchronization invariant.
 
 On other supported GPUs, FSR uses AMD's signed Vulkan swapchain scheduler. Three additional
 queues are reserved only when the physical family has room. SDK presentation threads use those
 private queues. All swapchain operations go through the SDK; its intermediate images finish in
 GENERAL layout. Interpolation runs on the app's graphics queue, followed by a native scheduler
 callback that copies the already generated image into the SDK's interpolation target, including
-Minecraft's presentation Y flip and format conversion. Async interpolation is disabled. The SDK
-owns real/generated presentation pacing. Insufficient queue or surface support disables this route.
-Reflex never receives an opaque FSR proxy handle.
+Minecraft's presentation Y flip and format conversion. The native callback receives frame-specific
+user context (`ScheduledFrame`) with frame ID verification and pending-present drainage, with errors
+propagated across wait/pause/destroy. Async interpolation is disabled. The SDK owns real/generated
+presentation pacing. Insufficient queue or surface support disables this route. Reflex never receives
+an opaque FSR proxy handle.
 
 The world is interpolated before the GUI. `GuiRenderer` prepares/uploads once, then replays its
 draw list on each generated target before discarding the list. This preserves text, hotbars and
 destination-dependent blending such as the crosshair. It costs additional GUI draws per output.
-Screenshots of the main target continue to contain the rendered world and GUI. Minecraft's F3
-displayed FPS reflects the active displayed frame multiplier while frames are generated, accurately
-reporting the displayed frame delivery rate to the user.
+Screenshots of the main target continue to contain the rendered world and GUI. Minecraft's internal
+simulation and frame counting (`Minecraft.getFps`) remain unmutated so other mods' timing logic is
+unaffected. Reflexium's debug HUD and F3 lines append the real rendered frame rate alongside submitted
+generation rate (`FpsText.withRendered`), reporting measured submitted presentation operations over a
+matching 1-second window rather than an unverified multiplier or scanout claim.
 
 Native contexts and image resources are independent of upscaler contexts. Changes flush submitted
 work and wait before releasing GPU resources. The AMD scheduler is disabled and drained before
@@ -74,7 +81,7 @@ debug sessions were identified by PID, injected harness jar and exact game direc
 - DLSS 2x, DLSS MFG 3x/4x/5x/6x, FSR 2x each passed with Auto/DLSS, FSR and native rendering (18 combinations).
   Each steady sample advanced evaluation and generated-present counts by the expected 1, 2, 3, 4 or 5 frames per rendered frame.
 - Real and generated image readbacks contain the scene, first-person hand and full-resolution GUI.
-- The AMD scheduler can be forced on NVIDIA for integration tests with `-Dreflexium.fsr.forceSwapchain=true`.
+- The AMD scheduler can be forced on NVIDIA for integration tests with `-Dreflexium.fsr.forceSwapchain=true``.
   Its context, swapchain creation, native interpolation, 960x540/1280x720 resize, and world quit/rejoin were exercised.
   All three upscaler pairings passed; steady samples recorded 359/361/361 SDK presents for 179/180/179 evaluations.
   Actual AMD/Intel hardware is untested.
@@ -98,12 +105,4 @@ Context creation, successful dispatch, image readback and present submission do 
 physical scanout. Displayed-frame cadence and input latency need a suitable FrameView capture;
 the bundled local PresentMon CLI exited without producing a capture in this session. Do not use
 submission timestamps alone to certify NVIDIA hardware metering. High multiplier output can also
-exceed the monitor's refresh rate and be dropped by the presentation system.
-
-Moving-object quality, disocclusions, particles/translucency, shader-only vertex deformation and
-arbitrary shader-pack TAA need broader visual acceptance. The underlying motion-vector limits
-remain those in [DLSS.md](DLSS.md). Aperture runtime compatibility remains unverified.
-
-Reference-mod strategy research: [Radiance](https://modrinth.com/mod/radiance-mod-windows) and
-[Salt's Anti Aliasing](https://modrinth.com/mod/salts-anti-aliasing), followed to their linked sources.
-Implementation uses vendor APIs; no creative implementation code was copied from those projects.
+diverge from uniform frame delivery under GPU saturation.

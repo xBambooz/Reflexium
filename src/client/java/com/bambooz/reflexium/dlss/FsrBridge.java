@@ -27,7 +27,7 @@ final class FsrBridge {
 				ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
 		fgEvaluate = linker.downcallHandle(library.find("rx_fsr_fg_evaluate").orElseThrow(), FunctionDescriptor.of(JAVA_INT,
 				ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_LONG, JAVA_INT));
-		fgRelease = linker.downcallHandle(library.find("rx_fsr_fg_release").orElseThrow(), FunctionDescriptor.ofVoid());
+		fgRelease = linker.downcallHandle(library.find("rx_fsr_fg_release").orElseThrow(), FunctionDescriptor.of(JAVA_INT));
 	}
 
 	int createFrameGeneration(long device, long physical, long gdpa, int rw, int rh, int dw, int dh) {
@@ -44,7 +44,7 @@ final class FsrBridge {
 	}
 
 	void releaseFrameGeneration() {
-		try { fgRelease.invokeExact(); }
+		try { int result = (int) fgRelease.invokeExact(); if (result != 0) throw new IllegalStateException("FSR FG drain/release failed: " + result); }
 		catch (Throwable t) { throw new IllegalStateException("FSR FG release failed", t); }
 	}
 

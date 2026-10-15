@@ -123,6 +123,13 @@ tasks.register("reflexTimingCheck", JavaExec) {
 }
 tasks.named("check") { dependsOn "reflexTimingCheck" }
 
+tasks.register("frameDeliveryCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.dlss.FrameDeliveryCheck"
+}
+tasks.named("check") { dependsOn "frameDeliveryCheck" }
+
 // -PrxBenchJar: the run classpath otherwise still lists this tree's build/classes and build/resources
 // ahead of the selected jar, so an "old" jar would silently execute the working tree's client code.
 // Loom writes the classpath argfile from its own argument providers while the task starts, so the

@@ -18,6 +18,7 @@ public record VulkanSession(
 		String deviceName,
 		String driverInfo,
 		boolean lowLatency2,
+		int lowLatencyRevision,
 		boolean presentId,
 		boolean presentMetering,
 		Set<String> ngxExtensions
@@ -34,10 +35,11 @@ public record VulkanSession(
 	public boolean isNvidia() {
 		return vendorId == VENDOR_NVIDIA;
 	}
+	public boolean explicitAttributionSupported() { return lowLatency2 && lowLatencyRevision >= 3; }
 
 	/** Recorded by the device-creation hook, consumed when the VulkanDevice object is constructed. */
-	public record PendingExtensions(boolean lowLatency2, boolean presentId, boolean presentMetering, Set<String> ngxExtensions) {
-		public static final PendingExtensions NONE = new PendingExtensions(false, false, false, Set.of());
+	public record PendingExtensions(boolean lowLatency2, int lowLatencyRevision, boolean presentId, boolean presentMetering, Set<String> ngxExtensions) {
+		public static final PendingExtensions NONE = new PendingExtensions(false, 0, false, false, Set.of());
 	}
 
 	public static void setPending(PendingExtensions extensions) {
