@@ -1,0 +1,35 @@
+[
+    {
+        "mode":  "native",
+        "old_fps":  1841.0499534077085,
+        "new_fps":  1515.072216296714,
+        "fps_change_pct":  -17.706077801290665,
+        "old_low1":  380.68312899516638,
+        "new_low1":  323.98612030178606,
+        "low1_change_pct":  -14.893491298927575,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    },
+    {
+        "mode":  "fg2",
+        "old_fps":  301.98074417698234,
+        "new_fps":  308.48892931030076,
+        "fps_change_pct":  2.1551656053619528,
+        "old_low1":  143.65631537279862,
+        "new_low1":  149.01787571265919,
+        "low1_change_pct":  3.7322134609584889,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    },
+    {
+        "mode":  "fg4",
+        "old_fps":  159.21466472968439,
+        "new_fps":  207.47342543131802,
+        "fps_change_pct":  30.310499842189564,
+        "old_low1":  47.475647300778689,
+        "new_low1":  109.47570454603685,
+        "low1_change_pct":  130.59339002259637,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    }
+]

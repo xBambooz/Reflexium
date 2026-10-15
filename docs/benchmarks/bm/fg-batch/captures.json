@@ -1,0 +1,482 @@
+[
+    {
+        "mode":  "native",
+        "arm":  "old",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-25-05_benchmark-route_nvfh4n.bmresult.json.gz",
+        "sha256":  "17727E7CA8AFC58254D247703302C6352B9205090AFFB12F355589F52CD2B47C",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  true,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  1841.2181427126704,
+                                  "avgFrameMs":  0.5431186977805346,
+                                  "p1Fps":  478.6062927246094,
+                                  "low1Fps":  143.94852589219406,
+                                  "p01Fps":  387.50677490234375,
+                                  "low01Fps":  53.301305052800814,
+                                  "stdDevMs":  0.45603034964318273,
+                                  "refreshCoverage":  99.23054863277233,
+                                  "averageTps":  20.001658386594116,
+                                  "p99Ms":  2.089400025033522,
+                                  "p999Ms":  2.5806000430625033,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2868.0,
+                                                   "gpuTempC":  58.54545454545455,
+                                                   "gpuPowerW":  204.4437491677024,
+                                                   "cpuClockMhz":  4175.480113636364,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  9850.0,
+                                                   "over33":  0.0,
+                                                   "over50":  0.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  2.960114543498819,
+                                               "p99":  10.406900405883789,
+                                               "max":  19.318700790405273,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  10.0,
+                                             "youngPauses":  7.0,
+                                             "mixedPauses":  3.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  137.0,
+                                             "maxPauseMs":  19.0,
+                                             "pausePercent":  0.30413176459083174,
+                                             "heapMinMb":  585.0,
+                                             "heapAvgMb":  1752.404453230493,
+                                             "heapMaxMb":  2986.7353515625,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  370.255448452262
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  0.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    },
+    {
+        "mode":  "fg2",
+        "arm":  "old",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-26-10_benchmark-route_4ftrb0.bmresult.json.gz",
+        "sha256":  "458ED027AEA9CBCAC8C042CCCE789867A74EE8288E287EF58CF8F1F49DAEB832",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  false,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  301.9854346961799,
+                                  "avgFrameMs":  3.3114179861226596,
+                                  "p1Fps":  198.1846160888672,
+                                  "low1Fps":  95.13596353002339,
+                                  "p01Fps":  97.45734405517578,
+                                  "low01Fps":  36.81315743454798,
+                                  "stdDevMs":  0.710758878699973,
+                                  "refreshCoverage":  90.918089053284,
+                                  "averageTps":  20.00065250376787,
+                                  "p99Ms":  5.045800323631547,
+                                  "p999Ms":  10.260899367766957,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2879.2954545454545,
+                                                   "gpuTempC":  66.38636363636364,
+                                                   "gpuPowerW":  197.58752302689985,
+                                                   "cpuClockMhz":  4171.125,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  23.0,
+                                                   "over33":  0.0,
+                                                   "over50":  0.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  2.533728964122366,
+                                               "p99":  7.7779998779296875,
+                                               "max":  23.211999893188477,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  6.0,
+                                             "youngPauses":  4.0,
+                                             "mixedPauses":  2.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  97.0,
+                                             "maxPauseMs":  22.0,
+                                             "pausePercent":  0.21532333994067515,
+                                             "heapMinMb":  893.7797241210938,
+                                             "heapAvgMb":  2030.977800157335,
+                                             "heapMaxMb":  3259.0,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  275.83454185308415
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  0.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    },
+    {
+        "mode":  "fg4",
+        "arm":  "old",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-27-10_benchmark-route_t0e8ul.bmresult.json.gz",
+        "sha256":  "17FB7320596EE8D582B5A995C5BD71EEE19A9C69239534B89CBE006016AEEDCD",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  false,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  159.21585671235883,
+                                  "avgFrameMs":  6.2807814538636775,
+                                  "p1Fps":  97.55431365966797,
+                                  "low1Fps":  17.384611085486487,
+                                  "p01Fps":  25.202693939208984,
+                                  "low01Fps":  12.27228801975371,
+                                  "stdDevMs":  2.317637826568893,
+                                  "refreshCoverage":  0.0,
+                                  "averageTps":  20.004669766815688,
+                                  "p99Ms":  10.250699968928505,
+                                  "p999Ms":  39.67829797925904,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2888.7954545454545,
+                                                   "gpuTempC":  66.77272727272727,
+                                                   "gpuPowerW":  184.19875023581764,
+                                                   "cpuClockMhz":  4180.909090909091,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  35.0,
+                                                   "over33":  11.0,
+                                                   "over50":  4.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  2.7637561572246363,
+                                               "p99":  8.549400329589844,
+                                               "max":  19.551799774169922,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  5.0,
+                                             "youngPauses":  4.0,
+                                             "mixedPauses":  1.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  71.0,
+                                             "maxPauseMs":  17.0,
+                                             "pausePercent":  0.15763946209144436,
+                                             "heapMinMb":  877.6676025390625,
+                                             "heapAvgMb":  2131.5623779296875,
+                                             "heapMaxMb":  3312.0,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  254.70925566207532
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  4.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    },
+    {
+        "mode":  "native",
+        "arm":  "new",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-28-36_benchmark-route_niblml.bmresult.json.gz",
+        "sha256":  "8AD58816BA1B514A50E33D6E68B76D105C972C1B53A1E399AC31599AD8E53721",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  true,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  1515.1860957518306,
+                                  "avgFrameMs":  0.6599849370342875,
+                                  "p1Fps":  463.8003845214844,
+                                  "low1Fps":  54.682817992698894,
+                                  "p01Fps":  328.28863525390625,
+                                  "low01Fps":  36.12501525770772,
+                                  "stdDevMs":  0.5642592562038423,
+                                  "refreshCoverage":  98.76465364166724,
+                                  "averageTps":  19.977548874548017,
+                                  "p99Ms":  2.156099980451132,
+                                  "p999Ms":  3.0460999639130857,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2867.0697674418607,
+                                                   "gpuTempC":  61.0,
+                                                   "gpuPowerW":  186.18316331020623,
+                                                   "cpuClockMhz":  4199.816860465116,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  12402.0,
+                                                   "over33":  0.0,
+                                                   "over50":  0.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  3.214541333516439,
+                                               "p99":  10.413700103759766,
+                                               "max":  30.80769920349121,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  8.0,
+                                             "youngPauses":  7.0,
+                                             "mixedPauses":  2.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  123.0,
+                                             "maxPauseMs":  21.0,
+                                             "pausePercent":  0.2730265012854896,
+                                             "heapMinMb":  590.3291015625,
+                                             "heapAvgMb":  1828.6512765708876,
+                                             "heapMaxMb":  3086.854736328125,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  349.80658775152165
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  0.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    },
+    {
+        "mode":  "fg2",
+        "arm":  "new",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-29-43_benchmark-route_xx2j0x.bmresult.json.gz",
+        "sha256":  "81E118AB7E44E6BD5DF1F4D45E6715F30B9747413D5D8801952567D2980F25D8",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  false,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  308.49344484730955,
+                                  "avgFrameMs":  3.2415599640859636,
+                                  "p1Fps":  206.7055206298828,
+                                  "low1Fps":  99.19900139362471,
+                                  "p01Fps":  79.27510833740234,
+                                  "low01Fps":  43.59302374261119,
+                                  "stdDevMs":  0.7379126378548224,
+                                  "refreshCoverage":  92.08926873444098,
+                                  "averageTps":  19.981583329440706,
+                                  "p99Ms":  4.837800156245236,
+                                  "p999Ms":  12.614300011346634,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2874.0454545454545,
+                                                   "gpuTempC":  68.88636363636364,
+                                                   "gpuPowerW":  207.7966818376021,
+                                                   "cpuClockMhz":  4189.678977272727,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  23.0,
+                                                   "over33":  0.0,
+                                                   "over50":  0.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  2.8060169996155633,
+                                               "p99":  8.187199592590332,
+                                               "max":  19.183700561523438,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  7.0,
+                                             "youngPauses":  5.0,
+                                             "mixedPauses":  2.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  106.0,
+                                             "maxPauseMs":  19.0,
+                                             "pausePercent":  0.23533864810230165,
+                                             "heapMinMb":  931.375,
+                                             "heapAvgMb":  2078.2009459311917,
+                                             "heapMaxMb":  3319.0,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  283.99752417276073
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  0.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    },
+    {
+        "mode":  "fg4",
+        "arm":  "new",
+        "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\perf-batch\\build\\bm-bench\\fg-batch-quick2-A\\data\\results\\2026-10\\2026-10-14_22-30-43_benchmark-route_uktwtc.bmresult.json.gz",
+        "sha256":  "7CF7D4007664B102DE6ABB0016C13CE30AF5A073C722FE67003BE3EA9871206B",
+        "flags":  {
+                      "focusLost":  false,
+                      "debugOrChatOpen":  false,
+                      "invalid":  false,
+                      "loadTimeout":  false,
+                      "firstCapture":  false,
+                      "gpuClockDrift":  false,
+                      "renderDistanceMismatch":  false,
+                      "gpuUsageAvailable":  true,
+                      "chunkStatsAvailable":  false,
+                      "legacy":  false
+                  },
+        "run_summaries":  [
+                              {
+                                  "avgFps":  207.4757680075626,
+                                  "avgFrameMs":  4.819839972654298,
+                                  "p1Fps":  146.3614501953125,
+                                  "low1Fps":  81.03539573580021,
+                                  "p01Fps":  68.0809326171875,
+                                  "low01Fps":  43.271592114931586,
+                                  "stdDevMs":  0.877022670635454,
+                                  "refreshCoverage":  12.844895602267151,
+                                  "averageTps":  19.979476910636244,
+                                  "p99Ms":  6.832400189158736,
+                                  "p999Ms":  14.688400431041439,
+                                  "hardware":  {
+                                                   "gpuClockMhz":  2867.2272727272725,
+                                                   "gpuTempC":  74.43181818181819,
+                                                   "gpuPowerW":  225.59918212890625,
+                                                   "cpuClockMhz":  4187.710227272727,
+                                                   "cpuTempC":  0.0
+                                               },
+                                  "stutters":  {
+                                                   "spikes":  22.0,
+                                                   "over33":  0.0,
+                                                   "over50":  0.0,
+                                                   "over100":  0.0
+                                               },
+                                  "mspt":  {
+                                               "avg":  2.627245999508434,
+                                               "p99":  8.253199577331543,
+                                               "max":  25.728900909423828,
+                                               "over50":  0.0
+                                           },
+                                  "gc":  {
+                                             "pauses":  6.0,
+                                             "youngPauses":  5.0,
+                                             "mixedPauses":  2.0,
+                                             "fullPauses":  0.0,
+                                             "unclassifiedPauses":  0.0,
+                                             "totalPauseMs":  90.0,
+                                             "maxPauseMs":  20.0,
+                                             "pausePercent":  0.19979476910636243,
+                                             "heapMinMb":  893.83154296875,
+                                             "heapAvgMb":  2023.637740523727,
+                                             "heapMaxMb":  3256.0,
+                                             "committedAvgMb":  4096.0,
+                                             "allocMbPerSec":  260.94261861401935
+                                         },
+                                  "stutterCauses":  {
+                                                        "gc":  0.0,
+                                                        "server":  0.0,
+                                                        "chunks":  0.0,
+                                                        "unknown":  0.0
+                                                    },
+                                  "runVariation":  {
+                                                       "avgFpsCv":  0.0,
+                                                       "low1FpsCv":  0.0,
+                                                       "metrics":  {
+
+                                                                   }
+                                                   }
+                              }
+                          ]
+    }
+]

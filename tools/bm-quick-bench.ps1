@@ -188,6 +188,14 @@ function ReadCapture($path) {
     try { $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose(); $gzip.Dispose(); $file.Dispose() }
 }
 function SetOption($key,$value) { Call 'reflexium' @{key=$key;value=[string]$value} | Out-Null }
+function ReadReflexium {
+    try { return Call 'reflexium' }
+    catch {
+        if ($_.Exception.Message -notmatch 'TimeoutException') { throw }
+        Write-Warning 'Read-only Reflexium status timed out; retrying once.'
+        return Call 'reflexium'
+    }
+}
 function StopOwned {
     $s=Status
     $p=Get-CimInstance Win32_Process -Filter "ProcessId = $($session.game_pid)"
@@ -237,7 +245,7 @@ try {
             SetOption 'quality' $mode.quality; SetOption 'dlss_model' $mode.model
             if ($mode.mult -gt 2) { SetOption 'fg_multiplier' $mode.mult }
             SetOption 'frame_generation' $mode.fg
-            $beforeMode=Call 'reflexium'
+            $beforeMode=ReadReflexium
             if ($beforeMode.upscaler -ne $mode.upscaler -or $beforeMode.quality -ne $mode.quality -or $beforeMode.dlss_model -ne $mode.model -or $beforeMode.frame_generation -ne $mode.fg) { throw "Mode switch failed: $($mode.id)" }
             if ($mode.mult -gt 2 -and $beforeMode.fg_multiplier -ne $mode.mult) { throw "FG multiplier switch failed: $($mode.id)" }
             $captureLabel="s$slot$($mode.direction)$index"
@@ -262,7 +270,7 @@ try {
             }
             if ($fresh.Count -ne 1) { throw 'Unexpected concurrent BM writer' }
             $result=ReadCapture $fresh[0].FullName
-            $afterMode=Call 'reflexium'
+            $afterMode=ReadReflexium
             if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne $sceneId -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
             if ($mode.upscaler -ne 'off' -and ($afterMode.evaluated_frames -eq $beforeMode.evaluated_frames -or $afterMode.last_error)) { throw "Upscaler failed during $captureLabel (evaluated $($beforeMode.evaluated_frames) to $($afterMode.evaluated_frames)): $($afterMode.last_error)" }
             if ($mode.fg -ne 'off' -and ($afterMode.fg_evaluated_frames -eq $beforeMode.fg_evaluated_frames -or $afterMode.fg_generated_presents -eq $beforeMode.fg_generated_presents)) { throw "FG did not evaluate and present: $captureLabel" }
