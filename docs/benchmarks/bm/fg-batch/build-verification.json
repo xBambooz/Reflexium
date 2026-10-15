@@ -1,0 +1,18 @@
+{
+    "verified_at":  "2026-10-14T22:39:03.1646828-04:00",
+    "runtime_batching_retained":  false,
+    "isolated_build":  {
+                           "scope":  "Clean 7bd5db6 runtime plus benchmark-only edits; isolated target avoids overwriting concurrent quality work",
+                           "command":  "./gradlew build -PreflexiumInstallDir=build/verified-install --console=plain",
+                           "installed_copy_sha256":  "1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C",
+                           "result":  "passed",
+                           "built_sha256":  "1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C"
+                       },
+    "shared_profile":  {
+                           "scope":  "Concurrent uncommitted quality work; observed read-only, not used as either FG batching benchmark jar",
+                           "installed_sha256":  "E26236C40C300DCFA3F28B00C76EB20D789D733E18D67A8209B8A89D4611493D",
+                           "build_log":  "build/validation/recovery-build3.log",
+                           "build_result":  "BUILD SUCCESSFUL",
+                           "built_sha256":  "E26236C40C300DCFA3F28B00C76EB20D789D733E18D67A8209B8A89D4611493D"
+                       }
+}
