@@ -113,7 +113,9 @@ function FgAcceptance($mode, $before, $after, $windows, [int]$maxMultiplier, [lo
         $r.fg_invalid_reason = "persistent metering rejection: $($delta.fg_metering_rejected) of $($delta.fg_metering_batch_configs) batch configs"; return $r
     }
     $w = @($windows)
-    if ($w.Count -ge 3) {
+    # Builds without fg_real_presents cannot give a window ratio; do not report that as zero generation.
+    if ($w.Count -ge 3 -and @($w | Where-Object { $null -eq $_.fg_real_presents }).Count) { $r.fg_steady = 'not measurable (build lacks fg_real_presents)' }
+    elseif ($w.Count -ge 3) {
         $ratios = for ($i = 1; $i -lt $w.Count; $i++) {
             $wd = FgDelta $w[$i-1] $w[$i]
             if ($wd.fg_real_presents -gt 0) { $wd.fg_generated_presents / $wd.fg_real_presents } else { 0 }
@@ -142,6 +144,8 @@ if ($SelfCheck) {
     $windows[2] = Snap 11000 10000 12000
     if ((FgAcceptance $fgMode $b (Snap 19100 18100 21000) $windows 6).fg_steady -notmatch '^passed') { throw 'Steady windows rejected' }
     if ((FgAcceptance $fgMode $b (Snap 19100 18100 21000 500 1000) @() 6).fg_valid) { throw 'Persistent rejection accepted' }
+    $legacyWindows = @((Snap 5000 4000 $null),(Snap 8000 7000 $null),(Snap 11000 10000 $null))
+    if ((FgAcceptance $fgMode $b (Snap 19100 18100 21000) $legacyWindows 6).fg_steady -notmatch '^not measurable') { throw 'Legacy windows reported as zero generation' }
     $legacy = [ordered]@{fg_evaluated_frames=100;fg_generated_presents=100;fg_real_presents=1000}
     $legacyAfter = [ordered]@{fg_evaluated_frames=19100;fg_generated_presents=18100;fg_real_presents=21000}
     $legacyResult = FgAcceptance $fgMode (FgSnapshot ([pscustomobject]$legacy)) (FgSnapshot ([pscustomobject]$legacyAfter)) @() 6

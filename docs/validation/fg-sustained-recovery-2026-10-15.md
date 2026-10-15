@@ -61,3 +61,60 @@ The live October 15 BM dataset was built from `overnight-08381e6-{A,B}` (full me
 - The 08381e6 reproduction run itself showed FG off with zero evaluations (status "Frame generation: off" at the 30 s probe), not the overnight one-present pattern; that run is not explained further.
 - `0x1` semantics are unknown; counters cannot establish driver pacing or scanout. FrameView displayed-frame captures are still required for metering acceptance.
 - Quick evidence is one launch per arm; it is not final multi-block performance acceptance.
+
+## Follow-up: Reflex sleep timeout recovery (commit 050d799)
+
+### Diagnosis
+
+The Set A blocker above was one 100 ms `vkWaitSemaphores` VK_TIMEOUT (2) on the Reflex sleep timeline semaphore at 07:16:20, during a world-load hitch (Vitrail module build) in the 2180 FPS native capture. `PacingState.sleepResult` treated every nonzero result as fatal, so `canSleep()` stayed false until a mode/swapchain change. Through the existing NVIDIA FG `sceneReady` gate on `isSleeping()`, that blocked all FG for the rest of the JVM.
+
+VK_TIMEOUT is a success-class status, not an error: the driver's signal for that sleep value is still pending. The Khronos page says `vkLatencySleepNV` returns immediately and the semaphore wait delays the host, called once between presents. The timed-out value must not be reused, its semaphore must not be destroyed while signal-pending (shutdown already drains or retains it), and a new sleep with a higher value must not be issued while an earlier signal is outstanding.
+
+### Change
+
+- `PacingState`: VK_TIMEOUT sets `suspended` (no sleep, no cap ownership, native limiter) without `failed`. `signalObserved()` clears it. A completed sleep clears the timeout streak. Three consecutive timeouts without a completed sleep, or any other nonzero result, latch `failed` until the mode, swapchain or device changes, as before. Lifetime `timeouts` and `recoveries` survive `reset()`.
+- `ReflexController.beginFrame` polls the outstanding value with `vkGetSemaphoreCounterValue` (non-blocking) before deciding to sleep. Once the counter reaches the pending value, pacing resumes. A mode/swapchain reset while a signal is still owed stays suspended until it is observed. Poll errors fail. The status line shows `sleep signal pending N ms` and `sleep timeouts T recovered R`. Logs are capped at 8 messages.
+- The NVIDIA FG Reflex gate is unchanged. FG invalidates history only while pacing is suspended, then resumes.
+- `tools/bm-quick-bench.ps1`: steady windows from a build without `fg_real_presents` now report `not measurable` instead of the false `steady window below 0.9 ... 0, 0`, with a self-check case. Recorded artifacts were not edited.
+
+`presentConfigFeedback` review: the Khronos `VkSetPresentConfigNV` page defines it as `uint32_t` "success or error status" and lists no values. 1818e50's "negative = rejection" therefore means "high bit set" under Java's signed read, an assumption. The meaning of 0x1 remains undocumented.
+
+### Checks
+
+- `.\gradlew.bat build --console=plain`: passed. `ReflexTimingCheck` prints `Reflex GPU-complete latency and sleep timeout recovery checks passed`. It covers transient suspend, no sleep or cap while pending, resume without a mode change, isolated timeouts never latching, the streak latch, device-lost and out-of-date latching even after the signal, counters across reset, and a pending signal after reset. The other existing checks also passed.
+- `tools/bm-quick-bench.ps1 -SelfCheck`: passed.
+- Pinned `build/perf-jars/reflex-recovery-050d799.jar`, SHA-256 `B9560554713A5D5352E2AAB46489CA147299EE14EA1A5AF5A2AE906896C7B049`, equal to the built and installed jar. Baseline `ac1e339.jar` `BB0EE641...7781`.
+
+### Runs (operated by Haiku 5.5; Quick, one launch per jar, native -> fg2 -> fg6 in one JVM, no mode resets)
+
+| Run | Path |
+| --- | --- |
+| Set A Quick | `build/bm-bench/reflexrecover-quick-20261015-A-A` |
+| Set A Quick + Diagnostics | `build/bm-bench/reflexrecover-diag-20261015-A-A` |
+| Set B Quick | `build/bm-bench/reflexrecover-quick-20261015-B-B` |
+
+Real-frame FPS / 1% low from BM; gen/real is the runner's counter ratio (050d799 whole-capture denominator `fg_real_presents` delta includes load and warmup; ac1e339 uses BM frames, overstated).
+
+| Run | Mode | ac1e339 | 050d799 | change | 050d799 gen/real (steady) | valid |
+| --- | --- | --- | --- | --- | --- | --- |
+| A Quick | native | 1910.4 / 378.2 | 1724.2 / 392.4 | -9.7% | | both |
+| A Quick | fg2 | 326.3 / 181.1 | 288.6 / 159.4 | -11.5% | 0.90 | both |
+| A Quick | fg6 | 156.3 / 100.8 | 155.1 / 105.7 | -0.8% | 4.23 | both |
+| A Diag | native | 1915.6 / 378.0 | 1706.9 / 363.4 | -10.9% | | both |
+| A Diag | fg2 | 325.5 / 175.3 | 288.2 / 166.8 | | 0.92 (1, 1) | old invalid* |
+| A Diag | fg6 | 156.5 / 101.6 | 155.2 / 106.3 | | 4.39 (5, 5) | old invalid* |
+| B Quick | native | 249.0 / 137.5 | 248.0 / 137.6 | -0.4% | | both |
+| B Quick | fg2 | 164.0 / 105.9 | 164.6 / 99.5 | +0.4% | 0.85 | both |
+| B Quick | fg6 | 106.3 / 75.7 | 106.9 / 74.3 | +0.6% | 3.82 | both |
+
+\* The ac1e339 diagnostic FG rows were recorded invalid by the then-current gate because that build lacks `fg_real_presents`, which made its window ratios compute as 0. Its counters show generation continuing (fg2 +2007/+1988 generated per window). The rows remain invalid as recorded. Diagnostic FPS is instrumented and is not acceptance.
+
+Candidate counters (Set A): fg2 16758 generated, 16758 of 16758 batches completed; fg6 61438 generated, 25694 batches all completed. Zero rejections, zero resets, `fg_failed=false`, feedback 0x1 on every batch, in all three runs.
+
+Reflex log lines: none of the six candidate launches logged a sleep timeout, suspension, recovery or failure. The live recovery path was therefore **not exercised** in this evidence. The regression check covers it, and the original timeout was a load-hitch event that did not recur. Set A FG for the candidate is sustained over native -> fg2 -> fg6 without manual resets, with instrumented steady windows exactly 1 and 5.
+
+### Performance limits
+
+- Set B is within the 2.4% Quick band against ac1e339 for all modes, with 1% lows within 16.8%.
+- Set A native (-9.7%, -10.9%) and fg2 (-11.5%) are outside the Quick band against ac1e339. This is **not caused by 050d799**: the overnight `overnight-08381e6-A` full-method run already showed native 1723.8/1731.6 vs ac1e339 1907.4/1894.8, and fix b's instrumented Set A fg2 ran at 290.0, the same as 050d799's 288.2. The only per-frame change in 050d799 is an early return while no signal is pending. Fix b's earlier 2180 native was measured with Reflex sleep latched off (un-paced), so it is not a comparable baseline. The Set A native/fg2 gap was introduced between ac1e339 and 08381e6 and is open for the shaderless performance investigation.
+- One launch per arm. These counters are not scanout or pacing proof (FrameView still required), and nothing was published.
