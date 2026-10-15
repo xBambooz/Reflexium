@@ -40,7 +40,10 @@ public abstract class VulkanGpuSurfaceMixin {
 		int next = (currentAcquireSemaphore + 1) % acquireSemaphores.length;
 		var completion = reflexium$acquireCompletion[next];
 		if (completion != null) {
-			if (!completion.awaitCompletion(5_000_000_000L)) throw new IllegalStateException("Acquire semaphore's previous wait has not completed");
+			// Outside ACQUIRE so that span keeps meaning the acquire call alone.
+			long wait = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE_REUSE_WAIT, null);
+			try { if (!completion.awaitCompletion(5_000_000_000L)) throw new IllegalStateException("Acquire semaphore's previous wait has not completed"); }
+			finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE_REUSE_WAIT, wait, null); }
 			completion.close(); reflexium$acquireCompletion[next] = null;
 		}
 		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, null);
