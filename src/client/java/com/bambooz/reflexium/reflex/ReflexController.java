@@ -23,6 +23,7 @@ import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
 import static org.lwjgl.vulkan.VK10.vkDestroySemaphore;
 import static org.lwjgl.vulkan.VK12.VK_SEMAPHORE_TYPE_TIMELINE;
 import static org.lwjgl.vulkan.VK12.vkCreateSemaphore;
+import static org.lwjgl.vulkan.VK12.vkGetSemaphoreCounterValue;
 import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
 
 /**
@@ -65,6 +66,8 @@ public final class ReflexController {
 	private volatile boolean frameOpen;
 	private boolean simulationOpen;
 	private long pendingSleepValue;
+	private long pendingSince;
+	private static final int MAX_TIMEOUT_LOGS = 8;
 	private final PacingState pacing = new PacingState();
 	private ReflexMode loggedMode;
 	private int requestedIntervalUs;
@@ -198,6 +201,7 @@ public final class ReflexController {
 		frameOpen = true;
 		applySleepMode();
 		smartPacing.update(System.nanoTime(), canPausePacing());
+		pollPendingSleep();
 		// The raw Vulkan reference also sleeps in Off (mode=false, interval=0) for reporting.
 		if (pacing.canSleep() && sleepSemaphore != 0 && !isPacingPaused()) {
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
@@ -303,6 +307,8 @@ public final class ReflexController {
 				.append(" (requested ").append(ReflexiumConfig.get().reflexMode().displayName()).append(")");
 		if (pacing.failed) {
 			line.append(" (pacing failed: ").append(pacing.lastResult).append(", native limiter)");
+		} else if (pacing.suspended) {
+			line.append(" (sleep signal pending ").append((System.nanoTime() - pendingSince) / 1_000_000).append(" ms, native limiter)");
 		} else if (isPacingPaused()) {
 			line.append(" (paused, high FPS)");
 		} else if (pacing.interval > 0) {
@@ -314,6 +320,7 @@ public final class ReflexController {
 		if (!presentIdEnabled) {
 			line.append(", no present id");
 		}
+		if (pacing.timeouts > 0) line.append(", sleep timeouts ").append(pacing.timeouts).append(" recovered ").append(pacing.recoveries);
 		return line.toString();
 	}
 
@@ -390,7 +397,7 @@ public final class ReflexController {
 	}
 
 	private void sleep() {
-		if (!drainSleep()) { failSleep("pending Reflex signal", org.lwjgl.vulkan.VK12.VK_TIMEOUT); return; }
+		if (!drainSleep()) { failSleep("pending Reflex signal", PacingState.VK_TIMEOUT); return; }
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			long value = ++sleepValue;
 			VkLatencySleepInfoNV info = VkLatencySleepInfoNV.calloc(stack)
@@ -424,7 +431,37 @@ public final class ReflexController {
 	private void failSleep(String call, int result) {
 		// A broken sleep must never stall the game; keep markers and drop to un-paced frames.
 		pacing.sleepResult(result);
-		ReflexiumClient.LOGGER.warn("{} failed ({}); Reflex sleep disabled until the mode is changed", call, result);
+		if (result == PacingState.VK_TIMEOUT) pendingSince = System.nanoTime();
+		if (pacing.failed) {
+			ReflexiumClient.LOGGER.warn("{} failed ({}, timeout streak {}); Reflex sleep disabled until the mode is changed", call, result, pacing.timeoutStreak);
+		} else if (pacing.timeouts <= MAX_TIMEOUT_LOGS) {
+			ReflexiumClient.LOGGER.warn("{} timed out (value {} pending, timeout {}); Reflex sleep suspended until the driver signals it", call, pendingSleepValue, pacing.timeouts);
+		}
+	}
+
+	/**
+	 * Non-blocking check of an outstanding sleep signal. A timed-out vkLatencySleepNV signal stays pending in the
+	 * driver; the next sleep must wait for it because timeline signal values have to increase in order.
+	 */
+	private void pollPendingSleep() {
+		if (pendingSleepValue == 0 || sleepSemaphore == 0) return;
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			LongBuffer value = stack.mallocLong(1);
+			int result = vkGetSemaphoreCounterValue(device, sleepSemaphore, value);
+			if (result == VK_SUCCESS && value.get(0) >= pendingSleepValue) {
+				pendingSleepValue = 0;
+				boolean wasSuspended = pacing.suspended;
+				pacing.signalObserved();
+				if (wasSuspended && pacing.recoveries <= MAX_TIMEOUT_LOGS) {
+					ReflexiumClient.LOGGER.info("Reflex sleep signal arrived after {} ms; pacing resumed", (System.nanoTime() - pendingSince) / 1_000_000);
+				}
+			} else if (result != VK_SUCCESS) {
+				failSleep("vkGetSemaphoreCounterValue", result);
+			} else if (!pacing.suspended && !pacing.failed) {
+				// A mode/swapchain reset cleared the state while the driver still owes the signal.
+				pacing.suspended = true;
+			}
+		}
 	}
 
 	private boolean drainSleep() {
