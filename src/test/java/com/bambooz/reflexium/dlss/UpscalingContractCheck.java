@@ -22,6 +22,20 @@ import java.util.Set;
 public final class UpscalingContractCheck {
 	private static final float EPS = 1.0e-4f;
 
+	/** No Vulkan calls: native rejects evaluation without a context before reading resources. */
+	private static void fsrAbi() {
+		if (!System.getProperty("os.name").startsWith("Windows") || !System.getProperty("os.arch").equals("amd64")) return;
+		{
+			var folder = java.nio.file.Path.of("src/client/resources/natives/windows-x86_64").toAbsolutePath();
+			FsrBridge bridge = new FsrBridge(folder.resolve("amd_fidelityfx_vk.dll"), folder.resolve("reflexium_fsr.dll"));
+			NgxBridge.Image dummy = new NgxBridge.Image(0, 0, 37, 1, 1, 1);
+			for (NgxBridge.Image mask : new NgxBridge.Image[]{null, dummy}) {
+				if (bridge.evaluate(0, dummy, dummy, dummy, dummy, mask, mask, 0, 0, true, 16.6f, 0.05f, 1024f, 1.2f, 0) != -1)
+					throw new AssertionError("FSR evaluate without a context did not reject");
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		materialSelection();
 		mipBias();
@@ -32,6 +46,7 @@ public final class UpscalingContractCheck {
 		historyCuts();
 		modelPresets();
 		captureCancellation();
+		fsrAbi();
 		System.out.println("UpscalingContractCheck passed: material binds, mip bias, sampler ownership, jitter phases, "
 				+ "independent reprojection, physical camera metadata, history cuts and model presets");
 	}

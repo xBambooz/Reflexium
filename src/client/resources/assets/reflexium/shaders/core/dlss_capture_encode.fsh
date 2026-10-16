@@ -23,9 +23,11 @@ void main() {
         vec2 motion = texelFetch(MotionSampler, pixel, 0).rg;
         uvec2 q = uvec2(clamp((motion + 64.0) * 32.0, 0.0, 4095.0) + 0.5);
         fragColor = vec4(float(q.x >> 4), float(((q.x & 15u) << 4) | (q.y >> 8)), float(q.y & 255u), 255.0) / 255.0;
-    } else {
+    } else if (Mode.x < 1.5) {
         float depth = texelFetch(DepthSampler, pixel, 0).r;
         uint d = uint(clamp(depth, 0.0, 1.0) * 16777215.0 + 0.5);
         fragColor = vec4(float((d >> 16) & 255u), float((d >> 8) & 255u), float(d & 255u), 255.0) / 255.0;
+    } else {
+        fragColor = vec4(clamp(log2(1.0 + max(texelFetch(MotionSampler, pixel, 0).rgb, vec3(0.0))) / 16.0, 0.0, 1.0), 1.0);
     }
 }

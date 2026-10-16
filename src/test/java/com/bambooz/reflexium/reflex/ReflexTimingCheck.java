@@ -49,9 +49,15 @@ public final class ReflexTimingCheck {
 		}
 		if (state.canSleep() || state.lastResult != PacingState.VK_TIMEOUT) throw new AssertionError("timeout streak must fall back and keep its result");
 		// Mode change retries; lifetime counters survive for diagnostics.
-		long recoveries = state.recoveries;
+		long recoveries = state.recoveries, failures = state.failures, configurations = state.configurations;
+		state.sleepResult(PacingState.VK_TIMEOUT);
+		if (state.failures != failures) throw new AssertionError("a latched failure counts once, not per later result");
 		state.reset(); state.configuration(ReflexMode.ON, 8334, 0);
 		if (!state.canSleep() || state.recoveries != recoveries || state.timeouts == 0) throw new AssertionError("reset retries and keeps counters");
+		if (state.failures != failures || state.configurations != configurations + 1) throw new AssertionError("measured-span failure and configuration counters");
+		state.configuration(ReflexMode.ON, 8334, -1);
+		if (state.failures != failures + 1 || state.configurationFailures == 0) throw new AssertionError("failed configuration counts as a failure");
+		state.reset(); state.configuration(ReflexMode.ON, 8334, 0);
 		// A reset while the driver still owes a signal must not re-enable sleep until it is observed (controller sets this on poll).
 		state.suspended = true;
 		if (state.canSleep()) throw new AssertionError("pending signal after reset");

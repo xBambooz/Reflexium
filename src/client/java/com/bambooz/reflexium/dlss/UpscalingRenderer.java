@@ -2,6 +2,7 @@ package com.bambooz.reflexium.dlss;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.compat.VitrailCompat;
+import com.bambooz.reflexium.compat.ComplementaryHdr;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
@@ -92,6 +93,24 @@ public final class UpscalingRenderer {
 	private boolean renderSizeApplied;
 
 	private TextureTarget renderTarget;
+	private TextureTarget hdrInput, hdrOutput;
+	private TextureTarget packMotionBase, packComposition;
+	private PackSurfaceMotionPass packSurfacePass;
+	private boolean packSurfaceApplied;
+	private boolean builtHdr, hdrEvaluated;
+	private long builtPackEpoch;
+	private float previousJitterNdcX, previousJitterNdcY;
+	public void writePackJitter(Object out, java.lang.reflect.Method set) throws ReflectiveOperationException {
+		set.invoke(out, jitterNdcX(), jitterNdcY(), previousJitterNdcX, previousJitterNdcY);
+	}
+	private int guiBlurCalls;
+	public void noteGuiBlur() { guiBlurCalls++; }
+	public boolean packHdrBuilt() { return builtHdr; }
+	public boolean packHdrThisFrame() { return builtHdr && hdrEvaluated && swapped; }
+	public int outputWidth() { return displayWidth; }
+	public int outputHeight() { return displayHeight; }
+	public GpuTextureView packHdrColor() { return hdrOutput.getColorTextureView(); }
+	public GpuTextureView packDisplayColor() { return renderTarget.getColorTextureView(); }
 	private TextureTarget worldDepth;
 	private GpuTextureView directWorldDepth;
 	private TextureTarget motionTarget;
@@ -307,6 +326,10 @@ public final class UpscalingRenderer {
 			}
 		}
 		activeThisFrame = false;
+		guiBlurCalls = 0;
+		hdrEvaluated = false;
+		packSurfaceApplied = false;
+		ComplementaryHdr.beginFrame();
 		worldDepthCaptured = false;
 		directWorldDepth = null;
 		opaqueCaptured = false;
@@ -334,7 +357,8 @@ public final class UpscalingRenderer {
 		}
 		try {
 			if (mode != builtMode || selected != builtUpscaler || ReflexiumConfig.get().dlssModel() != builtModel || requestedPreset(mode) != builtPreset
-					|| window.width != displayWidth || window.height != displayHeight || renderTarget == null) {
+					|| window.width != displayWidth || window.height != displayHeight || renderTarget == null
+					|| builtHdr != wantsPackHdr(selected) || builtHdr && builtPackEpoch != ComplementaryHdr.epoch()) {
 				build(gameRenderer, mode, window.width, window.height);
 			}
 			if (!renderSizeApplied) {
@@ -619,7 +643,9 @@ public final class UpscalingRenderer {
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		try {
-			if (worldDepthCaptured) {
+			if (hdrEvaluated) {
+				// Pack final already wrote the display target, after the HDR evaluation and tone mapping.
+			} else if (worldDepthCaptured && !builtHdr) {
 				evaluate(main);
 			} else {
 				// Pack warmup can replace the level call while still presenting a loading frame.
@@ -640,6 +666,34 @@ public final class UpscalingRenderer {
 		if (worldDepthCaptured && !failed && postEffectsNeedDepth(gameRenderer)) {
 			resolveDisplayDepth(main);
 		}
+	}
+
+	/** End of the pack's linear scene, before composite5's bloom, exposure, tone mapping and grading. */
+	public void reconstructPackHdr(Object pass, Object targets) {
+		if (!swapped || !builtHdr || hdrEvaluated) return;
+		try { reconstructPackHdrInputs(pass, targets); }
+		catch (RuntimeException e) { fail("HDR pack integration failed", e); throw e; }
+	}
+	private void reconstructPackHdrInputs(Object pass, Object targets) {
+		GameRenderer renderer = Minecraft.getInstance().gameRenderer;
+		afterLevel(renderer); // Geometry and hand are complete here, before the pack's final chain returns.
+		if (!worldDepthCaptured) throw new IllegalStateException("HDR boundary has no aligned world depth");
+		if (com.bambooz.reflexium.compat.ComplementaryMotionSource.ready() && !resetNext) {
+			var encoder = RenderSystem.getDevice().createCommandEncoder();
+			encoder.copyTextureToTexture(motionTarget.getColorTexture(), packMotionBase.getColorTexture(), 0, 0, 0, 0, 0, renderWidth, renderHeight);
+			encoder.copyTextureToTexture(motionTarget.getDepthTexture(), packMotionBase.getDepthTexture(), 0, 0, 0, 0, 0, renderWidth, renderHeight);
+			packSurfacePass.render(packMotionBase, motionTarget, packComposition, ComplementaryHdr.geometrySurface(targets, 14),
+					ComplementaryHdr.geometrySurface(targets, 15), packHandMask.getDepthTextureView());
+			packSurfaceApplied = true;
+		}
+		GpuTextureView color = ComplementaryHdr.input(pass, targets);
+		if (color.texture().getFormat() != GpuFormat.RGBA16_FLOAT || color.getWidth(0) != renderWidth || color.getHeight(0) != renderHeight) {
+			throw new IllegalStateException("HDR boundary requires input-sized RGBA16F colortex0, got " + color.texture().getFormat());
+		}
+		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(color.texture(), hdrInput.getColorTexture(),
+				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		evaluate(hdrInput);
+		hdrEvaluated = true;
 	}
 
 	/** After GameRenderer.applyPostEffects: overlays, frame generation, and previous-frame promotion, once. */
@@ -664,6 +718,7 @@ public final class UpscalingRenderer {
 		}
 		previousUnjittered.set(currentUnjittered);
 		previousCamera = currentCamera;
+		previousJitterNdcX = jitterNdcX(); previousJitterNdcY = jitterNdcY();
 		previousOrientation.set(currentOrientation);
 		previousViewIdentity = currentViewIdentity;
 		if (haveHandProjection) handProjectionPrevious.set(handProjection);
@@ -756,6 +811,18 @@ public final class UpscalingRenderer {
 
 	private JsonObject observedInputs(boolean currentFrame) {
 		JsonObject o = new JsonObject();
+		o.addProperty("hdr_requested", ComplementaryHdr.ENABLED);
+		o.addProperty("hdr_sources_verified", ComplementaryHdr.ready());
+		o.addProperty("hdr_built", builtHdr);
+		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
+		o.addProperty("pack_surface_motion", packSurfaceApplied);
+		o.addProperty("pack_surface_sources_verified", com.bambooz.reflexium.compat.ComplementaryMotionSource.ready());
+		o.addProperty("blended_surface_strategy", "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported");
+		o.addProperty("gui_blur_calls_this_frame", guiBlurCalls);
+		o.addProperty("menu_blur_radius_setting", menuBlurRadius);
+		JsonArray postIds = new JsonArray();
+		for (PostChain chain : ((GameRendererAccessor) Minecraft.getInstance().gameRenderer).reflexium$appliedPostEffects()) postIds.add(chain.id().toString());
+		o.add("applied_post_effects", postIds);
 		o.addProperty("mip_bias_requested", mipBias);
 		o.addProperty("mip_bias_offset", DebugSettings.mipBiasOffset());
 		o.addProperty("mip_bias_vendor_baseline", DlssMath.VENDOR_MIP_BASELINE);
@@ -795,6 +862,8 @@ public final class UpscalingRenderer {
 		o.addProperty("requested_preset_is_hint", true);
 		o.addProperty("pack_resolve_bypass_requested", DebugSettings.packResolveBypass());
 		o.addProperty("pack_resolve_bypass_applied", com.bambooz.reflexium.compat.ComplementaryTemporalSource.applied());
+		o.addProperty("pack_pre_filters_requested", DebugSettings.packPreFilters());
+		o.addProperty("pack_source_edits", String.join(",", new java.util.TreeSet<>(com.bambooz.reflexium.compat.ComplementaryTemporalSource.appliedEdits())));
 		return o;
 	}
 
@@ -843,6 +912,11 @@ public final class UpscalingRenderer {
 		JsonObject meta = new JsonObject();
 		meta.addProperty("frame", DebugSettings.frames());
 		meta.addProperty("capture_encoding_version", 1);
+		meta.addProperty("color_encoding", builtHdr ? "RGB log2(1+linear)/16 unorm8, clamped 0..65535; decode exp2(16*channel/255)-1" : "RGBA8 display-referred");
+		meta.addProperty("color_stage", builtHdr ? "scene linear before composite5 bloom/tonemap" : "finished scene");
+		meta.addProperty("pre_exposure", 1.0f);
+		meta.addProperty("vendor_auto_exposure", builtHdr);
+		if (packSurfaceApplied) meta.add("pack_deformation", com.bambooz.reflexium.compat.PackMotionState.evidence());
 		meta.addProperty("motion_encoding", "RGB packed 12-bit XY, 1/32 render pixel, range -64..63.96875, clamped");
 		meta.addProperty("depth_encoding", "RGB unorm24, reverse-Z device depth");
 		meta.addProperty("evaluated_frame", evaluatedFrames + 1);
@@ -901,7 +975,8 @@ public final class UpscalingRenderer {
 		meta.addProperty("scope", "requested values come from settings; observed values were measured on this frame");
 		request.metadata.complete(meta);
 
-		Screenshot.takeScreenshot(main, image -> request.deliver(request.input, image));
+		if (builtHdr) encodeColorCapture(request, request.input, main);
+		else Screenshot.takeScreenshot(main, image -> request.deliver(request.input, image));
 		this.pendingOutput = request;
 		this.pendingExtras = request.extras;
 	}
@@ -922,7 +997,8 @@ public final class UpscalingRenderer {
 		pendingOutput = null;
 		if (request == null) return;
 		if (request.cancelled()) return;
-		Screenshot.takeScreenshot(renderTarget, image -> request.deliver(request.output, image));
+		if (builtHdr) encodeColorCapture(request, request.output, hdrOutput);
+		else Screenshot.takeScreenshot(renderTarget, image -> request.deliver(request.output, image));
 		if (!pendingExtras || motionTarget == null) {
 			request.motion.cancel(false);
 			request.depth.cancel(false);
@@ -931,6 +1007,12 @@ public final class UpscalingRenderer {
 		if (captureEncodePass == null) captureEncodePass = new CaptureEncodePass();
 		encodeCapture(request, request.motion, CaptureEncodePass.MOTION);
 		encodeCapture(request, request.depth, CaptureEncodePass.DEPTH);
+	}
+	private void encodeColorCapture(UpscaleCapture request, java.util.concurrent.CompletableFuture<com.mojang.blaze3d.platform.NativeImage> future, RenderTarget source) {
+		if (captureEncodePass == null) captureEncodePass = new CaptureEncodePass();
+		TextureTarget encoded = new TextureTarget("Reflexium linear HDR diagnostic", source.width, source.height, GpuFormat.RGBA8_UNORM, null);
+		captureEncodePass.render(source, encoded, CaptureEncodePass.HDR);
+		Screenshot.takeScreenshot(encoded, image -> { request.deliver(future, image); Minecraft.getInstance().execute(encoded::destroyBuffers); });
 	}
 
 	private void encodeCapture(UpscaleCapture request, java.util.concurrent.CompletableFuture<com.mojang.blaze3d.platform.NativeImage> future, int mode) {
@@ -960,6 +1042,15 @@ public final class UpscalingRenderer {
 		renderHeight = size[1];
 		displayWidth = width;
 		displayHeight = height;
+		builtHdr = wantsPackHdr(selected);
+		builtPackEpoch = ComplementaryHdr.epoch();
+		if (builtHdr) {
+			hdrInput = new TextureTarget("Reflexium linear HDR input", renderWidth, renderHeight, GpuFormat.RGBA16_FLOAT, GpuFormat.D32_FLOAT);
+			hdrOutput = new TextureTarget("Reflexium linear HDR output", displayWidth, displayHeight, GpuFormat.RGBA16_FLOAT, GpuFormat.D32_FLOAT);
+			packMotionBase = new TextureTarget("Reflexium pack motion base", renderWidth, renderHeight, MotionVectorPass.FORMAT, GpuFormat.D32_FLOAT);
+			packComposition = new TextureTarget("Reflexium pack composition", renderWidth, renderHeight, GpuFormat.R8_UNORM, null);
+			packSurfacePass = new PackSurfaceMotionPass();
+		}
 		renderTarget = new TextureTarget("Reflexium DLSS render", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 		worldDepth = new TextureTarget("Reflexium DLSS world depth", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
 		motionTarget = new TextureTarget("Reflexium DLSS motion", renderWidth, renderHeight, MotionVectorPass.FORMAT, GpuFormat.D32_FLOAT);
@@ -980,8 +1071,8 @@ public final class UpscalingRenderer {
 		}
 		int result = selected == Upscaler.OFF ? 0 : selected == Upscaler.FSR
 				? fsr.create(session.device().address(), session.physicalDevice().address(),
-						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight)
-				: bridge.create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS,
+						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight, builtHdr)
+				: bridge.create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS | (builtHdr ? 1 | (1 << 6) : 0),
 						requestedPreset(mode));
 		drainLog();
 		if (result != 0) {
@@ -1123,7 +1214,8 @@ public final class UpscalingRenderer {
 			resetNext = false;
 			return;
 		}
-		NgxBridge.Image outputImage = ngxImage(renderTarget.getColorTexture(), renderTarget.getColorTextureView());
+		RenderTarget outputTarget = builtHdr ? hdrOutput : renderTarget;
+		NgxBridge.Image outputImage = ngxImage(outputTarget.getColorTexture(), outputTarget.getColorTextureView());
 		if (resetting) {
 			historyResetFrames++;
 			resetsByReason[pendingReset.ordinal()]++;
@@ -1137,7 +1229,8 @@ public final class UpscalingRenderer {
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), outputImage,
-				reactiveGenerated ? reactive.asNgx() : null,
+				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : reactiveGenerated ? reactive.asNgx() : null,
+				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null,
 				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
 				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
@@ -1214,6 +1307,9 @@ public final class UpscalingRenderer {
 	private int requestedPreset(UpscaleQuality mode) {
 		return DebugSettings.dlssPreset >= 0 ? DebugSettings.dlssPreset : ReflexiumConfig.get().dlssModel().preset(mode);
 	}
+	private boolean wantsPackHdr(Upscaler selected) {
+		return selected != Upscaler.OFF && VitrailCompat.isDrawingPack() && ComplementaryHdr.ready() && ComplementaryHdr.storageSupported();
+	}
 
 	public boolean usesTransientUniforms() {
 		// FSR showed no repeatable gain and a state-sensitive regression; retain its existing upload path.
@@ -1277,6 +1373,13 @@ public final class UpscalingRenderer {
 	}
 
 	private void releaseFeatureResources() {
+		ComplementaryHdr.release();
+		if (hdrInput != null) { hdrInput.destroyBuffers(); hdrInput = null; }
+		if (hdrOutput != null) { hdrOutput.destroyBuffers(); hdrOutput = null; }
+		if (packMotionBase != null) { packMotionBase.destroyBuffers(); packMotionBase = null; }
+		if (packComposition != null) { packComposition.destroyBuffers(); packComposition = null; }
+		packSurfacePass = null;
+		builtHdr = false;
 		FrameGenerationRenderer.get().release();
 		materialSamplers.close();
 		if (packHandBefore != null) { packHandBefore.destroyBuffers(); packHandBefore = null; }

@@ -62,8 +62,8 @@ RX_EXPORT void rx_fsr_release() {
     }
 }
 
-RX_EXPORT int rx_fsr_create(void* device, void* physicalDevice, void* gdpa,
-        uint32_t renderWidth, uint32_t renderHeight, uint32_t displayWidth, uint32_t displayHeight) {
+RX_EXPORT int rx_fsr_create_v2(void* device, void* physicalDevice, void* gdpa,
+        uint32_t renderWidth, uint32_t renderHeight, uint32_t displayWidth, uint32_t displayHeight, int hdr) {
     rx_fsr_release();
     backend = {};
     backend.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_BACKEND_VK;
@@ -75,13 +75,14 @@ RX_EXPORT int rx_fsr_create(void* device, void* physicalDevice, void* gdpa,
     description.header.type = FFX_API_CREATE_CONTEXT_DESC_TYPE_UPSCALE;
     description.header.pNext = &backend.header;
     description.flags = FFX_UPSCALE_ENABLE_DEPTH_INVERTED | FFX_UPSCALE_ENABLE_AUTO_EXPOSURE;
+    if (hdr) description.flags |= FFX_UPSCALE_ENABLE_HIGH_DYNAMIC_RANGE;
     description.maxRenderSize = {renderWidth, renderHeight};
     description.maxUpscaleSize = {displayWidth, displayHeight};
     return ffxCreateContext(&context, &description.header, nullptr);
 }
 
-RX_EXPORT int rx_fsr_evaluate(void* commandBuffer, const RxImage* color, const RxImage* depth,
-        const RxImage* motion, const RxImage* output, const RxImage* reactive, float jitterX, float jitterY,
+RX_EXPORT int rx_fsr_evaluate_v2(void* commandBuffer, const RxImage* color, const RxImage* depth,
+        const RxImage* motion, const RxImage* output, const RxImage* reactive, const RxImage* composition, float jitterX, float jitterY,
         int reset, float frameTimeMs, float nearPlane, float farPlane, float fov, float sharpness) {
     if (!context) return -1;
     ffxDispatchDescUpscale dispatch = {};
@@ -92,6 +93,7 @@ RX_EXPORT int rx_fsr_evaluate(void* commandBuffer, const RxImage* color, const R
     dispatch.motionVectors = resource(motion, false);
     dispatch.output = resource(output, true);
     if (reactive) dispatch.reactive = resource(reactive, false);
+    if (composition) dispatch.transparencyAndComposition = resource(composition, false);
     dispatch.jitterOffset = {jitterX, jitterY};
     dispatch.motionVectorScale = {1.0f, 1.0f};
     dispatch.renderSize = {static_cast<uint32_t>(color->width), static_cast<uint32_t>(color->height)};

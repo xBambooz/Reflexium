@@ -128,6 +128,54 @@ public final class FrameDeliveryCheck {
 			fg.endPresentBatch(); fg.invalidate(); fg.retry(); fg.skipGeneratedFrames();
 			if (fg.generatedCount() != 0 || fg.submittedFps() != 0) throw new AssertionError("history/menu/resize warmup");
 		}
+		ledgerChecks();
 		System.out.println("Frame delivery lifecycle checks passed");
+	}
+
+	/** Expected minus delivered generated presents always equals the sum of per-reason shortfalls. */
+	private static void ledgerChecks() {
+		var ledger = new GenerationLedger();
+		ledger.begin(5, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.reason(GenerationLedger.Shortfall.UNPRESENTED);
+		for (int i = 0; i < 5; i++) ledger.generatedPresent(true);
+		ledger.closeFrame();
+		ledger.closeIfOpen();
+		check(ledger.expectedTotal() == 5 && ledger.closedFrames() == 1 && total(ledger) == 0, "complete 6x frame");
+		ledger.begin(5, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.reason(GenerationLedger.Shortfall.UNPRESENTED);
+		ledger.generatedPresent(true); ledger.generatedPresent(true);
+		ledger.reason(GenerationLedger.Shortfall.BATCH_ABANDONED);
+		ledger.closeFrame();
+		check(ledger.missing(GenerationLedger.Shortfall.BATCH_ABANDONED) == 3, "abandoned batch keeps its reason");
+		ledger.begin(1, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.reason(GenerationLedger.Shortfall.HISTORY_RESET);
+		ledger.closeFrame();
+		ledger.begin(1, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.reason(GenerationLedger.Shortfall.GUI_BLUR);
+		ledger.closeFrame();
+		ledger.begin(1, GenerationLedger.Shortfall.UNAVAILABLE);
+		ledger.closeFrame();
+		ledger.begin(1, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.reason(GenerationLedger.Shortfall.UNPRESENTED);
+		ledger.generatedPresent(false);
+		ledger.closeFrame();
+		// Lost surface before the real present: the batch end closes the frame exactly once.
+		ledger.begin(2, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.generatedPresent(true);
+		ledger.reason(GenerationLedger.Shortfall.SURFACE_LOST);
+		ledger.closeIfOpen();
+		ledger.closeIfOpen();
+		ledger.begin(0, GenerationLedger.Shortfall.NOT_EVALUATED);
+		ledger.closeFrame();
+		check(ledger.closedFrames() == 8 && ledger.expectedTotal() == 5 + 5 + 1 + 1 + 1 + 1 + 2, "frame closures and expectations");
+		check(total(ledger) == ledger.expectedTotal() - (5 + 2 + 1), "every shortfall has one reason");
+		check(ledger.missing(GenerationLedger.Shortfall.HISTORY_RESET) == 1 && ledger.missing(GenerationLedger.Shortfall.GUI_BLUR) == 1
+				&& ledger.missing(GenerationLedger.Shortfall.UNAVAILABLE) == 1 && ledger.missing(GenerationLedger.Shortfall.PRESENT_FAILED) == 1
+				&& ledger.missing(GenerationLedger.Shortfall.SURFACE_LOST) == 1, "per-reason attribution");
+	}
+	private static long total(GenerationLedger ledger) {
+		long sum = 0;
+		for (var reason : GenerationLedger.Shortfall.values()) sum += ledger.missing(reason);
+		return sum;
 	}
 }

@@ -21,6 +21,7 @@ loom {
 
 	runs {
 		client {
+			if ("true".equalsIgnoreCase(providers.gradleProperty("rxPackHdr").orNull)) vmArg "-Dreflexium.pack.hdr=true"
 			vmArg "-Dreflexium.logLatency=true"
 			if (rxBenchJar != null) {
 				vmArg "-Xms4G"

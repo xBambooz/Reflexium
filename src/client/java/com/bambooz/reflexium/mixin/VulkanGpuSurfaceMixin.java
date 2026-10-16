@@ -91,7 +91,7 @@ public abstract class VulkanGpuSurfaceMixin {
 			fg.beginPresent(true);
 			original.call();
 			for (int i = 1; i <= count && !swapchainOutOfDate; i++) {
-				if (fg.batchRejected()) i = count; // valid swapchain: abandon remaining interpolation and deliver the real image
+				if (fg.batchRejected()) { i = count; fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.BATCH_ABANDONED); } // valid swapchain: abandon remaining interpolation and deliver the real image
 				surface.acquireNextTexture();
 				fg.beginPresent(i < count);
 				var reflex = com.bambooz.reflexium.reflex.ReflexController.get();
@@ -105,7 +105,10 @@ public abstract class VulkanGpuSurfaceMixin {
 		} catch (com.mojang.renderpearl.api.device.SurfaceException resized) {
 			eatenException = resized;
 			fg.invalidate();
+			fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.SURFACE_LOST);
 		} finally {
+			if (swapchainOutOfDate) fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.SURFACE_LOST);
+			// The batch's real image is its last present; a lost surface can end the batch before it.
 			fg.endPresentBatch();
 			reflexium$realView = null;
 			reflexium$presenting = false;

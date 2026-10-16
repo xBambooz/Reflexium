@@ -74,6 +74,8 @@ public final class ReflexController {
 	private boolean requestedCapIsVrr;
 	private long timingFloorId, timingSeenId, timingSeenAt;
 	private final SmartPacing smartPacing = new SmartPacing();
+	/** Lifetime counters for measured-span validation; never reset, so callers compare deltas. */
+	private long sleepsIssued, sleepsCompleted, unpacedFrames, suspendedFrames;
 
 	private long lastTimingRefresh;
 	private long lastRefreshRead;
@@ -180,6 +182,16 @@ public final class ReflexController {
 		return frameOpen ? frameId : 0;
 	}
 	public long lastFrameId() { return frameId; }
+	public long sleepsIssued() { return sleepsIssued; }
+	public long sleepsCompleted() { return sleepsCompleted; }
+	public long unpacedFrames() { return unpacedFrames; }
+	public long suspendedFrames() { return suspendedFrames; }
+	public long sleepTimeouts() { return pacing.timeouts; }
+	public long sleepRecoveries() { return pacing.recoveries; }
+	public long pacingFailures() { return pacing.failures; }
+	public long modeConfigurations() { return pacing.configurations; }
+	/** Applied driver mode ordinal, or -1 while unconfigured, failed or suspended. */
+	public int appliedModeOrdinal() { return pacing.canSleep() && pacing.applied != null ? pacing.applied.ordinal() : -1; }
 
 	/** Id to attach to vkQueuePresentKHR, or 0 when this present must not be tagged. */
 	public long takePresentId() {
@@ -207,6 +219,11 @@ public final class ReflexController {
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, timing, null);
+		} else {
+			unpacedFrames++;
+			if (pacing.suspended) suspendedFrames++;
+			if (com.bambooz.reflexium.vulkan.FrameTrace.on(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep skipped configured=" + pacing.configured + " failed=" + pacing.failed
+					+ " suspended=" + pacing.suspended + " paused=" + isPacingPaused());
 		}
 		marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
 		simulationOpen = true;
@@ -405,7 +422,12 @@ public final class ReflexController {
 					.signalSemaphore(sleepSemaphore)
 					.value(value);
 			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, null);
+			sleepsIssued++;
+			boolean traced = com.bambooz.reflexium.vulkan.FrameTrace.on(frameId);
+			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep call value=" + value + " applied=" + pacing.applied + " interval_us=" + pacing.interval
+					+ " requested=" + mode());
 			int result = vkLatencySleepNV(device, swapchain, info);
+			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep call exit result=" + result);
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, timing, null);
 			if (result != VK_SUCCESS) {
 				failSleep("vkLatencySleepNV", result);
@@ -420,8 +442,9 @@ public final class ReflexController {
 			timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, null);
 			result = vkWaitSemaphores(device, wait, SLEEP_TIMEOUT_NS);
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, timing, null);
+			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep wait exit value=" + value + " result=" + result);
 			pacing.sleepResult(result);
-			if (result == VK_SUCCESS) pendingSleepValue = 0;
+			if (result == VK_SUCCESS) { pendingSleepValue = 0; sleepsCompleted++; }
 			else {
 				failSleep("vkWaitSemaphores", result);
 			}

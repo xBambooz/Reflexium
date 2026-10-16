@@ -88,6 +88,8 @@ public final class VitrailCompat {
 			Class<?> type = pack.getClass();
 			String name = (String) type.getMethod("packFileName").invoke(pack);
 			if (!name.equals("ComplementaryReimagined_r5.9.3.zip")) return pack;
+			Minecraft client = Minecraft.getInstance();
+			if (client != null) ComplementaryHdr.verifyArchive(client.gameDirectory.toPath().resolve("shaderpacks").resolve(name));
 			Set<?> declared = (Set<?>) type.getMethod("declared").invoke(pack);
 			if (!declared.contains("TAA_DEFINE") || !declared.contains("TAA_JITTER")) {
 				return pack;
@@ -145,6 +147,11 @@ public final class VitrailCompat {
 
 	public static void debugSetPackResolveBypass(boolean bypass) {
 		com.bambooz.reflexium.debug.DebugSettings.setPackResolveBypass(bypass);
+		debugReloadPack();
+	}
+
+	public static void debugSetPackPreFilters(boolean retained) {
+		com.bambooz.reflexium.debug.DebugSettings.setPackPreFilters(retained);
 		debugReloadPack();
 	}
 

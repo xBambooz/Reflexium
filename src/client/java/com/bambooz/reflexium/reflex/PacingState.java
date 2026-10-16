@@ -16,7 +16,7 @@ final class PacingState {
 	boolean configured, completed, failed, suspended;
 	int lastResult, timeoutStreak;
 	/** Lifetime diagnostics, not cleared by {@link #reset()}. */
-	long timeouts, recoveries;
+	long timeouts, recoveries, failures, configurations, configurationFailures;
 
 	void reset() {
 		applied = attempted = null;
@@ -28,17 +28,21 @@ final class PacingState {
 	void configuration(ReflexMode mode, int us, int result) {
 		attempted = mode; attemptedInterval = us; lastResult = result;
 		configured = result == 0; completed = false; failed = result != 0;
+		configurations++;
+		if (failed) { configurationFailures++; failures++; }
 		if (configured) { applied = mode; interval = us; }
 	}
 	void sleepResult(int result) {
 		lastResult = result;
 		completed = result == 0;
 		if (result == 0) { timeoutStreak = 0; return; }
+		boolean wasFailed = failed;
 		if (result == VK_TIMEOUT) {
 			timeouts++;
 			suspended = true;
 			failed = ++timeoutStreak >= MAX_TIMEOUT_STREAK;
 		} else failed = true;
+		if (failed && !wasFailed) failures++;
 	}
 	/** The outstanding signal was observed; new sleeps are safe again. The streak clears on the next completed sleep. */
 	void signalObserved() {

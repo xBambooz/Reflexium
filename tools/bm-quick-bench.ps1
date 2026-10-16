@@ -149,6 +149,110 @@ function FgAcceptance($mode, $before, $after, $windows, [int]$maxMultiplier, [lo
     $r.fg_valid = $true
     $r
 }
+# Exact measured-pass validation (protocol 3). BM's driver snapshots Reflexium counters at BM's own first and last
+# measured frame starts, so each delta covers exactly the frames whose intervals BM recorded. Real presents must equal
+# the measured interval count (no tolerance). All-frame coverage keeps every skipped frame in its denominator; only
+# history-reset cuts leave the eligible denominator, and an empty eligible denominator fails.
+$PassSchema = 'bm-pass-v1'; $FgPassFraction = 0.99
+$ReflexOrdinals = @{off=0;on=1;on_boost=2}
+function PassValue($set, [string]$key) { if ($null -eq $set) { return $null }; $v = $set.$key; if ($null -eq $v) { return $null }; [long]$v }
+function FgCoverage($d, [int]$perReal, [bool]$full) {
+    $real = PassValue $d 'fg_real_presents'; $gen = PassValue $d 'fg_generated_presents'
+    $expected = if ($full) { PassValue $d 'fg_expected_generated' } else { $perReal * $real }
+    $cut = if ($full) { PassValue $d 'fg_missing_history_reset' } else { 0 }
+    $eligible = $expected - $cut
+    [ordered]@{generated=$gen;expected=$expected;eligible=$eligible;all=$(if ($expected -gt 0) { $gen / $expected } else { $null });eligible_coverage=$(if ($eligible -gt 0) { $gen / $eligible } else { $null })}
+}
+function PassAcceptance($mode, $tuples, [int]$passes, [int]$maxMultiplier) {
+    $r = [ordered]@{pass_schema=$PassSchema;pass_count=@($tuples).Count;passes=@();fg_pass_verification=$null;reflex_pass_verification=$null;pass_invalid_reason=''}
+    $requested = if ($mode.overrides.ContainsKey('reflex_mode')) { $mode.overrides.reflex_mode } else { 'on' }
+    $effective = if ($requested -eq 'off' -and $mode.fg -ne 'off') { 'on' } else { $requested }
+    $nvidiaFg = $mode.fg -eq 'dlss' -or $mode.fg -eq 'dlss_multi'
+    $perReal = if ($mode.fg -eq 'dlss_multi') { [Math]::Min([int]$mode.mult, [Math]::Max(2, $maxMultiplier)) - 1 } else { 1 }
+    $fail = [Collections.Generic.List[string]]::new(); $fgFail = [Collections.Generic.List[string]]::new(); $reflexFail = [Collections.Generic.List[string]]::new()
+    $fgUnverified = ''; $reflexUnverified = ''
+    if (@($tuples).Count -ne $passes) { $fail.Add("expected $passes measured-pass tuples, got $(@($tuples).Count)") }
+    foreach ($t in @($tuples)) {
+        $p = [ordered]@{pass=$t.pass;intervals=$t.intervals;complete=$t.complete;end_phase=$t.end_phase;telemetry=$t.telemetry}
+        $tag = "pass $($t.pass)"
+        if ($t.schema -ne $PassSchema) { $fail.Add("${tag}: schema $($t.schema)"); $r.passes += $p; continue }
+        if (!$t.complete -or $null -eq $t.delta) { $fail.Add("${tag}: aborted or partial (phase $($t.end_phase), intervals $($t.intervals), last frame index $($t.last_frame_index))"); $r.passes += $p; continue }
+        $full = "$($t.telemetry)" -eq 'full reflexium-measurement-v1'
+        $d = $t.delta; $n = [long]$t.intervals
+        $negative = @($d.PSObject.Properties | Where-Object { $_.Name -notmatch '_mode$|^fg_failed$|^fg_configured_generated$' -and $null -ne $_.Value -and [long]$_.Value -lt 0 })
+        if ($negative.Count) { $fail.Add("${tag}: counter reset ($(($negative.Name) -join ', '))"); $r.passes += $p; continue }
+        $real = PassValue $d 'fg_real_presents'; $p.real_presents = $real
+        if ($null -eq $real) { $fgUnverified = 'real-present counter unavailable' }
+        elseif ($real -ne $n) { $fail.Add("${tag}: real presents $real differ from measured frames $n") }
+        if ($mode.fg -ne 'off' -and !$nvidiaFg) { $fgUnverified = 'FSR proxy scheduler counters are not NVIDIA generated presents' }
+        elseif ($nvidiaFg -and $null -ne $real) {
+            if ($full) {
+                $configured = PassValue $d 'fg_configured_generated'; $closed = PassValue $d 'fg_real_frames_closed'
+                if ($configured -ne $perReal) { $fgFail.Add("${tag}: wrong multiplier, configured $configured generated per real frame, expected $perReal") }
+                if ($closed -ne $n) { $fgFail.Add("${tag}: $closed real frames closed for $n measured frames") }
+                if ((PassValue $d 'fg_expected_generated') -ne $perReal * $closed) { $fgFail.Add("${tag}: expected-generation counter disagrees with $perReal per closed frame") }
+                $missing = 0L; foreach ($prop in $d.PSObject.Properties) { if ($prop.Name -like 'fg_missing_*') { $missing += [long]$prop.Value } }
+                $short = (PassValue $d 'fg_expected_generated') - (PassValue $d 'fg_generated_presents')
+                if ($short -ne $missing) { $fgFail.Add("${tag}: $short missing generated presents but $missing have reasons") }
+                $p.missing = [ordered]@{}; foreach ($prop in $d.PSObject.Properties) { if ($prop.Name -like 'fg_missing_*' -and [long]$prop.Value -gt 0) { $p.missing[$prop.Name] = [long]$prop.Value } }
+                if ((PassValue $d 'fg_failed') -eq 1) { $fgFail.Add("${tag}: FG failure latched") }
+                # Generation submission does not prove the driver's metering contract succeeded.
+                $rejected = PassValue $d 'fg_metering_rejected'
+                $started = PassValue $d 'fg_batches_started'; $completed = PassValue $d 'fg_batches_completed'
+                $p.metering = [ordered]@{rejected=$rejected;batches_started=$started;batches_completed=$completed}
+                if ($null -eq $rejected -or $null -eq $started -or $null -eq $completed) {
+                    $fgUnverified = 'measured-span metering counters unavailable'
+                } else {
+                    if ($rejected -ne 0) { $fgFail.Add("${tag}: metering rejected $rejected configurations") }
+                    if ($started -ne $completed) { $fgFail.Add("${tag}: metering batches incomplete ($completed completed of $started started)") }
+                }
+            }
+            $cov = FgCoverage $d $perReal $full; $p.coverage = $cov
+            foreach ($part in @('early','late')) { $p["${part}_coverage"] = (FgCoverage $t.$part $perReal $full).eligible_coverage }
+            if ($null -eq $cov.eligible_coverage) { $fgFail.Add("${tag}: no eligible generation frames (expected $($cov.expected), history cuts excluded)") }
+            else {
+                foreach ($check in @(@('eligible',$cov.eligible_coverage),@('early',$p.early_coverage),@('late',$p.late_coverage))) {
+                    if ($null -eq $check[1] -or $check[1] -lt $FgPassFraction) { $fgFail.Add(('{0}: {1} generation coverage {2} below {3}' -f $tag,$check[0],$(if ($null -eq $check[1]) { 'unknown' } else { [Math]::Round($check[1],4) }),$FgPassFraction)) }
+                }
+            }
+            if (!$full) { $fgUnverified = 'legacy counters: exact boundary ratio without shortfall reasons' }
+        }
+        if ($full) {
+            $want = $ReflexOrdinals[$effective]
+            foreach ($state in @($t.first, $t.last)) {
+                if ((PassValue $state 'reflex_effective_mode') -ne $want -or (PassValue $state 'reflex_applied_mode') -ne $want) { $reflexFail.Add("${tag}: Reflex requested/applied mode is not $effective at a pass boundary"); break }
+            }
+            $sleeps = PassValue $d 'reflex_sleeps_completed'; $p.reflex_sleeps = $sleeps
+            if ($sleeps -ne $n) { $reflexFail.Add("${tag}: $sleeps completed Reflex sleeps for $n measured frames") }
+            foreach ($key in @('reflex_unpaced_frames','reflex_suspended_frames','reflex_timeouts','reflex_failures','reflex_mode_configurations')) {
+                $v = PassValue $d $key; if ($v -ne 0) { $reflexFail.Add("${tag}: $key advanced by $v") }
+            }
+        } else { $reflexUnverified = 'build lacks Reflex measurement counters' }
+        $r.passes += $p
+    }
+    $all = @($fail) + @($fgFail) + @($reflexFail)
+    if ($all.Count) { $r.pass_invalid_reason = $all -join '; ' }
+    $r.fg_pass_verification = if ($mode.fg -eq 'off') { $null } elseif ($fail.Count -or $fgFail.Count) { 'invalid' } elseif ($fgUnverified) { "unverified: $fgUnverified" } else { 'verified' }
+    $r.reflex_pass_verification = if ($fail.Count -or $reflexFail.Count) { 'invalid' } elseif ($reflexUnverified) { "unverified: $reflexUnverified" } else { 'verified' }
+    $r.pass_valid = $all.Count -eq 0
+    $r
+}
+# Driver/BM without boundary support, or no tuples at all, is unverified evidence, never an exact pass.
+function MeasuredPassAcceptance($mode, $passData, [int]$passes, [int]$maxMultiplier) {
+    if ($null -eq $passData -or "$($passData.pass_boundaries)" -notmatch '^bm ' -or $null -eq $passData.passes) {
+        $why = if ($null -eq $passData) { 'driver returned no pass data' } else { "boundaries $($passData.pass_boundaries)" }
+        return [ordered]@{pass_schema=$PassSchema;pass_count=0;passes=@();fg_pass_verification=$(if ($mode.fg -eq 'off') { $null } else { "unverified: $why" });reflex_pass_verification="unverified: $why";pass_invalid_reason='';pass_valid=$true}
+    }
+    PassAcceptance $mode @($passData.passes) $passes $maxMultiplier
+}
+# Exact pass evidence supersedes the coarse whole-capture FG ratio, which includes menus and loading. Without it the
+# coarse gate still decides, and the row stays unverified.
+function CombineValidity($reflex, $fg, $pass) {
+    $fgExact = $null -ne $pass.fg_pass_verification -and $pass.fg_pass_verification -notmatch '^unverified'
+    $fgOk = if (!$fg) { $true } elseif ($fgExact) { $pass.pass_valid } else { $fg.fg_valid }
+    $reasons = @($reflex.reflex_invalid_reason; if ($fg -and !$fgExact) { $fg.fg_invalid_reason }; $pass.pass_invalid_reason) | Where-Object { $_ }
+    [ordered]@{valid=($reflex.reflex_valid -and $fgOk -and $pass.pass_valid);invalid_reason=($reasons -join '; ');measured_pass_verified=($pass.pass_valid -and $pass.reflex_pass_verification -eq 'verified' -and ($null -eq $pass.fg_pass_verification -or $pass.fg_pass_verification -eq 'verified'))}
+}
 if ($SelfCheck) {
     $on = [pscustomobject]@{reflex_mode='ON';reflex_status='Reflex: On (requested On)';reflex_sleeping=$true}
     $off = [pscustomobject]@{reflex_mode='OFF';reflex_status='Reflex: Off (requested Off)';reflex_sleeping=$false}
@@ -193,6 +297,86 @@ if ($SelfCheck) {
     $fallback = FgAcceptance $fgMode (FgSnapshot ([pscustomobject]$noReal)) (FgSnapshot ([pscustomobject]$noRealAfter)) @() 6 17000
     if (!$fallback.fg_valid -or $fallback.fg_denominator -notmatch 'BM measured') { throw 'Old-build BM frame denominator failed' }
     if ((FgAcceptance $fgMode (FgSnapshot ([pscustomobject]$noReal)) (FgSnapshot ([pscustomobject]@{fg_evaluated_frames=19100;fg_generated_presents=101})) @() 6 17000).fg_valid) { throw 'Old-build single generated frame accepted' }
+    # Exact measured-pass tuples, shaped like the driver's JSON. $over replaces delta fields; $early/$late default to halves.
+    function PassDelta([long]$frames, [long]$generated, [int]$per, [hashtable]$miss, [bool]$legacy, [int]$applied) {
+        $d = [ordered]@{app_frame_id=$frames;fg_evaluated_frames=$frames;fg_generated_presents=$generated;fg_real_presents=$frames}
+        if (!$legacy) {
+            $d.fg_real_frames_closed=$frames; $d.fg_expected_generated=$per*$frames; $d.fg_batches_started=$frames; $d.fg_batches_completed=$frames; $d.fg_metering_rejected=0
+            $d.reflex_sleeps_issued=$frames; $d.reflex_sleeps_completed=$frames; $d.reflex_unpaced_frames=0; $d.reflex_suspended_frames=0; $d.reflex_timeouts=0; $d.reflex_recoveries=0; $d.reflex_failures=0; $d.reflex_mode_configurations=0
+            foreach ($reason in @('not_evaluated','unavailable','reflex_not_sleeping','history_reset','gui_blur','batch_abandoned','surface_lost','present_failed','unpresented')) { $d["fg_missing_$reason"] = if ($miss.ContainsKey($reason)) { [long]$miss[$reason] } else { 0L } }
+            $d.fg_failed=0; $d.fg_configured_generated=$per; $d.reflex_effective_mode=1; $d.reflex_applied_mode=$applied
+        }
+        $d
+    }
+    function PassTuple([long]$n, [long]$gen, [int]$per, [hashtable]$missing = @{}, [hashtable]$over = @{}, [switch]$Legacy, $early = $null, $late = $null, [int]$applied = 1, [bool]$complete = $true, [int]$index = 0) {
+        $delta = PassDelta $n $gen $per $missing $Legacy $applied
+        foreach ($key in $over.Keys) { $delta[$key] = $over[$key] }
+        $half = [long][Math]::Floor($n / 2)
+        $halfGen = [long][Math]::Floor($gen / 2)
+        if ($null -eq $early) { $early = PassDelta $half $halfGen $per @{} $Legacy $applied }
+        if ($null -eq $late) { $late = PassDelta ($n - $half) ($gen - $halfGen) $per @{} $Legacy $applied }
+        $state = if ($Legacy) { [ordered]@{fg_real_presents=0} } else { [ordered]@{reflex_effective_mode=1;reflex_applied_mode=$applied;reflex_timeouts=11} }
+        [ordered]@{schema='bm-pass-v1';telemetry=$(if ($Legacy) { 'legacy public FG counters' } else { 'full reflexium-measurement-v1' });label='check';pass=$index;intervals=$n;last_frame_index=$(if ($complete) { $n } else { $n - 7 });end_phase=$(if ($complete) { 'FINISHED' } else { 'ABORTED' });complete=$complete;first=$state;last=$state;delta=$delta;mid_interval=$half;early=$early;late=$late}
+    }
+    function Passes($tuples) { [pscustomobject]@{pass_boundaries='bm FrameCapture';pass_telemetry='check';passes=@($tuples)} | ConvertTo-Json -Depth 8 | ConvertFrom-Json }
+    function Check($label, $mode, $tuples, [bool]$expectValid, [string]$fgState = '', [int]$count = 1) {
+        $result = MeasuredPassAcceptance $mode (Passes $tuples) $count 6
+        if ($result.pass_valid -ne $expectValid) { throw "Pass check '$label': valid=$($result.pass_valid), reason: $($result.pass_invalid_reason)" }
+        if ($fgState -and "$($result.fg_pass_verification)" -notmatch $fgState) { throw "Pass check '$label': FG verification $($result.fg_pass_verification)" }
+        $result
+    }
+    $n = 20000; $h = $n / 2
+    $fg6 = @{fg='dlss_multi';mult=6;overrides=@{}}; $fg2 = @{fg='dlss';mult=2;overrides=@{}}
+    $ok = Check '2x exact' $fg2 @(PassTuple $n $n 1) $true '^verified$'
+    if ($ok.reflex_pass_verification -ne 'verified' -or [Math]::Abs($ok.passes[0].coverage.all - 1) -gt 1e-9) { throw 'Exact 2x pass not fully verified' }
+    Check '6x exact' $fg6 @(PassTuple $n (5*$n) 5) $true '^verified$' | Out-Null
+    Check 'zero generation' $fg2 @(PassTuple $n 0 1 @{not_evaluated=$n}) $false | Out-Null
+    Check 'one startup generated frame' $fg2 @(PassTuple $n 1 1 @{unavailable=($n-1)}) $false | Out-Null
+    $stopped = PassTuple $n $h 1 @{reflex_not_sleeping=$h} -early (PassDelta $h $h 1 @{} $false 1) -late (PassDelta $h 0 1 @{reflex_not_sleeping=$h} $false 1)
+    Check 'generation stops mid-pass' $fg2 @($stopped) $false | Out-Null
+    $lateDrop = PassTuple $n ($n-160) 1 @{batch_abandoned=160} -early (PassDelta $h $h 1 @{} $false 1) -late (PassDelta $h ($h-160) 1 @{batch_abandoned=160} $false 1)
+    $r = Check 'late coverage drop under overall threshold' $fg2 @($lateDrop) $false
+    if ($r.pass_invalid_reason -notmatch 'late generation coverage' -or $r.pass_invalid_reason -match 'eligible generation coverage') { throw "Late coverage drop not isolated: $($r.pass_invalid_reason)" }
+    Check 'wrong multiplier' $fg6 @(PassTuple $n $n 1) $false | Out-Null
+    Check 'counter reset' $fg2 @(PassTuple $n $n 1 @{} @{fg_generated_presents=-5}) $false | Out-Null
+    Check 'unaccounted shortfall' $fg2 @(PassTuple $n ($n-3) 1) $false | Out-Null
+    Check 'small rejected batch' $fg2 @(PassTuple $n ($n-3) 1 @{batch_abandoned=3} @{fg_metering_rejected=3}) $false | Out-Null
+    $meteringRejected = Check 'metering rejected with intact generation' $fg2 @(PassTuple $n $n 1 @{} @{fg_metering_rejected=1}) $false
+    if ($meteringRejected.pass_invalid_reason -notmatch 'metering rejected' -or $meteringRejected.pass_invalid_reason -match 'generation coverage') { throw 'Metering rejection was not independently validated' }
+    Check 'incomplete batch with intact generation' $fg2 @(PassTuple $n $n 1 @{} @{fg_batches_completed=($n-1)}) $false | Out-Null
+    Check 'missing metering counters' $fg2 @(PassTuple $n $n 1 @{} @{fg_metering_rejected=$null}) $true '^unverified: measured-span metering' | Out-Null
+    Check 'persistent rejection' $fg2 @(PassTuple $n ($n-500) 1 @{batch_abandoned=500} @{fg_metering_rejected=500}) $false | Out-Null
+    Check 'recovered timeout inside pass' $fg2 @(PassTuple $n $n 1 @{} @{reflex_timeouts=1;reflex_recoveries=1;reflex_suspended_frames=3;reflex_unpaced_frames=3;reflex_sleeps_completed=($n-3)}) $false | Out-Null
+    Check 'timeout before pass (lifetime counter only)' $fg2 @(PassTuple $n $n 1) $true '^verified$' | Out-Null
+    Check 'Reflex applied mode lost' $fg2 @(PassTuple $n $n 1 -applied (-1)) $false | Out-Null
+    Check 'history cut excluded from eligible only' $fg2 @(PassTuple $n ($n-40) 1 @{history_reset=40}) $true '^verified$' | Out-Null
+    Check 'never generating, all frames cut' $fg2 @(PassTuple $n 0 1 @{history_reset=$n}) $false | Out-Null
+    Check 'boundary frame extra real present' $fg2 @(PassTuple $n $n 1 @{} @{fg_real_presents=($n+1)}) $false | Out-Null
+    Check 'boundary frame missing real present' $fg2 @(PassTuple $n $n 1 @{} @{fg_real_presents=($n-1)}) $false | Out-Null
+    Check 'multiple passes' $fg2 @((PassTuple $n $n 1 -index 0),(PassTuple $n $n 1 -index 1),(PassTuple $n $n 1 -index 2)) $true '^verified$' 3 | Out-Null
+    Check 'multiple passes, one stopped' $fg2 @((PassTuple $n $n 1 -index 0),(PassTuple $n 0 1 @{not_evaluated=$n} -index 1),(PassTuple $n $n 1 -index 2)) $false '' 3 | Out-Null
+    Check 'pass tuple missing' $fg2 @((PassTuple $n $n 1 -index 0),(PassTuple $n $n 1 -index 1)) $false '' 3 | Out-Null
+    Check 'aborted pass' $fg2 @(PassTuple $n $n 1 -complete $false) $false | Out-Null
+    $legacyPass = Check 'legacy exact boundary' $fg2 @(PassTuple $n $n 1 -Legacy) $true '^unverified: legacy'
+    $unknownSchema = PassTuple $n $n 1
+    $unknownSchema.telemetry = 'full reflexium-measurement-v999'
+    Check 'unknown telemetry schema' $fg2 @($unknownSchema) $true '^unverified:' | Out-Null
+    if ($legacyPass.reflex_pass_verification -notmatch '^unverified') { throw 'Legacy Reflex span reported as verified' }
+    Check 'legacy short generation' $fg2 @(PassTuple $n ($n-500) 1 -Legacy) $false | Out-Null
+    Check 'FSR proxy route' @{fg='fsr';mult=2;overrides=@{}} @(PassTuple $n $n 1) $true '^unverified: FSR' | Out-Null
+    Check 'native pass' @{fg='off';mult=2;overrides=@{}} @(PassTuple $n 0 0) $true | Out-Null
+    $missingTelemetry = MeasuredPassAcceptance $fg2 ([pscustomobject]@{pass_boundaries='unavailable (Benchmark Mod lacks setBoundaryListener)'}) 1 6
+    if (!$missingTelemetry.pass_valid -or $missingTelemetry.fg_pass_verification -notmatch '^unverified') { throw 'Missing boundary telemetry not reported as unverified' }
+    # Loading and menus outside the pass: the coarse whole-capture ratio fails, the exact pass decides and passes.
+    $coarse = FgAcceptance $fgMode (Snap 100 100 1000) (Snap 30100 20100 41000) @() 6
+    if ($coarse.fg_valid) { throw 'Coarse fixture should include loading frames' }
+    $combined = CombineValidity @{reflex_valid=$true;reflex_invalid_reason=''} $coarse (Check 'loading outside pass' $fg2 @(PassTuple $n $n 1) $true '^verified$')
+    if (!$combined.valid -or !$combined.measured_pass_verified) { throw 'Exact pass did not supersede the coarse loading ratio' }
+    $rejectedCombined = CombineValidity @{reflex_valid=$true;reflex_invalid_reason=''} @{fg_valid=$true;fg_invalid_reason=''} $meteringRejected
+    if ($rejectedCombined.valid -or $rejectedCombined.measured_pass_verified) { throw 'Combined verdict bypassed measured metering rejection' }
+    $unverified = CombineValidity @{reflex_valid=$true;reflex_invalid_reason=''} $coarse $missingTelemetry
+    if ($unverified.valid -or $unverified.measured_pass_verified) { throw 'Coarse failure accepted without exact pass evidence' }
+    Write-Host 'Measured-pass validation checks passed'
     Write-Host 'FG sustained acceptance checks passed'
     $s = [BmQuickStats]::Calculate(@(1,2,3,4))
     if ($s[0] -ne 400 -or $s[1] -ne 250 -or $s[2] -ne 4) { throw 'BM statistics check failed' }
@@ -222,6 +406,8 @@ $root = Split-Path -Parent $PSScriptRoot
 $old = if ($OldJar) { (Resolve-Path -LiteralPath $OldJar).Path } else { $null }
 $new = (Resolve-Path -LiteralPath $NewJar).Path
 $bm = (Resolve-Path -LiteralPath $BenchmarkJar).Path
+$driverJar = (Resolve-Path -LiteralPath (Join-Path (Split-Path -Parent $PSScriptRoot) 'build\libs\reflexium-bm-driver.jar')).Path
+$ValidationVersion = 4
 $out = Join-Path $root "build\bm-bench\$Label-$Set"
 $client = Join-Path $out 'client'
 $data = Join-Path $out 'data'
@@ -238,7 +424,8 @@ function WorldHashes { @(Get-ChildItem (Join-Path $scene 'world') -File -Recurse
 $resuming = Test-Path -LiteralPath $out
 if ($resuming) {
     $priorProtocol = Get-Content (Join-Path $out 'protocol.json') -Raw | ConvertFrom-Json
-    if ($priorProtocol.validation_version -ne 2) { throw 'Capture validation changed. Use a fresh label; historical captures are preserved.' }
+    if ($priorProtocol.validation_version -ne $ValidationVersion) { throw 'Capture validation changed. Use a fresh label; historical captures are preserved.' }
+    if ($priorProtocol.driver_sha256 -ne (Get-FileHash $driverJar).Hash -or $priorProtocol.bm_sha256 -ne (Get-FileHash $bm).Hash) { throw 'Instrumentation jars changed since this label started. Use a fresh label.' }
 }
 if (!$resuming) {
     New-Item -ItemType Directory -Force $client,$scene | Out-Null
@@ -251,7 +438,7 @@ if (!$resuming) {
         Get-ChildItem (Join-Path $client 'mods') -Filter $pattern | ForEach-Object { Remove-Item -LiteralPath $_.FullName }
     }
     Copy-Item $bm (Join-Path $client 'mods')
-    Copy-Item (Join-Path $root 'build\libs\reflexium-bm-driver.jar') (Join-Path $client 'mods')
+    Copy-Item $driverJar (Join-Path $client 'mods')
     Copy-Item (Join-Path $sceneSource '*') $scene -Recurse
     WriteJson (Join-Path $client 'config\benchmarkmod.json') @{dataDirectory=$data}
     [IO.File]::WriteAllText((Join-Path $client 'config\reflexium.properties'), "reflex_mode=on`nupscaler=off`nframe_generation=off`nfsr_sharpness=20`n")
@@ -264,7 +451,7 @@ if (!$resuming) {
     [IO.File]::WriteAllText($options,$optionText)
     $hashes = WorldHashes
     WriteJson (Join-Path $out 'world-before.json') $hashes
-    WriteJson (Join-Path $out 'protocol.json') @{validation_version=2;fg_coarse_fraction=$FgCoarseFraction;trace=[bool]$Trace;scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;quick=[bool]$Quick;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning=$(if ($Quick) { 'disabled (-Quick)' } else { 'Benchmark Mod per JVM' })}
+    WriteJson (Join-Path $out 'protocol.json') @{validation_version=$ValidationVersion;pass_schema=$PassSchema;fg_pass_fraction=$FgPassFraction;driver_sha256=(Get-FileHash $driverJar).Hash;bm_sha256=(Get-FileHash $bm).Hash;fg_coarse_fraction=$FgCoarseFraction;trace=[bool]$Trace;scene_source=$sceneSource;scene_sha256=(Get-FileHash (Join-Path $sceneSource 'scene.json')).Hash;render_distance=$renderDistance;route_seconds=$sceneJson.routeSeconds;diagnostics=[bool]$Diagnostics;quick=[bool]$Quick;passes=$Passes;warmup_seconds=$WarmupSeconds;conditioning=$(if ($Quick) { 'disabled (-Quick)' } else { 'Benchmark Mod per JVM' })}
 } else {
     $beforeJson = Join-Path $out 'world-before.json'
     if (Test-Path $beforeJson) {
@@ -500,7 +687,12 @@ try {
                     WriteJson (Join-Path $out "$captureLabel-profile.json") (Call 'reflexium' @{profile='off'})
                     WriteJson (Join-Path $out "$captureLabel-latency.json") (Call 'reflexium' @{reflex_timings='1'})
                     WriteJson (Join-Path $out "$captureLabel-status.json") (Call 'reflexium')
-                    if ($Trace) { SetOption 'reflex_trace' '32' }
+                    if ($Trace) {
+                    SetOption 'reflex_trace' '32'
+                    # Driver reports are joined to traced frames by frame id (tools/TraceCheck.java), so read them after the window.
+                    Start-Sleep -Milliseconds 500
+                    WriteJson (Join-Path $out "$captureLabel-trace-latency.json") (Call 'reflexium' @{reflex_timings='1'})
+                }
                     $diagnosticTaken = $true
                 }
                 $fresh=@(Get-ChildItem $results -Filter '*.bmresult.json.gz' -Recurse -ErrorAction SilentlyContinue | Where-Object Name -NotIn $existing)
@@ -508,6 +700,9 @@ try {
             if ($fresh.Count -ne 1) { throw 'Unexpected concurrent BM writer' }
             $result=ReadCapture $fresh[0].FullName
             $afterMode=ReadReflexium
+            # Per-pass tuples recorded at BM's own measured-frame decisions; read only after the capture finished.
+            $passData = Call 'bm' @{passes='1'}
+            WriteJson (Join-Path $out "$captureLabel-passes.json") $passData
             $captureLog = (Get-Content -LiteralPath $captureLogPath | Select-Object -Skip $captureLogStart) -join "`n"
             $reflex = ReflexAcceptance $mode $beforeMode $afterMode $captureLog
             if ($result.label -ne $captureLabel -or $result.runs.Count -ne $Passes -or $result.scene.id -ne $sceneId -or $result.flags.invalid -or $result.flags.loadTimeout -or $result.flags.renderDistanceMismatch -or @($result.runs | Where-Object { $_.settleTimeout -or $_.frames.ms.Count -eq 0 }).Count) { throw "BM capture validation failed: $captureLabel" }
@@ -518,15 +713,20 @@ try {
             # Failed FG captures are retained as invalid evidence, never as FG performance rows.
             $fg = if ($mode.fg -ne 'off') { FgAcceptance $mode (FgSnapshot $beforeMode) (FgSnapshot $afterMode) $fgWindows ([int]$afterMode.fg_max_multiplier) $frames.Count } else { $null }
             if ($fg -and !$fg.fg_valid) { Write-Warning "${captureLabel}: FG capture invalid: $($fg.fg_invalid_reason)" }
-            $row=[ordered]@{slot=$slot;arm=$arm;direction=$mode.direction;label=$captureLabel;set=$Set;mode=$mode.id;conditioning=($mode.id -eq 'conditioning');diagnostics=[bool]$Diagnostics;jar_sha256=(Get-FileHash $jar).Hash;bm_sha256=(Get-FileHash $bm).Hash;avg_fps=$stats[0];low_1pct_fps=$stats[1];p99_ms=$stats[2];focusLost=$result.flags.focusLost;background_capture=$true;capture=$fresh[0].FullName;frames=$frames.Count;route_hash=$result.scene.routeHash;fg_presents=$afterMode.fg_generated_presents;visible_sections=@($result.runs | ForEach-Object {$_.chunks.visible})}
-            $row.valid = $reflex.reflex_valid -and (!$fg -or $fg.fg_valid)
+            $pass = MeasuredPassAcceptance $mode $passData $Passes ([int]$afterMode.fg_max_multiplier)
+            $row=[ordered]@{slot=$slot;arm=$arm;direction=$mode.direction;label=$captureLabel;set=$Set;mode=$mode.id;conditioning=($mode.id -eq 'conditioning');diagnostics=[bool]$Diagnostics;jar_sha256=(Get-FileHash $jar).Hash;bm_sha256=(Get-FileHash $bm).Hash;driver_sha256=(Get-FileHash $driverJar).Hash;pass_telemetry=$passData.pass_telemetry;avg_fps=$stats[0];low_1pct_fps=$stats[1];p99_ms=$stats[2];focusLost=$result.flags.focusLost;background_capture=$true;capture=$fresh[0].FullName;frames=$frames.Count;route_hash=$result.scene.routeHash;fg_presents=$afterMode.fg_generated_presents;visible_sections=@($result.runs | ForEach-Object {$_.chunks.visible})}
+            $verdict = CombineValidity $reflex $fg $pass
+            $row.valid = $verdict.valid; $row.measured_pass_verified = $verdict.measured_pass_verified
+            # Numerical validity is separate from opened still/motion evidence. The exporter refuses pending reviews.
+            $row.visual_status = 'unreviewed'; $row.visual_evidence = $null
             foreach ($key in $reflex.Keys) { $row[$key] = $reflex[$key] }
-            $row.invalid_reason = (@($reflex.reflex_invalid_reason; if ($fg) { $fg.fg_invalid_reason }) | Where-Object { $_ }) -join '; '
+            $row.invalid_reason = $verdict.invalid_reason
             if (!$row.valid) { Write-Warning "${captureLabel}: $($row.invalid_reason)" }
-            if ($fg) { foreach ($key in $fg.Keys) { $row[$key] = $fg[$key] } }
+            if ($fg) { foreach ($key in $fg.Keys) { $row[$key] = $fg[$key] }; $row.fg_coarse_valid = $fg.fg_valid; $row.fg_valid = $row.valid }
+            foreach ($key in $pass.Keys) { $row[$key] = $pass[$key] }
             $rows.Add($row)
             [IO.File]::AppendAllText((Join-Path $out 'runs.jsonl'),(($row | ConvertTo-Json -Depth 8 -Compress)+[Environment]::NewLine))
-            Write-Host ("{0}: {1:N1} base FPS, {2:N1} 1% low{3}" -f $captureLabel,$stats[0],$stats[1],$(if ($fg) { ", FG $($fg.fg_ratio) generated/real (expected $($fg.fg_expected_ratio)), valid=$($fg.fg_valid)" } else { '' }))
+            Write-Host ("{0}: {1:N1} base FPS, {2:N1} 1% low{3}, measured pass: FG {4}, Reflex {5}" -f $captureLabel,$stats[0],$stats[1],$(if ($fg) { ", coarse FG $($fg.fg_ratio) generated/real (expected $($fg.fg_expected_ratio))" } else { '' }),$pass.fg_pass_verification,$pass.reflex_pass_verification)
         }
         Copy-Item (Join-Path $client 'logs\latest.log') (Join-Path $out "client-$slot.log")
         StopOwned; $owned=$false
@@ -553,7 +753,7 @@ try {
             $al=($a.low_1pct_fps | Measure-Object -Average).Average; $bl=($b.low_1pct_fps | Measure-Object -Average).Average
             $invalid=@($rows | Where-Object { $_.mode -eq $id -and $_.valid -eq $false })
             $comparable = $a.Count -gt 0 -and $b.Count -gt 0
-            [ordered]@{mode=$id;old_valid=$a.Count;new_valid=$b.Count;invalid=@($invalid | ForEach-Object { "$($_.arm) $($_.label): $($_.invalid_reason)" });old_fps=$af;new_fps=$bf;fps_change_pct=$(if ($comparable) { 100*($bf/$af-1) } else { $null });old_low1=$al;new_low1=$bl;low1_change_pct=$(if ($comparable) { 100*($bl/$al-1) } else { $null });fps_noise_band_pct=$(if ($Quick) { 2.4 } else { 2.4/[Math]::Sqrt(2) });low1_noise_band_pct=$(if ($Quick) { 16.8 } else { 16.8/[Math]::Sqrt(2) })}
+            [ordered]@{mode=$id;old_valid=$a.Count;new_valid=$b.Count;old_verified=@($a | Where-Object measured_pass_verified).Count;new_verified=@($b | Where-Object measured_pass_verified).Count;invalid=@($invalid | ForEach-Object { "$($_.arm) $($_.label): $($_.invalid_reason)" });old_fps=$af;new_fps=$bf;fps_change_pct=$(if ($comparable) { 100*($bf/$af-1) } else { $null });old_low1=$al;new_low1=$bl;low1_change_pct=$(if ($comparable) { 100*($bl/$al-1) } else { $null });fps_noise_band_pct=$(if ($Quick) { 2.4 } else { 2.4/[Math]::Sqrt(2) });low1_noise_band_pct=$(if ($Quick) { 16.8 } else { 16.8/[Math]::Sqrt(2) })}
         }
         WriteJson (Join-Path $out 'summary.json') @($summary)
         $summary | ForEach-Object { [pscustomobject]$_ } | Format-Table mode,old_fps,new_fps,fps_change_pct,old_low1,new_low1,low1_change_pct

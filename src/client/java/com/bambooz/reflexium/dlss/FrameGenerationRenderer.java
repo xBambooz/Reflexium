@@ -52,6 +52,7 @@ public final class FrameGenerationRenderer {
 	private long batchesStarted, batchesCompleted, configLogs;
 	private String meteringProblem = "";
 	private long fsrFrameId;
+	private final GenerationLedger ledger = new GenerationLedger();
 
 	public static FrameGenerationRenderer get() { return INSTANCE; }
 
@@ -98,7 +99,15 @@ public final class FrameGenerationRenderer {
 		FsrSwapchain.waitForPresents();
 		frameId++;
 		ready = 0;
+		ledger.begin(configuredGeneratedCount(), failed || !unavailableReason().isEmpty() ? GenerationLedger.Shortfall.UNAVAILABLE : GenerationLedger.Shortfall.NOT_EVALUATED);
 		if (!wantsMotion()) resetNext = true;
+	}
+
+	/** Generated presents each real frame should deliver for the requested NVIDIA mode; 0 when off or on the FSR proxy route. */
+	public int configuredGeneratedCount() {
+		FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
+		if (!requested.nvidia()) return 0;
+		return requested == FrameGeneration.DLSS_MULTI ? Math.max(1, Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), Math.max(2, maximumMultiplier())) - 1) : 1;
 	}
 
 	void sceneReady(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands, Matrix4fc projection,
@@ -106,6 +115,7 @@ public final class FrameGenerationRenderer {
 			float near, float far, float fov, float frameMs, boolean reset) {
 		if (!wantsMotion()) return;
 		if (ReflexiumConfig.get().frameGeneration().nvidia() && !com.bambooz.reflexium.reflex.ReflexController.get().isSleeping()) {
+			ledger.reason(GenerationLedger.Shortfall.REFLEX_NOT_SLEEPING);
 			invalidate(); return;
 		}
 		try {
@@ -150,9 +160,10 @@ public final class FrameGenerationRenderer {
 			UpscalingRenderer.barrier(commands);
 			evaluated++;
 			resetNext = false;
-			if (!resetting) ready = count;
+			if (!resetting) { ready = count; ledger.reason(GenerationLedger.Shortfall.UNPRESENTED); }
+			else ledger.reason(GenerationLedger.Shortfall.HISTORY_RESET);
 		} catch (RuntimeException e) {
-			failed = true; invalidate(); problem = e.getMessage();
+			failed = true; invalidate(); problem = e.getMessage(); ledger.reason(GenerationLedger.Shortfall.UNAVAILABLE);
 			try { UpscalingRenderer.get().waitForGpu(); release(); }
 			catch (RuntimeException cleanup) { e.addSuppressed(cleanup); }
 			ReflexiumClient.LOGGER.error("Frame generation stopped; continuing with rendered frames", e);
@@ -176,7 +187,10 @@ public final class FrameGenerationRenderer {
 	}
 
 	/** Drops this frame's generated images; history stays valid for the next world frame. */
-	public void skipGeneratedFrames() { ready = 0; delivery.reset(); }
+	public void skipGeneratedFrames() { ready = 0; delivery.reset(); ledger.reason(GenerationLedger.Shortfall.GUI_BLUR); }
+	/** Present-loop outcome that cut this frame's batch short; the reason is accounted when the frame closes. */
+	public void noteShortfall(GenerationLedger.Shortfall reason) { ledger.reason(reason); }
+	public GenerationLedger ledger() { return ledger; }
 	public int generatedCount() { return ready; }
 	public int submittedFps() { return delivery.totalRate(System.nanoTime()); }
 	public int submittedRealFps() { return delivery.realRate(System.nanoTime()); }
@@ -222,6 +236,8 @@ public final class FrameGenerationRenderer {
 	public void beginPresentBatch(int frames) {
 		if (frames < 2 || frames > 8) throw new IllegalArgumentException("FG batch must contain 2..8 presents");
 		presentBatch = frames; presentIndex = 0; batchRejected = false; batchesStarted++;
+		long traceId = com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId();
+		if (com.bambooz.reflexium.vulkan.FrameTrace.on(traceId)) com.bambooz.reflexium.vulkan.FrameTrace.event(traceId, "metering batch begin presents=" + frames);
 		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
 	}
 	public boolean batchRejected() { return batchRejected; }
@@ -230,6 +246,10 @@ public final class FrameGenerationRenderer {
 	public boolean isGeneratedPresent() { return generatedPresent; }
 	public void endPresentBatch() {
 		if (presentBatch > 1 && !batchRejected && presentIndex == presentBatch) batchesCompleted++;
+		if (presentBatch > 1) ledger.closeIfOpen(); // ended before its real present
+		long traceId = com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId();
+		if (presentBatch > 1 && com.bambooz.reflexium.vulkan.FrameTrace.on(traceId)) com.bambooz.reflexium.vulkan.FrameTrace.event(traceId,
+				"metering batch end presented=" + presentIndex + "/" + presentBatch + " rejected=" + batchRejected);
 		presentBatch = 0; generatedPresent = false; ready = 0;
 	}
 	/**
@@ -253,6 +273,8 @@ public final class FrameGenerationRenderer {
 			else realPresented++;
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}
+		if (generatedPresent) ledger.generatedPresent(delivered);
+		else ledger.closeFrame();
 		MeteringConfig kind = chained;
 		chained = MeteringConfig.NONE;
 		if (kind != MeteringConfig.NONE) onMeteringFeedback(kind, readFeedback(info), result, delivered);

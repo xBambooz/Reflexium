@@ -8,17 +8,22 @@ import static java.lang.foreign.ValueLayout.*;
 final class FsrBridge {
 	private final MethodHandle create, evaluate, generateReactive, release;
 	private final MethodHandle fgCreate, fgEvaluate, fgRelease;
-	private final MemorySegment images = Arena.global().allocate(160, 8);
+	private final MemorySegment images = Arena.global().allocate(192, 8);
 
 	FsrBridge() throws java.io.IOException {
+		this(NgxBridge.extract("amd_fidelityfx_vk"), NgxBridge.extract("reflexium_fsr"));
+	}
+
+	/** Also used by the offline ABI check, before Fabric has a game directory or a Vulkan device. */
+	FsrBridge(java.nio.file.Path dependency, java.nio.file.Path bridge) {
 		// Resolve the signed AMD dependency before loading our import-library bridge.
-		SymbolLookup.libraryLookup(NgxBridge.extract("amd_fidelityfx_vk"), Arena.global());
-		SymbolLookup library = SymbolLookup.libraryLookup(NgxBridge.extract("reflexium_fsr"), Arena.global());
+		SymbolLookup.libraryLookup(dependency, Arena.global());
+		SymbolLookup library = SymbolLookup.libraryLookup(bridge, Arena.global());
 		Linker linker = Linker.nativeLinker();
-		create = linker.downcallHandle(library.find("rx_fsr_create").orElseThrow(), FunctionDescriptor.of(JAVA_INT,
-				ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
-		evaluate = linker.downcallHandle(library.find("rx_fsr_evaluate").orElseThrow(), FunctionDescriptor.of(JAVA_INT,
-				ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_FLOAT, JAVA_FLOAT, JAVA_INT,
+		create = linker.downcallHandle(library.find("rx_fsr_create_v2").orElseThrow(), FunctionDescriptor.of(JAVA_INT,
+				ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+		evaluate = linker.downcallHandle(library.find("rx_fsr_evaluate_v2").orElseThrow(), FunctionDescriptor.of(JAVA_INT,
+				ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_FLOAT, JAVA_FLOAT, JAVA_INT,
 				JAVA_FLOAT, JAVA_FLOAT, JAVA_FLOAT, JAVA_FLOAT, JAVA_FLOAT));
 		generateReactive = linker.downcallHandle(library.find("rx_fsr_generate_reactive").orElseThrow(),
 				FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, ADDRESS));
@@ -48,19 +53,20 @@ final class FsrBridge {
 		catch (Throwable t) { throw new IllegalStateException("FSR FG release failed", t); }
 	}
 
-	int create(long device, long physical, long gdpa, int rw, int rh, int dw, int dh) {
+	int create(long device, long physical, long gdpa, int rw, int rh, int dw, int dh, boolean hdr) {
 		try { return (int) create.invokeExact(MemorySegment.ofAddress(device), MemorySegment.ofAddress(physical),
-				MemorySegment.ofAddress(gdpa), rw, rh, dw, dh); }
+				MemorySegment.ofAddress(gdpa), rw, rh, dw, dh, hdr ? 1 : 0); }
 		catch (Throwable t) { throw new IllegalStateException("FSR context creation failed", t); }
 	}
 
 	int evaluate(long commands, NgxBridge.Image color, NgxBridge.Image depth, NgxBridge.Image motion,
-			NgxBridge.Image output, NgxBridge.Image reactive, float jitterX, float jitterY, boolean reset, float frameMs,
+			NgxBridge.Image output, NgxBridge.Image reactive, NgxBridge.Image composition, float jitterX, float jitterY, boolean reset, float frameMs,
 			float near, float far, float fov, float sharpness) {
 		MemorySegment reactivePointer = reactive == null ? MemorySegment.NULL : reactive.write(images, 128);
+		MemorySegment compositionPointer = composition == null ? MemorySegment.NULL : composition.write(images, 160);
 		try { return (int) evaluate.invokeExact(MemorySegment.ofAddress(commands), color.write(images, 0),
 				depth.write(images, 32), motion.write(images, 64), output.write(images, 96),
-				reactivePointer,
+				reactivePointer, compositionPointer,
 				jitterX, jitterY, reset ? 1 : 0, frameMs, near, far, fov, sharpness); }
 		catch (Throwable t) { throw new IllegalStateException("FSR dispatch failed", t); }
 	}

@@ -25,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** DLSS frame hooks; see {@link UpscalingRenderer} for the sequence. Every hook is a no-op while DLSS is off. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+	@Inject(method = "processBlurEffect", at = @At("HEAD"))
+	private void reflexium$noteActualGuiBlur(CallbackInfo ci) { UpscalingRenderer.get().noteGuiBlur(); }
 	@Unique private boolean reflexium$originalConsistentDepth;
 	@ModifyVariable(method = "render3dHud", at = @At("HEAD"), argsOnly = true)
 	private boolean reflexium$preserveWorldDepth(boolean consistentDepthRequired) {

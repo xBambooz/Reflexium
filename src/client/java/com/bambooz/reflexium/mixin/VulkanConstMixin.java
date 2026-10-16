@@ -22,5 +22,9 @@ public abstract class VulkanConstMixin {
 		if (format == GpuFormat.RGBA8_UNORM && (usage & 8) != 0) {
 			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
 		}
+		if (format == GpuFormat.RGBA16_FLOAT && (usage & 8) != 0
+				&& com.bambooz.reflexium.compat.ComplementaryHdr.ENABLED && com.bambooz.reflexium.compat.ComplementaryHdr.storageSupported()) {
+			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
+		}
 	}
 }

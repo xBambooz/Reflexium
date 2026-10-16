@@ -21,6 +21,8 @@ public abstract class ShaderPackSourceMixin {
 	@Inject(method = "readLines", at = @At("RETURN"), cancellable = true)
 	private void reflexium$temporalSource(Path file, CallbackInfoReturnable<List<String>> cir) {
 		if (!VitrailCompat.ownsTemporalSampling() || !DebugSettings.packResolveBypass()) return;
-		cir.setReturnValue(ComplementaryTemporalSource.adapt(packName(), rel(file), cir.getReturnValue(), true));
+		cir.setReturnValue(ComplementaryTemporalSource.adapt(packName(), rel(file), cir.getReturnValue(), true, DebugSettings.packPreFilters()));
+		cir.setReturnValue(com.bambooz.reflexium.compat.ComplementaryHdr.adapt(packName(), rel(file), cir.getReturnValue()));
+		cir.setReturnValue(com.bambooz.reflexium.compat.ComplementaryMotionSource.adapt(packName(), rel(file), cir.getReturnValue()));
 	}
 }

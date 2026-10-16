@@ -9,6 +9,7 @@ import java.util.Set;
 /** Run with the supported Vitrail jar on the classpath; no game or graphics device is needed. */
 public final class VitrailCompatCheck {
 	public static void main(String[] args) throws Exception {
+		System.setProperty("reflexium.pack.hdr", "true");
 		temporalSource();
 		Class<?> session = Class.forName("dev.vitrail.settings.PackSession");
 		Class<?> value = Class.forName("dev.vitrail.pack.option.OptionValue");
@@ -41,8 +42,46 @@ public final class VitrailCompatCheck {
 	private static void temporalSource() throws Exception {
 		Path path = Path.of("run/shaderpacks/ComplementaryReimagined_r5.9.3.zip");
 		if (!java.nio.file.Files.isRegularFile(path)) return;
+		ComplementaryHdr.verifyArchive(path);
 		Class<?> type = Class.forName("dev.vitrail.pack.source.ShaderPackSource");
 		try (var opened = (AutoCloseable) type.getMethod("open", Path.class).invoke(null, path)) {
+			for (String motionPath : List.of("/program/gbuffers_terrain.glsl", "/program/gbuffers_water.glsl", "/lib/materials/materialMethods/wavingBlocks.glsl", "/shaders.properties")) {
+				Path motionFile = (Path) ((java.util.Optional<?>) type.getMethod("resolveInsideShaders", String.class).invoke(opened, motionPath)).orElseThrow();
+				@SuppressWarnings("unchecked") List<String> originalMotion = (List<String>) type.getMethod("readLines", Path.class).invoke(opened, motionFile);
+				String motionName = (String) type.getMethod("packName").invoke(opened), motionRel = (String) type.getMethod("rel", Path.class).invoke(opened, motionFile);
+				List<String> transformed = ComplementaryMotionSource.adapt(motionName, motionRel, originalMotion);
+				if (transformed == originalMotion) throw new AssertionError("Motion source guard mismatch " + motionRel + " hash=" + ComplementaryTemporalSource.sha256(originalMotion));
+				String text = String.join("\n", transformed);
+				if (motionPath.contains("gbuffers") && (!text.contains("RENDERTARGETS:") || !text.contains("rxPreviousClip = gbufferPreviousProjection") || !text.contains("gl_FragData[2] = rxSurface;"))) throw new AssertionError("Pack motion output contract");
+				if (motionPath.contains("wavingBlocks") && (!text.contains("RxPrevious_DoWave") || !text.contains("rxPreviousWave.x") || !text.contains("previousCameraPosition"))) throw new AssertionError("Previous deformation did not retain the pack function");
+				var modifiedMotion = new java.util.ArrayList<>(originalMotion); modifiedMotion.add("// modified");
+				if (ComplementaryMotionSource.adapt(motionName, motionRel, modifiedMotion) != modifiedMotion) throw new AssertionError("Motion source guard failed");
+			}
+			Path hdrFile = (Path) ((java.util.Optional<?>) type.getMethod("resolveInsideShaders", String.class).invoke(opened, "/program/composite5.glsl")).orElseThrow();
+			@SuppressWarnings("unchecked") List<String> hdrLines = (List<String>) type.getMethod("readLines", Path.class).invoke(opened, hdrFile);
+			String hdrName = (String) type.getMethod("packName").invoke(opened), hdrRel = (String) type.getMethod("rel", Path.class).invoke(opened, hdrFile);
+			List<String> hdr = ComplementaryHdr.adapt(hdrName, hdrRel, hdrLines);
+			if (hdr == hdrLines || !String.join("\n", hdr).contains("vec2(textureSize(colortex3, 0))") || !String.join("\n", hdr).contains("DoCompTonemap(color);")) throw new AssertionError("HDR post adapter: " + hdrName + "/" + hdrRel + " reader=" + ComplementaryTemporalSource.sha256(hdrLines));
+			var changedHdr = new java.util.ArrayList<>(hdrLines); changedHdr.add("// changed");
+			if (ComplementaryHdr.adapt(hdrName, hdrRel, changedHdr) != changedHdr || ComplementaryHdr.adapt("Other", hdrRel, hdrLines) != hdrLines) throw new AssertionError("HDR source guard failed");
+			if (!ComplementaryHdr.downstream("world0/composite5") || !ComplementaryHdr.downstream("final") || ComplementaryHdr.downstream("composite4")) throw new AssertionError("HDR stage boundary");
+			Class<?> packPass = Class.forName("dev.vitrail.render.PackPass");
+			packPass.getDeclaredField("samplerBindings");
+			Class.forName("dev.vitrail.render.ColorTargets").getDeclaredMethod("view", int.class, Class.forName("dev.vitrail.pack.target.TargetSchedule$Side"));
+			// Pre-reconstruction FXAA and sharpening: removed by default, kept for the diagnostic A/B, guarded by hash.
+			for (String[] filter : new String[][]{{"/program/composite7.glsl", "FXAA311(color);"}, {"/program/final.glsl", "SharpenImage(color, texCoordM);"}}) {
+				Path filterFile = (Path) ((java.util.Optional<?>) type.getMethod("resolveInsideShaders", String.class).invoke(opened, filter[0])).orElseThrow();
+				@SuppressWarnings("unchecked")
+				List<String> lines = (List<String>) type.getMethod("readLines", Path.class).invoke(opened, filterFile);
+				String packName = (String) type.getMethod("packName").invoke(opened), rel = (String) type.getMethod("rel", Path.class).invoke(opened, filterFile);
+				List<String> removed = ComplementaryTemporalSource.adapt(packName, rel, lines, true, false);
+				if (removed == lines || removed.stream().anyMatch(l -> l.strip().equals(filter[1])) || removed.size() != lines.size())
+					throw new AssertionError("Reviewed pre-reconstruction filter not removed from " + rel + " (reader hash " + ComplementaryTemporalSource.sha256(lines) + ")");
+				if (ComplementaryTemporalSource.adapt(packName, rel, lines, true, true) != lines) throw new AssertionError("Diagnostic A/B did not keep " + rel);
+				var modified = new java.util.ArrayList<>(lines); modified.add("// modified pack");
+				if (ComplementaryTemporalSource.adapt(packName, rel, modified, true, false) != modified) throw new AssertionError("Hash guard failed for " + rel);
+				if (!ComplementaryTemporalSource.appliedEdits().contains(rel)) throw new AssertionError("Applied edit not reported for " + rel);
+			}
 			Path file = (Path) ((java.util.Optional<?>) type.getMethod("resolveInsideShaders", String.class)
 					.invoke(opened, "/program/composite6.glsl")).orElseThrow();
 			@SuppressWarnings("unchecked")

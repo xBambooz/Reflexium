@@ -25,6 +25,11 @@ public final class VulkanLifecycle {
 	private static org.lwjgl.vulkan.VkQueue graphicsQueue;
 	private static boolean queueTagged;
 	static final int PREFERRED_IMAGE_COUNT = 8;
+	/** Last native swapchain: requested count is not proof, so the created count is read back from the driver. */
+	public record SwapchainState(int requested, int created, int presentMode, int surfaceMin, int surfaceMax, int width, int height) { }
+	private static volatile SwapchainState swapchainState;
+	private static int pendingRequested = -1, pendingPresentMode = -1, pendingMin = -1, pendingMax = -1, pendingWidth, pendingHeight;
+	public static SwapchainState swapchainState() { return swapchainState; }
 	private VulkanLifecycle() {
 	}
 
@@ -64,7 +69,27 @@ public final class VulkanLifecycle {
 	}
 
 	public static void onSwapchainCreated(long swapchain) {
+		VulkanSession session = VulkanSession.current();
+		if (session != null) {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				var count = stack.mallocInt(1);
+				int created = org.lwjgl.vulkan.KHRSwapchain.vkGetSwapchainImagesKHR(session.device(), swapchain, count, null) == 0 ? count.get(0) : -1;
+				swapchainState = new SwapchainState(pendingRequested, created, pendingPresentMode, pendingMin, pendingMax, pendingWidth, pendingHeight);
+				ReflexiumClient.LOGGER.info("Swapchain created: {} images (requested {}, surface {}..{}), present mode {}, {}x{}", created, pendingRequested,
+						pendingMin, pendingMax == 0 ? "unbounded" : pendingMax, presentModeName(pendingPresentMode), pendingWidth, pendingHeight);
+			}
+		}
 		ReflexController.get().onSwapchainCreated(swapchain);
+	}
+
+	public static String presentModeName(int mode) {
+		return switch (mode) {
+			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_IMMEDIATE_KHR -> "IMMEDIATE";
+			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_MAILBOX_KHR -> "MAILBOX";
+			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_FIFO_KHR -> "FIFO";
+			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_FIFO_RELAXED_KHR -> "FIFO_RELAXED";
+			default -> "mode " + mode;
+		};
 	}
 
 	public static void onSwapchainDestroyed() {
@@ -80,7 +105,10 @@ public final class VulkanLifecycle {
 				// Eight images measured +10% uncapped shaderless native FPS versus the default count (2026-10-15);
 				// surface limits still bound it, so a smaller maxImageCount stays valid.
 				info.minImageCount(validImageCount(Math.max(info.minImageCount(), PREFERRED_IMAGE_COUNT), caps.minImageCount(), caps.maxImageCount()));
+				pendingMin = caps.minImageCount(); pendingMax = caps.maxImageCount();
 			}
+			pendingRequested = info.minImageCount(); pendingPresentMode = info.presentMode();
+			pendingWidth = info.imageExtent().width(); pendingHeight = info.imageExtent().height();
 		}
 		if (session == null || !session.lowLatency2() || com.bambooz.reflexium.dlss.FsrSwapchain.canCreate(info)) {
 			return info;

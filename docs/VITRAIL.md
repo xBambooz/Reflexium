@@ -1,5 +1,7 @@
 # Vitrail compatibility
 
+The 2026-10-15 pipeline candidate adds an **opt-in experimental** early HDR and pack-surface motion route for the exact pinned Vitrail/Complementary archive. Default behavior remains the late route described below. Enable with `-PrxPackHdr=true` for dev launch. HDR/temporal quality and pacing acceptance remain incomplete; see [pipeline validation](validation/pipeline-improvements-2026-10-15.md) for source guards, resource stages, tested transitions and explicit coverage limits.
+
 Reflex compatibility was checked in game on 2026-10-10. DLSS and FSR shader upscaling were checked
 on 2026-10-13 with the same Vitrail/Sodium/Complementary versions. The integration uses optional
 Vitrail implementation mixins. Vitrail remains an optional dependency.

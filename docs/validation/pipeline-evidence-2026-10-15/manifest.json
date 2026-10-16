@@ -1,0 +1,377 @@
+{
+    "sources":  [
+                    {
+                        "sha256":  "D677BAD904D77FB311992044304F9E68DDC69CD19917E8598CC21E02CC93C8B6",
+                        "path":  "build.gradle"
+                    },
+                    {
+                        "sha256":  "F067394DB4BA871DEC3CE2990F169892F57E65314A2B6935EFE7B83357D4488B",
+                        "path":  "native/README.md"
+                    },
+                    {
+                        "sha256":  "0F9C395C7BF8EAE85AB62093067381429ADE9486454EBD71F76FD2B17088ABF9",
+                        "path":  "native/reflexium_fsr.cpp"
+                    },
+                    {
+                        "sha256":  "3A3B7334A4783E410486081B4C275030062D0D66C3D501373CB25099C7D7AC4D",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/CompatMixinPlugin.java"
+                    },
+                    {
+                        "sha256":  "A05B567A5DF67F784738DA428C818635F225810DD4D5B28DDBD5E10828134291",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/ComplementaryHdr.java"
+                    },
+                    {
+                        "sha256":  "EA41622A761CA5B771BC1996961D561DD9AC318978B5DD2DAED0B64A8CB65BD5",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/ComplementaryMotionSource.java"
+                    },
+                    {
+                        "sha256":  "3C9A1724EBC9E9EAC300C2947D0E8AF08221BFCCC421DB4EEC794EA8799D1996",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/ComplementaryTemporalSource.java"
+                    },
+                    {
+                        "sha256":  "414534BC0D4EB9F1C50B2C8DE3ADE806B8413F4F2CE4E7ECAB32158A0478D33F",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/PackMotionState.java"
+                    },
+                    {
+                        "sha256":  "6CC71397200A105A043AA0F21F002AB952624DA625997C69BBA356C4D6C3F46A",
+                        "path":  "src/client/java/com/bambooz/reflexium/compat/VitrailCompat.java"
+                    },
+                    {
+                        "sha256":  "8245F4FAF2B0E588AB40B045875C0EEBDE208F135A364C32016501F3C2A07191",
+                        "path":  "src/client/java/com/bambooz/reflexium/debug/DebugServer.java"
+                    },
+                    {
+                        "sha256":  "24A6854186FF254874BF0EE976C2F3A82FE648641D0082DE357A4FFBD26094F5",
+                        "path":  "src/client/java/com/bambooz/reflexium/debug/DebugSettings.java"
+                    },
+                    {
+                        "sha256":  "92D7E4BFDE3873A3F0C6EDEB8F4B7ECCCE45F240E8D2EDBA4291A4AB0975803F",
+                        "path":  "src/client/java/com/bambooz/reflexium/debug/MeasurementCounters.java"
+                    },
+                    {
+                        "sha256":  "DB38E8B388F241B04A2D15086FB4DBA2891C9D1555DF693E4789184AB6FA68E9",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/CaptureEncodePass.java"
+                    },
+                    {
+                        "sha256":  "66AA2D999C53893AD2E526C485765E1087E4ACC1B871E924B940DE031D704C08",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/FrameGenerationRenderer.java"
+                    },
+                    {
+                        "sha256":  "1A0053DA5E3AE6C99AC3CA52BC35BBFF5B2E31673DDE6D90B58EF22477C5013A",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/FsrBridge.java"
+                    },
+                    {
+                        "sha256":  "22ECC5D8CA8F9831EE9C13D72BB4A8D312EF0928A5E515D715A8EE0072FAD791",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/GenerationLedger.java"
+                    },
+                    {
+                        "sha256":  "E62AC84A82B716591BCD0A4F03D176F1E8EC7990ECF070E8C97FE486F65A5F97",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/PackSurfaceMotionPass.java"
+                    },
+                    {
+                        "sha256":  "CDBCBDE644B927598C52D21E8024B3EBB68BA3AA684FDDE555FAD208DC19BC35",
+                        "path":  "src/client/java/com/bambooz/reflexium/dlss/UpscalingRenderer.java"
+                    },
+                    {
+                        "sha256":  "758B89504BC5D1402C296BDA0FB6D579B38CB9143517E6414B01BBD0AF1714BE",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/compat/vitrail/PackPassMixin.java"
+                    },
+                    {
+                        "sha256":  "71204B63EB8541832FBAE7E8EF6AEFC89132824B63FB7447A442077C1EBED360",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/compat/vitrail/PackValuesMixin.java"
+                    },
+                    {
+                        "sha256":  "44E408E1AD94DB7B09504F5DD51ACEC2C85CC7D6AC3F2176838995B29B6394E0",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/compat/vitrail/ShaderPackSourceMixin.java"
+                    },
+                    {
+                        "sha256":  "6D65A469CACB3602E7EF909DA70808D80E5B29D6F69793997ACEFCC2D2472A07",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/GameRendererMixin.java"
+                    },
+                    {
+                        "sha256":  "AB9BB1C192D0860DEE72FC75C49CDAC0ECB193B3B305F5980C33F157EF70FD99",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/VulkanConstMixin.java"
+                    },
+                    {
+                        "sha256":  "3E3491DDA4ABCE5657F1C1C3BF2D0D9FEA11379CCC878F84AF51FE371063A8B4",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/VulkanGpuSurfaceMixin.java"
+                    },
+                    {
+                        "sha256":  "EEAC4F2E9EA01E0F0B52CC1F11C66229505AD63CD5D0C961FB5E095D1B82130F",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/VulkanQueueSubmissionMixin.java"
+                    },
+                    {
+                        "sha256":  "F173D0CE045D8B2DBA9504F515299A1741B3F5C837B6B8977B13572BD452E16B",
+                        "path":  "src/client/java/com/bambooz/reflexium/mixin/VulkanSubmitTimingMixin.java"
+                    },
+                    {
+                        "sha256":  "4DCD89F4F739DC24979EF59405E7B7BA15DB826A64D0558B5D19658E7CFFC3AA",
+                        "path":  "src/client/java/com/bambooz/reflexium/reflex/PacingState.java"
+                    },
+                    {
+                        "sha256":  "7E162DF3E5212CB3D8C7E2DE1396072B2A38E14BA5BD7CBCA6A5A0EFDDE5C6D6",
+                        "path":  "src/client/java/com/bambooz/reflexium/reflex/ReflexController.java"
+                    },
+                    {
+                        "sha256":  "A08157978C53B6123E87463A9240BB15283088E80DE2F802980DA746A22C631E",
+                        "path":  "src/client/java/com/bambooz/reflexium/vulkan/FrameTrace.java"
+                    },
+                    {
+                        "sha256":  "14EBC5B5372CA4F69E8658D6191C606144379A6EAEF00BBCCA3FD0E761A10D62",
+                        "path":  "src/client/java/com/bambooz/reflexium/vulkan/VulkanLifecycle.java"
+                    },
+                    {
+                        "sha256":  "0DDCEF18A6B5065335A90965CC50461D25858B6282BEEBDD106B96EE636FA973",
+                        "path":  "src/client/resources/assets/reflexium/shaders/core/dlss_capture_encode.fsh"
+                    },
+                    {
+                        "sha256":  "E38E7FF855BB54E7A67B682F1B9231283C2B90E9B5F5D5105FE73F14FF4ABCB5",
+                        "path":  "src/client/resources/assets/reflexium/shaders/core/pack_surface_motion.fsh"
+                    },
+                    {
+                        "sha256":  "4A9C81D50DFD4B0022FAAF52D99306004F1E0F117CEE13F3735F1F3E674ADF82",
+                        "path":  "src/client/resources/natives/windows-x86_64/reflexium_fsr.dll"
+                    },
+                    {
+                        "sha256":  "81CB16A00D96FF4DE4DCC733DA13A2E0788E75F90A24BC9B95300A6CFAB85792",
+                        "path":  "src/client/resources/natives/windows-x86_64/reflexium_ngx.dll"
+                    },
+                    {
+                        "sha256":  "97A3986D210040C37C07E119B036DB1E97F464EA1FB9C023624841B9BB9B02DA",
+                        "path":  "src/client/resources/reflexium.vitrail.mixins.json"
+                    },
+                    {
+                        "sha256":  "357C57E77387D51F87250E4654D7D1EF6B90E536CDA03D55BB3517E75207F17F",
+                        "path":  "src/test/java/com/bambooz/reflexium/compat/VitrailCompatCheck.java"
+                    },
+                    {
+                        "sha256":  "828CDF14B389CE3CCD9A71B3A20A078D50C8C7275D81C7A7A44D39896A80561D",
+                        "path":  "src/test/java/com/bambooz/reflexium/debug/BmDriver.java"
+                    },
+                    {
+                        "sha256":  "A7F7E1FBA1FF01C5A020235BDF8BFC2B15D0AAA4ACC8621202F9E58AA9212CE1",
+                        "path":  "src/test/java/com/bambooz/reflexium/dlss/FrameDeliveryCheck.java"
+                    },
+                    {
+                        "sha256":  "5384AC429C15C72F15A9C1F3187D3F2B383D696CD22AF252A94A5EA941E6ADF7",
+                        "path":  "src/test/java/com/bambooz/reflexium/dlss/UpscalingContractCheck.java"
+                    },
+                    {
+                        "sha256":  "C2090786215C5611943056BED1B75E7690214A807D05A5F8C3B8E8D96F790E5E",
+                        "path":  "src/test/java/com/bambooz/reflexium/reflex/ReflexTimingCheck.java"
+                    },
+                    {
+                        "sha256":  "AC34A07E388F8F92798B2A198AB0CD4A07B5B613A8D2701205B2EDB53CA53A5F",
+                        "path":  "tools/bm-quick-bench.ps1"
+                    },
+                    {
+                        "sha256":  "3B856122A7365B89121463B312E367B0A479FB2D062D7D132F835068A1A125AD",
+                        "path":  "tools/CaptureAnalysis.java"
+                    },
+                    {
+                        "sha256":  "6C530FA6915D3F295450D8714F3F222767811863DEF1F5E630493E45E4C28DC8",
+                        "path":  "tools/TraceCheck.java"
+                    }
+                ],
+    "artifacts":  [
+                      {
+                          "path":  "dlss-blockents.png",
+                          "sha256":  "A1302114E5E68DE77148281DB50C2955EC03EF94945CB3927BFBB2DD4FD76865",
+                          "bytes":  857174
+                      },
+                      {
+                          "path":  "fsr-blockents.png",
+                          "sha256":  "28F41085CA17AEE1F119033C8060ECA391C33A6BC4C77A95ED22CABBD201EF35",
+                          "bytes":  879583
+                      },
+                      {
+                          "path":  "fullscreen-final.json",
+                          "sha256":  "8D6982BE4DB8537D01FE240F03593D4DEC3C1CA95FFDE4BC0274B5A6C58B81AD",
+                          "bytes":  925
+                      },
+                      {
+                          "path":  "isolated-leaf-2.json",
+                          "sha256":  "2978990FAEBFE391D088A5F7B5009C7CB71A57966831BF75D369A25A271BE2FA",
+                          "bytes":  4569
+                      },
+                      {
+                          "path":  "isolated-leaf-2_depth.png",
+                          "sha256":  "57E2B1EB1696A29F28A1B931568ABF2156FE70E3FFC907B2DB59E2FE41FA4547",
+                          "bytes":  83542
+                      },
+                      {
+                          "path":  "isolated-leaf-2_input.png",
+                          "sha256":  "0F43E93AE6D07C9ECF6BF7C61D5429B17C2BA9B2CE95721082EF47453E35ACB5",
+                          "bytes":  99895
+                      },
+                      {
+                          "path":  "isolated-leaf-2_motion.png",
+                          "sha256":  "65A50D6606B89FD167269DF08743D22BE9B2BE4FB133B23BA5868409863E4FB4",
+                          "bytes":  21404
+                      },
+                      {
+                          "path":  "isolated-leaf-2_output.png",
+                          "sha256":  "39BDD9B821F671ABA15A857C93D3754CC7EFD2B9507010F7501B11A808B7AF0F",
+                          "bytes":  198206
+                      },
+                      {
+                          "path":  "isolated-leaf-3.json",
+                          "sha256":  "3785161677A691D2E7593823905029146A9D421E06FEA859BDBAD7D93C52B68A",
+                          "bytes":  4573
+                      },
+                      {
+                          "path":  "isolated-leaf-3_depth.png",
+                          "sha256":  "84118D954F75D6B3C3D5F1B965FBAEAA46F8ED821F3DF46FFFB708B8E5CAAD66",
+                          "bytes":  77747
+                      },
+                      {
+                          "path":  "isolated-leaf-3_input.png",
+                          "sha256":  "609D9DF3B691885AF0B219D012B63BE2D31028DF37F10FA6AD14C5ECF7C5769F",
+                          "bytes":  99903
+                      },
+                      {
+                          "path":  "isolated-leaf-3_motion.png",
+                          "sha256":  "71C011028A7936C9E842EA6456EC3AD59A21B5AD7E3F32BBECD72BEEEEA2ED5C",
+                          "bytes":  10502
+                      },
+                      {
+                          "path":  "isolated-leaf-3_output.png",
+                          "sha256":  "A28BAC400C3391098A566CAD0696AEEF90FAEF3793BB43448E1497F9A885FFB2",
+                          "bytes":  202961
+                      },
+                      {
+                          "path":  "isolated-leaf-4.json",
+                          "sha256":  "DE021B518805EC7D83334208CE441DAC2E6589625894233776A52E61E2F3F689",
+                          "bytes":  4567
+                      },
+                      {
+                          "path":  "isolated-leaf-4_depth.png",
+                          "sha256":  "A74DF5E4C33963EE0B6F4A08AB71358120689D573D6306FFF491B7102CA7E015",
+                          "bytes":  78927
+                      },
+                      {
+                          "path":  "isolated-leaf-4_input.png",
+                          "sha256":  "47A358DAFD9D48310B51A7E798906AFA68A21C23B3E3A0ADA97FAE05155ADE9C",
+                          "bytes":  99269
+                      },
+                      {
+                          "path":  "isolated-leaf-4_motion.png",
+                          "sha256":  "DB17BDC1484D1FCA139313E88DEA14C48386C5D99DB31C99E2882F4C4EAF8336",
+                          "bytes":  14150
+                      },
+                      {
+                          "path":  "isolated-leaf-4_output.png",
+                          "sha256":  "D2D3044D745A3044DAEB6352ECBCC4DCBBFFFF3F9F47AD0340D89F245E35016D",
+                          "bytes":  203578
+                      },
+                      {
+                          "path":  "matched-dlss-cutouts.png",
+                          "sha256":  "3A8C81EA2A8ADB6C793CCFD3F298D7C340886555B794BEEBC128CCDE9D0DC7EB",
+                          "bytes":  864782
+                      },
+                      {
+                          "path":  "matched-dlss-turn-000.png",
+                          "sha256":  "BDF39D1A22500601AFCEE350BFFA1B0BED079E7C43FB61E27A12C0FF252FF47B",
+                          "bytes":  867154
+                      },
+                      {
+                          "path":  "matched-dlss-turn-003.png",
+                          "sha256":  "85335BB8BA9BDCB557BAB79FF6E3D8F745D12A49DDF01A919EA10AD1ECCF78C5",
+                          "bytes":  943732
+                      },
+                      {
+                          "path":  "matched-dlss-turn-005.png",
+                          "sha256":  "0B9C5AB87810C0FF1287E1F9EDA957CA896ACFD217FC017822F28A5299D1D3F1",
+                          "bytes":  917813
+                      },
+                      {
+                          "path":  "matched-dlss-wall.png",
+                          "sha256":  "791E9422C763BDD699D48C76E9467E11017CEB5242E6B5A563A857B28EEA95E3",
+                          "bytes":  976238
+                      },
+                      {
+                          "path":  "matched-fsr-cutouts.png",
+                          "sha256":  "5BA52FD6AF9B7BC322EB4CE4252221F81BAE8E342C3E393AADEF3989E08C65AE",
+                          "bytes":  885996
+                      },
+                      {
+                          "path":  "matched-fsr-turn-000.png",
+                          "sha256":  "938FE5313ECF759E9DFEB23B0EE058A09F786C77801FA88C19C9A74A23426619",
+                          "bytes":  884402
+                      },
+                      {
+                          "path":  "matched-fsr-turn-003.png",
+                          "sha256":  "B430A1FF7903B7231A357C0DCFEBFC2A86C4D8567E5457E1CC8BE918BDCCCF66",
+                          "bytes":  953229
+                      },
+                      {
+                          "path":  "matched-fsr-turn-005.png",
+                          "sha256":  "F06AE6743AAE4AE6B9A0EDE671D7715457C0E4356BB075CC11101F929B1536B0",
+                          "bytes":  940933
+                      },
+                      {
+                          "path":  "matched-fsr-wall.png",
+                          "sha256":  "23469227F047449FDF8EE3AB24FC1EDA8FCB2F50A27C36092F0F8472E0DD6CE7",
+                          "bytes":  1007199
+                      },
+                      {
+                          "path":  "matched-off-cutouts.png",
+                          "sha256":  "8804744E254F26CE6793438B06B748D40F61DDAC4BF8FA2A185CC9E514B2860D",
+                          "bytes":  903317
+                      },
+                      {
+                          "path":  "matched-off-turn-000.png",
+                          "sha256":  "0B896F1EB5B467285EC07FC4F59986F1DCEAA357D08F05E06E0EDBAE28F550C7",
+                          "bytes":  893664
+                      },
+                      {
+                          "path":  "matched-off-turn-003.png",
+                          "sha256":  "F3041C543A9F896E8F73773174B6EF7B2AAFB31235056EC32D05F8192D5D1741",
+                          "bytes":  1002099
+                      },
+                      {
+                          "path":  "matched-off-turn-005.png",
+                          "sha256":  "D47CB9B8C99E665D41524435F7F098F179CF27FDACBFFECB32513D80D5340B35",
+                          "bytes":  945188
+                      },
+                      {
+                          "path":  "matched-off-wall.png",
+                          "sha256":  "53C300B7D265DE8686D3029FE6EB2A993A1B0EA67DBEED6C12F4A1353BD43BBD",
+                          "bytes":  985651
+                      },
+                      {
+                          "path":  "matched-old-cutouts.png",
+                          "sha256":  "0992A7CBD3BD336B9AEE73BE8B5BAB9DDC95DD3751006A47356EEA67D786976D",
+                          "bytes":  889066
+                      },
+                      {
+                          "path":  "matched-old-turn-000.png",
+                          "sha256":  "F150FB9EE2FC8705808D50CD9892129617F10862E1C9BD24EC0353D868C58138",
+                          "bytes":  869720
+                      },
+                      {
+                          "path":  "matched-old-turn-003.png",
+                          "sha256":  "C076114CAFF37FD6284DB2A752AC55C131F0C05F5932873D5CAC6FAA9E129BE3",
+                          "bytes":  905525
+                      },
+                      {
+                          "path":  "matched-old-turn-005.png",
+                          "sha256":  "08A17F8991EBDC2350897821DA5A9109708DA47E9ED14B847D64D4193728FF90",
+                          "bytes":  908739
+                      },
+                      {
+                          "path":  "matched-old-wall.png",
+                          "sha256":  "4D75A21BFC3DB5BFB161E1D41DA5C4FD829676C89D1F02DDA493924F85FF8EAD",
+                          "bytes":  980523
+                      },
+                      {
+                          "path":  "transitions.json",
+                          "sha256":  "3043448B9993F3F04531835CD975D2FA724075C98172B2AE921B5297B34D01AA",
+                          "bytes":  5684
+                      }
+                  ],
+    "runtime_sha256":  "C3DD630A9AD229D77B33C8652ADCE8353351068F9CCD1830B609E12184E9F92C",
+    "benchmark_seconds":  0,
+    "images":  "Exact-pixel lossless re-encodings of ignored raw smoke captures; no image synthesis.",
+    "baseline_commit":  "4df62671ab4860a2003462339e05f8a076b87cad"
+}

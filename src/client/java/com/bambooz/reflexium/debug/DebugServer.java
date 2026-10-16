@@ -423,6 +423,18 @@ public final class DebugServer {
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
+		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();
+		if (swapchain != null) {
+			o.addProperty("swapchain_images_requested", swapchain.requested());
+			o.addProperty("swapchain_images_created", swapchain.created());
+			o.addProperty("swapchain_present_mode", com.bambooz.reflexium.vulkan.VulkanLifecycle.presentModeName(swapchain.presentMode()));
+			o.addProperty("swapchain_surface_min_images", swapchain.surfaceMin());
+			o.addProperty("swapchain_surface_max_images", swapchain.surfaceMax());
+			o.addProperty("swapchain_extent", swapchain.width() + "x" + swapchain.height());
+		}
+		long[] counters = new long[MeasurementCounters.NAMES.length];
+		MeasurementCounters.read(counters);
+		for (int i = 0; i < counters.length; i++) o.addProperty("measure_" + MeasurementCounters.NAMES[i], counters[i]);
 		o.addProperty("fg_evaluated_frames", FrameGenerationRenderer.get().evaluatedFrames());
 		o.addProperty("fg_generated_presents", FrameGenerationRenderer.get().generatedPresents());
 		o.addProperty("fg_real_presents", FrameGenerationRenderer.get().realPresents());
@@ -556,6 +568,17 @@ public final class DebugServer {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "vsync", "fullscreen", "pause" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> {
+					Minecraft mc = Minecraft.getInstance();
+					switch (key) {
+						case "vsync" -> mc.options.enableVsync().set(on);
+						case "fullscreen" -> { mc.options.fullscreen().set(on); mc.getWindow().setFullscreen(on); }
+						case "pause" -> { if (on) mc.pauseGame(false); else mc.setScreenAndShow(null); }
+					}
+				};
+			}
 			case "perf_uniforms", "perf_depth" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> {
@@ -587,6 +610,10 @@ public final class DebugServer {
 			case "pack_resolve" -> {
 				boolean bypass = flag(Map.of("v", value), "v", true);
 				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackResolveBypass(bypass);
+			}
+			case "pack_filters" -> {
+				boolean retained = flag(Map.of("v", value), "v", true);
+				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackPreFilters(retained);
 			}
 			case "shaders" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
@@ -672,7 +699,7 @@ public final class DebugServer {
 				yield () -> DebugSettings.setDrawStaticObjects(on);
 			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|shaders|pack_taa|pack_resolve");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|shaders|pack_taa|pack_resolve|pack_filters");
 		};
 		return call(() -> {
 			apply.run();

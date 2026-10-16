@@ -243,6 +243,8 @@ four combinations.
 
 ## Notes and limits
 
+The dev-only settings endpoint also accepts `vsync`, `fullscreen` and `pause` booleans for lifecycle checks. The background harness can enforce window placement, so setting fullscreen does not establish a successful fullscreen transition. `-PrxPackHdr=true` enables the experimental pinned-pack HDR route; it remains off in ordinary launches. See [pipeline validation](validation/pipeline-improvements-2026-10-15.md).
+
 Frame generation adds `frame_generation=off|dlss|dlss_multi|fsr` and `fg_multiplier=3..8` to `/set`.
 Status includes the runtime MFG maximum, FG evaluations, successful generated present submissions,
 metering feedback and AMD scheduler present counts. These counters do not measure physical scanout.

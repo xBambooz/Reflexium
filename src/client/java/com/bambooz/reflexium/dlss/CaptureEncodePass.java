@@ -26,6 +26,7 @@ import java.util.Optional;
 final class CaptureEncodePass {
 	static final int MOTION = 0;
 	static final int DEPTH = 1;
+	static final int HDR = 2;
 	private static final int UBO_SIZE = new Std140SizeCalculator().putVec4().get();
 
 	private static final RenderPipeline PIPELINE = RenderPipeline.builder()
@@ -60,7 +61,7 @@ final class CaptureEncodePass {
 			pass.setPipeline(RenderSystem.getCompiledPipeline(PIPELINE));
 			pass.setUniform("ReflexiumCaptureEncode", slice);
 			pass.setUniform("MotionSampler", source.getColorTextureView(), nearest);
-			pass.setUniform("DepthSampler", source.getDepthTextureView(), nearest);
+			pass.setUniform("DepthSampler", source.getDepthTextureView() == null ? source.getColorTextureView() : source.getDepthTextureView(), nearest);
 			pass.draw(3, 1, 0, 0);
 		}
 	}

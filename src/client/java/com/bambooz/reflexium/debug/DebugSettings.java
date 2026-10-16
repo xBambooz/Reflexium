@@ -22,6 +22,10 @@ public final class DebugSettings {
 	private static volatile boolean handMotion = true;
 	private static volatile boolean packTaaRetained = true;
 	private static volatile boolean packResolveBypass = true;
+	private static volatile boolean packPreFilters = false;
+	/** Dev A/B: restore the reviewed pack's FXAA and sharpening on the jittered input (off by default while upscaling). */
+	public static boolean packPreFilters() { return packPreFilters; }
+	public static void setPackPreFilters(boolean retained) { packPreFilters = retained; }
 	public static boolean packResolveBypass() { return packResolveBypass; }
 	public static void setPackResolveBypass(boolean bypass) { packResolveBypass = bypass; }
 	public static boolean objectMotion() { return objectMotion; }
