@@ -22,6 +22,7 @@ public final class IrisCompatCheck {
 	public static void main(String[] args) throws Exception {
 		abi(Path.of(System.getProperty("reflexium.irisJar", "run/mods/iris-fabric-experimental-build-26.3.jar")));
 		sources(Path.of("run/shaderpacks/" + PACK + ".zip"));
+		bsl(Path.of("run/shaderpacks/BSL_v10.1.8.zip"));
 		proxySwapchain();
 		System.out.println("Iris compatibility checks passed");
 	}
@@ -54,6 +55,28 @@ public final class IrisCompatCheck {
 			owner.setBoolean(null, false);
 			if (!IrisCompat.adapt(PACK, jitter, original).equals(original)) throw new AssertionError("Off must keep the pack's own jitter");
 		}
+	}
+
+	private static void bsl(Path zip) throws Exception {
+		if (!Files.isRegularFile(zip)) { System.out.println("BSL source checks skipped: " + zip + " missing"); return; }
+		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
+		owner.setAccessible(true);
+		owner.setBoolean(null, true);
+		IrisCompat.onPackLoading();
+		try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toAbsolutePath().toUri()), Map.of())) {
+			Path settings = fs.getPath("/shaders/lib/settings.glsl");
+			String original = Files.readString(settings);
+			String edited = IrisCompat.adapt("BSL_v10.1.8", settings, original);
+			if (!edited.contains("#if 1 // Reflexium") || edited.contains("#ifdef RETRO_FILTER")) throw new AssertionError("BSL anti-aliasing not removed");
+			// Option parsing must still see the original defines so saved pack options stay valid.
+			if (!edited.contains("  #define TAA") || !edited.contains("  #define FXAA")) throw new AssertionError("BSL option defines changed");
+			if (!IrisCompat.temporalVerified()) throw new AssertionError("BSL not reported as verified");
+			String modified = original + "\n// user edit\n";
+			if (!IrisCompat.adapt("BSL_v10.1.8", settings, modified).equals(modified)) throw new AssertionError("Modified BSL source was edited");
+			owner.setBoolean(null, false);
+			if (!IrisCompat.adapt("BSL_v10.1.8", settings, original).equals(original)) throw new AssertionError("Off must keep BSL's own TAA");
+		}
+		IrisCompat.onPackLoading();
 	}
 
 	private static void abi(Path jar) throws Exception {

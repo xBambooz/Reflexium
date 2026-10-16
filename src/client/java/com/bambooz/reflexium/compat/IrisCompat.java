@@ -25,6 +25,16 @@ public final class IrisCompat {
 	private static final String JITTER = "lib/antialiasing/jitter.glsl";
 	private static final String JITTER_SHA256 = "60872f102a808d3f5a6e8a5c0391bb1fb149bb08abb262047cb27e05577d877b";
 	private static final String JITTER_LINE = "#if TAA_JITTER > 0";
+	/**
+	 * BSL's own "retro filter removes AA" block undefines both TAA and FXAA. Every BSL projection jitter call and
+	 * the composite6/composite7 resolves sit behind those defines, so enabling the block leaves Reflexium as the
+	 * only jitter and temporal resolve. Option parsing still sees the original defines, so saved options are kept.
+	 */
+	private static final String BSL = "BSL_v10.1.8";
+	private static final String BSL_SETTINGS = "lib/settings.glsl";
+	private static final String BSL_SETTINGS_SHA256 = "808a7fb287dc081d889b3a8abb36c39590c12bff53bd751e839737e3a1cd13aa";
+	private static final String BSL_AA_LINE = "#ifdef RETRO_FILTER";
+	private static volatile boolean bslAaRemoved;
 
 	private static Method packInUse;
 	private static Method config;
@@ -71,10 +81,11 @@ public final class IrisCompat {
 		epoch++;
 		ComplementaryTemporalSource.reset();
 		jitterRemoved = false;
+		bslAaRemoved = false;
 	}
 	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
 	public static boolean temporalVerified() {
-		return jitterRemoved && ComplementaryTemporalSource.applied();
+		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved;
 	}
 	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
 	public static boolean packJitterRemoved() { return jitterRemoved; }
@@ -122,14 +133,16 @@ public final class IrisCompat {
 
 	static String adapt(String name, java.nio.file.Path file, String source) {
 		if (!ownsTemporalSampling() || source == null) return source;
-		if (!PACK.equals(name)) return source;
+		if (!PACK.equals(name) && !BSL.equals(name)) return source;
 		String path = file.toString().replace('\\', '/');
 		int root = path.lastIndexOf("shaders/");
 		if (root < 0) return source;
 		String rel = path.substring(root + "shaders/".length());
 		List<String> lines = List.of(source.replace("\r\n", "\n").split("\n", -1));
 		List<String> result = lines;
-		if (rel.equals(JITTER)) {
+		if (BSL.equals(name)) {
+			if (rel.equals(BSL_SETTINGS)) result = removeBslAntiAliasing(lines);
+		} else if (rel.equals(JITTER)) {
 			result = removeJitter(lines);
 		} else if (DebugSettings.packResolveBypass()) {
 			result = ComplementaryTemporalSource.adapt(name, rel, lines, true, DebugSettings.packPreFilters());
@@ -147,6 +160,19 @@ public final class IrisCompat {
 			if (!line.strip().equals(JITTER_LINE)) continue;
 			result.set(i, line.substring(0, line.indexOf(JITTER_LINE)) + "#if 0 // Reflexium: projection jitter has one owner");
 			jitterRemoved = true;
+			return List.copyOf(result);
+		}
+		return lines;
+	}
+
+	private static List<String> removeBslAntiAliasing(List<String> lines) {
+		if (!BSL_SETTINGS_SHA256.equals(ComplementaryTemporalSource.sha256(lines))) return lines;
+		List<String> result = new ArrayList<>(lines);
+		for (int i = 0; i < result.size(); i++) {
+			String line = result.get(i);
+			if (!line.strip().equals(BSL_AA_LINE)) continue;
+			result.set(i, line.substring(0, line.indexOf(BSL_AA_LINE)) + "#if 1 // Reflexium: one jitter and temporal resolve owner");
+			bslAaRemoved = true;
 			return List.copyOf(result);
 		}
 		return lines;

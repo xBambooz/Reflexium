@@ -12,7 +12,7 @@
   "reflexium.option.quality": "Upscaling Quality",
   "reflexium.option.quality.tooltip": "Controls the internal render resolution used for upscaling. Native AA keeps full resolution with temporal anti-aliasing, while other presets lower resolution to improve performance.",
   "reflexium.option.dlss_model": "DLSS Model",
-  "reflexium.option.dlss_model.tooltip": "Selects the neural network model used for DLSS upscaling. Transformer is sharper, CNN is lighter on older RTX cards, and Auto lets the driver pick.",
+  "reflexium.option.dlss_model.tooltip": "Selects the neural network model used for DLSS upscaling. Transformer is sharper and is the default. CNN is lighter on older RTX cards but much softer below Quality, especially at Ultra Performance. Auto lets the driver pick.",
   "reflexium.option.fsr_sharpness": "FSR Sharpness",
   "reflexium.option.fsr_sharpness.tooltip": "Applies an additional sharpening filter after FSR upscaling. Set to 0% to disable sharpening.",
   "reflexium.option.status": "Status and Details",

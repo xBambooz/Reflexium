@@ -5,6 +5,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import net.minecraft.client.renderer.DebugCrosshairRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.GlobalSettingsUniform;
 import net.minecraft.client.renderer.Projection;
@@ -14,7 +19,9 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -79,7 +86,44 @@ public abstract class GameRendererMixin {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V",
 			shift = At.Shift.AFTER))
 	private void reflexium$completeScene(CallbackInfo ci) {
+		reflexium$drawDeferredCrosshair();
 		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
+	}
+
+	@Shadow @Final private DebugCrosshairRenderer debugCrosshairRenderer;
+	@Shadow @Final private Projection hudProjection;
+	@Shadow @Final private ProjectionMatrixBuffer hud3dProjectionMatrixBuffer;
+	@Shadow @Final private RenderTarget mainRenderTarget;
+	@Unique private CameraRenderState reflexium$crosshairCamera;
+	@Unique private int reflexium$crosshairGuiScale;
+
+	/**
+	 * The F3 axis crosshair is fixed on screen but drawn 1 block ahead of the camera into the world target, so the
+	 * camera motion pass gives it a world point's motion and the upscaler drags its history across every turn.
+	 * While upscaling it is drawn after reconstruction instead, at display resolution, like the GUI.
+	 */
+	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/DebugCrosshairRenderer;render(Lnet/minecraft/client/renderer/state/level/CameraRenderState;ILcom/mojang/renderpearl/api/textures/GpuTextureView;Lcom/mojang/renderpearl/api/textures/GpuTextureView;)V"))
+	private void reflexium$deferCrosshair(DebugCrosshairRenderer renderer, CameraRenderState camera, int guiScale,
+			GpuTextureView color, GpuTextureView depth, Operation<Void> original) {
+		if (!UpscalingRenderer.get().isUpscalingThisFrame()) {
+			original.call(renderer, camera, guiScale, color, depth);
+			return;
+		}
+		reflexium$crosshairCamera = camera;
+		reflexium$crosshairGuiScale = guiScale;
+	}
+
+	@Unique
+	private void reflexium$drawDeferredCrosshair() {
+		CameraRenderState camera = reflexium$crosshairCamera;
+		if (camera == null) return;
+		reflexium$crosshairCamera = null;
+		// Post effects are done and the GUI clears depth next, so the display-size depth is free for the lines.
+		RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(mainRenderTarget.getDepthTexture(), 0.0);
+		RenderSystem.setProjectionMatrix(hud3dProjectionMatrixBuffer.getBuffer(hudProjection.getMatrix(new Matrix4f())), ProjectionType.PERSPECTIVE);
+		debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
+				mainRenderTarget.getDepthTextureView());
 	}
 
 	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE",

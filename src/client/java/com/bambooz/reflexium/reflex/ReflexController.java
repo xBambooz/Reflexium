@@ -273,9 +273,22 @@ public final class ReflexController {
 		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
 		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
-		int fps = Math.min(userFps, vrrFps);
+		// NVIDIA FG runs with VSync off, so the VRR proxy above never applies to it. Generated output above refresh
+		// is never seen; cap real frames so real x multiplier stays under the refresh headroom.
+		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
+		int autoFps = Math.min(vrrFps, fgFps);
+		int fps = Math.min(userFps, autoFps);
 		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
-		requestedCapIsVrr = vrrFps < userFps;
+		requestedCapIsVrr = autoFps < userFps;
+	}
+
+	/** Real-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
+	private int frameGenerationCap(Window window) {
+		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
+		int generated = fg.wantsMotion() ? fg.configuredGeneratedCount() : 0;
+		if (generated <= 0) return NO_CAP;
+		int headroom = vrrCap(window);
+		return headroom == NO_CAP ? NO_CAP : Math.max(1, headroom / (generated + 1));
 	}
 
 	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */
@@ -331,7 +344,7 @@ public final class ReflexController {
 		} else if (pacing.interval > 0) {
 			line.append(", base cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
 			if (requestedCapIsVrr) {
-				line.append(" (VSync headroom heuristic)");
+				line.append(" (automatic refresh headroom)");
 			}
 		}
 		if (!presentIdEnabled) {
@@ -443,8 +456,8 @@ public final class ReflexController {
 			result = vkWaitSemaphores(device, wait, SLEEP_TIMEOUT_NS);
 			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, timing, null);
 			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep wait exit value=" + value + " result=" + result);
-			pacing.sleepResult(result);
-			if (result == VK_SUCCESS) { pendingSleepValue = 0; sleepsCompleted++; }
+			// failSleep records a failed result itself; recording it here too counted each timeout twice.
+			if (result == VK_SUCCESS) { pacing.sleepResult(result); pendingSleepValue = 0; sleepsCompleted++; }
 			else {
 				failSleep("vkWaitSemaphores", result);
 			}

@@ -30,7 +30,7 @@ public final class ReflexiumConfig {
 	private volatile boolean smartReflex = DEFAULT_SMART_REFLEX;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
-	private volatile DlssModel dlssModel = DlssModel.AUTO;
+	private volatile DlssModel dlssModel = DlssModel.TRANSFORMER;
 	private volatile int fsrSharpness = 20;
 	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
 	private volatile int frameGenerationMultiplier = 4;
