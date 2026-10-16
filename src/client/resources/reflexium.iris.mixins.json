@@ -5,6 +5,7 @@
 	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"DhProjectionMixin",
 		"IncludeGraphMixin",
 		"HandRendererMixin",
 		"IrisLoadMixin",

@@ -4,6 +4,7 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.compat.ComplementaryHdr;
+import com.bambooz.reflexium.compat.DistantHorizonsCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
@@ -75,6 +76,8 @@ public final class UpscalingRenderer {
 	private DlssModel builtModel;
 	private int builtPreset;
 	private float cameraNear = 0.05f, cameraFar = 1024f, cameraFov = 1.22f;
+	private float motionFar = 1024f;
+	private final Matrix4f depthTransform = new Matrix4f(), previousDepthTransform = new Matrix4f();
 	private long invalidCameraMetadata;
 	private boolean ngxReady;
 	private boolean ngxInitialized;
@@ -343,6 +346,7 @@ public final class UpscalingRenderer {
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
 		ComplementaryHdr.beginFrame();
+		DistantHorizonsCompat.beginFrame();
 		worldDepthCaptured = false;
 		directWorldDepth = null;
 		opaqueCaptured = false;
@@ -358,9 +362,11 @@ public final class UpscalingRenderer {
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
-		ShaderPacks.configureUpscaling(available(selected) && !failed);
+		ShaderPacks.configureUpscaling(available(selected) && !failed && DistantHorizonsCompat.canUpscale());
 		boolean wanted = (available(selected) || FrameGenerationRenderer.get().wantsMotion()) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
-				&& window.width > 0 && window.height > 0 && ShaderPacks.canUpscale();
+				&& window.width > 0 && window.height > 0 && ShaderPacks.canUpscale() && DistantHorizonsCompat.canUpscale();
+		DistantHorizonsCompat.configureUpscaling(wanted);
+		wanted &= DistantHorizonsCompat.canUpscale();
 		if (!wanted) {
 			ObjectMotion.get().beginFrame(false, false);
 			if (renderSizeApplied) {
@@ -612,12 +618,21 @@ public final class UpscalingRenderer {
 				? ((GameRendererAccessor) gameRenderer).reflexium$hud3DTarget()
 				: gameRenderer.mainRenderTarget();
 		GpuTextureView handDepth = packHandCaptured ? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
+		var dh = DistantHorizonsCompat.depthFrame(renderWidth, renderHeight);
+		float far = dh == null ? cameraFar : Math.max(cameraFar, dh.farPlane() * 2.0f);
+		if (far != motionFar) {
+			requestReset(ResetReason.REBUILD);
+			havePrevious = false;
+		}
+		motionFar = far;
+		depthTransform.set(DistantHorizonsCompat.depthTransform(cameraNear, cameraFar, motionFar));
 		Object level = Minecraft.getInstance().level;
 		ResetReason cut = cutReason(level);
 		if (cut != null) {
 			requestReset(cut);
 			// Camera, object and hand history all restart together.
 			previousUnjittered.set(currentUnjittered);
+			previousDepthTransform.set(depthTransform);
 			previousCamera = currentCamera;
 			previousOrientation.set(currentOrientation);
 			if (haveHandProjection) handProjectionPrevious.set(handProjection);
@@ -627,15 +642,19 @@ public final class UpscalingRenderer {
 		Matrix4f currentToPrevious = DlssMath.reprojection(previousUnjittered, currentJittered,
 				(float) delta.x, (float) delta.y, (float) delta.z);
 		try {
+			if (!DistantHorizonsCompat.canUpscale()) throw new IllegalStateException("Distant Horizons input capture failed");
 			VkCommandBuffer commands = commandBuffer();
 			long timing = FrameProfiler.start(FrameProfiler.MOTION, commands);
 			GpuTextureView sceneDepth = directWorldDepth != null ? directWorldDepth : worldDepth.getDepthTextureView();
 			motionPass.render(motionTarget, sceneDepth, handDepth,
-					currentToPrevious, jitterNdcX(), jitterNdcY());
+					currentToPrevious, jitterNdcX(), jitterNdcY(), dh, currentJittered, depthTransform,
+					(float) delta.x, (float) delta.y, (float) delta.z, resetNext);
 			FrameProfiler.end(FrameProfiler.MOTION, timing, commands);
 			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
-			objectVelocityPass.render(ObjectMotion.get(), motionTarget, sceneDepth, handDepth,
-					currentJittered, currentUnjittered, previousUnjittered, (float) delta.x, (float) delta.y, (float) delta.z, resetNext);
+			// Match the merged depth, so a hidden object cannot overwrite a closer LOD's camera vector.
+			objectVelocityPass.render(ObjectMotion.get(), motionTarget, motionTarget.getDepthTextureView(), handDepth,
+					new Matrix4f(depthTransform).mul(currentJittered), currentUnjittered, previousUnjittered,
+					(float) delta.x, (float) delta.y, (float) delta.z, resetNext);
 			handVerticesDrawn = 0;
 			if (haveHandProjection && DebugSettings.handMotion()) {
 				handVerticesDrawn = objectVelocityPass.renderHand(ObjectMotion.get(), motionTarget, sceneDepth, handDepth,
@@ -729,13 +748,15 @@ public final class UpscalingRenderer {
 		if (worldDepthCaptured && !failed) {
 			Vec3 delta = currentCamera.subtract(previousCamera);
 			// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
-			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), currentProjection,
-					DlssMath.reprojection(previousUnjittered, currentUnjittered, (float) delta.x, (float) delta.y, (float) delta.z),
+			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(depthTransform).mul(currentProjection),
+					DlssMath.reprojection(new Matrix4f(previousDepthTransform).mul(previousUnjittered),
+							new Matrix4f(depthTransform).mul(currentUnjittered), (float) delta.x, (float) delta.y, (float) delta.z),
 					currentOrientation, (float) currentCamera.x, (float) currentCamera.y, (float) currentCamera.z,
 					DebugSettings.jitterSignX(JITTER_SIGN) * jitterX, DebugSettings.jitterSignY(JITTER_SIGN) * jitterY,
-					cameraNear, cameraFar, cameraFov, lastFrameMs, fgReset);
+					cameraNear, motionFar, cameraFov, lastFrameMs, fgReset);
 		}
 		previousUnjittered.set(currentUnjittered);
+		previousDepthTransform.set(depthTransform);
 		previousCamera = currentCamera;
 		previousJitterNdcX = jitterNdcX(); previousJitterNdcY = jitterNdcY();
 		previousOrientation.set(currentOrientation);
@@ -789,6 +810,7 @@ public final class UpscalingRenderer {
 		if (!ShaderPacks.canUpscale()) {
 			return name + ": " + ShaderPacks.upscalingProblem();
 		}
+		if (!DistantHorizonsCompat.canUpscale()) return name + ": Distant Horizons integration unavailable (see log)";
 		if (renderTarget == null) {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
 		}
@@ -869,6 +891,7 @@ public final class UpscalingRenderer {
 		JsonObject camera = new JsonObject();
 		camera.addProperty("near", cameraNear);
 		camera.addProperty("far", cameraFar);
+		camera.addProperty("upscaler_far", motionFar);
 		camera.addProperty("vertical_fov_rad", cameraFov);
 		camera.addProperty("invalid_metadata_frames", invalidCameraMetadata);
 		o.add("physical_camera", camera);
@@ -976,6 +999,7 @@ public final class UpscalingRenderer {
 		matrices.add("current_to_previous", floats(currentToPrevious));
 		matrices.add("physical_projection", floats(physicalProjection));
 		matrices.add("drawn_projection", floats(currentProjection));
+		matrices.add("upscaler_depth_transform", floats(depthTransform));
 		matrices.addProperty("hand_projection_present", haveHandProjection);
 		matrices.add("hand_projection_jittered", floats(handProjectionJittered));
 		matrices.add("hand_projection", floats(handProjection));
@@ -1204,7 +1228,8 @@ public final class UpscalingRenderer {
 	private void resolveDisplayDepth(RenderTarget main) {
 		try {
 			if (depthResolvePass == null) depthResolvePass = new DepthResolvePass();
-			depthResolvePass.render(motionTarget.getDepthTextureView(), main.getDepthTextureView(), main.width, main.height);
+			depthResolvePass.render(motionTarget.getDepthTextureView(), main.getDepthTextureView(), main.width, main.height,
+					depthTransform.m22(), depthTransform.m32());
 			depthResolved = true;
 		} catch (RuntimeException e) {
 			lastError = "post effect depth resolve failed: " + e;
@@ -1255,7 +1280,7 @@ public final class UpscalingRenderer {
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()), outputImage,
 				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : reactiveGenerated ? reactive.asNgx() : null,
 				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null,
-				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, cameraFar, cameraFov,
+				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, motionFar, cameraFov,
 				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
@@ -1373,6 +1398,7 @@ public final class UpscalingRenderer {
 	}
 
 	private void fail(String what, RuntimeException e) {
+		DistantHorizonsCompat.configureUpscaling(false);
 		if (pendingOutput != null) {
 			cancelCapture(pendingOutput);
 			pendingOutput = null;
@@ -1445,6 +1471,7 @@ public final class UpscalingRenderer {
 	}
 
 	private void destroyResources() {
+		DistantHorizonsCompat.configureUpscaling(false);
 		try {
 			waitForGpu();
 		} catch (RuntimeException e) {
