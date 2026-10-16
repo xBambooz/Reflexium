@@ -274,7 +274,8 @@ public final class ReflexController {
 		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
 		// NVIDIA FG runs with VSync off, so the VRR proxy above never applies to it. Generated output above refresh
-		// is never seen; cap real frames so real x multiplier stays under the refresh headroom.
+		// is never seen. With FG active the driver applies this interval to presented frames, real and generated
+		// (measured 2026-10-16: caps of 110 and 73 gave 111 and 74 total at 2x and 3x), so it is not divided.
 		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
 		int autoFps = Math.min(vrrFps, fgFps);
 		int fps = Math.min(userFps, autoFps);
@@ -282,13 +283,11 @@ public final class ReflexController {
 		requestedCapIsVrr = autoFps < userFps;
 	}
 
-	/** Real-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
+	/** Presented-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
 	private int frameGenerationCap(Window window) {
 		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
 		int generated = fg.wantsMotion() ? fg.configuredGeneratedCount() : 0;
-		if (generated <= 0) return NO_CAP;
-		int headroom = vrrCap(window);
-		return headroom == NO_CAP ? NO_CAP : Math.max(1, headroom / (generated + 1));
+		return generated <= 0 ? NO_CAP : vrrCap(window);
 	}
 
 	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */
@@ -342,7 +341,7 @@ public final class ReflexController {
 		} else if (isPacingPaused()) {
 			line.append(" (paused, high FPS)");
 		} else if (pacing.interval > 0) {
-			line.append(", base cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
+			line.append(", cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
 			if (requestedCapIsVrr) {
 				line.append(" (automatic refresh headroom)");
 			}
