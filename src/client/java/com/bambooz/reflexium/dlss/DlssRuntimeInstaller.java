@@ -69,6 +69,8 @@ public final class DlssRuntimeInstaller {
 
 	private static volatile State state = new State(Phase.IDLE, 0, "");
 	private static CompletableFuture<Path> pending;
+	/** Frame generation's runtime is optional: it never holds back super resolution. */
+	private static CompletableFuture<Path> fgPending;
 
 	private DlssRuntimeInstaller() {
 	}
@@ -76,18 +78,30 @@ public final class DlssRuntimeInstaller {
 	public static State state() {
 		return state;
 	}
+	/** Super resolution's runtime only. */
 	static synchronized boolean hasPendingWork() { return pending != null && !pending.isDone(); }
+
+	/**
+	 * Forgets failed downloads so the next {@link #ensureInstalledAsync()} starts again, for example after the
+	 * network returns or the player places the DLL by hand. Explicit, never per frame. True when anything reset.
+	 */
+	public static synchronized boolean retryFailed() {
+		boolean reset = false;
+		if (pending != null && pending.isCompletedExceptionally()) { pending = null; reset = true; }
+		if (fgPending != null && fgPending.isCompletedExceptionally()) { fgPending = null; reset = true; }
+		if (reset) state = new State(Phase.IDLE, 0, "");
+		return reset;
+	}
 
 	/**
 	 * Starts the download when nvngx_dlss.dll is missing and returns without waiting. The future
 	 * completes with the DLL path, or fails with the reason. Callers check for an NVIDIA GPU first.
 	 */
 	public static synchronized CompletableFuture<Path> ensureInstalledAsync() {
-		if (pending == null) {
-			Path folder = DlssSupport.featureFolder();
-			pending = startInstall(folder, SOURCE, SHA256).thenCompose(sr ->
-					startInstall(folder, FG_SOURCE, FG_SHA256, FG_FILE_NAME).thenApply(fg -> sr));
-		}
+		Path folder = DlssSupport.featureFolder();
+		if (pending == null) pending = startInstall(folder, SOURCE, SHA256);
+		// Sequential so one download runs at a time, but SR completes (and initializes) without waiting for FG.
+		if (fgPending == null) fgPending = pending.thenCompose(sr -> startInstall(folder, FG_SOURCE, FG_SHA256, FG_FILE_NAME));
 		return pending;
 	}
 

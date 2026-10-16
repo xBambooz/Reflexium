@@ -169,6 +169,17 @@ public abstract class VulkanGpuSurfaceMixin {
 		}
 		return original.call(device, info, allocator, out);
 	}
+	/** The proxy handle is not a driver swapchain: acquisition and destruction must go through the SDK too. */
+	@WrapOperation(method = "acquireNextTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkAcquireNextImageKHR(Lorg/lwjgl/vulkan/VkDevice;JJJJLjava/nio/IntBuffer;)I"))
+	private int reflexium$fsrAcquire(org.lwjgl.vulkan.VkDevice device, long swapchain, long timeout, long semaphore, long fence,
+			java.nio.IntBuffer index, Operation<Integer> original) {
+		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.acquire(timeout, semaphore, fence, index) : original.call(device, swapchain, timeout, semaphore, fence, index);
+	}
+	@WrapOperation(method = "destroySwapchain", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkDestroySwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
+	private void reflexium$fsrDestroy(org.lwjgl.vulkan.VkDevice device, long swapchain, org.lwjgl.vulkan.VkAllocationCallbacks allocator, Operation<Void> original) {
+		if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
+		else original.call(device, swapchain, allocator);
+	}
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkGetSwapchainImagesKHR(Lorg/lwjgl/vulkan/VkDevice;JLjava/nio/IntBuffer;Ljava/nio/LongBuffer;)I"))
 	private int reflexium$fsrImages(org.lwjgl.vulkan.VkDevice device, long swapchain, java.nio.IntBuffer count,
 			java.nio.LongBuffer images, Operation<Integer> original) {

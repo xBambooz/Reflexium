@@ -22,6 +22,11 @@ public abstract class VulkanDeviceMixin {
 
 	@Inject(method = "close", at = @At("HEAD"))
 	private void reflexium$closing(CallbackInfo ci) {
-		VulkanLifecycle.onDeviceClosing();
+		try {
+			VulkanLifecycle.onDeviceClosing();
+		} catch (RuntimeException e) {
+			// Never stop Minecraft's own device close.
+			com.bambooz.reflexium.ReflexiumClient.LOGGER.error("Reflexium device teardown failed", e);
+		}
 	}
 }

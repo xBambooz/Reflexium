@@ -116,6 +116,23 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		list.addHeader(Component.literal("Aperture: " + ApertureCompat.status()));
 	}
 
+	private String shownState = state();
+	private int ticks;
+
+	/** What the options and status lines were built from. Reflex pacing text is excluded: it flips at high FPS. */
+	private static String state() {
+		return UpscalingRenderer.get().statusLine() + "|" + FrameGenerationRenderer.get().statusLine() + "|" + UpscalingRenderer.get().dlssReady()
+				+ "|" + FrameGenerationRenderer.get().isDlssFgSupported() + "|" + FrameGenerationRenderer.get().isDlssMfgSupported()
+				+ "|" + com.bambooz.reflexium.compat.ShaderPacks.status();
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		// A finished DLSS download or a runtime failure changes what can be offered; rebuild once per change.
+		if (++ticks % 20 == 0 && !state().equals(shownState)) rebuild();
+	}
+
 	private void rebuild() {
 		if (this.minecraft != null) {
 			this.minecraft.setScreenAndShow(new ReflexiumConfigScreen(parentScreen));

@@ -100,6 +100,7 @@ public final class UpscalingRenderer {
 	private boolean packSurfaceApplied;
 	private boolean builtHdr, hdrEvaluated;
 	private long builtPackEpoch;
+	private long irisEpoch;
 	private float previousJitterNdcX, previousJitterNdcY;
 	public void writePackJitter(Object out, java.lang.reflect.Method set) throws ReflectiveOperationException {
 		set.invoke(out, jitterNdcX(), jitterNdcY(), previousJitterNdcX, previousJitterNdcY);
@@ -288,16 +289,24 @@ public final class UpscalingRenderer {
 		}
 	}
 
+	private static RuntimeException keep(RuntimeException first, RuntimeException next) {
+		if (first == null) return next;
+		first.addSuppressed(next);
+		return first;
+	}
+
+	/** Best effort: a lost device fails the GPU wait, which must not skip the remaining native teardown. */
 	public void onDeviceClosing() {
+		RuntimeException failure = null;
 		if (device != null) {
-			destroyResources();
+			try { destroyResources(); } catch (RuntimeException e) { failure = e; }
 		}
-		FrameProfiler.close();
+		try { FrameProfiler.close(); } catch (RuntimeException e) { failure = keep(failure, e); }
+		try { FrameGenerationRenderer.get().onDeviceClosing(); } catch (RuntimeException e) { failure = keep(failure, e); }
 		if (bridge != null && ngxInitialized) {
-			FrameGenerationRenderer.get().onDeviceClosing();
-			bridge.shutdown();
+			try { bridge.shutdown(); } catch (RuntimeException e) { failure = keep(failure, e); }
 		}
-		else FrameGenerationRenderer.get().onDeviceClosing();
+		if (failure != null) ReflexiumClient.LOGGER.warn("Upscaler teardown was incomplete (device lost?)", failure);
 		ngxInitialized = false;
 		ngxReady = false;
 		awaitingRuntime = false;
@@ -317,7 +326,8 @@ public final class UpscalingRenderer {
 		FrameGenerationRenderer.get().beginFrame();
 		if (awaitingRuntime && device != null) {
 			DlssRuntimeInstaller.Phase phase = DlssRuntimeInstaller.state().phase();
-			if (phase != DlssRuntimeInstaller.Phase.DOWNLOADING && DlssRuntimeInstaller.ensureInstalledAsync().isDone()) {
+			// The returned future is super resolution's alone; an optional FG download may still be running.
+			if (DlssRuntimeInstaller.ensureInstalledAsync().isDone()) {
 				awaitingRuntime = false;
 				if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY
 						|| java.nio.file.Files.isRegularFile(DlssSupport.featureFolder().resolve(DlssRuntimeInstaller.FILE_NAME))) {
@@ -368,6 +378,12 @@ public final class UpscalingRenderer {
 				applyRenderSize(gameRenderer);
 			}
 			refreshMipBias();
+			if (irisEpoch != com.bambooz.reflexium.compat.IrisCompat.epoch()) {
+				// A reloaded or switched pack: camera, object and hand history all describe the previous pipeline.
+				irisEpoch = com.bambooz.reflexium.compat.IrisCompat.epoch();
+				requestReset(ResetReason.REBUILD);
+				havePrevious = false;
+			}
 			activeThisFrame = true;
 			advanceJitter();
 		} catch (RuntimeException e) {
@@ -883,6 +899,11 @@ public final class UpscalingRenderer {
 	public void onModeChanged() {
 		failed = false;
 		lastError = "";
+		// A settings change is the player's retry: restart a failed runtime download or find a hand-placed DLL.
+		if (!ngxReady && !awaitingRuntime && session != null && session.isNvidia() && DlssRuntimeInstaller.retryFailed()) {
+			DlssSupport.probe(session);
+			awaitingRuntime = true;
+		}
 		FrameGenerationRenderer.get().retry();
 	}
 
@@ -1424,7 +1445,12 @@ public final class UpscalingRenderer {
 	}
 
 	private void destroyResources() {
-		waitForGpu();
+		try {
+			waitForGpu();
+		} catch (RuntimeException e) {
+			// Destroying objects is still valid after VK_ERROR_DEVICE_LOST; continue and release them.
+			ReflexiumClient.LOGGER.warn("GPU wait failed before releasing upscaler resources", e);
+		}
 		releaseFeatureResources();
 		materialSamplers.close();
 		if (motionPass != null) {

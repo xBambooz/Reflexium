@@ -56,7 +56,7 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 								.addOption(builder.createBooleanOption(id("smart_reflex"))
 										.setName(Component.translatable("reflexium.option.smart_reflex"))
 										.setTooltip(Component.translatable("reflexium.option.smart_reflex.tooltip"))
-										.setDefaultValue(true)
+										.setDefaultValue(ReflexiumConfig.DEFAULT_SMART_REFLEX)
 										.setStorageHandler(SAVED_ON_SET)
 										.setBinding(config::setSmartReflex, config::smartReflex)))
 						.addOptionGroup(builder.createOptionGroup()

@@ -6,7 +6,9 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"IncludeGraphMixin",
-		"HandRendererMixin"
+		"HandRendererMixin",
+		"IrisLoadMixin",
+		"IrisPbrSamplerMixin"
 	],
 	"injectors": { "defaultRequire": 1 }
 }

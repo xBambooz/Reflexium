@@ -25,7 +25,9 @@ public final class ReflexiumConfig {
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
-	private volatile boolean smartReflex = false;
+	/** Shared with Sodium's reset-to-default; docs/SMART_REFLEX.md documents off. */
+	public static final boolean DEFAULT_SMART_REFLEX = false;
+	private volatile boolean smartReflex = DEFAULT_SMART_REFLEX;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DlssModel.AUTO;

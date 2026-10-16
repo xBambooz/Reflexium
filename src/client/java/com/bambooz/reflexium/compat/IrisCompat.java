@@ -19,6 +19,7 @@ import java.util.Optional;
  */
 public final class IrisCompat {
 	private static final String MOD_ID = "iris";
+	public static final String SUPPORTED = "1.12.0-snapshot+mc26.3-local";
 	private static final String PACK = "ComplementaryReimagined_r5.9.3";
 	/** lib/antialiasing/jitter.glsl, hashed with Vitrail's reader convention (LF lines, trailing empty line kept). */
 	private static final String JITTER = "lib/antialiasing/jitter.glsl";
@@ -49,7 +50,8 @@ public final class IrisCompat {
 
 	/** The inspected experimental Vulkan build. Stable OpenGL Iris never reaches Reflexium's Vulkan path. */
 	public static boolean isSupportedVersion() {
-		return isLoaded() && version().startsWith("1.12.0-snapshot");
+		// Exact: every hook below was checked against this artifact. A newer snapshot reports unsupported.
+		return isLoaded() && version().equals(SUPPORTED);
 	}
 
 	public static boolean canUpscale() {
@@ -61,6 +63,19 @@ public final class IrisCompat {
 	}
 
 	public static boolean ownsTemporalSampling() { return temporalOwner && !broken; }
+	private static volatile long epoch;
+	/** Changes on every Iris pack load (reload, pack switch, shaders toggle); temporal history must restart. */
+	public static long epoch() { return epoch; }
+	/** Iris.loadShaderpack HEAD: forget the previous pack's evidence before its sources are read again. */
+	public static void onPackLoading() {
+		epoch++;
+		ComplementaryTemporalSource.reset();
+		jitterRemoved = false;
+	}
+	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
+	public static boolean temporalVerified() {
+		return jitterRemoved && ComplementaryTemporalSource.applied();
+	}
 	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
 	public static boolean packJitterRemoved() { return jitterRemoved; }
 
@@ -86,12 +101,11 @@ public final class IrisCompat {
 		if (reloadQueued) return;
 		reloadQueued = true;
 		// Iris reloads from its keybind during the tick; never tear the pipeline down inside a frame.
-		Minecraft.getInstance().execute(() -> {
+		// execute() would run inline on the render thread, inside the frame; schedule() always queues.
+		Minecraft.getInstance().schedule(() -> {
 			reloadQueued = false;
 			// Iris compiles its pack at startup, before any world frame reports it as drawing.
 			if (currentPackName() == null) return;
-			ComplementaryTemporalSource.reset();
-			jitterRemoved = false;
 			try {
 				Class.forName("net.irisshaders.iris.Iris").getMethod("reload").invoke(null);
 			} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
@@ -103,8 +117,11 @@ public final class IrisCompat {
 
 	/** IncludeGraph.readFile RETURN: the same exact-hash source edits Vitrail receives, for the reviewed pack only. */
 	public static String adapt(java.nio.file.Path file, String source) {
+		return adapt(currentPackName(), file, source);
+	}
+
+	static String adapt(String name, java.nio.file.Path file, String source) {
 		if (!ownsTemporalSampling() || source == null) return source;
-		String name = currentPackName();
 		if (!PACK.equals(name)) return source;
 		String path = file.toString().replace('\\', '/');
 		int root = path.lastIndexOf("shaders/");
@@ -182,7 +199,7 @@ public final class IrisCompat {
 		if (!isDrawingPack()) return version() + ", no shader pack drawing";
 		String name = currentPackName();
 		return version() + ", " + (name == null ? "unknown pack" : name)
-				+ (temporalOwner ? jitterRemoved ? ", Reflexium jitter" : ", pack jitter retained" : "");
+				+ (temporalOwner ? temporalVerified() ? ", Reflexium jitter" : ", pack TAA not managed (unverified pack)" : "");
 	}
 
 	private static boolean lookUp() {
@@ -193,6 +210,9 @@ public final class IrisCompat {
 			packInUse = iris.getMethod("isPackInUseQuick");
 			config = iris.getMethod("getIrisConfig");
 			packName = config.getReturnType().getMethod("getShaderPackName");
+			// Without these, a swapped render-size depth stays paired with display-size Iris targets.
+			com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+			com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
 			return true;
 		} catch (ReflectiveOperationException | LinkageError e) {
 			broken = true;
