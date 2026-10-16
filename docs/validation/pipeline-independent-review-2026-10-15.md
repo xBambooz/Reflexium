@@ -59,3 +59,14 @@ Reflex timeouts during transitions (14 increments, 7 recoveries), unverified ful
 - Defect 1: `pack_surface_motion.fsh` now uses the pack's opaque surface velocity and depth behind a blended layer when that surface lies behind the layer. Build and offline checks pass. A live visual check through water and glass is still required (the shader compiles only at runtime).
 - Defect 2: `archive_quick` refuses to mix validation_version, pass_schema or fg_pass_fraction within a set. A mixed v3/v4 regression fixture passes (Benchmark Mod).
 
+
+## Second round, 2026-10-16
+
+- Defect 1 live check (HDR route, DLSS Quality, light-blue stained glass in front of grass and leaves, strafing): the captured SR depth shows the grass blades, leaves and fence behind the glass, not a flat glass plane. The merged depth and vectors come from the background surface. Evidence in `pipeline-evidence-2026-10-16/`. Sub-pixel strafe speed at about 480 FPS means this proves routing, not a measured ghosting reduction.
+- Parent-scan item, viewport/state mismatch: **confirmed and fixed.** Viewport and viewWidth/viewHeight used `packHdrBuilt` while attachments and samplers used `packHdrThisFrame`. On any frame with an HDR feature where the boundary did not run (loading frame, not swapped), composite5 through final drew a display-size viewport into render-size targets. All four now use `ComplementaryHdr.displaySized`. composite5 uses the boundary's own precondition (`packHdrBoundaryDue`), because HEAD injector order is not guaranteed. Build, Vitrail check and a live HDR frame pass.
+- FP16 depth tolerance: dismissed. `depth*5e-4` is about one binary16 step of reverse-Z depth, a constant relative distance error. Only near-coplanar surfaces can alias.
+- Overlapping blended layers: the transparent surface keeps the last drawn layer, which is the nearest for back-to-front translucent sorting. Behind any blended layer, vectors now come from the opaque surface, so the selected layer only sets depth ordering and the FSR mask.
+- Auto-exposure: dismissed. The DLSS AutoExposure flag only affects internal history weighting; output stays linear and is exposed once by Complementary's composite5.
+- Default non-HDR route: intentionally not identical to `shaderless-final`. It also removes the pack's FXAA and pre-upscale sharpen, only while an upscaler owns temporal sampling (`VitrailCompat.ownsTemporalSampling`), with exact-source hashes. Native rendering is unchanged. `DebugSettings.packPreFilters` restores them for an A/B comparison.
+
+Remaining before acceptance: Reflex timeouts on transitions, fullscreen, particle coverage, frame-ID correlation trace, matched-phase motion A/B, and then the single Haiku Quick run.

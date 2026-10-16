@@ -107,6 +107,8 @@ public final class UpscalingRenderer {
 	public void noteGuiBlur() { guiBlurCalls++; }
 	public boolean packHdrBuilt() { return builtHdr; }
 	public boolean packHdrThisFrame() { return builtHdr && hdrEvaluated && swapped; }
+	/** reconstructPackHdr's own precondition: composite5 will evaluate (or has evaluated) this frame. */
+	public boolean packHdrBoundaryDue() { return builtHdr && swapped; }
 	public int outputWidth() { return displayWidth; }
 	public int outputHeight() { return displayHeight; }
 	public GpuTextureView packHdrColor() { return hdrOutput.getColorTextureView(); }

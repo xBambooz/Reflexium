@@ -69,6 +69,14 @@ public final class ComplementaryHdr {
 		String program = path.substring(path.lastIndexOf('/') + 1);
 		return java.util.Set.of("composite5", "composite6", "composite7", "final").contains(program);
 	}
+	/**
+	 * Viewport and viewWidth/viewHeight follow the same per-frame state as attachments and samplers. composite5
+	 * sizes before its HEAD boundary is guaranteed to have run, so it uses the boundary's precondition instead.
+	 */
+	public static boolean displaySized(String path) {
+		UpscalingRenderer renderer = UpscalingRenderer.get();
+		return downstream(path) && (renderer.packHdrThisFrame() || first(path) && renderer.packHdrBoundaryDue());
+	}
 	public static boolean first(String path) { return path.equals("composite5") || path.endsWith("/composite5"); }
 	public static GpuTextureView input(Object pass, Object targets) {
 		try {
@@ -115,7 +123,7 @@ public final class ComplementaryHdr {
 
 	/** Only the four display passes get viewport values. Geometry and all upstream histories keep input values. */
 	public static Object world(String path, Object world) {
-		if (!UpscalingRenderer.get().packHdrBuilt() || !downstream(path)) return world;
+		if (!displaySized(path)) return world;
 		if (world != originalWorld) {
 			originalWorld = world;
 			try {

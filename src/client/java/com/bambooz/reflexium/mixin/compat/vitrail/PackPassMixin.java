@@ -33,11 +33,11 @@ public abstract class PackPassMixin {
 	}
 	@ModifyVariable(method = "draw", at = @At("HEAD"), argsOnly = true, ordinal = 0)
 	private int reflexium$postWidth(int width) {
-		return UpscalingRenderer.get().packHdrBuilt() && ComplementaryHdr.downstream(path) ? UpscalingRenderer.get().outputWidth() : width;
+		return ComplementaryHdr.displaySized(path) ? UpscalingRenderer.get().outputWidth() : width;
 	}
 	@ModifyVariable(method = "draw", at = @At("HEAD"), argsOnly = true, ordinal = 1)
 	private int reflexium$postHeight(int height) {
-		return UpscalingRenderer.get().packHdrBuilt() && ComplementaryHdr.downstream(path) ? UpscalingRenderer.get().outputHeight() : height;
+		return ComplementaryHdr.displaySized(path) ? UpscalingRenderer.get().outputHeight() : height;
 	}
 	@Inject(method = "draw", at = @At("RETURN"))
 	private void reflexium$publishPostWrite(CallbackInfo ci) { ComplementaryHdr.finishPass(); }
