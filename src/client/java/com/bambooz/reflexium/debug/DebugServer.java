@@ -568,6 +568,14 @@ public final class DebugServer {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "crosshair_3d" -> {
+				// F3's axis crosshair, for composition-order captures; leaves the rest of the debug overlay alone.
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> Minecraft.getInstance().debugEntries.setStatus(
+						net.minecraft.client.gui.components.debug.DebugScreenEntries.THREE_DIMENSIONAL_CROSSHAIR,
+						on ? net.minecraft.client.gui.components.debug.DebugScreenEntryStatus.ALWAYS_ON
+								: net.minecraft.client.gui.components.debug.DebugScreenEntryStatus.IN_OVERLAY);
+			}
 			case "vsync", "fullscreen", "pause" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> {
@@ -578,6 +586,10 @@ public final class DebugServer {
 						case "pause" -> { if (on) mc.pauseGame(false); else mc.setScreenAndShow(null); }
 					}
 				};
+			}
+			case "crosshair_defer" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.deferCrosshair = on;
 			}
 			case "perf_uniforms", "perf_depth" -> {
 				boolean on = flag(Map.of("v", value), "v", true);

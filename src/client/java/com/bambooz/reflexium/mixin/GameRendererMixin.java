@@ -106,7 +106,7 @@ public abstract class GameRendererMixin {
 			target = "Lnet/minecraft/client/renderer/DebugCrosshairRenderer;render(Lnet/minecraft/client/renderer/state/level/CameraRenderState;ILcom/mojang/renderpearl/api/textures/GpuTextureView;Lcom/mojang/renderpearl/api/textures/GpuTextureView;)V"))
 	private void reflexium$deferCrosshair(DebugCrosshairRenderer renderer, CameraRenderState camera, int guiScale,
 			GpuTextureView color, GpuTextureView depth, Operation<Void> original) {
-		if (!UpscalingRenderer.get().isUpscalingThisFrame()) {
+		if (!UpscalingRenderer.get().isUpscalingThisFrame() || !com.bambooz.reflexium.debug.DebugSettings.deferCrosshair) {
 			original.call(renderer, camera, guiScale, color, depth);
 			return;
 		}

@@ -13,6 +13,8 @@ public final class DebugSettings {
 	private static volatile boolean drawStaticObjects;
 	public static boolean fastUniforms = true;
 	public static boolean directDepth = true;
+	/** Draw the F3 axis crosshair after upscaling; false restores the pre-upscale draw for A/B captures. */
+	public static boolean deferCrosshair = true;
 	public static int dlssPreset = -1;
 	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
 	public static boolean reflexSubmission = false;
