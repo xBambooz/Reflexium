@@ -45,9 +45,16 @@ public abstract class GameRendererMixin {
 		try {
 			UpscalingRenderer.get().beginFrame(self);
 			original.call();
-		} finally {
-			UpscalingRenderer.get().endFrame(self);
+		} catch (Throwable failure) {
+			// Restoring state can fail on the same broken encoder; never let that hide the original cause.
+			try {
+				UpscalingRenderer.get().endFrame(self);
+			} catch (Throwable cleanup) {
+				failure.addSuppressed(cleanup);
+			}
+			throw failure;
 		}
+		UpscalingRenderer.get().endFrame(self);
 	}
 
 	@WrapOperation(method = "render", at = @At(value = "INVOKE",

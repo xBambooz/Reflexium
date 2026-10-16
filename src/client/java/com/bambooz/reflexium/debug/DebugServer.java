@@ -485,7 +485,7 @@ public final class DebugServer {
 		o.addProperty("evaluated_frames", info.evaluatedFrames());
 		o.addProperty("pack_hand_mask", info.packHandMask());
 		o.add("observed", upscaling.observedInputs());
-		o.addProperty("pack", com.bambooz.reflexium.compat.VitrailCompat.status());
+		o.addProperty("pack", com.bambooz.reflexium.compat.ShaderPacks.status());
 		o.addProperty("fps", mc.getFps());
 		o.addProperty("frame_time_ms", Math.round(DebugSettings.frameTimeMs() * 100f) / 100f);
 		o.addProperty("frames", DebugSettings.frames());

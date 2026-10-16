@@ -13,6 +13,7 @@ public final class CompatMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
 		if (mixinClassName.endsWith(".PackPassMixin") || mixinClassName.endsWith(".PackValuesMixin")) return VitrailCompat.version().equals("0.12.0-beta");
+		if (mixinClassName.contains(".iris.")) return IrisCompat.isSupportedVersion();
 		if (mixinClassName.contains(".vitrail.")) {
 			return VitrailCompat.isSupportedVersion();
 		}

@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.dlss;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.compat.ComplementaryHdr;
 import com.bambooz.reflexium.config.ReflexiumConfig;
@@ -347,9 +348,9 @@ public final class UpscalingRenderer {
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
-		VitrailCompat.configureUpscaling(available(selected) && !failed);
+		ShaderPacks.configureUpscaling(available(selected) && !failed);
 		boolean wanted = (available(selected) || FrameGenerationRenderer.get().wantsMotion()) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
-				&& window.width > 0 && window.height > 0 && VitrailCompat.canUpscale();
+				&& window.width > 0 && window.height > 0 && ShaderPacks.canUpscale();
 		if (!wanted) {
 			ObjectMotion.get().beginFrame(false, false);
 			if (renderSizeApplied) {
@@ -409,7 +410,7 @@ public final class UpscalingRenderer {
 		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
 				gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
 		updateGlobals(renderWidth, renderHeight);
-		if (packHandMask != null && VitrailCompat.isDrawingPack()) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
+		if (packHandMask != null && ShaderPacks.isDrawingPack()) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
 		currentViewIdentity = viewIdentity(gameRenderer);
 		ObjectMotion.get().beginFrame(DebugSettings.objectMotion(), DebugSettings.drawStaticObjects());
 	}
@@ -515,7 +516,7 @@ public final class UpscalingRenderer {
 	}
 
 	public boolean supportsReactiveMask() {
-		return swapped && builtUpscaler == Upscaler.FSR && opaqueTarget != null && !VitrailCompat.isDrawingPack();
+		return swapped && builtUpscaler == Upscaler.FSR && opaqueTarget != null && !ShaderPacks.isDrawingPack();
 	}
 
 	/** Called after opaque rendering ends, before any transparency writes to the scene. */
@@ -769,8 +770,8 @@ public final class UpscalingRenderer {
 		if (failed) {
 			return name + ": stopped after an error (see log); change upscaling settings to retry";
 		}
-		if (!VitrailCompat.canUpscale()) {
-			return name + ": " + VitrailCompat.upscalingProblem();
+		if (!ShaderPacks.canUpscale()) {
+			return name + ": " + ShaderPacks.upscalingProblem();
 		}
 		if (renderTarget == null) {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
@@ -971,8 +972,8 @@ public final class UpscalingRenderer {
 		cameraJson.add("orientation_xyzw", q);
 		meta.add("camera", cameraJson);
 		meta.add("observed", observedInputs(true));
-		meta.addProperty("pack", VitrailCompat.status());
-		meta.addProperty("pack_drawing", VitrailCompat.isDrawingPack());
+		meta.addProperty("pack", ShaderPacks.status());
+		meta.addProperty("pack_drawing", ShaderPacks.isDrawingPack());
 		meta.addProperty("hand_mask_from_pack", packHandCaptured);
 		meta.addProperty("scope", "requested values come from settings; observed values were measured on this frame");
 		request.metadata.complete(meta);
@@ -1062,7 +1063,7 @@ public final class UpscalingRenderer {
 		}
 		VkCommandBuffer commandBuffer = commandBuffer();
 		mipBias = computeMipBias();
-		if (VitrailCompat.isLoaded()) {
+		if (ShaderPacks.anyLoaded()) {
 			packHandBefore = new TextureTarget("Reflexium pack before hand", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
 			packHandMask = new TextureTarget("Reflexium pack hand mask", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
 			if (packHandMaskPass == null) packHandMaskPass = new PackHandMaskPass();
@@ -1296,6 +1297,8 @@ public final class UpscalingRenderer {
 		accB.reflexium$setDepthTextureView(depthView);
 		b.width = width;
 		b.height = height;
+		com.bambooz.reflexium.compat.IrisCompat.syncTargetVersions(a);
+		com.bambooz.reflexium.compat.IrisCompat.syncTargetVersions(b);
 	}
 
 	private void updateGlobals(int width, int height) {

@@ -48,7 +48,7 @@ public abstract class ReactiveCaptureMixin {
 	@Inject(method = "executeAlwaysOnTop", at = @At("HEAD"))
 	private void reflexium$packDepthBeforeGizmos(FeatureRenderDispatcher.PreparedFrame features, RenderTarget target,
 			boolean consistentDepthRequired, CallbackInfo ci) {
-		if (com.bambooz.reflexium.compat.VitrailCompat.isDrawingPack()) {
+		if (com.bambooz.reflexium.compat.ShaderPacks.isDrawingPack()) {
 			UpscalingRenderer.get().captureWorldDepth(Minecraft.getInstance().gameRenderer);
 		}
 	}

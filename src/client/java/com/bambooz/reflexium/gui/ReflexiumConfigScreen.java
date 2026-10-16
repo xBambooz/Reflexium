@@ -110,6 +110,9 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		if (VitrailCompat.isLoaded()) {
 			list.addHeader(Component.literal("Vitrail: " + VitrailCompat.status()));
 		}
+		if (com.bambooz.reflexium.compat.IrisCompat.isLoaded()) {
+			list.addHeader(Component.literal("Iris: " + com.bambooz.reflexium.compat.IrisCompat.status()));
+		}
 		list.addHeader(Component.literal("Aperture: " + ApertureCompat.status()));
 	}
 
