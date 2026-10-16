@@ -139,6 +139,14 @@ tasks.register("irisCompatCheck", JavaExec) {
 }
 tasks.named("check") { dependsOn "irisCompatCheck" }
 
+tasks.register("distantHorizonsCheck", JavaExec) {
+	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+	classpath = sourceSets.test.runtimeClasspath
+	mainClass = "com.bambooz.reflexium.compat.DistantHorizonsCheck"
+	workingDir = projectDir
+}
+tasks.named("check") { dependsOn "distantHorizonsCheck" }
+
 // -PrxBenchJar: the run classpath otherwise still lists this tree's build/classes and build/resources
 // ahead of the selected jar, so an "old" jar would silently execute the working tree's client code.
 // Loom writes the classpath argfile from its own argument providers while the task starts, so the
