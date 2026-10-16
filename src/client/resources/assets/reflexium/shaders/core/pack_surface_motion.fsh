@@ -28,6 +28,13 @@ void main() {
         velocity.xy = layer.xy;
         gl_FragDepth = layer.z;
     } else {
+        // Pack scene depth already contains this blended layer, so the base vector reprojects the water/glass
+        // plane, not the background. Behind it, the pack's own opaque surface (reverse depth: smaller is
+        // farther) carries the visible background's camera and vertex motion.
+        if (opaque.a > 0.99999 && opaque.z < layer.z - tolerance) {
+            velocity.xy = opaque.xy;
+            gl_FragDepth = opaque.z;
+        }
         composition = vec4(layer.a);
     }
 }

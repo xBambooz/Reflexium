@@ -53,3 +53,9 @@ Reflex timeouts during transitions (14 increments, 7 recoveries), unverified ful
 2. Fix defect 2 and add a mixed-protocol fixture.
 3. Resolve the five unverified parent-scan items.
 4. Only then spend the single Haiku Quick budget.
+
+## Corrections applied
+
+- Defect 1: `pack_surface_motion.fsh` now uses the pack's opaque surface velocity and depth behind a blended layer when that surface lies behind the layer. Build and offline checks pass. A live visual check through water and glass is still required (the shader compiles only at runtime).
+- Defect 2: `archive_quick` refuses to mix validation_version, pass_schema or fg_pass_fraction within a set. A mixed v3/v4 regression fixture passes (Benchmark Mod).
+
