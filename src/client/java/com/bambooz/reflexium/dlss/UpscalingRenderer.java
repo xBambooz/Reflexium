@@ -149,6 +149,7 @@ public final class UpscalingRenderer {
 	private float jitterX;
 	private float jitterY;
 	private final Matrix4f currentJittered = new Matrix4f();
+	private final Matrix4f objectJittered = new Matrix4f();
 	private final Matrix4f currentProjection = new Matrix4f();
 	private final Matrix4f physicalProjection = new Matrix4f();
 	private float lastFrameMs = 16.6f;
@@ -653,7 +654,7 @@ public final class UpscalingRenderer {
 			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
 			// Match the merged depth, so a hidden object cannot overwrite a closer LOD's camera vector.
 			objectVelocityPass.render(ObjectMotion.get(), motionTarget, motionTarget.getDepthTextureView(), handDepth,
-					new Matrix4f(depthTransform).mul(currentJittered), currentUnjittered, previousUnjittered,
+					objectJittered.set(depthTransform).mul(currentJittered), currentUnjittered, previousUnjittered,
 					(float) delta.x, (float) delta.y, (float) delta.z, resetNext);
 			handVerticesDrawn = 0;
 			if (haveHandProjection && DebugSettings.handMotion()) {
@@ -745,7 +746,7 @@ public final class UpscalingRenderer {
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
 			drawMotionVectorView(main);
 		}
-		if (worldDepthCaptured && !failed) {
+		if (worldDepthCaptured && !failed && FrameGenerationRenderer.get().wantsMotion()) {
 			Vec3 delta = currentCamera.subtract(previousCamera);
 			// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
 			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(depthTransform).mul(currentProjection),
@@ -1096,7 +1097,7 @@ public final class UpscalingRenderer {
 			hdrInput = new TextureTarget("Reflexium linear HDR input", renderWidth, renderHeight, GpuFormat.RGBA16_FLOAT, GpuFormat.D32_FLOAT);
 			hdrOutput = new TextureTarget("Reflexium linear HDR output", displayWidth, displayHeight, GpuFormat.RGBA16_FLOAT, GpuFormat.D32_FLOAT);
 			packMotionBase = new TextureTarget("Reflexium pack motion base", renderWidth, renderHeight, MotionVectorPass.FORMAT, GpuFormat.D32_FLOAT);
-			packComposition = new TextureTarget("Reflexium pack composition", renderWidth, renderHeight, GpuFormat.R8_UNORM, null);
+			if (selected == Upscaler.FSR) packComposition = new TextureTarget("Reflexium pack composition", renderWidth, renderHeight, GpuFormat.R8_UNORM, null);
 			packSurfacePass = new PackSurfaceMotionPass();
 		}
 		renderTarget = new TextureTarget("Reflexium DLSS render", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
