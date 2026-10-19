@@ -104,7 +104,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 						rebuild();
 					}));
 
-			if (config.frameGeneration() == FrameGeneration.DLSS_MULTI && FrameGenerationRenderer.get().isDlssMfgSupported()) {
+			if (config.frameGeneration().nvidia() && FrameGenerationRenderer.get().isDlssFgSupported()) {
 				list.addBig(ReflexiumOptions.frameGenerationMultiplier());
 			}
 		}

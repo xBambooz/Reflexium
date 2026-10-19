@@ -454,6 +454,8 @@ public final class DebugServer {
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_requested_generated", FrameGenerationRenderer.get().requestedGeneratedCount());
+		o.addProperty("fg_effective_multiplier", FrameGenerationRenderer.get().refreshPolicy().multiplier());
+		o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
 		o.addProperty("fg_refresh_bypass", FrameGenerationRenderer.get().refreshPolicy().bypass());
 		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
 		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
@@ -697,9 +699,9 @@ public final class DebugServer {
 				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
 			}
 			case "fg_multiplier" -> {
-				int multiplier = integer(Map.of("v", value), "v", 4);
+				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);
 				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
-				if (multiplier < 2 || multiplier > maximum) throw new BadRequest("FG multiplier must be 2.." + maximum + " on this GPU");
+				if (multiplier != 0 && (multiplier < 2 || multiplier > maximum)) throw new BadRequest("FG multiplier must be auto or 2.." + maximum + " on this GPU");
 				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); };
 			}
 			case "upscaler" -> {

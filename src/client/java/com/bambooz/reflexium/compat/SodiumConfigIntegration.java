@@ -150,16 +150,16 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 								.addOption(builder.createIntegerOption(id("fg_multiplier"))
 										.setName(Component.translatable("reflexium.option.fg_multiplier"))
 										.setTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip"))
-										.setRange(2, Math.max(2, FrameGenerationRenderer.get().maximumMultiplier()), 1)
-										.setValueFormatter(value -> Component.literal(value + "x"))
-										.setDefaultValue(Math.min(4, Math.max(2, FrameGenerationRenderer.get().maximumMultiplier())))
+										.setRange(1, Math.max(2, FrameGenerationRenderer.get().maximumMultiplier()), 1)
+										.setValueFormatter(value -> Component.literal(value == 1 ? "Auto" : value + "x"))
+										.setDefaultValue(1)
 										.setStorageHandler(SAVED_ON_SET)
 										.setEnabledProvider(state -> {
 											FrameGeneration fg = state.readEnumOption(id("frame_generation"), FrameGeneration.class);
-											return fg == FrameGeneration.DLSS_MULTI && FrameGenerationRenderer.get().isDlssMfgSupported();
+											return fg.nvidia() && FrameGenerationRenderer.get().isDlssFgSupported();
 										}, id("frame_generation"))
 										.setControlHiddenWhenDisabled(true)
-										.setBinding(ReflexiumOptions::setFrameGenerationMultiplier, () -> Math.min(config.frameGenerationMultiplier(), Math.max(2, FrameGenerationRenderer.get().maximumMultiplier())))))
+										.setBinding(value -> ReflexiumOptions.setFrameGenerationMultiplier(value == 1 ? 0 : value), () -> config.frameGenerationMultiplier() == 0 ? 1 : Math.min(config.frameGenerationMultiplier(), Math.max(2, FrameGenerationRenderer.get().maximumMultiplier())))))
 						.addOptionGroup(builder.createOptionGroup()
 								.addOption(builder.createExternalButtonOption(id("status"))
 										.setName(Component.translatable("reflexium.option.status"))

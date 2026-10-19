@@ -38,6 +38,7 @@ public final class FrameGenerationRenderer {
 	private FrameGeneration built = FrameGeneration.OFF;
 	private TextureTarget[] generated = new TextureTarget[0];
 	private final com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[] presentEncoders = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[7];
+	private final com.mojang.renderpearl.api.commands.GpuFence[] presentCompletions = new com.mojang.renderpearl.api.commands.GpuFence[7];
 	private boolean failed, resetNext = true;
 	private int ready, width, height;
 	private long frameId, evaluated, presented;
@@ -74,6 +75,8 @@ public final class FrameGenerationRenderer {
 		release();
 		// Surface acquire fences can retain these encoders across FG toggles. Keep them until device teardown.
 		for (int i = 0; i < presentEncoders.length; i++) {
+			if (presentCompletions[i] != null) presentCompletions[i].close();
+			presentCompletions[i] = null;
 			if (presentEncoders[i] != null) presentEncoders[i].destroy();
 			presentEncoders[i] = null;
 		}
@@ -114,12 +117,15 @@ public final class FrameGenerationRenderer {
 
 	/** Generated presents each real frame should deliver for the requested NVIDIA mode; 0 when off or on the FSR proxy route. */
 	public int configuredGeneratedCount() {
-		return refreshPolicy.bypass() ? 0 : requestedGeneratedCount();
+		if (!ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
+		refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
+		return Math.max(0, refreshPolicy.multiplier() - 1);
 	}
 	public int requestedGeneratedCount() {
 		FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
 		if (!requested.nvidia()) return 0;
-		return requested == FrameGeneration.DLSS_MULTI ? Math.max(1, Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), Math.max(2, maximumMultiplier())) - 1) : 1;
+		int multiplier = ReflexiumConfig.get().frameGenerationMultiplier();
+		return multiplier == 0 ? Math.max(1, maximumMultiplier() - 1) : Math.max(1, Math.min(multiplier, Math.max(2, maximumMultiplier())) - 1);
 	}
 
 	void sceneReady(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands, Matrix4fc projection,
@@ -133,9 +139,9 @@ public final class FrameGenerationRenderer {
 		}
 		try {
 			FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
-			int count = requested == FrameGeneration.DLSS_MULTI ? Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier()) - 1 : 1;
+			int count = requested.nvidia() ? configuredGeneratedCount() : 1;
 			// DLSS MFG at 2x asks NGX for one generated frame, the same call as DLSS FG, so it shares that path and feature instance.
-			FrameGeneration mode = requested == FrameGeneration.DLSS_MULTI && count == 1 ? FrameGeneration.DLSS : requested;
+			FrameGeneration mode = requested.nvidia() ? (count == 1 ? FrameGeneration.DLSS : FrameGeneration.DLSS_MULTI) : requested;
 			if (built != mode || generated.length != count || width != scene.width || height != scene.height) {
 				UpscalingRenderer.get().waitForGpu();
 				release();
@@ -219,6 +225,17 @@ public final class FrameGenerationRenderer {
 		if (presentEncoders[index] == null) presentEncoders[index] = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder(device);
 		return presentEncoders[index];
 	}
+	/** Move the replacement encoders' previous-submit reuse waits ahead of the first metered present.
+	 * Their submit() still performs its native wait/reset, now already satisfied. No safety wait is removed. */
+	public void awaitPreviousReplacements() {
+		for (int i = 0; i < presentCompletions.length; i++) {
+			var completion = presentCompletions[i];
+			if (completion == null) continue;
+			if (!completion.awaitCompletion(5_000_000_000L)) throw new IllegalStateException("Previous FG replacement submit has not completed");
+			completion.close(); presentCompletions[i] = null;
+		}
+	}
+	public void trackReplacement(int index) { presentCompletions[index] = presentEncoders[index].createFence(); }
 	public long evaluatedFrames() { return evaluated; }
 	public long generatedPresents() { return presented; }
 	public RenderTarget debugTarget(int index) {
@@ -247,9 +264,9 @@ public final class FrameGenerationRenderer {
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
 		if (reason.isEmpty() && mode.nvidia() && refreshPolicy.bypass()) return "Frame generation: rendered only (frame target "
-				+ refreshPolicy.cap() + " FPS, checking real throughput)";
-		return "Frame generation: " + (reason.isEmpty() ? mode.label().getString()
-				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "")
+				+ refreshPolicy.cap() + " FPS, " + (refreshPolicy.probing() ? "sampling real throughput" : "Auto output budget") + ")";
+		return "Frame generation: " + (reason.isEmpty() ? (mode.nvidia() && !resetNext ? built : mode).label().getString()
+				+ (resetNext ? " (waiting for consecutive world frames)" : mode.nvidia() ? " " + (generated.length + 1) + "x" : "")
 				+ (meteringProblem.isEmpty() ? "" : " (" + meteringProblem + ")") : reason);
 	}
 

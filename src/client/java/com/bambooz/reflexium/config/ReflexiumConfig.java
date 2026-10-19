@@ -33,7 +33,7 @@ public final class ReflexiumConfig {
 	private volatile DlssModel dlssModel = DlssModel.TRANSFORMER;
 	private volatile int fsrSharpness = 20;
 	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
-	private volatile int frameGenerationMultiplier = 4;
+	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
 
 	private ReflexiumConfig() {
@@ -92,24 +92,24 @@ public final class ReflexiumConfig {
 			value = FrameGeneration.OFF;
 		}
 		frameGeneration = value;
-		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 2;
-		else if (value == FrameGeneration.DLSS_MULTI) frameGenerationMultiplier = Math.max(3, frameGenerationMultiplier);
+		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 0;
+		else if (value == FrameGeneration.DLSS_MULTI && frameGenerationMultiplier != 0) frameGenerationMultiplier = Math.max(3, frameGenerationMultiplier);
 		save();
 	}
 
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
 	public void setFrameGenerationMultiplier(int value) {
-		frameGenerationMultiplier = Math.clamp(value, 2, 8);
+		frameGenerationMultiplier = value == 0 ? 0 : Math.clamp(value, 2, 8);
 		frameGeneration = frameGeneration.withMultiplier(frameGenerationMultiplier);
 		save();
 	}
 
 	/**
-	 * Clamps the stored multiplier into 2..maximum once the driver reports its limit. Called on NGX init, because
+	 * Preserves Auto (0), clamps fixed multipliers into 2..maximum once the driver reports its limit. Called on NGX init, because
 	 * load runs before the GPU is known. 2 is the floor because it is DLSS FG, which every supported GPU runs.
 	 */
 	public void limitFrameGenerationMultiplier(int maximum) {
-		int clamped = Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
+		int clamped = frameGenerationMultiplier == 0 ? 0 : Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
 		if (clamped != frameGenerationMultiplier) {
 			frameGenerationMultiplier = clamped;
 			frameGeneration = frameGeneration.withMultiplier(clamped);
@@ -151,7 +151,7 @@ public final class ReflexiumConfig {
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
 		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
-		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 2, 8); }
+		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }

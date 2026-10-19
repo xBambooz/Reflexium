@@ -106,8 +106,9 @@ public abstract class VulkanGpuSurfaceMixin {
 		if (count == 0) { fg.scheduleProxyPresent(); original.call(); return; }
 		VulkanGpuSurface surface = (VulkanGpuSurface) (Object) this;
 		reflexium$presenting = true;
-		fg.beginPresentBatch(count + 1);
 		try {
+			fg.awaitPreviousReplacements();
+			fg.beginPresentBatch(count + 1);
 			fg.beginPresent(true);
 			original.call();
 			for (int i = 1; i <= count && !swapchainOutOfDate; i++) {
@@ -118,6 +119,7 @@ public abstract class VulkanGpuSurfaceMixin {
 				reflex.beginReplacementSubmit();
 				CommandEncoderBackend encoder = fg.presentEncoder(i - 1);
 				surface.blitFromTexture(encoder, i < count ? fg.generatedView(i) : reflexium$realView);
+				fg.trackReplacement(i - 1);
 				encoder.submit();
 				reflex.endReplacementSubmit();
 				original.call();

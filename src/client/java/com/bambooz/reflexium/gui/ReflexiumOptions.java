@@ -103,15 +103,15 @@ public final class ReflexiumOptions {
 		int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 		return new OptionInstance<>("reflexium.option.fg_multiplier",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
-				(caption, value) -> Component.literal(value + "x"),
-				new OptionInstance.Enum<>(java.util.stream.IntStream.rangeClosed(2, maximum).boxed().toList(), Codec.INT),
+				(caption, value) -> Component.literal(value == 0 ? "Auto" : value + "x"),
+				new OptionInstance.Enum<>(java.util.stream.IntStream.concat(java.util.stream.IntStream.of(0), java.util.stream.IntStream.rangeClosed(2, maximum)).boxed().toList(), Codec.INT),
 				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
 	}
 	public static void addFrameGeneration(net.minecraft.client.gui.components.OptionsList list) {
 		list.addBig(frameGeneration());
 		OptionInstance<Integer> multiplier = frameGenerationMultiplier();
 		list.addBig(multiplier);
-		list.findOption(multiplier).active = FrameGenerationRenderer.get().isDlssMfgSupported();
+		list.findOption(multiplier).active = FrameGenerationRenderer.get().isDlssFgSupported();
 	}
 	public static void setFrameGenerationMultiplier(int value) {
 		ReflexiumConfig.get().setFrameGenerationMultiplier(value); FrameGenerationRenderer.get().retry();

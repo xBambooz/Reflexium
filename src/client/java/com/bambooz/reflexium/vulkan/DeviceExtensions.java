@@ -83,6 +83,15 @@ public final class DeviceExtensions {
 				ReflexiumClient.LOGGER.info("NGX wants {} but {} does not support it", name, physicalDevice.deviceName());
 			}
 		}
+		// NGX allocates with the Vulkan 1.2 device-address flag. The legacy EXT feature does not
+		// enable that core flag, and EXT cannot coexist with Vulkan12Features.bufferDeviceAddress.
+		if (ngx.contains("VK_EXT_buffer_device_address")) {
+			VulkanFeature address = new VulkanFeature(VulkanFeatureSets.VK12_FEATURES_STRUCT, "bufferDeviceAddress");
+			if (new FeatureSet("NGX buffer address", Set.of(), Set.of(address)).allFeaturesSupported(physicalDevice.vkPhysicalDevice())) {
+				ngx.remove("VK_EXT_buffer_device_address");
+				features.add(address);
+			}
+		}
 		extensions.addAll(ngx);
 
 		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, extensionRevision(physicalDevice), presentId, presentMetering, Set.copyOf(ngx)));
