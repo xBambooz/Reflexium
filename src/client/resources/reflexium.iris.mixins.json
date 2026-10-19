@@ -8,6 +8,7 @@
 		"CommonUniformsMixin",
 		"DhProjectionMixin",
 		"IncludeGraphMixin",
+		"IrisPipelineProfileMixin",
 		"HandRendererMixin",
 		"IrisLoadMixin",
 		"IrisPbrSamplerMixin",

@@ -136,6 +136,9 @@ public final class IrisCompatCheck {
 			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
+			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "renderShadows", "beginLevelRendering", "beginTranslucents", "finalizeLevelRendering");
+			require(zip, "net/irisshaders/iris/pipeline/CompositeRenderer", "renderAll()V");
+			require(zip, "net/irisshaders/iris/pipeline/FinalPassRenderer", "renderFinalPass()V");
 			require(zip, "net/irisshaders/iris/uniforms/CommonUniforms", "generalCommonUniforms");
 			require(zip, "net/irisshaders/iris/gl/uniform/UniformHolder", "uniformMatrix", "uniform4f", "uniform3f");
 			require(zip, "net/irisshaders/iris/uniforms/IrisExclusiveUniforms", "getEyePosition()Lorg/joml/Vector3d;");

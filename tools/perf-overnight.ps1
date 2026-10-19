@@ -22,11 +22,24 @@ function Other-Client {
     $games = @(Get-CimInstance Win32_Process | Where-Object {
         $_.Name -in @('java.exe','javaw.exe') -and $_.ProcessId -ne $session.game_pid -and $_.CommandLine -match '-Dagentharness.launchDirectory='
     } | Select-Object -ExpandProperty ProcessId)
-    try {
-        $s = Get-Content 'C:/Users/Ryan/source/repos/mc-agent-harness/instances/25612/session.json' -Raw | ConvertFrom-Json
-        $r = Invoke-RestMethod 'http://127.0.0.1:25612/status' -Headers @{Authorization="Bearer $($s.token)"} -TimeoutSec 2
-        return @{running=$true;status_available=$true;pid=$r.pid;world_loaded=$r.world_loaded;other_game_pids=$games;utc=(Get-Date).ToUniversalTime().ToString('o')}
-    } catch { return @{running=$false;status_available=$false;other_game_pids=$games;utc=(Get-Date).ToUniversalTime().ToString('o')} }
+    $busy = @()
+    foreach ($p in @(25612,25641)) {
+        try {
+            $other = Get-Content "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$p/session.json" -Raw | ConvertFrom-Json
+            Invoke-RestMethod "http://127.0.0.1:$p/status" -Headers @{Authorization="Bearer $($other.token)"} -TimeoutSec 2 | Out-Null
+            $busy += $p
+        } catch { }
+    }
+    return @{running=($busy.Count -gt 0 -or $games.Count -gt 0);busy_ports=$busy;other_game_pids=$games;utc=(Get-Date).ToUniversalTime().ToString('o')}
+}
+# Never sample while another harness client renders: wait (up to 30 minutes) for the GPU to be clear.
+function Wait-Clear {
+    for ($i = 0; $i -lt 90; $i++) {
+        $o = Other-Client
+        if (-not $o.running) { return $o }
+        Start-Sleep -Seconds 20
+    }
+    throw 'Another Minecraft client kept the GPU busy for 30 minutes'
 }
 $s = Call status
 if ($s.pid -ne $session.game_pid -or $s.game_directory -ne $session.game_directory) { throw 'Wrong client' }
@@ -62,7 +75,7 @@ foreach ($scene in $Scenes) {
             if ($rx.frame_generation -ne 'off' -or $rx.reflex_mode -ne 'ON' -or $rx.reflex_pacing_paused) { throw 'Pacing mismatch' }
             if ($mode -ne 'native' -and (!$rx.upscaling_active -or $rx.quality -ne $parts[1])) { throw 'Inactive upscaling' }
             foreach ($profile in @($false,$true)) {
-                $other = Other-Client
+                $other = Wait-Clear
                 Call reflexium @{profile=$(if ($profile) {'reset'} else {'off'})} | Out-Null
                 $mark = (Call reflexium @{frame_mark='1'}).frames
                 Start-Sleep -Seconds $Seconds

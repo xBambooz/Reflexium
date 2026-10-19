@@ -1359,6 +1359,11 @@ public final class UpscalingRenderer {
 				VulkanConst.toVk(texture.getFormat()), texture.getWidth(0), texture.getHeight(0), aspect);
 	}
 
+	/** The open frame command buffer for profiling scopes outside this class, or null before the device exists. */
+	public VkCommandBuffer profilingCommands() {
+		return device == null ? null : commandBuffer();
+	}
+
 	VkCommandBuffer commandBuffer() {
 		return ((VulkanCommandEncoderAccessor) device.createCommandEncoder()).reflexium$commandBuffer();
 	}
