@@ -78,6 +78,7 @@ public final class DebugServer {
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
 				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));
+				if (params.containsKey("fg_capture")) return captureGeneratedBatch(params);
 					if (params.containsKey("capture")) return captureUpscale(params);
 				if (params.containsKey("reflex_timings")) return call(() -> com.bambooz.reflexium.reflex.ReflexController.get().timingReports());
 				return status();
@@ -143,6 +144,37 @@ public final class DebugServer {
 			throw e;
 		}
 		return result;
+	}
+
+	/** Read every output at one render-thread boundary, rather than comparing unrelated screenshot frames. */
+	private static JsonObject captureGeneratedBatch(Map<String, String> params) throws Exception {
+		Path dir = resolve(Minecraft.getInstance(), params.getOrDefault("dir", "screenshots/fg_" + stamp()));
+		java.util.List<CompletableFuture<NativeImage>> images = new java.util.ArrayList<>();
+		try {
+			JsonObject meta = call(() -> {
+				var fg = FrameGenerationRenderer.get();
+				if (fg.refreshPolicy().bypass() || fg.failed()) throw new IllegalStateException("FG is bypassed or failed");
+				JsonObject result = statusNow();
+				int count = fg.requestedGeneratedCount();
+				if (count < 1) throw new IllegalStateException("NVIDIA FG must be requested");
+				for (int i = -1; i < count; i++) {
+					CompletableFuture<NativeImage> image = new CompletableFuture<>();
+					images.add(image);
+					Screenshot.takeScreenshot(i < 0 ? Minecraft.getInstance().gameRenderer.mainRenderTarget() : fg.debugTarget(i), image::complete);
+				}
+				return result;
+			});
+			Files.createDirectories(dir);
+			for (int i = 0; i < images.size(); i++) {
+				NativeImage image = images.get(i).get(20, TimeUnit.SECONDS);
+				image.writeToFile(dir.resolve(i == 0 ? "real.png" : "generated_" + (i - 1) + ".png"));
+			}
+			Files.writeString(dir.resolve("metadata.json"), GSON.toJson(meta), StandardCharsets.UTF_8);
+			meta.addProperty("capture_directory", dir.toString());
+			return meta;
+		} finally {
+			for (var image : images) image.thenAccept(NativeImage::close);
+		}
 	}
 	/** Called from the client entrypoint. Does nothing unless -Dreflexium.debugPort=<port> is set. */
 	public static void startIfRequested() {
@@ -421,6 +453,10 @@ public final class DebugServer {
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
+		o.addProperty("fg_requested_generated", FrameGenerationRenderer.get().requestedGeneratedCount());
+		o.addProperty("fg_refresh_bypass", FrameGenerationRenderer.get().refreshPolicy().bypass());
+		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
+		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
 		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();

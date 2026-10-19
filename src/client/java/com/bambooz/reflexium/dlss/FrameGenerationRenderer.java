@@ -37,6 +37,7 @@ public final class FrameGenerationRenderer {
 	private NgxBridge.FrameGenerationSupport support;
 	private FrameGeneration built = FrameGeneration.OFF;
 	private TextureTarget[] generated = new TextureTarget[0];
+	private final com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[] presentEncoders = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[7];
 	private boolean failed, resetNext = true;
 	private int ready, width, height;
 	private long frameId, evaluated, presented;
@@ -53,6 +54,8 @@ public final class FrameGenerationRenderer {
 	private String meteringProblem = "";
 	private long fsrFrameId;
 	private final GenerationLedger ledger = new GenerationLedger();
+	private final FrameGenerationRefreshPolicy refreshPolicy = new FrameGenerationRefreshPolicy();
+	public FrameGenerationRefreshPolicy refreshPolicy() { return refreshPolicy; }
 
 	public static FrameGenerationRenderer get() { return INSTANCE; }
 
@@ -68,7 +71,13 @@ public final class FrameGenerationRenderer {
 		ReflexiumClient.LOGGER.info("DLSS frame generation on Minecraft device: {}", support);
 	}
 	void onDeviceClosing() {
-		release(); device = null; session = null; fsr = null; ngx = null; support = null;
+		release();
+		// Surface acquire fences can retain these encoders across FG toggles. Keep them until device teardown.
+		for (int i = 0; i < presentEncoders.length; i++) {
+			if (presentEncoders[i] != null) presentEncoders[i].destroy();
+			presentEncoders[i] = null;
+		}
+		device = null; session = null; fsr = null; ngx = null; support = null;
 	}
 
 	public int maximumMultiplier() { return support != null && support.available() ? Math.min(8, support.maxGenerated() + 1) : 1; }
@@ -76,7 +85,7 @@ public final class FrameGenerationRenderer {
 	public boolean isDlssMfgSupported() { return isDlssFgSupported() && maximumMultiplier() >= 3; }
 	public boolean wantsMotion() { return ReflexiumConfig.get().frameGeneration() != FrameGeneration.OFF && !failed && unavailableReason().isEmpty(); }
 	public boolean needsReflex() { return wantsMotion() && ReflexiumConfig.get().frameGeneration().nvidia(); }
-	public void retry() { failed = false; problem = ""; resetNext = true; delivery.reset(); }
+	public void retry() { failed = false; problem = ""; resetNext = true; delivery.reset(); refreshPolicy.reset(); }
 	public void invalidate() { ready = 0; resetNext = true; delivery.reset(); }
 
 	private String unavailableReason() {
@@ -105,6 +114,9 @@ public final class FrameGenerationRenderer {
 
 	/** Generated presents each real frame should deliver for the requested NVIDIA mode; 0 when off or on the FSR proxy route. */
 	public int configuredGeneratedCount() {
+		return refreshPolicy.bypass() ? 0 : requestedGeneratedCount();
+	}
+	public int requestedGeneratedCount() {
 		FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
 		if (!requested.nvidia()) return 0;
 		return requested == FrameGeneration.DLSS_MULTI ? Math.max(1, Math.min(ReflexiumConfig.get().frameGenerationMultiplier(), Math.max(2, maximumMultiplier())) - 1) : 1;
@@ -114,6 +126,7 @@ public final class FrameGenerationRenderer {
 			Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z, float jitterX, float jitterY,
 			float near, float far, float fov, float frameMs, boolean reset) {
 		if (!wantsMotion()) return;
+		if (ReflexiumConfig.get().frameGeneration().nvidia() && refreshPolicy.bypass()) { resetNext = true; return; }
 		if (ReflexiumConfig.get().frameGeneration().nvidia() && !com.bambooz.reflexium.reflex.ReflexController.get().isSleeping()) {
 			ledger.reason(GenerationLedger.Shortfall.REFLEX_NOT_SLEEPING);
 			invalidate(); return;
@@ -201,6 +214,11 @@ public final class FrameGenerationRenderer {
 		}
 	}
 	public GpuTextureView generatedView(int index) { return generated[index].getColorTextureView(); }
+	/** One encoder per replacement slot keeps RenderPearl's two-submit reuse wait per real frame, not per output. */
+	public com.mojang.renderpearl.backend.api.CommandEncoderBackend presentEncoder(int index) {
+		if (presentEncoders[index] == null) presentEncoders[index] = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder(device);
+		return presentEncoders[index];
+	}
 	public long evaluatedFrames() { return evaluated; }
 	public long generatedPresents() { return presented; }
 	public RenderTarget debugTarget(int index) {
@@ -228,6 +246,8 @@ public final class FrameGenerationRenderer {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
+		if (reason.isEmpty() && mode.nvidia() && refreshPolicy.bypass()) return "Frame generation: rendered only (frame target "
+				+ refreshPolicy.cap() + " FPS, checking real throughput)";
 		return "Frame generation: " + (reason.isEmpty() ? mode.label().getString()
 				+ (resetNext ? " (waiting for consecutive world frames)" : mode == FrameGeneration.DLSS_MULTI ? " " + (generated.length + 1) + "x" : "")
 				+ (meteringProblem.isEmpty() ? "" : " (" + meteringProblem + ")") : reason);
@@ -270,7 +290,11 @@ public final class FrameGenerationRenderer {
 		boolean delivered = result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR;
 		if (delivered) {
 			if (generatedPresent) presented++;
-			else realPresented++;
+			else {
+				realPresented++;
+				Minecraft mc = Minecraft.getInstance();
+				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused());
+			}
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}
 		if (generatedPresent) ledger.generatedPresent(delivered);

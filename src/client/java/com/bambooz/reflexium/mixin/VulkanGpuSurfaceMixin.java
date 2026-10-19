@@ -54,7 +54,7 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Shadow @Final private VulkanDevice device;
 	@Shadow private com.mojang.renderpearl.api.device.SurfaceException eatenException;
 	@Shadow private boolean swapchainOutOfDate;
-	@Shadow @Final private long[] acquireSemaphores;
+	@Shadow @Final @Mutable private long[] acquireSemaphores;
 	@Shadow private int currentAcquireSemaphore;
 	@Unique private com.mojang.renderpearl.api.commands.GpuFence[] reflexium$acquireCompletion;
 	@Unique private GpuTextureView reflexium$realView;
@@ -62,6 +62,26 @@ public abstract class VulkanGpuSurfaceMixin {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
+		var session = com.bambooz.reflexium.vulkan.VulkanSession.current();
+		if (session != null && session.presentMetering()) {
+			// Two real frames in flight, each with at most eight physical presents. Completion tracking below,
+			// rather than ring size, proves binary semaphore reuse safe. Avoid waiting mid-batch on the world's submit.
+			long[] expanded = java.util.Arrays.copyOf(acquireSemaphores, 16);
+			int created = acquireSemaphores.length;
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				LongBuffer out = stack.mallocLong(1);
+				var info = VkSemaphoreCreateInfo.calloc(stack).sType$Default();
+				for (; created < expanded.length; created++) {
+					int result = VK12.vkCreateSemaphore(device.vkDevice(), info, null, out);
+					if (result != VK12.VK_SUCCESS) throw new IllegalStateException("FG acquire semaphore: " + result);
+					expanded[created] = out.get(0);
+				}
+				acquireSemaphores = expanded;
+			} catch (RuntimeException failure) {
+				for (int i = acquireSemaphores.length; i < created; i++) VK12.vkDestroySemaphore(device.vkDevice(), expanded[i], null);
+				com.bambooz.reflexium.ReflexiumClient.LOGGER.warn("Using native acquire ring after FG allocation failure", failure);
+			}
+		}
 		reflexium$acquireCompletion = new com.mojang.renderpearl.api.commands.GpuFence[acquireSemaphores.length];
 	}
 	@Unique private void reflexium$blit(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
@@ -96,7 +116,7 @@ public abstract class VulkanGpuSurfaceMixin {
 				fg.beginPresent(i < count);
 				var reflex = com.bambooz.reflexium.reflex.ReflexController.get();
 				reflex.beginReplacementSubmit();
-				CommandEncoderBackend encoder = device.createCommandEncoder();
+				CommandEncoderBackend encoder = fg.presentEncoder(i - 1);
 				surface.blitFromTexture(encoder, i < count ? fg.generatedView(i) : reflexium$realView);
 				encoder.submit();
 				reflex.endReplacementSubmit();

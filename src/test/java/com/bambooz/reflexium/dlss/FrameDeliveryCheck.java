@@ -21,6 +21,27 @@ public final class FrameDeliveryCheck {
 	private static void check(boolean condition, String message) { if (!condition) throw new AssertionError(message); }
 
 	public static void main(String[] args) {
+		check(FrameGeneration.DLSS.withMultiplier(3) == FrameGeneration.DLSS_MULTI, "3x selects MFG");
+		check(FrameGeneration.DLSS_MULTI.withMultiplier(2) == FrameGeneration.DLSS, "2x selects standard FG");
+		check(FrameGeneration.OFF.withMultiplier(3) == FrameGeneration.OFF && FrameGeneration.FSR.withMultiplier(3) == FrameGeneration.FSR, "multiplier does not enable or replace other providers");
+		var refresh = new FrameGenerationRefreshPolicy();
+		refresh.cap(222);
+		check(refresh.bypass(), "start with rendered-only calibration");
+		for (int i = 0; i <= 222; i++) refresh.present(1 + i * 4_600_000L, true);
+		check(refresh.bypass(), "already fills 240 Hz display");
+		refresh.reset();
+		for (int i = 0; i <= 100; i++) refresh.present(1 + i * 10_000_000L, true);
+		check(!refresh.bypass(), "heavy scene enables static FG");
+		for (int i = 1; i <= 240; i++) refresh.present(1_000_000_001L + i * 4_200_000L, true);
+		check(refresh.bypass(), "lighter scene returns to real frames");
+		refresh.cap(416);
+		for (int i = 0; i <= 220; i++) refresh.present(3_000_000_001L + i * 4_600_000L, true);
+		check(!refresh.bypass(), "same 220 FPS scene benefits on 480 Hz display");
+		refresh.cap(120);
+		for (int i = 0; i <= 120; i++) refresh.present(5_000_000_001L + i * 8_400_000L, true);
+		check(refresh.bypass(), "real frames already fill an explicit lower output cap");
+		refresh.cap(Integer.MAX_VALUE);
+		check(!refresh.bypass(), "unknown refresh stays uncapped");
 		if (VulkanLifecycle.validImageCount(8, 2, 3) != 3 || VulkanLifecycle.validImageCount(3, 2, 0) != 3
 				|| VulkanLifecycle.validImageCount(1, 2, 0) != 2) throw new AssertionError("surface bounds");
 		for (int revision = 0; revision <= 3; revision++) {

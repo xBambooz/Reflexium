@@ -92,11 +92,17 @@ public final class ReflexiumConfig {
 			value = FrameGeneration.OFF;
 		}
 		frameGeneration = value;
+		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 2;
+		else if (value == FrameGeneration.DLSS_MULTI) frameGenerationMultiplier = Math.max(3, frameGenerationMultiplier);
 		save();
 	}
 
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
-	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 2, 8); save(); }
+	public void setFrameGenerationMultiplier(int value) {
+		frameGenerationMultiplier = Math.clamp(value, 2, 8);
+		frameGeneration = frameGeneration.withMultiplier(frameGenerationMultiplier);
+		save();
+	}
 
 	/**
 	 * Clamps the stored multiplier into 2..maximum once the driver reports its limit. Called on NGX init, because
@@ -106,6 +112,7 @@ public final class ReflexiumConfig {
 		int clamped = Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
 		if (clamped != frameGenerationMultiplier) {
 			frameGenerationMultiplier = clamped;
+			frameGeneration = frameGeneration.withMultiplier(clamped);
 			save();
 		}
 	}
@@ -146,6 +153,7 @@ public final class ReflexiumConfig {
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
 		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
+		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
