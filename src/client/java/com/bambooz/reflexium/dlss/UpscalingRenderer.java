@@ -118,6 +118,17 @@ public final class UpscalingRenderer {
 	public boolean packHdrBoundaryDue() { return builtHdr && swapped; }
 	public int outputWidth() { return displayWidth; }
 	public int outputHeight() { return displayHeight; }
+	public int renderWidth() { return renderWidth; }
+	public int renderHeight() { return renderHeight; }
+	public int displayWidth() { return displayWidth; }
+	public int displayHeight() { return displayHeight; }
+	public float scaleLineWidth(float width) {
+		if (swapped && renderWidth > 0 && displayWidth > 0 && renderWidth < displayWidth) {
+			float scale = (float) renderWidth / (float) displayWidth;
+			return Math.max(1.0f, width * scale);
+		}
+		return width;
+	}
 	public GpuTextureView packHdrColor() { return hdrOutput.getColorTextureView(); }
 	public GpuTextureView packDisplayColor() { return renderTarget.getColorTextureView(); }
 	private TextureTarget worldDepth;
