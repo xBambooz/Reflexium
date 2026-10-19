@@ -256,10 +256,10 @@ public final class ReflexController {
 	}
 
 	public void beforeBatchPresent(boolean generated) {
-		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV);
+		if (generated) marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV);
 	}
 	public void afterBatchPresent(boolean generated) {
-		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV);
+		if (generated) marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV);
 	}
 	public void beginReplacementSubmit() { marker(VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV); }
 	public void endReplacementSubmit() { marker(VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV); }
