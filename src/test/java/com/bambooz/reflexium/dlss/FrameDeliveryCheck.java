@@ -23,6 +23,8 @@ public final class FrameDeliveryCheck {
 	public static void main(String[] args) {
 		check(FrameGeneration.DLSS.withMultiplier(3) == FrameGeneration.DLSS_MULTI, "3x selects MFG");
 		check(FrameGeneration.DLSS_MULTI.withMultiplier(2) == FrameGeneration.DLSS, "2x selects standard FG");
+		check(FrameGeneration.DLSS_MULTI.withMultiplier(0) == FrameGeneration.DLSS_MULTI, "Auto preserves MFG");
+		check(FrameGeneration.DLSS.withMultiplier(0) == FrameGeneration.DLSS, "Auto preserves DLSS FG");
 		check(FrameGeneration.OFF.withMultiplier(3) == FrameGeneration.OFF && FrameGeneration.FSR.withMultiplier(3) == FrameGeneration.FSR, "multiplier does not enable or replace other providers");
 		var refresh = new FrameGenerationRefreshPolicy();
 		refresh.cap(416);

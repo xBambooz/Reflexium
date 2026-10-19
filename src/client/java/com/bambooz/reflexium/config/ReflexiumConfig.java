@@ -92,7 +92,8 @@ public final class ReflexiumConfig {
 			value = FrameGeneration.OFF;
 		}
 		frameGeneration = value;
-		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 0;
+		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 2;
+		else if (value == FrameGeneration.DLSS_MULTI && frameGenerationMultiplier == 2) frameGenerationMultiplier = 0;
 		else if (value == FrameGeneration.DLSS_MULTI && frameGenerationMultiplier != 0) frameGenerationMultiplier = Math.max(3, frameGenerationMultiplier);
 		save();
 	}
@@ -110,9 +111,10 @@ public final class ReflexiumConfig {
 	 */
 	public void limitFrameGenerationMultiplier(int maximum) {
 		int clamped = frameGenerationMultiplier == 0 ? 0 : Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
-		if (clamped != frameGenerationMultiplier) {
+		FrameGeneration targetFg = (maximum < 3 && frameGeneration == FrameGeneration.DLSS_MULTI) ? FrameGeneration.DLSS : frameGeneration.withMultiplier(clamped);
+		if (clamped != frameGenerationMultiplier || targetFg != frameGeneration) {
 			frameGenerationMultiplier = clamped;
-			frameGeneration = frameGeneration.withMultiplier(clamped);
+			frameGeneration = targetFg;
 			save();
 		}
 	}
@@ -151,8 +153,15 @@ public final class ReflexiumConfig {
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
 		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
-		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
-		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
+		String rawMultiplier = props.getProperty("frame_generation_multiplier");
+		if (rawMultiplier == null) {
+			config.frameGenerationMultiplier = config.frameGeneration == FrameGeneration.DLSS ? 2 : 0;
+		} else {
+			try {
+				int multiplier = Integer.parseInt(rawMultiplier);
+				config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8);
+			} catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
+		}
 		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
