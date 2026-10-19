@@ -93,7 +93,9 @@ public abstract class GameRendererMixin {
 	private void reflexium$completeScene(CallbackInfo ci) {
 		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
 		// FG consumes particle-free scene color. Replay current effects on every output, before GUI.
-		DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+		if (com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().wantsMotion()
+				&& com.bambooz.reflexium.debug.DebugSettings.replayFgParticles)
+			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 		reflexium$drawDeferredCrosshair();
 	}
 
