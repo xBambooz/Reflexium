@@ -107,7 +107,7 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setStorageHandler(SAVED_ON_SET)
 										.setEnabledProvider(state -> {
 											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
-											return u == Upscaler.FSR || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.FSR);
+											return u != Upscaler.OFF;
 										}, id("upscaler"))
 										.setControlHiddenWhenDisabled(true)
 										.setBinding(config::setFsrSharpness, config::fsrSharpness)))

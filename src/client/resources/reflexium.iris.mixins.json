@@ -9,7 +9,8 @@
 		"IncludeGraphMixin",
 		"HandRendererMixin",
 		"IrisLoadMixin",
-		"IrisPbrSamplerMixin"
+		"IrisPbrSamplerMixin",
+		"PackOptionsMixin"
 	],
 	"injectors": { "defaultRequire": 1 }
 }

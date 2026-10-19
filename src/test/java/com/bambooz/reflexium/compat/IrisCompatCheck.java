@@ -68,6 +68,8 @@ public final class IrisCompatCheck {
 			String original = Files.readString(settings);
 			String edited = IrisCompat.adapt("BSL_v10.1.8", settings, original);
 			if (!edited.contains("#if 1 // Reflexium") || edited.contains("#ifdef RETRO_FILTER")) throw new AssertionError("BSL anti-aliasing not removed");
+			// Must follow the "#define SHARPEN_ENABLED" decision, or final.glsl blurs with mult 0.0625 * -1.
+			if (edited.indexOf("#undef SHARPEN_ENABLED") < edited.indexOf("#define SHARPEN_ENABLED")) throw new AssertionError("BSL pre-upscale sharpen still enabled");
 			// Option parsing must still see the original defines so saved pack options stay valid.
 			if (!edited.contains("  #define TAA") || !edited.contains("  #define FXAA")) throw new AssertionError("BSL option defines changed");
 			if (!IrisCompat.temporalVerified()) throw new AssertionError("BSL not reported as verified");

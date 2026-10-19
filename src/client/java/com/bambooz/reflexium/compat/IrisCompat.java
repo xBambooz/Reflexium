@@ -35,6 +35,23 @@ public final class IrisCompat {
 	private static final String BSL_SETTINGS_SHA256 = "808a7fb287dc081d889b3a8abb36c39590c12bff53bd751e839737e3a1cd13aa";
 	private static final String BSL_AA_LINE = "#ifdef RETRO_FILTER";
 	private static volatile boolean bslAaRemoved;
+	/**
+	 * Pack options that select the pack's own temporal AA, post-process AA or pre-upscale sharpening. Upscaling replaces
+	 * all three: TAA would accumulate before DLSS/FSR, FXAA blurs its jittered input (NVIDIA DLSS guide 3.1), and a
+	 * render-size sharpen amplifies aliasing the upscaler then has to resolve; Reflexium sharpens after reconstruction.
+	 * Matched by option name, so any pack exposing them in its menu needs no Reflexium change.
+	 */
+	private static final java.util.Set<String> TEMPORAL_OPTIONS = java.util.Set.of("TAA", "TAA_ENABLED", "ENABLE_TAA",
+			"TAA_ENABLE", "USE_TAA", "TEMPORAL_AA", "TEMPORAL_ANTIALIASING", "TEMPORAL_ANTI_ALIASING", "TAAU", "TAA_UPSCALING",
+			"FXAA", "FXAA_ENABLED", "ENABLE_FXAA", "USE_FXAA", "IMAGE_SHARPENING", "CONTRAST_ADAPTATIVE_SHARPENING",
+			"CONTRAST_ADAPTIVE_SHARPENING");
+	/** Value options and their off value (Complementary family: TAA_DEFINE 0, FXAA_DEFINE -1); used only if the pack lists it. */
+	private static final java.util.Map<String, List<String>> TEMPORAL_VALUE_OPTIONS = java.util.Map.of("TAA_DEFINE", List.of("0"),
+			"FXAA_DEFINE", List.of("-1", "0"), "IMAGE_SHARPENING", List.of("0"),
+			"SHARPENING", List.of("0", "0.0", "0.00"), "SHARPEN", List.of("0"));
+	private static volatile List<String> optionsOverridden = List.of();
+	/** One of the overridden options was the pack's temporal AA itself, not only FXAA or sharpening. */
+	private static volatile boolean optionsTaaRemoved;
 
 	private static Method packInUse;
 	private static Method config;
@@ -82,10 +99,12 @@ public final class IrisCompat {
 		ComplementaryTemporalSource.reset();
 		jitterRemoved = false;
 		bslAaRemoved = false;
+		optionsOverridden = List.of();
+		optionsTaaRemoved = false;
 	}
 	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
 	public static boolean temporalVerified() {
-		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved;
+		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved;
 	}
 	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
 	public static boolean packJitterRemoved() { return jitterRemoved; }
@@ -152,6 +171,52 @@ public final class IrisCompat {
 		return String.join("\n", result);
 	}
 
+	/**
+	 * ShaderPackOptions construction, after the option set is parsed: switch the pack's own temporal AA toggles off
+	 * while Reflexium owns temporal sampling. The returned copy feeds only this compile; Iris saves its option file
+	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
+	 */
+	public static java.util.Map<String, String> temporalOptionOverrides(Object packOptions, java.util.Map<String, String> values) {
+		if (!ownsTemporalSampling() || values == null) return values;
+		String name = currentPackName();
+		if (PACK.equals(name) || BSL.equals(name)) return values;
+		try {
+			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+			java.util.Map<?, ?> booleans = (java.util.Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+			java.util.Map<String, String> result = new java.util.HashMap<>(values);
+			List<String> overridden = new ArrayList<>();
+			for (Object key : booleans.keySet()) {
+				String option = (String) key;
+				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(java.util.Locale.ROOT))) continue;
+				result.put(option, "false");
+				overridden.add(option);
+			}
+			java.util.Map<?, ?> strings = (java.util.Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+			for (java.util.Map.Entry<?, ?> entry : strings.entrySet()) {
+				String option = (String) entry.getKey();
+				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(java.util.Locale.ROOT));
+				if (offValues == null) continue;
+				Object merged = entry.getValue();
+				Object stringOption = merged.getClass().getMethod("getOption").invoke(merged);
+				List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
+				for (String off : offValues) {
+					if (!allowed.contains(off)) continue;
+					result.put(option, off);
+					overridden.add(option + "=" + off);
+					break;
+				}
+			}
+			if (overridden.isEmpty()) return values;
+			optionsOverridden = List.copyOf(overridden);
+			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(java.util.Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
+			ReflexiumClient.LOGGER.info("Iris {}: pack options {} switched off while upscaling (saved options unchanged)", name, overridden);
+			return result;
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			ReflexiumClient.LOGGER.warn("Iris pack option set not readable; pack temporal AA stays as configured", e);
+			return values;
+		}
+	}
+
 	private static List<String> removeJitter(List<String> lines) {
 		if (!JITTER_SHA256.equals(ComplementaryTemporalSource.sha256(lines))) return lines;
 		List<String> result = new ArrayList<>(lines);
@@ -171,7 +236,12 @@ public final class IrisCompat {
 		for (int i = 0; i < result.size(); i++) {
 			String line = result.get(i);
 			if (!line.strip().equals(BSL_AA_LINE)) continue;
-			result.set(i, line.substring(0, line.indexOf(BSL_AA_LINE)) + "#if 1 // Reflexium: one jitter and temporal resolve owner");
+			// SHARPEN_ENABLED is decided earlier from the original defines. With TAA and FXAA gone, final.glsl
+			// then computes 0.0625 * SHARPEN = -0.0625 for the automatic -1 setting: a blur of the upscaler
+			// input. Sharpening belongs after reconstruction (UpscalingRenderer's DLSS sharpen, FSR's RCAS).
+			String indent = line.substring(0, line.indexOf(BSL_AA_LINE));
+			result.set(i, indent + "#undef SHARPEN_ENABLED // Reflexium: sharpen after upscaling, never before\n"
+					+ indent + "#if 1 // Reflexium: one jitter and temporal resolve owner");
 			bslAaRemoved = true;
 			return List.copyOf(result);
 		}
@@ -225,7 +295,8 @@ public final class IrisCompat {
 		if (!isDrawingPack()) return version() + ", no shader pack drawing";
 		String name = currentPackName();
 		return version() + ", " + (name == null ? "unknown pack" : name)
-				+ (temporalOwner ? temporalVerified() ? ", Reflexium jitter" : ", pack TAA not managed (unverified pack)" : "");
+				+ (temporalOwner ? temporalVerified() ? ", Reflexium jitter" : ", pack TAA not managed (unverified pack)" : "")
+				+ (temporalOwner && !optionsOverridden.isEmpty() ? " (pack options off: " + String.join(", ", optionsOverridden) + ")" : "");
 	}
 
 	private static boolean lookUp() {

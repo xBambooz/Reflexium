@@ -98,6 +98,8 @@ public final class UpscalingRenderer {
 
 	private TextureTarget renderTarget;
 	private TextureTarget hdrInput, hdrOutput;
+	/** Display-size DLSS output that SharpenPass reads; the sharpened image lands in the display target. */
+	private TextureTarget sharpenSource;
 	private TextureTarget packMotionBase, packComposition;
 	private PackSurfaceMotionPass packSurfacePass;
 	private boolean packSurfaceApplied;
@@ -130,6 +132,7 @@ public final class UpscalingRenderer {
 	private MotionDebugPass motionDebugPass;
 	private PackHandMaskPass packHandMaskPass;
 	private DepthResolvePass depthResolvePass;
+	private SharpenPass sharpenPass;
 	private CaptureEncodePass captureEncodePass;
 	private TextureTarget packHandBefore;
 	private TextureTarget packHandMask;
@@ -1113,6 +1116,10 @@ public final class UpscalingRenderer {
 			packHandMask = new TextureTarget("Reflexium pack hand mask", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
 			if (packHandMaskPass == null) packHandMaskPass = new PackHandMaskPass();
 		}
+		if (selected == Upscaler.DLSS && !builtHdr) {
+			sharpenSource = new TextureTarget("Reflexium DLSS sharpen source", displayWidth, displayHeight, GpuFormat.RGBA8_UNORM, null);
+			if (sharpenPass == null) sharpenPass = new SharpenPass();
+		}
 		if (selected == Upscaler.FSR) {
 			opaqueTarget = new TextureTarget("Reflexium opaque scene", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, null);
 			reactive = new OutputImage(device, commandBuffer, renderWidth, renderHeight, VK10.VK_FORMAT_R8_UNORM);
@@ -1263,7 +1270,9 @@ public final class UpscalingRenderer {
 			resetNext = false;
 			return;
 		}
-		RenderTarget outputTarget = builtHdr ? hdrOutput : renderTarget;
+		float sharpness = ReflexiumConfig.get().fsrSharpness() / 100f;
+		boolean sharpen = builtUpscaler == Upscaler.DLSS && sharpenSource != null && sharpness > 0;
+		RenderTarget outputTarget = builtHdr ? hdrOutput : sharpen ? sharpenSource : renderTarget;
 		NgxBridge.Image outputImage = ngxImage(outputTarget.getColorTexture(), outputTarget.getColorTextureView());
 		if (resetting) {
 			historyResetFrames++;
@@ -1281,7 +1290,7 @@ public final class UpscalingRenderer {
 				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : reactiveGenerated ? reactive.asNgx() : null,
 				packSurfaceApplied ? ngxImage(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null,
 				signedJitterX, signedJitterY, resetNext, frameTimeMs, cameraNear, motionFar, cameraFov,
-				ReflexiumConfig.get().fsrSharpness() / 100f) : bridge.evaluate(commandBuffer.address(),
+				sharpness) : bridge.evaluate(commandBuffer.address(),
 				ngxImage(main.getColorTexture(), main.getColorTextureView()),
 				ngxImage(motionTarget.getDepthTexture(), motionTarget.getDepthTextureView()),
 				ngxImage(motionTarget.getColorTexture(), motionTarget.getColorTextureView()),
@@ -1291,6 +1300,10 @@ public final class UpscalingRenderer {
 		if (result != 0) {
 			drainLog();
 			throw new IllegalStateException(builtUpscaler + " evaluate returned 0x" + Integer.toHexString(result));
+		}
+		if (sharpen) {
+			barrier(commandBuffer);
+			sharpenPass.render(sharpenSource.getColorTextureView(), renderTarget, sharpness);
 		}
 		resetNext = false;
 		if (++evaluatedFrames == 1) {
@@ -1428,6 +1441,7 @@ public final class UpscalingRenderer {
 		ComplementaryHdr.release();
 		if (hdrInput != null) { hdrInput.destroyBuffers(); hdrInput = null; }
 		if (hdrOutput != null) { hdrOutput.destroyBuffers(); hdrOutput = null; }
+		if (sharpenSource != null) { sharpenSource.destroyBuffers(); sharpenSource = null; }
 		if (packMotionBase != null) { packMotionBase.destroyBuffers(); packMotionBase = null; }
 		if (packComposition != null) { packComposition.destroyBuffers(); packComposition = null; }
 		packSurfacePass = null;
@@ -1492,6 +1506,10 @@ public final class UpscalingRenderer {
 		if (depthResolvePass != null) {
 			depthResolvePass.close();
 			depthResolvePass = null;
+		}
+		if (sharpenPass != null) {
+			sharpenPass.close();
+			sharpenPass = null;
 		}
 		motionDebugPass = null;
 		packHandMaskPass = null;

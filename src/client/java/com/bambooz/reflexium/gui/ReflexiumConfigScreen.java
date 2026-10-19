@@ -70,7 +70,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 					}));
 		}
 
-		if (effective == Upscaler.FSR || config.upscaler() == Upscaler.FSR) {
+		if (config.upscaler() != Upscaler.OFF) {
 			list.addBig(ReflexiumOptions.fsrSharpness());
 		}
 
