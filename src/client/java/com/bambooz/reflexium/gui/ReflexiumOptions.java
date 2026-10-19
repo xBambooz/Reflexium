@@ -58,6 +58,11 @@ public final class ReflexiumOptions {
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.smart_reflex.tooltip")),
 				ReflexiumConfig.get().smartReflex(), ReflexiumConfig.get()::setSmartReflex);
 	}
+	public static OptionInstance<Boolean> postUpscaleParticles() {
+		return OptionInstance.createBoolean("reflexium.option.post_upscale_particles",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.post_upscale_particles.tooltip")),
+				ReflexiumConfig.get().postUpscaleParticles(), ReflexiumConfig.get()::setPostUpscaleParticles);
+	}
 
 	public static OptionInstance<UpscaleQuality> upscaleQuality() {
 		return new OptionInstance<>(

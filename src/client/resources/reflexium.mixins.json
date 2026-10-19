@@ -21,6 +21,7 @@
 		"PostChainAccessor",
 		"PostPassAccessor",
 		"GameRendererMixin",
+		"DeferredParticleMixin",
 		"RenderTargetAccessor",
 		"VideoSettingsScreenMixin",
 		"VulkanCommandEncoderAccessor",

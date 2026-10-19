@@ -81,6 +81,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 
 		if (config.upscaler() != Upscaler.OFF) {
 			list.addBig(ReflexiumOptions.fsrSharpness());
+			list.addBig(ReflexiumOptions.postUpscaleParticles());
 		}
 
 		boolean irisDrawing = com.bambooz.reflexium.compat.IrisCompat.isDrawingPack();

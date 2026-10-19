@@ -122,6 +122,7 @@ public final class UpscalingRenderer {
 	public int renderHeight() { return renderHeight; }
 	public int displayWidth() { return displayWidth; }
 	public int displayHeight() { return displayHeight; }
+	public boolean displayDepthResolved() { return depthResolved; }
 	public float scaleLineWidth(float width) {
 		if (swapped && renderWidth > 0 && displayWidth > 0 && renderWidth < displayWidth) {
 			float scale = (float) renderWidth / (float) displayWidth;
@@ -368,6 +369,7 @@ public final class UpscalingRenderer {
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
 		foliageMotionApplied = false;
+		DeferredEffects.applied = false;
 		irisOpaqueDepthApplied = false;
 		ComplementaryHdr.beginFrame();
 		DistantHorizonsCompat.beginFrame();
@@ -737,7 +739,7 @@ public final class UpscalingRenderer {
 		}
 		FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 		reconstructed = true;
-		if (worldDepthCaptured && !failed && postEffectsNeedDepth(gameRenderer)) {
+		if (worldDepthCaptured && !failed && (DeferredEffects.pending() || postEffectsNeedDepth(gameRenderer))) {
 			resolveDisplayDepth(main);
 		}
 	}
@@ -898,6 +900,7 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
+		o.addProperty("post_upscale_particles", DeferredEffects.applied);
 		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
@@ -1494,6 +1497,7 @@ public final class UpscalingRenderer {
 	}
 
 	private void releaseFeatureResources() {
+		DeferredEffects.close();
 		ComplementaryHdr.release();
 		if (hdrInput != null) { hdrInput.destroyBuffers(); hdrInput = null; }
 		if (hdrOutput != null) { hdrOutput.destroyBuffers(); hdrOutput = null; }
