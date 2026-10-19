@@ -42,6 +42,7 @@ public final class UpscalingContractCheck {
 		samplerReplacement();
 		jitterPolicy();
 		independentReprojection();
+		cloudReprojection();
 		cameraMetadata();
 		historyCuts();
 		modelPresets();
@@ -49,6 +50,17 @@ public final class UpscalingContractCheck {
 		fsrAbi();
 		System.out.println("UpscalingContractCheck passed: material binds, mip bias, sampler ownership, jitter phases, "
 				+ "independent reprojection, physical camera metadata, history cuts and model presets");
+	}
+
+	private static void cloudReprojection() {
+		// Vanilla's cloud texture advances +X in camera-relative sampling, so its world surface moves -X.
+		Matrix4f projection = new Matrix4f().setPerspective((float) Math.toRadians(70), 16f / 9, .05f, 1024f, true);
+		float timeDelta = .25f, cameraDelta = .1f;
+		Vector4f previous = projection.transform(new Vector4f(2, 3, -20, 1));
+		Vector4f current = projection.transform(new Vector4f(2 - .03f * timeDelta - cameraDelta, 3, -20, 1));
+		Vector4f predicted = DlssMath.reprojection(projection, projection, cameraDelta + .03f * timeDelta, 0, 0)
+				.transform(new Vector4f(current.x / current.w, current.y / current.w, current.z / current.w, 1));
+		check(Math.abs(predicted.x / predicted.w - previous.x / previous.w) < EPS, "cloud time and camera displacement reproject to the previous surface");
 	}
 
 	private static void captureCancellation() {

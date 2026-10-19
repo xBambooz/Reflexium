@@ -626,6 +626,10 @@ public final class DebugServer {
 					}
 				};
 			}
+			case "cloud_motion" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.cloudMotion = on;
+			}
 			case "particles_defer" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.deferParticles = on;

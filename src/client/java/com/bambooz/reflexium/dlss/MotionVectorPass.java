@@ -32,7 +32,7 @@ import java.util.OptionalDouble;
 final class MotionVectorPass implements AutoCloseable {
 	static final GpuFormat FORMAT = GpuFormat.RG16_FLOAT;
 
-	private static final int UBO_SIZE = new Std140SizeCalculator().putMat4f().putMat4f().putMat4f().putVec4().putVec4().get();
+	private static final int UBO_SIZE = new Std140SizeCalculator().putMat4f().putMat4f().putMat4f().putMat4f().putVec4().putVec4().get();
 	private final Matrix4f previousDh = new Matrix4f();
 	private boolean havePreviousDh;
 
@@ -46,6 +46,7 @@ final class MotionVectorPass implements AutoCloseable {
 					.withUniform("DepthSampler", UniformType.COMBINED_IMAGE_SAMPLER)
 					.withUniform("HandDepthSampler", UniformType.COMBINED_IMAGE_SAMPLER)
 					.withUniform("DhDepthSampler", UniformType.COMBINED_IMAGE_SAMPLER)
+					.withUniform("CloudDepthSampler", UniformType.COMBINED_IMAGE_SAMPLER)
 					.build())
 			.withColorTargetState(new ColorTargetState(Optional.empty(), FORMAT, ColorTargetState.WRITE_ALL))
 			.withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, true))
@@ -57,7 +58,7 @@ final class MotionVectorPass implements AutoCloseable {
 	void render(RenderTarget motion, GpuTextureView worldDepth, GpuTextureView handDepth,
 			Matrix4f currentToPrevious, float jitterNdcX, float jitterNdcY,
 			DistantHorizonsCompat.DepthFrame dh, Matrix4f currentJittered, Matrix4f depthTransform,
-			float camDx, float camDy, float camDz, boolean reset) {
+			float camDx, float camDy, float camDz, boolean reset, GpuTextureView cloudDepth, Matrix4f cloudToPrevious) {
 		Matrix4f dhToMain = new Matrix4f(), dhToPrevious = new Matrix4f();
 		if (dh != null) {
 			Matrix4f inverse = new Matrix4f(dh.viewProjection()).invert();
@@ -74,8 +75,9 @@ final class MotionVectorPass implements AutoCloseable {
 					.putMat4f(currentToPrevious)
 					.putMat4f(dhToMain)
 					.putMat4f(dhToPrevious)
+					.putMat4f(cloudToPrevious)
 					.putVec4(jitterNdcX, jitterNdcY, motion.width, motion.height)
-					.putVec4(depthTransform.m22(), depthTransform.m32(), dh == null ? 0 : 1, 0)
+					.putVec4(depthTransform.m22(), depthTransform.m32(), dh == null ? 0 : 1, cloudDepth == null ? 0 : 1)
 					.get();
 			uniformSlice = uploadUniforms(uniforms, data);
 		}
@@ -88,6 +90,7 @@ final class MotionVectorPass implements AutoCloseable {
 			pass.setUniform("DepthSampler", worldDepth, nearest);
 			pass.setUniform("HandDepthSampler", handDepth, nearest);
 			pass.setUniform("DhDepthSampler", dh == null ? worldDepth : dh.depth(), nearest);
+			pass.setUniform("CloudDepthSampler", cloudDepth == null ? worldDepth : cloudDepth, nearest);
 			pass.draw(3, 1, 0, 0);
 		}
 	}

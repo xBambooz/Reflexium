@@ -152,6 +152,8 @@ public final class UpscalingRenderer {
 	private MotionDebugPass motionDebugPass;
 	private PackHandMaskPass packHandMaskPass;
 	private DepthResolvePass depthResolvePass;
+	private final VanillaCloudMotion vanillaCloudMotion = new VanillaCloudMotion();
+	private boolean vanillaCloudMotionApplied;
 	private SharpenPass sharpenPass;
 	private CaptureEncodePass captureEncodePass;
 	private TextureTarget packHandBefore;
@@ -369,6 +371,7 @@ public final class UpscalingRenderer {
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
 		foliageMotionApplied = false;
+		vanillaCloudMotionApplied = false;
 		DeferredEffects.applied = false;
 		irisOpaqueDepthApplied = false;
 		ComplementaryHdr.beginFrame();
@@ -678,9 +681,13 @@ public final class UpscalingRenderer {
 			VkCommandBuffer commands = commandBuffer();
 			long timing = FrameProfiler.start(FrameProfiler.MOTION, commands);
 			GpuTextureView sceneDepth = directWorldDepth != null ? directWorldDepth : worldDepth.getDepthTextureView();
+			GpuTextureView clouds = vanillaCloudMotion.capture(gameRenderer, renderWidth, renderHeight, jitter(currentProjection), resetNext);
+			vanillaCloudMotionApplied = clouds != null;
+			Matrix4f cloudToPrevious = DlssMath.reprojection(previousUnjittered, currentJittered,
+					(float) delta.x + vanillaCloudMotion.displacement(), (float) delta.y, (float) delta.z);
 			motionPass.render(motionTarget, sceneDepth, handDepth,
 					currentToPrevious, jitterNdcX(), jitterNdcY(), dh, currentJittered, depthTransform,
-					(float) delta.x, (float) delta.y, (float) delta.z, resetNext);
+					(float) delta.x, (float) delta.y, (float) delta.z, resetNext, clouds, cloudToPrevious);
 			FrameProfiler.end(FrameProfiler.MOTION, timing, commands);
 			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
 			// Match the merged depth, so a hidden object cannot overwrite a closer LOD's camera vector.
@@ -900,7 +907,9 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
+		o.addProperty("vanilla_cloud_motion", vanillaCloudMotionApplied);
 		o.addProperty("post_upscale_particles", DeferredEffects.applied);
+		o.addProperty("vanilla_cloud_previous_displacement_x", vanillaCloudMotion.displacement());
 		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
@@ -1498,6 +1507,7 @@ public final class UpscalingRenderer {
 
 	private void releaseFeatureResources() {
 		DeferredEffects.close();
+		vanillaCloudMotion.close();
 		ComplementaryHdr.release();
 		if (hdrInput != null) { hdrInput.destroyBuffers(); hdrInput = null; }
 		if (hdrOutput != null) { hdrOutput.destroyBuffers(); hdrOutput = null; }
