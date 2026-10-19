@@ -144,6 +144,8 @@ public final class CaptureAnalysis {
 	}
 
 	private static void decoderCheck() {
+		if (screenshotNdcY(0, 2) != 0.5 || screenshotNdcY(1, 2) != -0.5)
+			throw new AssertionError("screenshot rows must be inverted before reprojection");
 		BufferedImage sample = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		// Hand-computed RGB bytes for (0, 0), (1, -1), (-64, 63.96875).
 		int[] encoded = {0x800800, 0x8207e0, 0x000fff};
@@ -231,7 +233,7 @@ public final class CaptureAnalysis {
 		double dotX = 0, dotY = 0, xx = 0, yy = 0;
 		for (int y = 8; y < h - 8; y += 4) for (int x = 8; x < w - 8; x += 4) {
 			double d = depthAt(depth, x, y); if (d <= 0) continue;
-			double nx = (x + .5) / w * 2 - 1, ny = (y + .5) / h * 2 - 1;
+			double nx = (x + .5) / w * 2 - 1, ny = screenshotNdcY(y, h);
 			double[] p = mul(inv, nx, ny, d, 1);
 			double[] now = {p[0] / p[3] + cx, p[1] / p[3] + cy, p[2] / p[3] + cz};
 			if (isolated) {
@@ -319,7 +321,7 @@ public final class CaptureAnalysis {
 				double d = depthAt(depth, x, y);
 				if (d <= 0.0) { skippedBackground++; continue; }
 				double ndcX = (x + 0.5) / w * 2.0 - 1.0;
-				double ndcY = (y + 0.5) / h * 2.0 - 1.0;
+				double ndcY = screenshotNdcY(y, h);
 				double[] prev = mul(currentToPrevious, ndcX, ndcY, d, 1.0);
 				if (prev[3] == 0) continue;
 				double px = prev[0] / prev[3], py = prev[1] / prev[3];
@@ -337,5 +339,9 @@ public final class CaptureAnalysis {
 				"{\"samples\":%d,\"sky_or_cleared_skipped\":%d,\"median_px\":%.4f,\"p90_px\":%.4f,\"p99_px\":%.4f,\"within_quarter_pixel\":%.4f}%n",
 				n, skippedBackground, residuals.get(n / 2), residuals.get((int) (n * 0.90)), residuals.get(Math.min(n - 1, (int) (n * 0.99))),
 				inside / (double) n);
+	}
+	/** Screenshot.takeScreenshot writes GPU row y into image row height-y-1. */
+	private static double screenshotNdcY(int y, int height) {
+		return 1.0 - (y + 0.5) / height * 2.0;
 	}
 }

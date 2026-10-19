@@ -270,7 +270,7 @@ public final class ObjectMotion {
 		Slot slot = current;
 		var depth = renderType.pipeline().getDepthStencilState();
 		if (slot == null || renderType.primitiveTopology() != PrimitiveTopology.QUADS || renderType.isOutline()
-				|| renderType.hasBlending() || depth == null || !depth.writeDepth()
+				|| (renderType.hasBlending() && slot.view == null) || depth == null || !depth.writeDepth()
 				|| depth.depthBiasConstant() != 0 || depth.depthBiasScaleFactor() != 0) {
 			return consumer;
 		}

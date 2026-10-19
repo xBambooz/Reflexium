@@ -127,6 +127,15 @@ java tools\CaptureAnalysis.java metrics <native.png> <test.png> 200 150 700 450 
 java tools\CaptureAnalysis.java crop <in.png> <out.png> 200 150 300 200 3
 ```
 
+Numerical reprojection inverts PNG row Y: Minecraft's screenshot readback writes GPU row `y` into
+image row `height-y-1`. The encoded motion components retain their original render-pixel signs.
+The generic camera checker includes hand/object pixels and cannot establish their independent motion.
+`tools/iq-vector-metrics.py` checks known ground and leaf regions in the Round 2 no-wave camera control.
+Its assertions require actual camera movement and a dispatched BSL foliage pass. It needs numpy and Pillow
+only for analysis, and runs with `python -I`. `observed.bsl_foliage_motion` reports dispatch; the two
+`bsl_*_time` values record the deformation times. This is reviewed BSL frame-time leaf/vine coverage,
+not grass, blended layers or cloud vectors.
+
 `tools\upscaling-quality.ps1` is the single driver for the validation matrix (arena, scenes, stills,
 motion sequences, hand swing and equip) and `tools\compare-upscaling.ps1` computes the matched-crop metrics.
 Absolute Laplacian energy rewards shimmer, so the metrics report a high-pass correlation with the native image.

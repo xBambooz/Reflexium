@@ -1,0 +1,338 @@
+[
+  {
+    "path": "before-bsl-native",
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.3842823232323232
+  },
+  {
+    "path": "before-bsl-native",
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 12.621373936735779
+  },
+  {
+    "path": "before-bsl-native",
+    "region": "hand",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.1850352360817477
+  },
+  {
+    "path": "before-bsl-quality",
+    "region": "ground",
+    "mse": 2.838153703703704,
+    "psnr": 43.60044449357872,
+    "temporal_mae": 0.2600700336700337
+  },
+  {
+    "path": "before-bsl-quality",
+    "region": "leaves",
+    "mse": 685.6069243421052,
+    "psnr": 19.77005165738677,
+    "temporal_mae": 12.263275684476342
+  },
+  {
+    "path": "before-bsl-quality",
+    "region": "hand",
+    "mse": 1.8881701346389228,
+    "psnr": 45.37039236792576,
+    "temporal_mae": 0.12014465338822743
+  },
+  {
+    "path": "before-bsl-balanced",
+    "region": "ground",
+    "mse": 3.2596629629629628,
+    "psnr": 42.999076629141896,
+    "temporal_mae": 0.30439242424242424
+  },
+  {
+    "path": "before-bsl-balanced",
+    "region": "leaves",
+    "mse": 1347.3293804824561,
+    "psnr": 16.836065805576013,
+    "temporal_mae": 12.610971059276979
+  },
+  {
+    "path": "before-bsl-balanced",
+    "region": "hand",
+    "mse": 2.2299204406364748,
+    "psnr": 44.647909923529035,
+    "temporal_mae": 0.15096324320314528
+  },
+  {
+    "path": "before-bsl-performance",
+    "region": "ground",
+    "mse": 4.337737037037037,
+    "psnr": 41.75817140258735,
+    "temporal_mae": 0.4401373737373737
+  },
+  {
+    "path": "before-bsl-performance",
+    "region": "leaves",
+    "mse": 748.2487445175439,
+    "psnr": 19.390343640553944,
+    "temporal_mae": 14.679223152578414
+  },
+  {
+    "path": "before-bsl-performance",
+    "region": "hand",
+    "mse": 2.4428212974296204,
+    "psnr": 44.251886631858696,
+    "temporal_mae": 0.2473014724973109
+  },
+  {
+    "path": "before-vanilla-native",
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0
+  },
+  {
+    "path": "before-vanilla-native",
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0007273391812865497
+  },
+  {
+    "path": "before-vanilla-native",
+    "region": "hand",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0
+  },
+  {
+    "path": "before-vanilla-quality",
+    "region": "ground",
+    "mse": 3.6721962962962964,
+    "psnr": 42.48154472619822,
+    "temporal_mae": 0.054951683501683495
+  },
+  {
+    "path": "before-vanilla-quality",
+    "region": "leaves",
+    "mse": 241.8024451754386,
+    "psnr": 24.29619672611019,
+    "temporal_mae": 0.4619710260499735
+  },
+  {
+    "path": "before-vanilla-quality",
+    "region": "hand",
+    "mse": 4.412637698898409,
+    "psnr": 41.68382089851373,
+    "temporal_mae": 0.051842476169281546
+  },
+  {
+    "path": "before-vanilla-balanced",
+    "region": "ground",
+    "mse": 3.947862962962963,
+    "psnr": 42.16718291708688,
+    "temporal_mae": 0.0950526936026936
+  },
+  {
+    "path": "before-vanilla-balanced",
+    "region": "leaves",
+    "mse": 249.83621710526316,
+    "psnr": 24.154249654652837,
+    "temporal_mae": 0.6938553296119085
+  },
+  {
+    "path": "before-vanilla-balanced",
+    "region": "hand",
+    "mse": 4.782076703386373,
+    "psnr": 41.334638230508716,
+    "temporal_mae": 0.0782257705574719
+  },
+  {
+    "path": "before-vanilla-performance",
+    "region": "ground",
+    "mse": 5.015077777777778,
+    "psnr": 41.12802688078219,
+    "temporal_mae": 0.13050925925925927
+  },
+  {
+    "path": "before-vanilla-performance",
+    "region": "leaves",
+    "mse": 300.2787518274854,
+    "psnr": 23.355557589072184,
+    "temporal_mae": 1.3202118221690589
+  },
+  {
+    "path": "before-vanilla-performance",
+    "region": "hand",
+    "mse": 5.057678498572011,
+    "psnr": 41.091291417776375,
+    "temporal_mae": 0.07745892214680465
+  },
+  {
+    "path": "after-bsl-native",
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.369066835016835
+  },
+  {
+    "path": "after-bsl-native",
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 12.301441221424772
+  },
+  {
+    "path": "after-bsl-native",
+    "region": "hand",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.1688483364860354
+  },
+  {
+    "path": "after-bsl-quality",
+    "region": "ground",
+    "mse": 2.940914814814815,
+    "psnr": 43.44597915752768,
+    "temporal_mae": 0.27649949494949494
+  },
+  {
+    "path": "after-bsl-quality",
+    "region": "leaves",
+    "mse": 617.8670413011696,
+    "psnr": 20.221853314775657,
+    "temporal_mae": 12.377917995746943
+  },
+  {
+    "path": "after-bsl-quality",
+    "region": "hand",
+    "mse": 1.5424010607915137,
+    "psnr": 46.24883045621562,
+    "temporal_mae": 0.12912243611142019
+  },
+  {
+    "path": "after-bsl-balanced",
+    "region": "ground",
+    "mse": 3.3713611111111113,
+    "psnr": 42.85275087978042,
+    "temporal_mae": 0.3185816498316498
+  },
+  {
+    "path": "after-bsl-balanced",
+    "region": "leaves",
+    "mse": 1178.8425201023392,
+    "psnr": 17.416245686808786,
+    "temporal_mae": 13.357444344763422
+  },
+  {
+    "path": "after-bsl-balanced",
+    "region": "hand",
+    "mse": 1.8479538963688291,
+    "psnr": 45.463892288335934,
+    "temporal_mae": 0.13931475093653797
+  },
+  {
+    "path": "after-bsl-performance",
+    "region": "ground",
+    "mse": 4.28424074074074,
+    "psnr": 41.81206494077442,
+    "temporal_mae": 0.4600617845117844
+  },
+  {
+    "path": "after-bsl-performance",
+    "region": "leaves",
+    "mse": 2151.656447368421,
+    "psnr": 14.803074316630777,
+    "temporal_mae": 14.344819078947365
+  },
+  {
+    "path": "after-bsl-performance",
+    "region": "hand",
+    "mse": 2.08327825377397,
+    "psnr": 44.943330803546566,
+    "temporal_mae": 0.1941624939727755
+  },
+  {
+    "path": "after-vanilla-native",
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0
+  },
+  {
+    "path": "after-vanilla-native",
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0005322966507177034
+  },
+  {
+    "path": "after-vanilla-native",
+    "region": "hand",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "temporal_mae": 0.0
+  },
+  {
+    "path": "after-vanilla-quality",
+    "region": "ground",
+    "mse": 3.6495574074074075,
+    "psnr": 42.50840161391024,
+    "temporal_mae": 0.09375050505050503
+  },
+  {
+    "path": "after-vanilla-quality",
+    "region": "leaves",
+    "mse": 241.8858552631579,
+    "psnr": 24.294698879618647,
+    "temporal_mae": 0.6292467437533227
+  },
+  {
+    "path": "after-vanilla-quality",
+    "region": "hand",
+    "mse": 7.805503875968992,
+    "psnr": 39.206794171479416,
+    "temporal_mae": 0.06009068654723489
+  },
+  {
+    "path": "after-vanilla-balanced",
+    "region": "ground",
+    "mse": 3.8611407407407405,
+    "psnr": 42.26364728678441,
+    "temporal_mae": 0.10242407407407406
+  },
+  {
+    "path": "after-vanilla-balanced",
+    "region": "leaves",
+    "mse": 248.6394462719298,
+    "psnr": 24.175103309338386,
+    "temporal_mae": 0.7208916467304625
+  },
+  {
+    "path": "after-vanilla-balanced",
+    "region": "hand",
+    "mse": 8.175095879232966,
+    "psnr": 39.00587506009272,
+    "temporal_mae": 0.06982029598308669
+  },
+  {
+    "path": "after-vanilla-performance",
+    "region": "ground",
+    "mse": 4.828859259259259,
+    "psnr": 41.2923581312294,
+    "temporal_mae": 0.25746212121212125
+  },
+  {
+    "path": "after-vanilla-performance",
+    "region": "leaves",
+    "mse": 410.67025036549705,
+    "psnr": 21.995871178878122,
+    "temporal_mae": 2.7157368088782565
+  },
+  {
+    "path": "after-vanilla-performance",
+    "region": "hand",
+    "mse": 11.851948184414525,
+    "psnr": 37.392906167497415,
+    "temporal_mae": 0.13091354178257483
+  }
+]

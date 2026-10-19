@@ -104,7 +104,10 @@ public final class ObjectMotionCheck {
 		motion.enterHand(modelView);
 		Node node = new Node(TYPE); motion.onSubmit(node); motion.leaveContext();
 		motion.observe(List.of(node)).iterator().next();
-		VertexConsumer capture = new ObjectMotion.Capture(SINK, current(motion), motion, true);
+		// The real arm uses entityTranslucent, including its fully opaque skin texels.
+		VertexConsumer capture = motion.capture(SINK, net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(
+				net.minecraft.resources.Identifier.withDefaultNamespace("textures/entity/player/wide/steve.png")));
+		check(capture != SINK, "depth-writing blended hand must enter the velocity producer");
 		for (int i = 0; i < count; i++) {
 			capture.addVertex(x + i % 4 * 0.1f, i / 2 % 2 * 0.1f, -0.5f, -1, uvVariant + i % 4, i % 4, 0, 0, 0, 1, 0);
 		}
