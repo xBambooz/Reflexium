@@ -1,0 +1,542 @@
+[
+  {
+    "file": "final-bsl-fast-native-0.json",
+    "yaws": [
+      -9,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-fast-performance-0.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-fast-performance-1.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-fast-quality-0.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-fast-quality-1.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-rain-native-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-rain-performance-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-rain-performance-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-rain-quality-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-rain-quality-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-smoke-native-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-smoke-performance-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-smoke-performance-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-smoke-quality-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-bsl-smoke-quality-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-fast-native-0.json",
+    "yaws": [
+      -18,
+      27,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-fast-performance-0.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-fast-performance-1.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": true,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-fast-quality-0.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-fast-quality-1.json",
+    "yaws": [
+      -18,
+      45,
+      45,
+      45
+    ],
+    "post": true,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-rain-native-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-rain-performance-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-rain-performance-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": true,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-rain-quality-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-rain-quality-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": true,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-smoke-native-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-smoke-performance-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-smoke-performance-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": true,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-smoke-quality-0.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": false,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  },
+  {
+    "file": "final-vanilla-smoke-quality-1.json",
+    "yaws": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "post": true,
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    }
+  }
+]

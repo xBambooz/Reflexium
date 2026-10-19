@@ -32,6 +32,7 @@ public final class ReflexiumConfig {
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DlssModel.TRANSFORMER;
 	private volatile int fsrSharpness = 20;
+	private volatile boolean postUpscaleParticles = true;
 	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
 	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
@@ -72,6 +73,8 @@ public final class ReflexiumConfig {
 	}
 
 	public boolean smartReflex() { return smartReflex; }
+	public boolean postUpscaleParticles() { return postUpscaleParticles; }
+	public void setPostUpscaleParticles(boolean value) { postUpscaleParticles = value; save(); }
 	public void setSmartReflex(boolean value) { smartReflex = value; save(); }
 
 	/** DLSS Super Resolution preset. Needs the Vulkan renderer. */
@@ -161,6 +164,7 @@ public final class ReflexiumConfig {
 		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
 		config.smartReflex = parseBoolean(props, "smart_reflex", config.smartReflex);
+		config.postUpscaleParticles = parseBoolean(props, "post_upscale_particles", config.postUpscaleParticles);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
@@ -192,6 +196,7 @@ public final class ReflexiumConfig {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
 		props.setProperty("smart_reflex", Boolean.toString(smartReflex));
+		props.setProperty("post_upscale_particles", Boolean.toString(postUpscaleParticles));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());
 		props.setProperty("dlss_model", dlssModel.serializedName());

@@ -1,4 +1,6 @@
 {
+  "reflexium.option.post_upscale_particles": "Native-resolution particles",
+  "reflexium.option.post_upscale_particles.tooltip": "Render vanilla particles and precipitation after upscaling to prevent temporal trails. Applies with shaders off and classic transparency.",
   "reflexium.title": "Reflexium",
   "reflexium.status": "Status",
   "reflexium.group.reflex": "NVIDIA Reflex",

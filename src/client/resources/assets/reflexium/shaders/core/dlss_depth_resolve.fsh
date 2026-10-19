@@ -18,7 +18,8 @@ layout(location = 0) in vec2 texCoord;
 void main() {
     ivec2 destination = ivec2(gl_FragCoord.xy);
     vec2 uv = (vec2(destination) + 0.5) / Sizes.zw;
-    ivec2 source = min(ivec2(uv * Sizes.xy), ivec2(Sizes.xy) - ivec2(1));
+    // The display effects use an unjittered projection. Sample its corresponding jittered scene point.
+    ivec2 source = clamp(ivec2((uv + DepthEncoding.zw) * Sizes.xy), ivec2(0), ivec2(Sizes.xy) - ivec2(1));
     float depth = texelFetch(SourceDepth, source, 0).r;
     // Post effects retain Minecraft's original clip range; only the vendor input uses the extended one.
     gl_FragDepth = max(0.0, (depth - DepthEncoding.y) / DepthEncoding.x);

@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.dlss.DeferredEffects;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -50,6 +51,7 @@ public abstract class GameRendererMixin {
 	private void reflexium$frame(Operation<Void> original) {
 		GameRenderer self = (GameRenderer) (Object) this;
 		try {
+			DeferredEffects.clear();
 			UpscalingRenderer.get().beginFrame(self);
 			original.call();
 		} catch (Throwable failure) {
@@ -81,6 +83,7 @@ public abstract class GameRendererMixin {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
 	private void reflexium$upscale(CallbackInfo ci) {
 		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
+		DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V",
@@ -129,8 +132,15 @@ public abstract class GameRendererMixin {
 	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lorg/joml/Matrix4f;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private Matrix4f reflexium$jitterLevel(Matrix4f projection) {
+		DeferredEffects.projection(projection);
 		GameRenderer self = (GameRenderer) (Object) this;
 		return UpscalingRenderer.get().jitterLevelProjection(projection, self.gameRenderState().levelRenderState.cameraRenderState);
+	}
+
+	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;render(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;ZLnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZZ)V"), index = 3)
+	private GpuBufferSlice reflexium$particleFog(GpuBufferSlice fog) {
+		DeferredEffects.fog(fog);
+		return fog;
 	}
 
 	@Inject(method = "renderLevel", at = @At("RETURN"))

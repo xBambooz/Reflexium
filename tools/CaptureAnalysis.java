@@ -31,9 +31,41 @@ public final class CaptureAnalysis {
 			case "motion-stats" -> motionStats(args);
 			case "hdr-preview" -> hdrPreview(args);
 			case "pack-leaf-check" -> packLeafCheck(args);
+			case "cloud-check" -> cloudCheck(args);
 			case "self-check" -> decoderCheck();
 			default -> throw new IllegalArgumentException("unknown command " + args[0]);
 		}
+	}
+
+	/** Independent world-space cloud drift plus camera reprojection, selected by the cloud slab's height. */
+	private static void cloudCheck(String[] args) throws Exception {
+		String meta = Files.readString(Path.of(args[1]));
+		BufferedImage motion = read(pathOf(meta, "motion")), depth = read(pathOf(meta, "depth"));
+		double[] inv = inverse(numberArray(meta, "world_view_projection_jittered")), prev = numberArray(meta, "previous_world_view_projection");
+		double cx = number(meta, "x"), cy = number(meta, "y"), cz = number(meta, "z");
+		double px = number(meta, "previous_x"), py = number(meta, "previous_y"), pz = number(meta, "previous_z");
+		double displacement = number(meta, "vanilla_cloud_previous_displacement_x"), bottom = Double.parseDouble(args[2]);
+		double jx = number(meta, "ndc_x"), jy = number(meta, "ndc_y");
+		int w = motion.getWidth(), h = motion.getHeight();
+		List<Double> errors = new ArrayList<>();
+		double expectedEnergy = 0, measuredEnergy = 0;
+		for (int y = 8; y < h - 8; y += 4) for (int x = 8; x < w - 8; x += 4) {
+			double d = depthAt(depth, x, y); if (d <= 0) continue;
+			double nx = (x + .5) / w * 2 - 1, ny = screenshotNdcY(y, h);
+			double[] point = mul(inv, nx, ny, d, 1);
+			double wx = point[0] / point[3] + cx, wy = point[1] / point[3] + cy, wz = point[2] / point[3] + cz;
+			if (wy < bottom - .02 || wy > bottom + 4.02) continue;
+			double[] q = mul(prev, wx + displacement - px, wy - py, wz - pz, 1);
+			double ex = (q[0] / q[3] - (nx - jx)) * .5 * w, ey = (q[1] / q[3] - (ny - jy)) * .5 * h;
+			double[] measured = motionAt(motion, x, y);
+			errors.add(Math.hypot(measured[0] - ex, measured[1] - ey));
+			expectedEnergy += Math.hypot(ex, ey); measuredEnergy += Math.hypot(measured[0], measured[1]);
+		}
+		errors.sort(Double::compare);
+		if (errors.size() < 100) throw new AssertionError("not enough cloud surface samples");
+		int n = errors.size(); double p99 = errors.get((int) (n * .99));
+		System.out.printf(Locale.ROOT, "{\"samples\":%d,\"expected_mean_px\":%.6f,\"actual_mean_px\":%.6f,\"p99_error_px\":%.6f}%n", n, expectedEnergy/n, measuredEnergy/n, p99);
+		if (expectedEnergy/n < .05 || measuredEnergy < expectedEnergy * .75 || p99 > .05) throw new AssertionError("cloud correspondence failed");
 	}
 
 	private static BufferedImage read(String path) throws Exception {

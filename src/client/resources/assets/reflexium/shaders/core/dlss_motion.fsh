@@ -8,11 +8,13 @@
 uniform sampler2D DepthSampler;     // world depth before the hand was drawn
 uniform sampler2D HandDepthSampler; // depth containing only the hand (0 = no hand)
 uniform sampler2D DhDepthSampler;
+uniform sampler2D CloudDepthSampler;
 
 layout(std140) uniform ReflexiumMotion {
     mat4 CurrentToPrevious; // previous unjittered view-projection * camera delta * inverse(current jittered view-projection)
     mat4 DhToMain;
     mat4 DhToPrevious;
+    mat4 CloudToPrevious;
     vec4 JitterNdcAndSize;  // xy: current jitter in NDC, zw: render size in pixels
     vec4 DepthEncoding;    // xy: main depth scale/offset into the extended range, z: DH available
 };
@@ -33,6 +35,14 @@ void main() {
     vec2 ndc = texCoord * 2.0 - 1.0;
     vec4 previous = CurrentToPrevious * vec4(ndc, depth, 1.0);
     bool surface = depth > 0.0;
+    if (DepthEncoding.w > 0.5) {
+        float cloudDepth = texelFetch(CloudDepthSampler, pixel, 0).r;
+        if (cloudDepth > 0.0 && cloudDepth >= depth) {
+            depth = cloudDepth;
+            surface = true;
+            previous = CloudToPrevious * vec4(ndc, depth, 1.0);
+        }
+    }
     if (DepthEncoding.z > 0.5) {
         float dhDepth = texelFetch(DhDepthSampler, pixel, 0).r;
         vec4 dhClip = vec4(ndc, dhDepth, 1.0);
