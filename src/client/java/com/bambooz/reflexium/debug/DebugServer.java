@@ -514,6 +514,7 @@ public final class DebugServer {
 		o.add("jitter_sign", sign);
 		o.addProperty("jitter_enabled", DebugSettings.jitterEnabled());
 		o.addProperty("mv_debug", DebugSettings.motionVectorView());
+		o.addProperty("foliage_depth_debug", DebugSettings.foliageDepthDebug);
 		o.addProperty("object_motion", DebugSettings.objectMotion());
 		o.addProperty("object_vertices_captured", info.capturedVertices());
 		o.addProperty("object_vertices_drawn", info.drawnVertices());
@@ -761,6 +762,14 @@ public final class DebugServer {
 					DebugSettings.setJitterSignX(sign);
 					DebugSettings.setJitterSignY(sign);
 				};
+			}
+			case "foliage_clear" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.clearFoliageSurface = on;
+			}
+			case "foliage_depth_debug" -> {
+				boolean on = flag(Map.of("v", value), "v", false);
+				yield () -> DebugSettings.foliageDepthDebug = on;
 			}
 			case "mv_debug" -> {
 				boolean on = flag(Map.of("v", value), "v", false);

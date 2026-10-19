@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 public final class BslFoliageMotion {
 	private static boolean sourceReady;
 	private static boolean waveReady;
+	private static boolean cleared;
 	private static Object timer;
 	private static java.lang.reflect.Method clock;
 	private static float previousTime;
@@ -17,7 +18,8 @@ public final class BslFoliageMotion {
 	private static boolean haveEye;
 	private static java.lang.reflect.Method eyePosition, cameraPosition;
 	private BslFoliageMotion() { }
-	public static void reset() { sourceReady = waveReady = haveEye = false; }
+	public static void reset() { sourceReady = waveReady = haveEye = cleared = false; }
+	public static boolean clearedThisFrame() { return cleared; }
 	public static boolean ready() { return sourceReady && waveReady && IrisCompat.isDrawingPack() && "BSL_v10.1.8".equals(IrisCompat.currentPackName()); }
 
 	static String adapt(String path, String source) {
@@ -41,8 +43,9 @@ public final class BslFoliageMotion {
 			matcher.appendReplacement(out, "/* RENDERTARGETS: " + targets + ",15 */");
 		}
 		matcher.appendTail(out); s = out.toString();
+		// Keep reverse-Z precision: Iris rewrites gl_FragCoord.z into traditional depth, so 1-z loses low bits.
 		String output = "\nvec2 rxVelocity = (rxPreviousClip.xy / rxPreviousClip.w - rxCurrentClip.xy / rxCurrentClip.w) * 0.5;\n"
-				+ "vec4 rxSurface = vec4(rxVelocity, 1.0 - gl_FragCoord.z, rxFoliage);\n"
+				+ "vec4 rxSurface = vec4(rxVelocity, rxCurrentClip.z / rxCurrentClip.w, rxFoliage);\n"
 				+ "#ifdef MCBL_SS\n#if defined ADVANCED_MATERIALS && defined REFLECTION_SPECULAR\ngl_FragData[5] = rxSurface;\n#else\ngl_FragData[2] = rxSurface;\n#endif\n"
 				+ "#else\n#if defined ADVANCED_MATERIALS && defined REFLECTION_SPECULAR\ngl_FragData[4] = rxSurface;\n#else\ngl_FragData[1] = rxSurface;\n#endif\n#endif\n";
 		int end = s.indexOf("\n}\n\n#endif");
@@ -108,6 +111,17 @@ public final class BslFoliageMotion {
 		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage frame time unavailable", e); }
 	}
 
+	/** The terrain-only attachment is allocated lazily, after Iris builds its clear passes. */
+	public static void beginFrame() {
+		cleared = false;
+		if (!com.bambooz.reflexium.debug.DebugSettings.clearFoliageSurface) return;
+		GpuTextureView surface = surface();
+		if (surface == null) return;
+		com.mojang.blaze3d.systems.RenderSystem.getDevice().createCommandEncoder()
+				.createRenderPass(() -> "Reflexium clear foliage surface", surface,
+						java.util.Optional.of(new Vector4f(0.0f, 0.0f, 0.0f, 0.0f))).close();
+		cleared = true;
+	}
 	public static GpuTextureView surface() {
 		if (!ready()) return null;
 		try {
@@ -116,7 +130,7 @@ public final class BslFoliageMotion {
 			if (pipeline == null) return null; // pack reloading or shaders just disabled
 			var field = pipeline.getClass().getDeclaredField("renderTargets"); field.setAccessible(true);
 			Object targets = field.get(pipeline);
-			Object target = targets.getClass().getMethod("get", int.class).invoke(targets, 15);
+			Object target = targets.getClass().getMethod("getOrCreate", int.class).invoke(targets, 15);
 			return target == null ? null : (GpuTextureView) target.getClass().getMethod("getTextureView", boolean.class, boolean.class).invoke(target, false, false);
 		} catch (ReflectiveOperationException | ClassCastException e) { throw new IllegalStateException("Iris foliage target unavailable", e); }
 	}

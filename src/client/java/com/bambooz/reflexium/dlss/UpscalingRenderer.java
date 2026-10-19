@@ -790,6 +790,10 @@ public final class UpscalingRenderer {
 		sceneCompleted = true;
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		boolean fgReset = frameGenerationReset;
+		if (DebugSettings.foliageDepthDebug && foliageMotionApplied) {
+			foliageMotionPass.render(main, com.bambooz.reflexium.compat.BslFoliageMotion.surface(),
+					directWorldDepth != null ? directWorldDepth : worldDepth.getDepthTextureView(), packHandMask.getDepthTextureView(), true);
+		}
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
 			drawMotionVectorView(main);
 		}
@@ -907,6 +911,7 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
+		o.addProperty("bsl_foliage_surface_cleared", foliageMotionApplied && com.bambooz.reflexium.compat.BslFoliageMotion.clearedThisFrame());
 		o.addProperty("vanilla_cloud_motion", vanillaCloudMotionApplied);
 		o.addProperty("post_upscale_particles", DeferredEffects.applied);
 		o.addProperty("vanilla_cloud_previous_displacement_x", vanillaCloudMotion.displacement());

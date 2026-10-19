@@ -73,6 +73,8 @@ public final class IrisCompatCheck {
 						|| !changed.contains("rxPreviousEye - relativeEyePosition") || !changed.contains("rxBendOffset = vec3(0.0)")
 						|| !changed.contains("#define RX_BEND_OFFSET"))
 					throw new AssertionError("BSL deformation producer not installed");
+				if (!changed.contains("vec4(rxVelocity, rxCurrentClip.z / rxCurrentClip.w, rxFoliage)"))
+					throw new AssertionError("Foliage depth must preserve the raster projection's reverse-Z precision");
 				String wave = Files.readString(fs.getPath("/shaders/lib/vertex/waving.glsl"));
 				String previousBend = BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave);
 				if (!previousBend.contains("relativeEyePosition + rxBendOffset") || !previousBend.contains("#ifndef RX_BEND_OFFSET"))
@@ -144,6 +146,7 @@ public final class IrisCompatCheck {
 			require(zip, "net/irisshaders/iris/uniforms/IrisExclusiveUniforms", "getEyePosition()Lorg/joml/Vector3d;");
 			require(zip, "net/irisshaders/iris/uniforms/CameraUniforms", "getUnshiftedCameraPosition()Lorg/joml/Vector3d;");
 			require(zip, "net/irisshaders/iris/targets/RenderTargets", "getDepthTextureView(I)Lcom/mojang/renderpearl/api/textures/GpuTextureView;");
+			require(zip, "net/irisshaders/iris/targets/RenderTargets", "getOrCreate(I)Lnet/irisshaders/iris/targets/RenderTarget;");
 			require(zip, "net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer", "getFrameTimeCounter()F");
 			require(zip, "net/irisshaders/iris/targets/RenderTarget", "getTextureView(ZZ)Lcom/mojang/renderpearl/api/textures/GpuTextureView;");
 			ClassNode target = node(zip, "net/irisshaders/iris/mixin/MixinRenderTarget");

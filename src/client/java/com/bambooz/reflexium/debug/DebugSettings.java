@@ -17,6 +17,10 @@ public final class DebugSettings {
 	public static boolean deferCrosshair = true;
 	public static boolean deferParticles = true;
 	public static boolean cloudMotion = true;
+	/** Post-SR coverage view: green matches scene depth, red is rejected, black has no foliage. */
+	public static boolean foliageDepthDebug;
+	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
+	public static boolean clearFoliageSurface = true;
 	public static int dlssPreset = -1;
 	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
 	public static boolean reflexSubmission = false;
