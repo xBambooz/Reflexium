@@ -752,7 +752,7 @@ public final class UpscalingRenderer {
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
 			drawMotionVectorView(main);
 		}
-		if (worldDepthCaptured && !failed) {
+		if (worldDepthCaptured && !failed && FrameGenerationRenderer.get().wantsMotion()) {
 			Vec3 delta = currentCamera.subtract(previousCamera);
 			// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
 			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(depthTransform).mul(currentProjection),
