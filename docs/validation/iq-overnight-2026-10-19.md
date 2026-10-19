@@ -68,3 +68,68 @@ java "$w\tools\CaptureAnalysis.java" metrics "$e\after-bsl-native.png" "$e\after
 `gradlew.bat build --console=plain` passed twice, including the final save/reload correction, all existing numerical/ABI checks and the expanded real-BSL source checks. Final log: `build/validation/iq/build-final.log`. `git diff --check` passed. Iris on/off/on worked in the final client. Native/DLSS and Quality/Balanced transitions worked. No native bridge or preset change was needed. Reference strategy remains the repo's existing Radiance/MCVR camera/object-motion comparison and NVIDIA SDK documentation under `gpu-sdk-reference/streamline`, plus direct inspection of the installed BSL sources.
 
 Still incomplete: BSL HDR insertion, independent vectors for shader-deformed geometry, blended water/glass, particles, volumetric cloud motion and an exhaustive dynamic entity/hand acceptance matrix. Missing-DLL/backend-failure and resize were not retested in this targeted pass. Ultra Performance's preset L and aggressive vendor mip bias were reviewed but not accepted through a new matched-motion matrix. No claim of practically lossless Ultra Performance, lossless motion on every renderable class, or certification is made.
+
+## Round 2
+
+Base `b8d6502`, branch `t3/fix-motion-artifacts`, worktree `C:\Users\Ryan\.t3\worktrees\Reflexium\t3-3379e392`.
+This round closes two producer gaps. It does not establish the owner's near-lossless motion-quality target.
+
+### Causes and fixes
+
+- `5071aed`: the bare arm uses `entityTranslucent`, even for opaque skin texels. Opaque-only submission attribution and blanket blend rejection excluded it. Both feature phases now attribute submissions, and depth-writing blended hand geometry can enter capture. The existing hand-depth equality test still limits visible writes. `ObjectMotionCheck` now uses the real skin render type rather than bypassing the capture filter.
+- `4334bd3`: BSL leaves/vines changed vertex positions without independent vectors. The exact reviewed terrain and waving sources now evaluate `WavingBlocks` at the current and previous frame times, project both positions with unjittered matrices, and write an independent RGBA32F attachment. A depth-matched merge overwrites only visible leaf/vine vectors, preserving hand/object coverage and background vectors. Unknown/edited sources do not activate the merge. Grass/contact bending, water, world-time animation and clouds are deliberately outside this producer's coverage.
+- `6ecb388`: the numerical capture checker forgot Minecraft's screenshot row inversion. It now converts PNG Y back to GPU Y before reprojection and world-space fixture selection. A decoder self-check guards the convention. Packed vector component signs are unchanged.
+
+### Captures and isolation
+
+All game captures came from the worktree copy of the main repository's `run`, through `mc-agent-harness/tools/launch.ps1`, port **25612**, primary PG27AQDP, **2560x1440**, unfocused. `rxDebug=25613` avoided a second listener on the harness port. The overlay was left alone. Port 25621 was never addressed, and no process-name shutdown or desktop input injection was used. Each owned shutdown checked authenticated PID/directory and the process command line's harness jar/directory before `quit {exit:true}`. Owned PIDs were 17288, 6876, 28008, 20888 and 29004. Final PID 29004 and port 25612 closed.
+
+Baseline sources were unchanged in the first JVM. Native, Quality, Balanced and Performance each have 12-frame fixed-camera, yaw-pan and strafe sequences before and after, with shaders on and off. Pan: `dyaw=12,ticks=24`; strafe: `dx=1,ticks=24`; interval 100 ms. Pose: -24.5,131,11.5, yaw/pitch 0/0. Server ticks were frozen, but shader waves and effect time continued. FG was off. Transformer hints K/K/M were used for Quality/Balanced/Performance; sharpening stayed 20 and vendor mip bias stayed unchanged.
+
+Render sizes: native 2560x1440, Quality 1707x960, Balanced 1485x835, Performance 1280x720. Output/present stayed 2560x1440. Same-frame captures still report finished-scene LDR input, pre-exposure 1 and auto-exposure off. HDR insertion was not implemented.
+
+Full images and metadata live under `build/validation/round2` in this worktree. Before/after paths are `before-{bsl,vanilla}-{native,quality,balanced,performance}-{static,pan,strafe}/frame_NNN.png` and corresponding `after-*` paths. Committed selections are in [round2 evidence](iq-evidence-2026-10-19/round2/):
+
+- BSL Balanced pan: [before](iq-evidence-2026-10-19/round2/before-bsl-balanced-pan-contact.png), [after](iq-evidence-2026-10-19/round2/after-bsl-balanced-pan-contact.png); strafe: [before](iq-evidence-2026-10-19/round2/before-bsl-balanced-strafe-contact.png), [after](iq-evidence-2026-10-19/round2/after-bsl-balanced-strafe-contact.png).
+- BSL Performance pan: [before](iq-evidence-2026-10-19/round2/before-bsl-performance-pan-contact.png), [after](iq-evidence-2026-10-19/round2/after-bsl-performance-pan-contact.png). Native and shaderless Performance pan/strafe selections are alongside them.
+- Fixed-camera water: [BSL](iq-evidence-2026-10-19/round2/water-bsl.png), [shaderless](iq-evidence-2026-10-19/round2/water-vanilla.png), native/Quality/Balanced/Performance rows, frames 0 and 7. Full eight-frame sequences are `water-{bsl,vanilla}-{mode}`. Pose -37.5,132,30, yaw/pitch 0/35. These are coverage observations after the change, not a water-motion fix or a before/after water claim.
+- Actual equip motion: [BSL](iq-evidence-2026-10-19/round2/equip-bsl.png), [shaderless](iq-evidence-2026-10-19/round2/equip-vanilla.png). Scripted stone/air swaps with ticks unfrozen produced 24 drawn hand vertices in 7/24 BSL samples and 8/24 shaderless samples with vectors enabled; disabled samples drew zero. These sequences have different equip phases, so they are not pixel-aligned quality scores. The added skin unit check covers the arm's capture filter; exhaustive live bare-arm swing acceptance remains open.
+
+Inspection included full-size output edges/corners and native/DLSS motion crops at frames 0,5,11. BSL leaf detail remains softer than native, particularly at Performance, with thin bright alpha-edge patterns still visible. Ground/chest detail stays readable during these modest pans and strafes. No black edge bands or reduced-size HUD were observed. Water reflections remain visibly time-dependent and unsupported by independent motion. The captures support added motion coverage, not a large proven visual-quality gain or official-DLSS-grade acceptance.
+
+### Metrics and controls
+
+[Metrics JSON](iq-evidence-2026-10-19/round2/metrics.json) comes from `python -I tools/iq-round2.py analyze`, using numpy/Pillow for analysis only. Ground crop x=400,y=1100,w=1000,h=180, RGB 0..255, final static frame versus that run's native frame:
+
+| Mode | BSL before MSE / PSNR | BSL after MSE / PSNR | Shaderless before MSE / PSNR | Shaderless after MSE / PSNR |
+| --- | --- | --- | --- | --- |
+| Quality | 2.838 / 43.60 dB | 2.941 / 43.45 dB | 3.672 / 42.48 dB | 3.650 / 42.51 dB |
+| Balanced | 3.260 / 43.00 dB | 3.371 / 42.85 dB | 3.948 / 42.17 dB | 3.861 / 42.26 dB |
+| Performance | 4.338 / 41.76 dB | 4.284 / 41.81 dB | 5.015 / 41.13 dB | 4.829 / 41.29 dB |
+
+Ground detail is approximately preserved. Animated leaf/cloud/equip phases are unmatched, so their MSE and frame-difference values in the JSON are descriptive only. Lower temporal difference is not accepted as less ghosting, and high-frequency energy is not accepted as better detail.
+
+`foliage-third.json` records a stationary-camera real evaluation with `bsl_foliage_motion=true`, previous/current times 2.4840002/2.4890003. Decoded motion has 41,743 nonzero pixels, confined visually to leaves; the [amplified diagnostic](iq-evidence-2026-10-19/round2/foliage-motion-visible.png) shows the coverage. This establishes nonzero deformation input, not independent accuracy of every vector.
+
+The stronger camera control temporarily set `ANIMATION_SPEED=0.00`, reloaded BSL, and captured during an actual yaw change. The temporary option file was restored afterward. `python -I tools/iq-vector-metrics.py <worktree>\build\validation\round2\no-wave-pan.json` passes assertions for an active foliage dispatch, nonzero camera motion and p99 error below 0.05 render pixels in both known regions:
+
+| Region | Samples | Expected mean motion | Mean error | p99 error |
+| --- | ---: | ---: | ---: | ---: |
+| Leaf wall | 3,945 | 0.18644 px | 0.00706 px | 0.01787 px |
+| Ground | 32,007 | 0.27572 px | 0.01156 px | 0.02031 px |
+
+Both regions have 100% of samples within 0.25 pixels. [Control results](iq-evidence-2026-10-19/round2/no-wave-pan-metrics.json). The generic Java camera checker includes hand pixels and reports p99 0.3350; it cannot validate screen-fixed hands as world surfaces. Region selection avoids that invalid comparison.
+
+An exploratory CPU reproduction of BSL's noise did **not** beat zero-deformation error and was rejected as independent animated-vector acceptance. Its code/output remain locally in `exploratory-noise-reference.py` and `exploratory-noise-reference-failed.txt`. CPU/GPU noise arithmetic, fixture matching and frame-time correspondence need further isolation. This failure is not relabeled as a passing quality check.
+
+Initial frozen hand sequences and later unfocused attack-key sequences had zero animated hand vertices and were excluded from hand-motion evidence. Two experimental BSL launches fell back to vanilla because of directive parsing/compilation errors; `foliage-first` and `foliage-second` are also excluded. The final BSL build compiled and drew the pack successfully.
+
+### Checks and remaining work
+
+`gradlew.bat build --console=plain` passed with the real BSL source and Iris ABI checks, skin-hand capture check and existing numerical/ABI checks. Final log: `build/validation/round2/build-final.log`. `java tools/CaptureAnalysis.java self-check` passed. `git diff --check` passed. The existing build hook also copied the built jar to the configured Modrinth testing profile; future strictly isolated builds should pass `-PreflexiumInstallDir=<worktree-local-path>`.
+
+Iris shader on/off and native/DLSS/quality switches were exercised repeatedly. Primary-window resize 2560x1440 to 2432x1368 and back recovered. A brief BSL FG run advanced to 297 evaluations and 296 generated presents without a renderer error; it was then disabled. This checks functional compatibility only. No performance or physical-scanout claims were made. Final live log: `build/validation/round2/final-live.log`.
+
+Remaining: independent animated BSL leaf-vector accuracy; grass/contact bending; water/glass and other blended layers; particles; volumetric cloud motion; HDR insertion; a moving-entity acceptance matrix and bare-arm swings; long/fast-pan ghosting and mip-bias shimmer acceptance. The current evidence does not meet the requested near-lossless Quality/Balanced or comprehensive acceptable-in-motion Performance bar. Missing-runtime/backend failures and world rejoin were not retested after the final producer change.
+
+Reproduction driver: `tools/iq-round2.py` modes `before`, `after`, `water`, `equip`, `control`, `analyze`, `evidence`. Use it only against this task's owned port/directory. The local isolated interpreter is `<worktree>\build\validation\python\python.exe` (Python 3.14.7, numpy 2.5.4, Pillow 13.0.0), invoked with `-I`. No Python dependency was added to the mod.

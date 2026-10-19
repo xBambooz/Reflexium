@@ -68,6 +68,11 @@ AO, light shafts, reflections and LOD shadows while reconstruction remains owned
 Quality/Balanced sky grain visibly improves without reducing measured ground detail. BSL deformation
 and blended-layer motion remain incomplete; this is not acceptance of lossless motion for every material.
 
+Round 2 adds previous-deformation vectors for the exact reviewed BSL leaf/vine sources and captures
+depth-writing skin hands submitted through the translucent phase. The no-wave camera control passes
+for those leaf surfaces; independent animated-noise correspondence and the full motion-quality target
+remain open. See the report's Round 2 evidence and exclusions.
+
 The 2026-10-13 smoke checks (Windows 11, Java 25.0.4, RTX 5070, driver 617.42, Vitrail 0.12.0-beta,
 Sodium 0.9.2, Complementary Reimagined r5.9.3) passed all quality modes in both upscalers, all DLSS
 model choices, resize, pack reload, shader and upscaler toggles, and world rejoin. The missing-DLL
@@ -83,13 +88,14 @@ Known gaps:
   and post target sizing, exposure and format handling. The source-guarded adapter removes the extra
   temporal resolve for the reviewed pack; it does not implement that HDR stage or a general lighting
   denoiser. Source mismatches and unreviewed packs retain their original full-scene TAA fallback.
-- Translucent geometry, particles and shader-generated deformation (waving foliage, water) have no
-  independent per-vertex vectors; they keep camera-only motion. FSR's vanilla reactive mask mitigates
+- General translucent geometry, particles and shader-generated deformation outside the reviewed BSL
+  leaves/vines have no independent per-vertex vectors; they keep camera-only motion. This includes BSL
+  grass/contact bending, water and the pack's world-time animation mode. FSR's vanilla reactive mask mitigates
   transparency history; shader packs need their own valid masks or motion outputs for equivalent
   handling. The coverage inventory is in the validation report.
 - Custom renderers that change vertex connectivity without changing counts/UVs need stable vertex
-  identifiers from the renderer. Objects beyond the capture budget retain camera vectors. Hand quads
-  with a translucent render type keep zero motion.
+  identifiers from the renderer. Objects beyond the capture budget retain camera vectors. Hand layers
+  that do not write depth remain excluded; depth-writing blended hand coverage follows actual hand depth.
 - Unknown packs need pack-specific temporal validation. Aperture's separate renderer remains untested.
 - Other GPUs, vendor verification tools, Ray Reconstruction and a per-vendor image-quality
   certification have not been done.
