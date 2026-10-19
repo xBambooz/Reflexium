@@ -405,3 +405,157 @@ Round 3 implementation: `51ddbff`. A final fresh normal-Vulkan JVM loaded the bu
 rejoined gameplay and selected Auto 4x by the end of its smoke run, with no FG failure.
 `final-smoke.json` confirms the estimate-source field and 9973 accumulated generated presents.
 This separate variable-workload smoke is not the stable 6x continuity capture above.
+
+## Round 4
+
+Base `main` `59acbe5`, branch `t3/particle-fg-trace-fix`, implementation `42ffea3`.
+Worktree: `C:\Users\Ryan\.t3\worktrees\Reflexium\t3-f08e4ec2`. No merge to main.
+**Particle input mismatch fixed for vanilla classic transparency without post chains. Marker trace PASS.
+Full particle-motion interpolation and physical display acceptance remain PARTIAL.**
+
+### Causes and changes
+
+`96c7ba4` draws deferred particles and precipitation between SR reconstruction and post effects.
+`completeScene` then passes that color to NGX FG, together with the earlier world/hand depth and motion.
+Thus FG sees particle pixels with background correspondence. Moving them outside SR did not remove them
+from FG. The source mismatch is confirmed; these captures do not quantify a universal ghosting rate.
+
+`DeferredEffects` now retains its state until after FG evaluation while FG is requested. It submits
+particles once, prepares once, and renders that live prepared frame into the real color and each ready
+generated color, using current display-resolution world/hand depth, unjittered projection, world fog,
+and display globals. The prepared frame closes only after all copies. It restores projection, fog and
+model-view state. No new texture, native ABI, dependency or GPU-idle call is added. Current rain is
+replayed too. `observed.particle_generated_copies` records the actual copies made. FG Off retains the
+existing pre-post-effect draw order. Auto's rendered-only periods draw effects once on the real output.
+
+The F3 axis crosshair now follows effects and replays on generated outputs. Its depth clear must not
+precede particle occlusion. Ordinary GUI replay is unchanged. Active vanilla post chains disable
+particle deferral while FG is requested, retaining original scene/post ordering instead of drawing
+untransformed particles over a transformed world. Shader packs and OIT retain their existing path.
+Those fallbacks do not acquire independent particle motion in this change.
+
+The dev-only `particles_fg_replay=0` restores the old pre-FG composition for same-client controls;
+default is 1. It does not change saved user settings. `fg_capture` also had a real Auto defect:
+`requestedGeneratedCount()` is the maximum request, not Auto's evaluated resource count. Auto at 2x
+tried to read nonexistent output 1. Capture now uses the last evaluated resource count. It cannot use
+`ready`, because the present batch consumes and clears that before scheduled debug tasks run.
+`CompareFgCapture` now accepts a single generated output, as required for 2x.
+
+NVIDIA's [DLSS-G guide, section 5](https://github.com/NVIDIA-RTX/Streamline/blob/main/docs/ProgrammingGuideDLSS_G.md#50-tag-all-required-resources)
+requires dynamic-object correspondence and defines HUDless color as the full scene before UI, with
+matching color space/post effects. It does **not** classify world particles as HUD or mandate their
+exclusion. Replaying unsupported blended effects is an application compromise here, not a claim of
+complete vendor input coverage. The raw-NGX route evaluates synchronously before these replay draws;
+Streamline proxy setup/state APIs and development overlays do not apply. Existing application ID,
+runtime and input/constants ABI are unchanged. Full world-particle vectors remain the higher-quality
+follow-up.
+
+### Captures and visual inspection
+
+Minecraft MCP `mc_launch`, called through its existing dispatcher because the host catalog lacked
+Minecraft tools. Only harness **25624**, debug **25625**, copied worktree `run`, primary PG27AQDP
+**2560x1440 / 479.99 Hz**. Black overlay untouched. All eight capture status checks show no OS input
+focus, no foreground ownership and no minimization. Other clients, including 25618, were untouched.
+Owned PIDs: 26948, 21900, 18124 and 23280. MCP authenticated PID/directory/Windows-command-line checks
+preceded each `quit {exit:1}`. Final PID 23280 and port 25624 exited. No process-name termination.
+
+Fixture: campfires at (-2,150,108) and (2,150,108), brick backdrop, spectator at (0,152,100), noon,
+server ticks running, clear/rain. Camera turn: 40 degrees over 200 ticks, starting yaw -15; captures
+begin after 500 ms. Actual sampled poses and input/output sizes are preserved in
+[capture checks](fg-evidence-2026-10-19/round4/captures.json). These are slow moving-camera samples,
+not continuous fast-pan acceptance. Animation phases are not synchronized between before/after arms.
+
+The light vanilla scene makes Auto correctly choose rendered-only output. A bounded stress fixture of
+600 tagged NoAI cows supplied enough real workload to exercise Auto. They were teleported into view
+for the trace and killed by their unique tag afterward. This is a functional stress test, not a
+performance benchmark. The final eight captures use native AA, input/output 2560x1440, transformer K,
+sharpness 20, shaders/OIT off and Smart Reflex off. Supplemental `quality-smoke-2` and `quality-rain-2`
+use actual SR Quality at 1707x960 to 2560x1440 and one replay copy, with no reconstruction error.
+Their full PNGs/statuses remain in ignored `build/fg-round4`.
+
+Opened and inspected the full generated smoke captures, rain outputs including Auto's second
+generated image, and the native-pixel contact sheets:
+
+- [Smoke: real/generated, fixed 2x and Auto](fg-evidence-2026-10-19/round4/smoke.png).
+- [Rain: real/generated, fixed 2x and Auto](fg-evidence-2026-10-19/round4/rain.png).
+
+Rows are fixed real, fixed generated0, Auto real, Auto generated0; columns are before/after. Baseline
+smoke shows differences in translucent edge shape between real and generated outputs. Replayed
+sprites keep their current sharp stepped outlines, and rain keeps distinct narrow streaks instead of
+being part of FG's color interpolation. No missing particles, black output or whole-frame duplication
+was seen. Before Auto selected 3x for both scenes; after Auto selected 2x smoke and 3x rain. Every
+capture passed requested/effective activation, error, focus, and replay-count checks: before 0 copies;
+after 1/1/1/2 copies for smoke 2x/Auto and rain 2x/Auto. The different wind/weather/particle phases and
+Auto selections prohibit a causal pixel error or percentage ghosting-reduction score.
+
+`CompareFgCapture` on after-smoke-Auto finds 15.9214% changed scene pixels and mean RGB difference
+0.204423/255 between real/generated0, excluding the lower HUD quarter. This rejects exact scene
+identity; it does not measure particle correspondence or interpolation accuracy.
+
+### Reflex marker and present trace
+
+[Full 32-frame API trace](fg-evidence-2026-10-19/round4/trace.log), frames **93438..93469**, checked by
+`node tools/CheckFgTrace.mjs <trace.log>`: **PASS**. All 32 frames have one successful sleep and one
+ordered input/simulation/submit/present marker sequence. There are **94 physical presents**, comprising
+32 real and 62 generated, with **62 replacement submits**. Every batch present and replacement submit
+has balanced out-of-band markers. Frame 93438 is rendered-only while Auto changes 2x to 3x and resets
+history; the following 31 frames each deliver a complete 3x batch. The first light-scene trace had
+Auto bypassed and was rejected as generated-batch evidence. No Reflex marker implementation defect
+was found, so ReflexController was not changed.
+
+Frame 93439 excerpt, CPU monotonic `t` in nanoseconds, abbreviated from the linked trace:
+
+```text
+665788500 sleep call value=93439 applied=ON interval_us=2410
+665837600 sleep call exit result=0
+665853600 sleep wait exit value=93439 result=0
+665873700 INPUT_SAMPLE
+665881600 SIMULATION_START
+669314100 SIMULATION_END
+669367900 RENDERSUBMIT_START
+675113100 RENDERSUBMIT_END
+675120900 PRESENT_START
+675191000 metering batch begin presents=3
+675226200 OUT_OF_BAND_PRESENT_START
+675275700 OUT_OF_BAND_PRESENT_END
+675286300 present role=generated result=0
+675343000 OUT_OF_BAND_RENDERSUBMIT_START
+675490200 OUT_OF_BAND_RENDERSUBMIT_END
+675497000 OUT_OF_BAND_PRESENT_START
+675523000 OUT_OF_BAND_PRESENT_END
+675532000 present role=generated result=0
+675554200 OUT_OF_BAND_RENDERSUBMIT_START
+675639100 OUT_OF_BAND_RENDERSUBMIT_END
+675645800 OUT_OF_BAND_PRESENT_START
+675666900 OUT_OF_BAND_PRESENT_END
+675675600 present role=real result=0
+675703000 metering batch end presented=3/3 rejected=false
+675710900 PRESENT_END
+```
+
+Excerpt times subtract the common origin 328203000000000 ns. Generated images do not create simulation
+frames or extra sleeps. Real presentation remains last in the batch. This validates application API
+ordering, not driver-internal markers, physical scanout, uniform cadence or input-to-photon latency.
+The instrumentation itself perturbs frame timing, including the first traced frame.
+
+### Checks and remaining
+
+`gradlew.bat build --console=plain -PreflexiumInstallDir=<worktree>/build/install` passes, including
+all existing contract checks; external profile install is skipped. Final log:
+`build/fg-round4/build-final.log`. `git diff --check`, eight capture checks and the standalone trace
+checker pass. Only unrelated dev-session authentication errors and rejected exploratory capture
+requests occurred; accepted captures have empty reconstruction errors. Owned client cleanup and
+FG Off smoke completed before final shutdown/build.
+
+Reproduce with `tools/fg-round4.mjs` modes `setup`, `stress`, `before`, `after`, `trace`, `quality`,
+`cleanup`, `quit`. It rejects a session directory outside this worktree and uses MCP's verified
+shutdown. `node tools/CheckFgRound4.mjs` checks saved raw capture statuses;
+`java tools/FgRound4Evidence.java <absolute-worktree>` regenerates sheets.
+The trace checker runs directly on the committed log without Minecraft.
+
+Remaining: replayed world effects and occlusion are current-real-frame samples shared by generated
+outputs, so they can judder or mismatch interpolated terrain at moving occlusion edges. They are not
+independently interpolated world particles. No broad mod-particle, fast-pan, F3-axis runtime, active
+post-chain fallback, OIT/pack particle quality, resize or unsupported-runtime matrix was rerun in this
+round. Existing NGX synchronization-validation failures and obscured physical scanout remain open.
+This is a targeted experimental quality fix, not reference-quality or universal lossless FG acceptance.
