@@ -28,7 +28,7 @@ public final class FrameDeliveryCheck {
 		refresh.cap(416);
 		refresh.configure(0, 6);
 		check(refresh.bypass(), "Auto starts rendered-only");
-		for (int i = 0; i <= 100; i++) refresh.present(1 + i * 10_000_000L, true);
+		for (int i = 0; i <= 100; i++) refresh.present(1 + i * 10_000_000L, true, 10);
 		check(refresh.multiplier() == 3, "100 FPS selects 3x with upshift headroom");
 		check(FrameGenerationRefreshPolicy.choose(100, 416, 6, 4) == 4, "stable 4x within budget");
 		check(FrameGenerationRefreshPolicy.choose(105, 416, 6, 4) == 3, "downshift above budget");
@@ -39,8 +39,22 @@ public final class FrameDeliveryCheck {
 		check(FrameGenerationRefreshPolicy.choose(50, 222, 6, 1) == 4, "240 Hz output budget");
 		check(FrameGenerationRefreshPolicy.choose(45, 120, 6, 1) == 2, "explicit lower cap budget");
 		check(FrameGenerationRefreshPolicy.choose(100, Integer.MAX_VALUE, 6, 1) == 1, "unknown refresh is rendered-only Auto");
-		refresh.present(6_000_000_002L, true);
-		check(refresh.probing() && refresh.bypass(), "periodic probe avoids capped FG feedback");
+		refresh.present(6_000_000_002L, true, 10);
+		check(!refresh.probing() && refresh.multiplier() == 3, "sampling never interrupts generation");
+		for (int i = 0; i < 6000; i++) {
+			refresh.present(6_000_000_003L + i * 10_000_000L, true, 10);
+			check(refresh.multiplier() == 3, "60 second continuity");
+		}
+		refresh.present(66_000_000_004L, true, Double.NaN);
+		refresh.present(66_000_000_005L, false, 1);
+		check(refresh.multiplier() == 3, "missing telemetry and menus preserve selection");
+		refresh.reset();
+		refresh.present(66_100_000_000L, true, 100);
+		check(refresh.multiplier() == 6, "heavy scene selects driver maximum");
+		for (int i = 0; i < 100; i++) refresh.present(67_000_000_000L + i, true, 1);
+		check(refresh.multiplier() == 6, "no rapid off/on transition during dwell");
+		refresh.present(72_000_000_000L, true, 1);
+		check(refresh.multiplier() == 1, "sustained light scene can bypass after dwell");
 		refresh.configure(6, 6);
 		check(!refresh.bypass() && refresh.multiplier() == 6, "fixed multiplier remains fixed");
 		refresh.cap(120);

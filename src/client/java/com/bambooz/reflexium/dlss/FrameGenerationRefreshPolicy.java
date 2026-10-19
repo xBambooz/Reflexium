@@ -1,40 +1,31 @@
 package com.bambooz.reflexium.dlss;
 
-/** Output-budget selection from rendered-only samples, never from cap-limited FG throughput. */
+/** Output-budget selection from post-sleep driver render cost, without interrupting generation. */
 public final class FrameGenerationRefreshPolicy {
 	private int cap = Integer.MAX_VALUE, requested, maximum = 2, selected = 1;
-	private long start, nextProbe;
-	private int frames;
+	private long nextSelection;
 	private double realFps;
-	private boolean probing = true;
 
-	public void reset() { selected = 1; start = 0; nextProbe = 0; frames = 0; realFps = 0; probing = true; }
+	public void reset() { selected = 1; nextSelection = 0; realFps = 0; }
 	public void cap(int value) { if (cap != value) { cap = value; reset(); } }
 	public void configure(int value, int max) {
 		if (requested != value || maximum != Math.max(2, max)) { requested = value; maximum = Math.max(2, max); reset(); }
 	}
-	public int multiplier() { return requested == 0 ? (probing ? 1 : selected) : Math.min(requested, maximum); }
+	public int multiplier() { return requested == 0 ? selected : Math.min(requested, maximum); }
 	public boolean bypass() { return multiplier() < 2; }
-	public boolean probing() { return requested == 0 && probing; }
+	public boolean probing() { return false; }
 	public double realFps() { return realFps; }
 	public int cap() { return cap; }
-	public void present(long now, boolean gameplay) {
+	public void present(long now, boolean gameplay, double renderCostMs) {
 		if (requested != 0) return;
-		if (!gameplay) { start = 0; frames = 0; nextProbe = 0; probing = true; return; }
-		// ponytail: periodic one-second rendered-only probes cost FG continuity. Replace with calibrated
-		// uncapped render-cost telemetry if reliable limiter/FG-independent measurements become available.
-		if (!probing) {
-			if (now < nextProbe) return;
-			probing = true; start = 0; frames = 0;
-		}
-		if (start == 0) { start = now; return; }
-		frames++;
-		long elapsed = now - start;
-		if (elapsed < 1_000_000_000L) return;
-		realFps = frames * 1_000_000_000.0 / elapsed;
+		if (!gameplay || !(renderCostMs > 0) || !Double.isFinite(renderCostMs)) return;
+		// Driver sim-start follows Reflex sleep. This includes GPU/FG work and queue delay, so it is
+		// a conservative throughput estimate, not a measurement of FG-off performance.
+		double sample = 1000.0 / renderCostMs;
+		realFps = realFps == 0 ? sample : realFps * 0.9 + sample * 0.1;
+		if (now < nextSelection) return;
 		selected = choose(realFps, cap, maximum, selected);
-		probing = false; nextProbe = now + 5_000_000_000L;
-		start = 0; frames = 0;
+		nextSelection = now + 5_000_000_000L;
 	}
 	static int choose(double fps, int target, int maximum, int previous) {
 		if (!(fps > 0) || target == Integer.MAX_VALUE) return 1;

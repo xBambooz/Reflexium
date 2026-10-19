@@ -459,6 +459,7 @@ public final class DebugServer {
 		o.addProperty("fg_refresh_bypass", FrameGenerationRenderer.get().refreshPolicy().bypass());
 		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
 		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
+		o.addProperty("fg_policy_estimate_source", "Reflex simStart to gpuRenderEnd (includes FG and queue delay)");
 		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();

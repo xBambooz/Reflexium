@@ -264,7 +264,7 @@ public final class FrameGenerationRenderer {
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
 		if (reason.isEmpty() && mode.nvidia() && refreshPolicy.bypass()) return "Frame generation: rendered only (frame target "
-				+ refreshPolicy.cap() + " FPS, " + (refreshPolicy.probing() ? "sampling real throughput" : "Auto output budget") + ")";
+				+ refreshPolicy.cap() + " FPS, Auto output budget)";
 		return "Frame generation: " + (reason.isEmpty() ? (mode.nvidia() && !resetNext ? built : mode).label().getString()
 				+ (resetNext ? " (waiting for consecutive world frames)" : mode.nvidia() ? " " + (generated.length + 1) + "x" : "")
 				+ (meteringProblem.isEmpty() ? "" : " (" + meteringProblem + ")") : reason);
@@ -310,7 +310,7 @@ public final class FrameGenerationRenderer {
 			else {
 				realPresented++;
 				Minecraft mc = Minecraft.getInstance();
-				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused());
+				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs());
 			}
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}

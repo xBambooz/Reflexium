@@ -623,6 +623,18 @@ public final class ReflexController {
 		return result;
 	}
 
+	/** Sparse driver sample for Auto; unavailable/stale data holds the previous selection. */
+	public double frameGenerationRenderCostMs() {
+		if (!isAvailable() || !ReflexiumConfig.get().frameGeneration().nvidia()
+				|| ReflexiumConfig.get().frameGenerationMultiplier() != 0) return 0;
+		long now = System.nanoTime();
+		if (now - lastTimingRefresh > TIMING_REFRESH_NS) {
+			lastTimingRefresh = now;
+			latency = readLatency();
+		}
+		return latency.available() ? autoRenderCostMs : 0;
+	}
+	private double autoRenderCostMs;
 	private LatencyReport readLatency() {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
@@ -649,6 +661,7 @@ public final class ReflexController {
 			long now = System.nanoTime();
 			if (latest.presentID() != timingSeenId) { timingSeenId = latest.presentID(); timingSeenAt = now; }
 			if (now - timingSeenAt > 1_000_000_000L) return LatencyReport.unavailable("stale driver data");
+			autoRenderCostMs = span(latest.simStartTimeUs(), latest.gpuRenderEndTimeUs());
 			return LatencyReport.from(latest);
 		} catch (RuntimeException e) {
 			return LatencyReport.unavailable("timing query failed");

@@ -306,3 +306,97 @@ References: [Khronos metering contract](https://docs.vulkan.org/refpages/latest/
 Round 2 implementation commit: `ddf06eb`. Final build and diff checks pass.
 Final candidate: `build/fg-round2/final-candidate.jar`; SHA-256
 `9dbc9be4bde15eb34fef9558700355050f9787a46b3525df878a1bda1694b4dd`.
+
+## Round 3
+
+Base: `ac289bf`. Branch `t3/smooth-auto-fg-continuity`, worktree
+`C:\Users\Ryan\.t3\worktrees\Reflexium\t3-aee2c8e4`. Harness port 25623, debug port 25624.
+Copied the main checkout's run directory. All captures used the primary PG27AQDP at 2560x1440,
+479.99 Hz, visible and without OS focus. The owner's overlay and port 25612 client were untouched.
+Raw artifacts are ignored under `build/fg-round3/`. No merge to main.
+
+### Auto continuity
+
+Removed startup and periodic rendered-only throughput probes. Auto now consumes the existing sparse
+`VK_NV_low_latency2` timing query, using `gpuRenderEndTimeUs - simStartTimeUs`. Simulation-start is
+emitted after Reflex sleep, so the estimate excludes that limiter sleep. The existing validity,
+frame-ID and one-second stale-report checks remain in force. Missing/invalid timing holds the last
+selection; before the first valid report Auto remains rendered-only. Fixed multipliers do not request
+extra timing queries. No GPU query wait or new profiling dependency was added.
+
+The reciprocal render-cost estimate is smoothed with a 0.1 exponential weight. Selection retains
+the 5% upshift headroom and driver maximum, and is reconsidered at most once every five seconds.
+Non-game frames preserve the selection while the renderer's existing gameplay/history gates still
+apply. Settings/cap changes reset the policy. A sustained light scene may legitimately select 1x;
+sampling itself never forces a transition to 1x. The refresh/explicit-user total-present cap remains
+unchanged, 415 target / approximately 414 FPS rounded driver interval on this display.
+
+This estimate includes FG GPU work, queue delay and waits inside submission. It is conservative,
+not independently measured FG-off FPS. Implicit driver attribution also limits its precision.
+`fg_policy_real_fps` is now an estimate; `fg_policy_estimate_source` identifies its provenance and
+`fg_policy_probing` remains false for compatibility. This is application selection of static NGX
+counts, not vendor Dynamic MFG. No claim of optimal multiplier or exact uncapped throughput is made.
+
+`auto-60s.json`: 61 authenticated snapshots spanning 60.72894 seconds, DLSS Native AA with shaders,
+Auto requested (config 0), effective 6x throughout. Real presents rose 10993 to 14032 (3039), generated
+presents 6230 to 21425 (15195), exactly five per real. Expected-generated delta was also 15195.
+Every one of the 60 adjacent snapshot intervals had exactly five generated presents per real,
+no probe, no multiplier transition and no metering rejection. Thus no generated-present shortfall
+or periodic probe interruption occurred in this window. This proves submitted-generation continuity,
+not uniform physical display cadence. The capture was a fixed camera with animated scene content;
+the validation run separately exercised a 30-degree camera turn and fixed 3x.
+
+Inspected `motionbatch/generated_0.png`: nonblank terrain, foliage, sky, hand and HUD. All five
+generated targets and the real target were captured at one boundary. This is a visual smoke check,
+not an interpolation-quality matrix. Physical scanout and input latency remain unmeasurable behind
+the retained overlay. GPU contention was uncontrolled; do not treat this as a throughput benchmark.
+
+### Synchronization hazard attribution
+
+Fresh-JVM synchronization validation used the same private LunarG 1.4.363 layer as Round 2, copied
+into this worktree. `sync-loader.log` records the loaded DLL path. The temporary ExplicitLayers
+registry entry was removed after startup. `sync-final.log` preserves the unsuppressed reports.
+
+The reports reproduce inside `nv.ngx.dlssg.Evaluate`, not the caller's before/after dependencies:
+
+- Image `0x4f980000004f98[nv.ngx.dlssg.resource]`: NGX's image-layout transition precedes its
+  `vkCmdClearColorImage`. Its dependency permits shader read/storage write but omits transfer write
+  at CLEAR. The validator explicitly names the earlier transition's NGX evaluation label.
+- Buffer `0x4f810000004f81[nv.ngx.dlssg.resource]`: `vkCmdFillBuffer` writes the same 7,372,800-byte
+  region after another fill inside the NGX evaluation label, without the required write dependency.
+  The bridge supplies only image-view resources to `NGX_VK_EVALUATE_DLSSG`; no application buffer
+  is passed to this FG call. The buffer and its fill sequence are vendor-owned.
+
+The report contains six image-clear and four buffer-fill message occurrences (including repeated
+validation logging), all WRITE_AFTER_WRITE. No other VUID or synchronization hazard category was
+reported in this exercised run. The Java caller issues the existing RenderPearl all-command memory
+barrier before, between and after NGX evaluations. The native bridge records the vendor call directly;
+it records neither the reported clears nor buffer fills. A caller barrier cannot order two commands
+inside a single opaque vendor evaluation. Changing caller input/output layouts cannot repair the
+vendor buffer-fill dependency. No barrier workaround or suppression was added.
+
+Conclusion: these specific reports are internal NGX synchronization defects according to validation,
+not evidence of a missing caller boundary barrier. This does not establish that the defects are
+harmless or that every application synchronization path is correct. Vendor remediation remains open.
+Auto 6x and fixed 3x continued generating under validation, with no FG failure or metering rejection.
+Synchronization acceptance remains FAIL; functional generation and Auto continuity pass this scope.
+
+### Checks and remaining work
+
+`gradlew.bat build --console=plain` and `git diff --check` pass. The standalone policy checks cover
+60-second continuity, missing/NaN timing, menus, five-second dwell, sustained-light bypass, cap
+selection, hysteresis and fixed multipliers. The initial build lacked the untracked Iris test JAR;
+copying the required run assets resolved it. No application code workaround was needed for that.
+
+Candidate: `build/fg-round3/final-candidate.jar`, SHA-256
+`0ff189f7b719c3e3c04bc93979ade569f287140d6b64d3fdf0c9a856ff04da89`.
+Build log: `build/fg-round3/final-build.log`. Each owned JVM was shut down with authenticated
+`quit?exit=true` after checking its exact PID, harness JAR and game-directory command line.
+
+Remaining: vendor-internal synchronization remediation, calibration of the conservative cost against
+independent real-render timestamps, unobscured display cadence/latency, broad moving-object quality,
+AMD hardware and device-loss coverage. Overall remains an experimental candidate.
+
+Timing-field semantics: [Khronos latency report](https://docs.vulkan.org/refpages/latest/refpages/source/VkLatencyTimingsFrameReportNV.html).
+The [Super Resolution provider source](https://github.com/IReallyWantToSleep/superresolution/blob/dev/modules/common/src/main/java/io/homo/superresolution/common/framegeneration/FrameGeneration.java)
+was revisited for provider/presentation separation; no source or new library was added.
