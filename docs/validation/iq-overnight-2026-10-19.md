@@ -133,3 +133,70 @@ Iris shader on/off and native/DLSS/quality switches were exercised repeatedly. P
 Remaining: independent animated BSL leaf-vector accuracy; grass/contact bending; water/glass and other blended layers; particles; volumetric cloud motion; HDR insertion; a moving-entity acceptance matrix and bare-arm swings; long/fast-pan ghosting and mip-bias shimmer acceptance. The current evidence does not meet the requested near-lossless Quality/Balanced or comprehensive acceptable-in-motion Performance bar. Missing-runtime/backend failures and world rejoin were not retested after the final producer change.
 
 Reproduction driver: `tools/iq-round2.py` modes `before`, `after`, `water`, `equip`, `control`, `analyze`, `evidence`. Use it only against this task's owned port/directory. The local isolated interpreter is `<worktree>\build\validation\python\python.exe` (Python 3.14.7, numpy 2.5.4, Pillow 13.0.0), invoked with `-I`. No Python dependency was added to the mod.
+
+## Round 3
+
+Base `7825952`, branch `t3/dlss-round-three-quality`, worktree `C:\Users\Ryan\.t3\worktrees\Reflexium\t3-d0c50193`.
+The missing grass/plant producer and incorrect primary translucent depth are corrected. **The owner's near-lossless motion target is still not accepted.** Water surface shading, reflections/refraction, particles and volumetric clouds remain incomplete temporal inputs.
+
+### Causes and fixes
+
+- `a8edf1f`: BSL's previous-deformation attachment marked only leaves/vines. It now covers BSL IDs 100 through 108 and 157: grass, crops, plants, tall plants, leaves, vines, hanging vegetation and lilypads. It evaluates the pack's real wave function twice. Previous contact bending uses the previous camera-relative eye position and camera displacement, rather than bending both samples around the current player. The actual current-frame geometry and animation options are preserved. Vanilla has no added waving.
+- `77bfb9c`: primary camera vectors and DLSS depth previously used final scene depth containing transparent surfaces. The supported Iris adapter now reads `RenderTargets.getDepthTextureView(1)`, its pre-translucent copy, and validates its current dimensions/lifetime. Object and foliage depth matching use that same background depth. This keeps terrain behind water/glass on its own correspondence. The change also affects shared FG inputs; it does not invent independent water reflection vectors.
+- `b064f9d`: keep the injected bend variable declared if a user edits the waving include, while the exact-source guard disables its unverified merge. The shared include also compiles in shadow programs with a zero offset. Depth-source diagnostics now report the captured path rather than inferring it from the selected pack.
+
+Source and ABI checks cover the reviewed terrain/wave edits, edited-source rejection, uniform APIs, eye-position access and the pre-translucent depth accessor. World-time animation remains excluded. The existing independent animated-noise accuracy objection from Round 2 remains open; evaluating the actual function is stronger coverage, but is not an independent numerical proof of every animated vector.
+
+### Method and images
+
+All captures used the worktree copy of the main repo's `run`, authenticated harness **25613**, debug listener **25614**, primary PG27AQDP **2560x1440**, unfocused. The black overlay was left alone. Port 25631 and its performance client were never addressed. No desktop input injection, process-name shutdown or performance comparison was used.
+
+Baseline and changed clients each captured 12-frame pans for native, Quality, Balanced and Performance, with BSL on and shaders off, in both the grass and water views. Pan is `dyaw=12,ticks=24`, screenshots every 100 ms. Grass pose is -24.5,131,11.5, yaw/pitch 0/0; water pose -37.5,132,30, yaw/pitch 0/35. Server ticks are frozen; shader waves, cloud shading and reflections continue. FG is off for image comparisons. Native is 2560x1440; DLSS inputs are 1707x960, 1485x835 and 1280x720, all outputting 2560x1440. Input remains finished-scene LDR, pre-exposure 1, auto-exposure off; HDR insertion is still open.
+
+Full sequences and frame metadata are under `build/validation/round3/{before,after}-{bsl,vanilla}-{plants,water}-{mode}`. Committed native-pixel crops show frames 0,5,11 in columns and native/Quality/Balanced/Performance in rows:
+
+- Grass: [BSL before](iq-evidence-2026-10-19/round3/before-bsl-plants-pan.png), [BSL after](iq-evidence-2026-10-19/round3/after-bsl-plants-pan.png), [shaders off after](iq-evidence-2026-10-19/round3/after-vanilla-plants-pan.png).
+- Water: [BSL before](iq-evidence-2026-10-19/round3/before-bsl-water-pan.png), [BSL after](iq-evidence-2026-10-19/round3/after-bsl-water-pan.png), [shaders off after](iq-evidence-2026-10-19/round3/after-vanilla-water-pan.png).
+- Glass: [pan comparison](iq-evidence-2026-10-19/round3/glass-pan.png), [same-frame control](iq-evidence-2026-10-19/round3/glass-control.png). The owned save contains a glass plane at z=103 and brick wall at z=108; these are different layers, five blocks apart.
+
+Visual inspection included these comparisons, full output/corners and the same-frame controls. Ground, glass-background brick and submerged block texture stay readable. Grass edges retain temporal softness relative to native, particularly at Performance. No black output band, missing final row/column or reduced-size HUD was observed. The modest pans do not establish long/fast-pan ghosting acceptance. Water reflection phases differ between runs, so no large before/after visual gain or lossless water claim is made.
+
+### Metrics and defaults
+
+[Metrics JSON](iq-evidence-2026-10-19/round3/metrics.json) includes RGB MSE/PSNR, crop and final-frame camera-yaw difference. Ground region x=400,y=1100,w=1000,h=180 in the grass view, final frame against each run's native final frame, 0..255 RGB; all listed yaw differences are zero:
+
+| Mode | BSL before MSE / PSNR | BSL after MSE / PSNR | Shaders off before MSE / PSNR | Shaders off after MSE / PSNR |
+| --- | --- | --- | --- | --- |
+| Quality | 2.214 / 44.68 dB | 2.306 / 44.50 dB | 3.685 / 42.47 dB | 3.724 / 42.42 dB |
+| Balanced | 2.610 / 43.96 dB | 2.681 / 43.85 dB | 3.816 / 42.31 dB | 3.843 / 42.28 dB |
+| Performance | 3.864 / 42.26 dB | 3.792 / 42.34 dB | 4.630 / 41.48 dB | 4.562 / 41.54 dB |
+
+Animated plants/water/cloud phases are unmatched. Their MSE values are descriptive differences, not aligned quality or temporal-accuracy scores. Lower high-frequency energy or frame difference is not accepted as better reconstruction. No bilinear baseline was captured.
+
+The settings A/B repeated the grass pan at all three modes with sharpening 20, 0 and 40; mip-bias offset +0.5; and the alternate K/M hint. Inspected [Quality](iq-evidence-2026-10-19/round3/defaults-quality.png), [Balanced](iq-evidence-2026-10-19/round3/defaults-balanced.png) and [Performance](iq-evidence-2026-10-19/round3/defaults-performance.png). None clearly improved overall motion/detail. Zero sharpening softens texture; 40 gives stronger edges without recovering lost thin detail. The less-negative bias does not resolve grass softness. Alternate preset captures also have different wave phases. Defaults therefore remain sharpening **20**, vendor mip baseline, **K/K/M**. These remain requested hints, not a claim that NGX reported its internal selected model.
+
+No-wave camera controls temporarily set `ANIMATION_SPEED=0.00` in the owned copy and restored the original option file afterward. [Vector metrics](iq-evidence-2026-10-19/round3/vector-metrics.json) independently decode packed motion/depth, invert PNG row Y and reproject sampled surfaces using each capture's matrices:
+
+| Region | Samples | Expected mean displacement | Mean error | p99 error |
+| --- | ---: | ---: | ---: | ---: |
+| Grass, y=132.05..133.1 | 10,716 | 0.24481 px | 0.01159 px | 0.02039 px |
+| Submerged floor | 1,955 | 0.22984 px | 0.01086 px | 0.02051 px |
+| Brick behind glass | 5,980 | 0.18526 px | 0.00888 px | 0.01861 px |
+
+The submerged crop reconstructs median y=129.999995, the pool floor, and the glass crop median z=108.000077, the brick wall rather than glass at z=103. Assertions require nonzero camera motion, active foliage merge, the pre-translucent source, over 100 samples and p99 below 0.05 render pixels. These establish camera/layer correspondence, not independent animated-wave accuracy. Controls: [grass](iq-evidence-2026-10-19/round3/grass-control.png), [water](iq-evidence-2026-10-19/round3/water-control.png).
+
+### Transparency decision and remaining scope
+
+Particles and volumetric clouds remain in the SR input with background/camera vectors. No FSR reactive buffer is presented as a DLSS K/M reactive mask. BSL integrates clouds, fog, lighting and blended geometry into its composite chain; extracting and rendering them after SR at display resolution requires a separate layer/composition contract, unlike the standalone HUD crosshair. This round accepts that limitation rather than adding an unvalidated final-color subtraction/replay. The same issue applies to animated water normals, reflection rays and refraction: pre-translucent depth fixes background ownership, but a single background vector cannot describe both optical layers. Independent water-surface/shading reconstruction remains unmet.
+
+Reproduce analysis with the worktree-local Python interpreter and `-I tools/iq-round3.py analyze` or `vector-metrics`. Capture modes are `before`, `after`, `defaults`, `controls`, `smoke`, restricted to this worktree and port. No Python runtime/dependency is shipped with the mod. Build and final runtime results follow below.
+
+### Final checks
+
+`gradlew.bat build --console=plain -PreflexiumInstallDir=<worktree>/build/install` passed both before and after final source review, including real-pack source/ABI and existing numerical checks. Final log: `build/validation/round3/build-final.log`. No native C++/ABI change was made. `git diff --check` and Python syntax/analysis checks pass.
+
+The final fixed spectator [wheat capture](iq-evidence-2026-10-19/round3/crop-motion.png) has a stationary camera with expected camera-only displacement 0.000012 render pixels. Of 10,186 sampled crop-surface pixels, 2,263 contain nonzero packed vectors. This establishes an actual independent deformation contribution on crops, not correctness of its full animated correspondence. An earlier creative-player crop attempt fell after tick stepping and showed the forest below; it was rejected and replaced, not counted as crop evidence. The smoke driver now selects spectator before freezing/teleporting.
+
+Final runtime checks passed native/DLSS switching, Iris off/on, 2560x1440 to 2432x1368 and back, and a brief DLSS FG 2x compatibility run followed by FG off. Cumulative FG counters advanced, with empty `last_error`; they include earlier diagnostic multipliers and are not a frame-ratio/performance result. Final status is `build/validation/round3/final-status.json`. The final log contains no mixin or shader compilation failure or active reconstruction error; startup Realms/authentication errors are unrelated dev-session failures. Missing-runtime/backend fallbacks and world rejoin were not retested in this round.
+
+Owned client PIDs were 3552, 21108 and 19048. Every shutdown verified authenticated PID/directory and the exact Windows command line's harness jar/directory, then used `quit {exit:true}`. The final owned process and port were confirmed closed. No merge to main or project push was performed.

@@ -73,6 +73,13 @@ depth-writing skin hands submitted through the translucent phase. The no-wave ca
 for those leaf surfaces; independent animated-noise correspondence and the full motion-quality target
 remain open. See the report's Round 2 evidence and exclusions.
 
+Round 3 extends the reviewed BSL producer to grass, crops, plants, tall plants and lilypads,
+including previous camera-relative contact bending. Iris primary depth/vectors now use its
+pre-translucent depth so terrain behind glass/water retains background correspondence. The
+no-wave grass and glass controls pass, including the brick wall behind a separate glass plane.
+Water surface shading, refraction, reflections, particles and volumetric clouds remain unresolved
+layers. See Round 3 for native/Quality/Balanced/Performance pans and the unchanged-default A/B.
+
 The 2026-10-13 smoke checks (Windows 11, Java 25.0.4, RTX 5070, driver 617.42, Vitrail 0.12.0-beta,
 Sodium 0.9.2, Complementary Reimagined r5.9.3) passed all quality modes in both upscalers, all DLSS
 model choices, resize, pack reload, shader and upscaler toggles, and world rejoin. The missing-DLL
@@ -89,8 +96,8 @@ Known gaps:
   temporal resolve for the reviewed pack; it does not implement that HDR stage or a general lighting
   denoiser. Source mismatches and unreviewed packs retain their original full-scene TAA fallback.
 - General translucent geometry, particles and shader-generated deformation outside the reviewed BSL
-  leaves/vines have no independent per-vertex vectors; they keep camera-only motion. This includes BSL
-  grass/contact bending, water and the pack's world-time animation mode. FSR's vanilla reactive mask mitigates
+  vegetation have no independent per-vertex vectors; they keep background camera motion. This includes BSL
+  water and the pack's world-time animation mode. FSR's vanilla reactive mask mitigates
   transparency history; shader packs need their own valid masks or motion outputs for equivalent
   handling. The coverage inventory is in the validation report.
 - Custom renderers that change vertex connectivity without changing counts/UVs need stable vertex
