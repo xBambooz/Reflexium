@@ -26,12 +26,16 @@ public final class DeferredEffects {
 	private static WeatherEffectRenderer weather;
 	private static WeatherRenderState weatherState;
 	public static boolean applied;
+	public static int generatedCopies;
 	private static GpuBufferSlice fog;
 	private static final Matrix4f projection = new Matrix4f();
 	private static ProjectionMatrixBuffer projectionBuffer;
 	private static final SubmitNodeStorage storage = new SubmitNodeStorage();
 	public static boolean enabled() {
-		return DebugSettings.deferParticles && ReflexiumConfig.get().postUpscaleParticles() && available();
+		// A post chain must transform particles with the world. Until it can replay per output, retain vanilla order.
+		return DebugSettings.deferParticles && ReflexiumConfig.get().postUpscaleParticles() && available()
+				&& (!FrameGenerationRenderer.get().wantsMotion() || ((com.bambooz.reflexium.mixin.GameRendererAccessor)
+				Minecraft.getInstance().gameRenderer).reflexium$appliedPostEffects().isEmpty());
 	}
 	// OIT requires a display-size transparency composition contract; preserve vanilla ordering there.
 	public static boolean available() { return UpscalingRenderer.get().isUpscalingThisFrame() && !ShaderPacks.isDrawingPack()
@@ -65,13 +69,18 @@ public final class DeferredEffects {
 				if (particles != null) particles.submit(storage, camera);
 				try (var frame = dispatcher.prepareFrame(storage)) {
 					var target = Minecraft.getInstance().gameRenderer.mainRenderTarget();
-					try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-							() -> "Reflexium display particles", target.getColorTextureView(), Optional.empty(),
-							target.getDepthTextureView(), OptionalDouble.empty())) {
-						RenderSystem.bindDefaultUniforms(pass);
-						FeatureRenderDispatcher.renderAllFeatures(pass, frame);
-						if (weather != null) weather.render(weatherState, pass);
-						applied = true;
+					var fg = FrameGenerationRenderer.get();
+					for (int i = -1; i < fg.generatedCount(); i++) {
+						var color = i < 0 ? target.getColorTextureView() : fg.generatedView(i);
+						try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+								() -> "Reflexium display particles", color, Optional.empty(),
+								target.getDepthTextureView(), OptionalDouble.empty())) {
+							RenderSystem.bindDefaultUniforms(pass);
+							FeatureRenderDispatcher.renderAllFeatures(pass, frame);
+							if (weather != null) weather.render(weatherState, pass);
+							applied = true;
+							if (i >= 0) generatedCopies++;
+						}
 					}
 				}
 			} finally { stack.popMatrix(); }

@@ -155,8 +155,9 @@ public final class DebugServer {
 				var fg = FrameGenerationRenderer.get();
 				if (fg.refreshPolicy().bypass() || fg.failed()) throw new IllegalStateException("FG is bypassed or failed");
 				JsonObject result = statusNow();
-				int count = fg.requestedGeneratedCount();
-				if (count < 1) throw new IllegalStateException("NVIDIA FG must be requested");
+				int count = fg.debugGeneratedCount();
+				if (count < 1) throw new IllegalStateException("No generated outputs ready for this frame");
+				result.addProperty("captured_generated_count", count);
 				for (int i = -1; i < count; i++) {
 					CompletableFuture<NativeImage> image = new CompletableFuture<>();
 					images.add(image);
@@ -630,6 +631,10 @@ public final class DebugServer {
 			case "cloud_motion" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.cloudMotion = on;
+			}
+			case "particles_fg_replay" -> {
+				boolean on = flag(Map.of("v", value), "v", true);
+				yield () -> DebugSettings.replayFgParticles = on;
 			}
 			case "particles_defer" -> {
 				boolean on = flag(Map.of("v", value), "v", true);

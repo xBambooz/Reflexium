@@ -8,10 +8,12 @@ class CompareFgCapture {
         Path dir = Path.of(args[0]);
         BufferedImage real = ImageIO.read(dir.resolve("real.png").toFile());
         BufferedImage first = ImageIO.read(dir.resolve("generated_0.png").toFile());
-        BufferedImage second = ImageIO.read(dir.resolve("generated_1.png").toFile());
         compare("real/generated0", real, first);
-        compare("real/generated1", real, second);
-        compare("generated0/generated1", first, second);
+        if (java.nio.file.Files.isRegularFile(dir.resolve("generated_1.png"))) {
+            BufferedImage second = ImageIO.read(dir.resolve("generated_1.png").toFile());
+            compare("real/generated1", real, second);
+            compare("generated0/generated1", first, second);
+        }
     }
     static void compare(String name, BufferedImage a, BufferedImage b) {
         long changed = 0, error = 0, pixels = 0;

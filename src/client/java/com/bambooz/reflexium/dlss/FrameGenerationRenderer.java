@@ -238,6 +238,8 @@ public final class FrameGenerationRenderer {
 	public void trackReplacement(int index) { presentCompletions[index] = presentEncoders[index].createFence(); }
 	public long evaluatedFrames() { return evaluated; }
 	public long generatedPresents() { return presented; }
+	/** Last evaluated output resources survive endPresentBatch(), which consumes ready before debug tasks run. */
+	public int debugGeneratedCount() { return resetNext || failed ? 0 : generated.length; }
 	public RenderTarget debugTarget(int index) {
 		if (index < 0 || index >= generated.length) throw new IllegalArgumentException("No generated frame at index " + index);
 		return generated[index];

@@ -373,6 +373,7 @@ public final class UpscalingRenderer {
 		foliageMotionApplied = false;
 		vanillaCloudMotionApplied = false;
 		DeferredEffects.applied = false;
+		DeferredEffects.generatedCopies = 0;
 		irisOpaqueDepthApplied = false;
 		ComplementaryHdr.beginFrame();
 		DistantHorizonsCompat.beginFrame();
@@ -914,6 +915,7 @@ public final class UpscalingRenderer {
 		o.addProperty("bsl_foliage_surface_cleared", foliageMotionApplied && com.bambooz.reflexium.compat.BslFoliageMotion.clearedThisFrame());
 		o.addProperty("vanilla_cloud_motion", vanillaCloudMotionApplied);
 		o.addProperty("post_upscale_particles", DeferredEffects.applied);
+		o.addProperty("particle_generated_copies", DeferredEffects.generatedCopies);
 		o.addProperty("vanilla_cloud_previous_displacement_x", vanillaCloudMotion.displacement());
 		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		if (foliageMotionApplied) {

@@ -83,14 +83,18 @@ public abstract class GameRendererMixin {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
 	private void reflexium$upscale(CallbackInfo ci) {
 		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
-		DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+		if (!com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().wantsMotion()
+				|| !com.bambooz.reflexium.debug.DebugSettings.replayFgParticles)
+			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 	}
 
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V",
 			shift = At.Shift.AFTER))
 	private void reflexium$completeScene(CallbackInfo ci) {
-		reflexium$drawDeferredCrosshair();
 		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
+		// FG consumes particle-free scene color. Replay current effects on every output, before GUI.
+		DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+		reflexium$drawDeferredCrosshair();
 	}
 
 	@Shadow @Final private DebugCrosshairRenderer debugCrosshairRenderer;
@@ -122,11 +126,15 @@ public abstract class GameRendererMixin {
 		CameraRenderState camera = reflexium$crosshairCamera;
 		if (camera == null) return;
 		reflexium$crosshairCamera = null;
-		// Post effects are done and the GUI clears depth next, so the display-size depth is free for the lines.
-		RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(mainRenderTarget.getDepthTexture(), 0.0);
 		RenderSystem.setProjectionMatrix(hud3dProjectionMatrixBuffer.getBuffer(hudProjection.getMatrix(new Matrix4f())), ProjectionType.PERSPECTIVE);
-		debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
-				mainRenderTarget.getDepthTextureView());
+		Runnable draw = () -> {
+			// Effects have finished using world depth. Lines belong on every output, like the GUI.
+			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(mainRenderTarget.getDepthTexture(), 0.0);
+			debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
+					mainRenderTarget.getDepthTextureView());
+		};
+		com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().drawGuiCopies((GameRenderer) (Object) this, draw);
+		draw.run();
 	}
 
 	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE",

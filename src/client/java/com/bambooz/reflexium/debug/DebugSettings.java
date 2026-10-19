@@ -16,6 +16,7 @@ public final class DebugSettings {
 	/** Draw the F3 axis crosshair after upscaling; false restores the pre-upscale draw for A/B captures. */
 	public static boolean deferCrosshair = true;
 	public static boolean deferParticles = true;
+	public static boolean replayFgParticles = true;
 	public static boolean cloudMotion = true;
 	/** Post-SR coverage view: green matches scene depth, red is rejected, black has no foliage. */
 	public static boolean foliageDepthDebug;
