@@ -768,6 +768,10 @@ public final class DebugServer {
 					DebugSettings.setJitterSignY(sign);
 				};
 			}
+			case "cutout_mips" -> {
+				boolean on = flag(Map.of("v", value), "v", false);
+				yield () -> { DebugSettings.binaryCutoutMips = on; Minecraft.getInstance().reloadResourcePacks(); };
+			}
 			case "foliage_clear" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.clearFoliageSurface = on;

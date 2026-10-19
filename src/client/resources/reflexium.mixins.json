@@ -4,6 +4,7 @@
 	"package": "com.bambooz.reflexium.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"CutoutMipMixin",
 		"EntityRenderStateMixin",
 		"EntityRendererMotionMixin",
 		"EntityRenderDispatcherMotionMixin",
