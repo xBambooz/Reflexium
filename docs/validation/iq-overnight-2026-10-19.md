@@ -200,3 +200,62 @@ The final fixed spectator [wheat capture](iq-evidence-2026-10-19/round3/crop-mot
 Final runtime checks passed native/DLSS switching, Iris off/on, 2560x1440 to 2432x1368 and back, and a brief DLSS FG 2x compatibility run followed by FG off. Cumulative FG counters advanced, with empty `last_error`; they include earlier diagnostic multipliers and are not a frame-ratio/performance result. Final status is `build/validation/round3/final-status.json`. The final log contains no mixin or shader compilation failure or active reconstruction error; startup Realms/authentication errors are unrelated dev-session failures. Missing-runtime/backend fallbacks and world rejoin were not retested in this round.
 
 Owned client PIDs were 3552, 21108 and 19048. Every shutdown verified authenticated PID/directory and the exact Windows command line's harness jar/directory, then used `quit {exit:true}`. The final owned process and port were confirmed closed. No merge to main or project push was performed.
+
+## Round 4
+
+Base `74df710`, branch `t3/post-upscale-particles-clouds`, worktree `C:\Users\Ryan\.t3\worktrees\Reflexium\t3-857e0740`.
+Vanilla classic-transparency particles and precipitation now bypass SR at display resolution. Vanilla clouds have camera and time motion, including a surface-depth producer for OIT. **BSL effects, water optics and comprehensive fast-motion acceptance remain incomplete.**
+
+### Causes and fixes
+
+- `f50c9d6`: display depth was sampled without removing projection jitter. The resolve now samples the jittered source at display UV plus half the NDC jitter, clamps coordinates, and retains the existing inverse vendor-depth conversion into Minecraft's reverse-Z range. Depth is preserved for world effects, unlike the F3 crosshair's intentional clear. The old post-upscale outline implementation remains removed.
+- `96c7ba4`: vanilla particle quads and precipitation had background/camera vectors despite their independent motion. With classic transparency, their render state is retained, omitted from the SR input, then submitted and prepared again through the vanilla feature dispatcher after reconstruction. They use the unjittered world projection, world fog, display-size globals and resolved world/hand depth, before post effects and GUI. Projection, fog and model-view state are restored. The original dispatcher's prepared buffers are not retained past `PreparedFrame.close`. The new **Native-resolution particles** option defaults on, is persisted as `post_upscale_particles`, and is exposed in both existing config screens. A runtime `particles_defer=0` override provides the pre-upscale control.
+- `1bd032b`: vanilla cloud geometry moves along world -X at 0.030000001 blocks per game tick. OIT also stores cloud depth separately from the main depth. A render-resolution replay of the prepared cloud faces supplies their actual surface depth; the primary motion pass projects those surfaces to the previous camera and cloud position. Nearer terrain, DH and hand depth retain priority. Time discontinuities and history resets discard cloud drift history. GPU resources are released after the existing idle wait. `cloud_motion=0` is the dev negative control.
+
+Particle deferral is deliberately bypassed for Iris/shader packs and improved transparency/OIT. Their blended ordering and lighting require a separate display-size composition contract. OIT clouds receive vectors, but OIT particles/precipitation retain their original path. No new dependency, native ABI change, generic history-reset heuristic or sharpening/preset change was introduced.
+
+The [Super Resolution mod's renderer hooks](https://github.com/IReallyWantToSleep/superresolution/blob/dev/modules/common/src/main/java/io/homo/superresolution/common/mixin/core/GameRendererMixin.java) were inspected during implementation. Its level/hand boundaries and depth-clear handling do not provide a reusable native RenderPearl particle layer. Reference guidance: [NVIDIA DLSS programming guide](https://github.com/NVIDIA/DLSS/blob/main/doc/DLSS_Programming_Guide_Release.pdf). The concrete 26.3 call/lifetime contracts above were checked against this project's decompiled Minecraft sources.
+
+### Captures and inspection
+
+Minecraft MCP `mc_launch` was called through its stdio server because this agent's exposed tool catalog lacked the Minecraft tools. The copied main-repo `run` stayed inside this worktree. Harness port **25614**, debug port **25615**, primary PG27AQDP **2560x1440**, unfocused, with the black overlay untouched. Owned game PIDs were 2492, 19912, 16772, 29556 and 15300. Every shutdown used MCP's authenticated PID/directory/Windows-command-line ownership checks and `quit {exit:true}`. No other client was addressed or stopped.
+
+Vanilla was captured first, followed by BSL, at native, Quality and Performance, with particle deferral off/on. FG was off for image comparisons. Native is 2560x1440, Quality 1707x960, Performance 1280x720; all output/present sizes are 2560x1440. Sharpening remains 20, vendor mip bias unchanged, transformer hints K/M. Input remains finished-scene LDR, fixed pre-exposure 1 and auto-exposure off. HDR insertion is unchanged.
+
+The fixture at 0,151,100 contains two campfires, glass and a brick background. Rain uses the same camera. Explicit stone block-particle and flame bursts plus a placed torch cover debris and small emissive sprites. A separate brick pillar and stained-glass plane exercise occlusion. The command codec accepted `minecraft:block{block_state:{id:"minecraft:stone"}}`; these are actual particle draws, not inferred coverage.
+
+Committed native-pixel contact sheets contain frames 0 and 3, with native, Quality pre/post and Performance pre/post in rows:
+
+- Vanilla [smoke](iq-evidence-2026-10-19/round4/vanilla-smoke.png), [rain](iq-evidence-2026-10-19/round4/vanilla-rain.png), [block/flame bursts](iq-evidence-2026-10-19/round4/vanilla-burst.png).
+- BSL [smoke](iq-evidence-2026-10-19/round4/bsl-smoke.png), [rain](iq-evidence-2026-10-19/round4/bsl-rain.png). The off/on rows intentionally use the same pack path; their different animation phases are not a BSL improvement claim.
+- Occlusion full frames: [native](iq-evidence-2026-10-19/round4/occlusion-native.png), [Quality](iq-evidence-2026-10-19/round4/occlusion-quality.png), [Performance](iq-evidence-2026-10-19/round4/occlusion-performance.png).
+- Fast-pan selections: [vanilla](iq-evidence-2026-10-19/round4/vanilla-fast.png), [BSL](iq-evidence-2026-10-19/round4/bsl-fast.png).
+
+These images and full output/corners were opened and visually inspected. Vanilla post-upscale smoke keeps native-like sprite steps instead of softened history edges. Rain streaks and flame/debris edges remain more distinct, especially at Performance. The pillar occludes smoke at its edges; no smoke is drawn over its solid face, and the stained-glass/particle overlap follows the inspected native classic path. No black output bands, unwritten last row/column, reduced HUD or repeat of the old outline clipping failure was observed. This supports the default-on classic option; it does not establish arbitrary mod-particle/blended-water ordering.
+
+Fast pans use **dyaw=90 over 10 ticks**, starting at yaw -45 in the existing grass/leaf arena. The final pass waits three client ticks before its four-frame sequence. [Composition/pose metadata](iq-evidence-2026-10-19/round4/composition-checks.json) records the actual sampled player yaws, render/output sizes and active deferral state for all 30 final sequences. First samples are commonly -18 or -9 degrees; subsequent samples often reach 45. Native/Quality/Performance were inspected, but readback misses much of the half-second turn, and player yaw metadata is not an exact rendered interpolation matrix. No obvious long terrain trails were visible in the sampled frames. Thin leaf detail remains softer than native, especially with BSL/Performance. No full continuous fast-pan acceptance or pixel-aligned moving-foliage score is claimed, and no speculative reset/preset change was made.
+
+Raw sequences, statuses, controls and logs remain in `build/validation/round4`. Earlier `vanilla-*`/`bsl-*` sequences are particle-prototype captures; the committed final sheets use `final-*`. Earlier frozen-particle attempts had no persistent visible bursts and are excluded from occlusion evidence. The final continuously emitted campfire occlusion captures replace them. An early cloud off/on pan used different camera poses and is excluded as a matched visual A/B.
+
+### Independent cloud-vector evidence
+
+`java tools/CaptureAnalysis.java cloud-check <capture.json> 192` independently decodes packed depth/vectors, inverts screenshot Y, reconstructs world coordinates, selects the actual cloud slab at Y=192..196, advances the reconstructed point to its previous cloud position, and projects it through the previous camera matrix. It requires over 100 samples, nontrivial expected motion, measured motion energy and p99 error below 0.05 render pixels. The stationary-camera controls use a 30 FPS diagnostic interval and a camera just below the cloud layer to make time drift observable above capture quantization.
+
+| Producer | Samples | Expected mean | Measured mean | p99 error |
+| --- | ---: | ---: | ---: | ---: |
+| Classic clouds | 10,698 | 2.90159 px | 2.89983 px | 0.01860 px |
+| OIT clouds | 1,773 | 0.08620 px | 0.08774 px | 0.01555 px |
+
+[Results](iq-evidence-2026-10-19/round4/cloud-vector-metrics.json), [classic metadata](iq-evidence-2026-10-19/round4/near-cloud-1.json), [OIT metadata](iq-evidence-2026-10-19/round4/oit-cloud.json), with portable input/output/motion/depth PNGs alongside them. These prove actual nonzero time correspondence. They do not prove a large perceptual cloud-quality gain or describe BSL's volumetric cloud shading. The build also runs a known-point cloud/camera translation sign check in `UpscalingContractCheck`.
+
+Descriptive static floor metrics use RGB 0..255, x=400,y=1100,w=1000,h=180, final smoke frame versus native. [All values](iq-evidence-2026-10-19/round4/metrics.json). Vanilla Quality pre/post MSE is 4.2449/4.2550 (41.852/41.842 dB); Performance is 5.9297/6.4739 (40.401/40.019 dB). BSL Quality is 2.2141/2.2094; Performance 20.1392/23.2175. Animation, shader lighting, cloud and temporal phases are unmatched, so these are descriptive differences, not causal effect scores. BSL does not change composition between the two settings. No bilinear baseline or near-lossless acceptance is claimed.
+
+### Final checks and remaining work
+
+`gradlew.bat build --console=plain -PreflexiumInstallDir=<worktree>/build/install` passed after final runtime code review, including existing ABI/source checks and the added cloud check. Log: `build/validation/round4/build-final.log`. `git diff --check`, capture decoder self-check, the two cloud checks, and the 30-sequence composition checks pass. The configured external profile was not installed into.
+
+The final client passed improved-transparency fallback (post particles false, cloud producer true), native/DLSS and Quality/Performance switching, Iris on/off, and resize 2560x1440 to 2432x1368 and back. A brief DLSS FG 2x compatibility check advanced from 182 to 578 evaluations and 181 to 577 generated presents with no reconstruction error, then returned FG off. This is functional compatibility, not scanout, pacing or particle-FG quality evidence. Missing-DLL, unsupported-backend and forced evaluate-failure fallbacks were not retested. No performance gain is claimed for either added draw path.
+
+Remaining: BSL particle/precipitation and volumetric-cloud temporal inputs; OIT particle/precipitation motion or display composition; animated water normals, reflection/refraction correspondence; HDR insertion; independent particle FG motion; broader mod-particle and continuous fast-pan acceptance. Current evidence does not meet the owner's universal near-lossless-in-motion target.
+
+Reproduction: `tools/iq-round4.mjs` modes `setup`, `final`, `burst`, `occlusion-final`, `cloud-control`, `smoke-check`, `fg-check`, `analyze`, `evidence`, restricted to this worktree's owned port/directory. Use the installed Electron runtime with `ELECTRON_RUN_AS_NODE=1` and `IQ_MODE=<mode>`. `java tools/Round4Evidence.java <absolute-worktree>` rebuilds the committed sheets/metrics. Run cloud checks from the repo root for the portable evidence paths. Final PID 15300 and port 25614 were confirmed closed. No project push or merge to main was performed.
