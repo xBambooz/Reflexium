@@ -1,0 +1,724 @@
+[
+  {
+    "name": "bsl-cnn-16.json",
+    "yaws": [
+      0,
+      3.25,
+      6.5,
+      9.75,
+      13.75,
+      18.5,
+      23,
+      29.75
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 16,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-cnn-64.json",
+    "yaws": [
+      0,
+      3.75,
+      7,
+      10.25,
+      13.75,
+      17,
+      20.25,
+      23.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 64,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-cnn-base.json",
+    "yaws": [
+      0,
+      3.5,
+      6.75,
+      10,
+      13.25,
+      16.5,
+      19.75,
+      23
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-cnn-relaxed.json",
+    "yaws": [
+      0,
+      3.5,
+      6.75,
+      10,
+      13.25,
+      16.5,
+      19.75,
+      23
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -0.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-cnn-sharp60.json",
+    "yaws": [
+      0,
+      3.5,
+      9.5,
+      13,
+      16.5,
+      19.75,
+      23.25,
+      26.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 60,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 1,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-k.json",
+    "yaws": [
+      0,
+      3.25,
+      6.25,
+      9.5,
+      12.5,
+      15.75,
+      18.75,
+      21.75
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "transformer",
+    "preset": 11,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "bsl-native.json",
+    "yaws": [
+      0,
+      3.5,
+      6.75,
+      10,
+      13.25,
+      16.5,
+      19.75,
+      22.75
+    ],
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -0.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-cnn-16.json",
+    "yaws": [
+      0,
+      2.25,
+      4.5,
+      6.75,
+      9.25,
+      11.5,
+      14,
+      16.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 16,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 1,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-cnn-64.json",
+    "yaws": [
+      0,
+      2,
+      4.5,
+      6.75,
+      9.25,
+      11.75,
+      14,
+      16.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 64,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 1,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-cnn-base.json",
+    "yaws": [
+      0,
+      2.25,
+      4.75,
+      7,
+      9.25,
+      11.75,
+      14.25,
+      16.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-cnn-relaxed.json",
+    "yaws": [
+      0,
+      3.25,
+      6.5,
+      10.5,
+      14.75,
+      18,
+      23.25,
+      28.75
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -0.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-cnn-sharp60.json",
+    "yaws": [
+      0,
+      2.25,
+      4.75,
+      7,
+      9.5,
+      12,
+      14.5,
+      17
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 60,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 1,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-k.json",
+    "yaws": [
+      0,
+      2,
+      4.25,
+      6.5,
+      8.75,
+      11,
+      13.25,
+      15.5
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "transformer",
+    "preset": 11,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "vanilla-native.json",
+    "yaws": [
+      0,
+      1.5,
+      3.25,
+      4.75,
+      6.25,
+      8,
+      9.5,
+      11
+    ],
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -0.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "water-bsl-background.json",
+    "yaws": [
+      0,
+      0.7000001,
+      1.3499998,
+      1.9999992,
+      2.6499987,
+      3.299998,
+      3.9499974,
+      4.5999994
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "water-bsl-native.json",
+    "yaws": [
+      0,
+      0.85000014,
+      1.4999996,
+      2.1499991,
+      2.7999985,
+      3.449998,
+      4.0999975,
+      4.75
+    ],
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 1,
+      "menu": 0
+    }
+  },
+  {
+    "name": "water-bsl-surface.json",
+    "yaws": [
+      0,
+      0.7000001,
+      1.3499998,
+      1.9999992,
+      2.6499987,
+      3.299998,
+      3.9499974,
+      4.5999994
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "water-vanilla-cnn.json",
+    "yaws": [
+      0,
+      0.5500001,
+      1.1,
+      1.6999995,
+      2.249999,
+      2.8499985,
+      3.399998,
+      3.9999974
+    ],
+    "render": {
+      "w": 1707,
+      "h": 960
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 0,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 2,
+      "menu": 0
+    }
+  },
+  {
+    "name": "water-vanilla-native.json",
+    "yaws": [
+      0,
+      0.35000002,
+      0.7500001,
+      1.1,
+      1.4999996,
+      1.8499993,
+      2.199999,
+      2.5999987
+    ],
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+    "model": "cnn",
+    "preset": 5,
+    "sharpness": 20,
+    "mip_bias": -1.5846808,
+    "phases": 32,
+    "resets": {
+      "first_frame": 0,
+      "level": 0,
+      "teleport": 1,
+      "gap": 0,
+      "camera": 0,
+      "rotation": 0,
+      "loading": 0,
+      "rebuild": 3,
+      "menu": 0
+    }
+  }
+]
