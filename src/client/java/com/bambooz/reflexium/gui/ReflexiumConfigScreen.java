@@ -34,12 +34,18 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		VulkanSession session = VulkanSession.current();
 		boolean isNvidia = session != null && session.isNvidia();
 
-		list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.reflex_mode"),
+		boolean reflexSupported = ReflexController.get().isSupported();
+		var reflexButton = DropdownButton.create(this, Component.translatable("reflexium.option.reflex_mode"),
 				config::reflexMode, List.of(ReflexMode.values()), ReflexMode::label, mode -> {
 					ReflexController.get().setMode(mode);
-				}));
+				});
+		reflexButton.active = reflexSupported;
+		list.addBig(reflexButton);
 
-		list.addBig(ReflexiumOptions.smartReflex());
+		var smartReflexOption = ReflexiumOptions.smartReflex();
+		list.addBig(smartReflexOption);
+		var smartWidget = list.findOption(smartReflexOption);
+		if (smartWidget != null) smartWidget.active = reflexSupported;
 
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));
 

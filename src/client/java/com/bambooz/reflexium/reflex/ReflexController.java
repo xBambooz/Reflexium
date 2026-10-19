@@ -150,6 +150,12 @@ public final class ReflexController {
 	// ---------------------------------------------------------------------------------------------
 	// State
 
+	/** VK_NV_low_latency2 is supported and active presentation scheduler allows low latency. */
+	public boolean isSupported() {
+		VulkanSession session = VulkanSession.current();
+		return session != null && session.lowLatency2() && !com.bambooz.reflexium.dlss.FsrSwapchain.active();
+	}
+
 	/** VK_NV_low_latency2 is enabled on the device and a swapchain exists. */
 	public boolean isAvailable() {
 		return device != null && swapchain != 0;
