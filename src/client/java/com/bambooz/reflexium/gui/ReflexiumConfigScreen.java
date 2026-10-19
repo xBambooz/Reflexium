@@ -102,33 +102,31 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		distButton.setTooltip(Tooltip.create(Component.translatable("reflexium.option.pack_shadow_distance_cap.tooltip")));
 		list.addBig(distButton);
 
-		if (config.upscaler() != Upscaler.OFF) {
-			list.addHeader(Component.translatable("reflexium.group.frame_generation"));
+		list.addHeader(Component.translatable("reflexium.group.frame_generation"));
 
-			List<FrameGeneration> allowedFg = new ArrayList<>();
-			allowedFg.add(FrameGeneration.OFF);
-			boolean dlssActive = effective == Upscaler.DLSS || config.upscaler() == Upscaler.DLSS;
-			boolean fsrActive = effective == Upscaler.FSR || config.upscaler() == Upscaler.FSR;
-			if (dlssActive && isNvidia) {
-				if (FrameGenerationRenderer.get().isDlssFgSupported()) {
-					allowedFg.add(FrameGeneration.DLSS);
-				}
-				if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
-					allowedFg.add(FrameGeneration.DLSS_MULTI);
-				}
-			} else if (fsrActive) {
-				allowedFg.add(FrameGeneration.FSR);
+		List<FrameGeneration> allowedFg = new ArrayList<>();
+		allowedFg.add(FrameGeneration.OFF);
+		boolean dlssAllowed = isNvidia && config.upscaler() != Upscaler.FSR;
+		boolean fsrAllowed = config.upscaler() != Upscaler.DLSS;
+		if (dlssAllowed) {
+			if (FrameGenerationRenderer.get().isDlssFgSupported()) {
+				allowedFg.add(FrameGeneration.DLSS);
 			}
-
-			list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.frame_generation"),
-					config::frameGeneration, allowedFg, FrameGeneration::label, fg -> {
-						ReflexiumOptions.setFrameGeneration(fg);
-						rebuild();
-					}));
-
-			if (config.frameGeneration().nvidia() && FrameGenerationRenderer.get().isDlssFgSupported()) {
-				list.addBig(ReflexiumOptions.frameGenerationMultiplier());
+			if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
+				allowedFg.add(FrameGeneration.DLSS_MULTI);
 			}
+		} else if (fsrAllowed) {
+			allowedFg.add(FrameGeneration.FSR);
+		}
+
+		list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.frame_generation"),
+				config::frameGeneration, allowedFg, FrameGeneration::label, fg -> {
+					ReflexiumOptions.setFrameGeneration(fg);
+					rebuild();
+				}));
+
+		if (config.frameGeneration().nvidia() && FrameGenerationRenderer.get().isDlssFgSupported()) {
+			list.addBig(ReflexiumOptions.frameGenerationMultiplier());
 		}
 
 		list.addHeader(Component.translatable("reflexium.status"));

@@ -139,27 +139,22 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setElementNameProvider(FrameGeneration::label)
 										.setDefaultValue(FrameGeneration.OFF)
 										.setStorageHandler(SAVED_ON_SET)
-										.setEnabledProvider(state -> {
-											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
-											return u != Upscaler.OFF;
-										}, id("upscaler"))
-										.setControlHiddenWhenDisabled(true)
 										.setAllowedValuesProvider(state -> {
 											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
 											Set<FrameGeneration> allowed = new LinkedHashSet<>();
 											allowed.add(FrameGeneration.OFF);
 											VulkanSession session = VulkanSession.current();
 											boolean nvidia = session != null && session.isNvidia();
-											boolean dlssActive = (u == Upscaler.DLSS || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.DLSS));
-											boolean fsrActive = (u == Upscaler.FSR || (u == Upscaler.AUTO && UpscalingRenderer.get().effectiveUpscaler() == Upscaler.FSR));
-											if (dlssActive && nvidia) {
+											boolean dlssAllowed = nvidia && u != Upscaler.FSR;
+											boolean fsrAllowed = u != Upscaler.DLSS;
+											if (dlssAllowed) {
 												if (FrameGenerationRenderer.get().isDlssFgSupported()) {
 													allowed.add(FrameGeneration.DLSS);
 												}
 												if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
 													allowed.add(FrameGeneration.DLSS_MULTI);
 												}
-											} else if (fsrActive) {
+											} else if (fsrAllowed) {
 												allowed.add(FrameGeneration.FSR);
 											}
 											return allowed;

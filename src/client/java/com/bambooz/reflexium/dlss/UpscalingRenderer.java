@@ -1311,7 +1311,10 @@ public final class UpscalingRenderer {
 					frameTimeMs, resetting);
 		}
 		if (builtUpscaler == Upscaler.OFF) {
-			RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getColorTexture(), renderTarget.getColorTexture(),
+			var encoder = RenderSystem.getDevice().createCommandEncoder();
+			encoder.copyTextureToTexture(main.getColorTexture(), renderTarget.getColorTexture(),
+					0, 0, 0, 0, 0, displayWidth, displayHeight);
+			encoder.copyTextureToTexture(main.getDepthTexture(), renderTarget.getDepthTexture(),
 					0, 0, 0, 0, 0, displayWidth, displayHeight);
 			resetNext = false;
 			return;

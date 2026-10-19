@@ -87,9 +87,7 @@ public final class ReflexiumConfig {
 	public Upscaler upscaler() { return upscaler; }
 	public void setUpscaler(Upscaler value) {
 		upscaler = value;
-		if (value == Upscaler.OFF) {
-			frameGeneration = FrameGeneration.OFF;
-		} else if (value == Upscaler.FSR && (frameGeneration == FrameGeneration.DLSS || frameGeneration == FrameGeneration.DLSS_MULTI)) {
+		if (value == Upscaler.FSR && (frameGeneration == FrameGeneration.DLSS || frameGeneration == FrameGeneration.DLSS_MULTI)) {
 			frameGeneration = FrameGeneration.OFF;
 		} else if (value == Upscaler.DLSS && frameGeneration == FrameGeneration.FSR) {
 			frameGeneration = FrameGeneration.OFF;
@@ -103,9 +101,7 @@ public final class ReflexiumConfig {
 	public void setFsrSharpness(int value) { fsrSharpness = Math.clamp(value, 0, 100); save(); }
 	public FrameGeneration frameGeneration() { return frameGeneration; }
 	public void setFrameGeneration(FrameGeneration value) {
-		if (upscaler == Upscaler.OFF && value != FrameGeneration.OFF) {
-			value = FrameGeneration.OFF;
-		} else if (upscaler == Upscaler.FSR && (value == FrameGeneration.DLSS || value == FrameGeneration.DLSS_MULTI)) {
+		if (upscaler == Upscaler.FSR && (value == FrameGeneration.DLSS || value == FrameGeneration.DLSS_MULTI)) {
 			value = FrameGeneration.OFF;
 		} else if (upscaler == Upscaler.DLSS && value == FrameGeneration.FSR) {
 			value = FrameGeneration.OFF;

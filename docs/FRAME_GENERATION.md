@@ -31,8 +31,8 @@ while generating would sacrifice real frames to enforce an output budget. Active
 exceed refresh. An explicit user cap still limits total presents and can reduce real throughput.
 This is an application fallback policy, not NVIDIA Streamline Dynamic MFG.
 
-Current settings require Auto or the matching upscaler. Selecting Off or an explicitly mismatched
-backend disables FG. The renderer retains native and cross-backend paths from earlier acceptance;
+DLSS FG works independently of DLSS SR, operating at native resolution when the upscaler is Off,
+or with Auto or DLSS. Selecting an explicitly mismatched backend disables FG. The renderer retains native and cross-backend paths from earlier acceptance;
 the [2026-10-14 check](PERFORMANCE.md) covers the current settings combinations.
 Menus, missing world frames, camera cuts and target recreation reset interpolation history.
 FG does not increase game ticks or input sampling. A base rate of at least 60 FPS is recommended
