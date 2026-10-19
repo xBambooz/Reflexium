@@ -93,7 +93,7 @@ public final class ReflexiumOptions {
 		UpscalingRenderer.get().onModeChanged();
 	}
 	public static OptionInstance<DlssModel> dlssModel() {
-		Codec<DlssModel> codec = Codec.STRING.xmap(v -> DlssModel.parse(v, DlssModel.AUTO), DlssModel::serializedName);
+		Codec<DlssModel> codec = Codec.STRING.xmap(v -> DlssModel.parse(v, ReflexiumConfig.DEFAULT_DLSS_MODEL), DlssModel::serializedName);
 		return new OptionInstance<>("reflexium.option.dlss_model",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.dlss_model.tooltip")),
 				(caption, value) -> value.label(), new OptionInstance.Enum<>(List.of(DlssModel.values()), codec),
@@ -149,7 +149,7 @@ public final class ReflexiumOptions {
 	}
 
 	public static OptionInstance<FrameGeneration> frameGeneration() {
-		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, FrameGeneration.OFF), FrameGeneration::serializedName);
+		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, ReflexiumConfig.DEFAULT_FRAME_GENERATION), FrameGeneration::serializedName);
 		return new OptionInstance<>("reflexium.option.frame_generation",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.frame_generation.tooltip")),
 				(caption, value) -> value.label(), new OptionInstance.Enum<>(List.of(FrameGeneration.values()), codec),

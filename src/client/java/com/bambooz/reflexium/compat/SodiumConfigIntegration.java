@@ -92,7 +92,7 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setName(Component.translatable("reflexium.option.dlss_model"))
 										.setTooltip(Component.translatable("reflexium.option.dlss_model.tooltip"))
 										.setElementNameProvider(DlssModel::label)
-										.setDefaultValue(DlssModel.AUTO)
+										.setDefaultValue(ReflexiumConfig.DEFAULT_DLSS_MODEL)
 										.setStorageHandler(SAVED_ON_SET)
 										.setEnabledProvider(state -> {
 											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);
@@ -143,7 +143,7 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setName(Component.translatable("reflexium.option.frame_generation"))
 										.setTooltip(Component.translatable("reflexium.option.frame_generation.tooltip"))
 										.setElementNameProvider(FrameGeneration::label)
-										.setDefaultValue(FrameGeneration.OFF)
+										.setDefaultValue(ReflexiumConfig.DEFAULT_FRAME_GENERATION)
 										.setStorageHandler(SAVED_ON_SET)
 										.setAllowedValuesProvider(state -> {
 											Upscaler u = state.readEnumOption(id("upscaler"), Upscaler.class);

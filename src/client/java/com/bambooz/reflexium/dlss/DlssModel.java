@@ -5,8 +5,8 @@ import java.util.Locale;
 
 /**
  * Requested NGX render model. Auto lets the installed NVIDIA runtime select per-quality defaults.
- * Transformer asks for NVIDIA's recommended preset per mode (SDK 310.9.1): K for DLAA, Quality and
- * Balanced, M for Performance, L for Ultra Performance. NGX does not report which model it actually chose.
+ * Transformer requests K through Performance after the 1440p K/M quality/cost comparison,
+ * and L for Ultra Performance. NGX does not report which model it actually chose.
  */
 public enum DlssModel {
 	AUTO, TRANSFORMER, CNN;
@@ -22,8 +22,7 @@ public enum DlssModel {
 			case AUTO -> 0;
 			case CNN -> PRESET_CNN;
 			case TRANSFORMER -> switch (quality) {
-				case NATIVE_AA, QUALITY, BALANCED -> PRESET_K;
-				case PERFORMANCE -> PRESET_M;
+				case NATIVE_AA, QUALITY, BALANCED, PERFORMANCE -> PRESET_K;
 				case ULTRA_PERFORMANCE -> PRESET_L;
 			};
 		};

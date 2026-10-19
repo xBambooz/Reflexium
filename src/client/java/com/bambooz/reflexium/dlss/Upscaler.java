@@ -12,7 +12,7 @@ public enum Upscaler {
 		try { return value == null ? fallback : valueOf(value.trim().toUpperCase(Locale.ROOT)); }
 		catch (IllegalArgumentException ignored) { return fallback; }
 	}
-	public Upscaler resolve(boolean dlss, boolean fsr) {
-		return this == AUTO ? dlss ? DLSS : fsr ? FSR : OFF : this;
+	public Upscaler resolve(boolean dlss, boolean fsr, boolean shaderPack) {
+		return this == AUTO ? !shaderPack ? OFF : dlss ? DLSS : fsr ? FSR : OFF : this;
 	}
 }
