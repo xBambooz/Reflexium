@@ -55,8 +55,7 @@ final class SharpenPass {
 			slice = MotionVectorPass.uploadUniforms(uniforms, data);
 		}
 		try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder()
-				.createRenderPass(() -> "Reflexium DLSS sharpen", destination.getColorTextureView(), Optional.empty(),
-						destination.getDepthTextureView(), OptionalDouble.empty())) {
+				.createRenderPass(() -> "Reflexium DLSS sharpen", destination.getColorTextureView(), Optional.empty())) {
 			pass.setPipeline(RenderSystem.getCompiledPipeline(PIPELINE));
 			pass.setUniform("ReflexiumSharpen", slice);
 			pass.setUniform("Source", source, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
