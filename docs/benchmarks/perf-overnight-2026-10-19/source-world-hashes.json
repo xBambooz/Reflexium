@@ -1,0 +1,278 @@
+﻿[
+    {
+        "sha256":  "631A416945EC70301AB719333CF5166D5D723E87ED39277DD283A2F05552F324",
+        "path":  "\\essential-world-settings.json"
+    },
+    {
+        "sha256":  "1E2A732C24FBBA1608755D5BEA1C7D9CDBCC4C75D5BBA6AFA9777DE2AC04F6F6",
+        "path":  "\\icon.png"
+    },
+    {
+        "sha256":  "EDF787AC255558EFC583FC00BAF59D37411642587283983A7DE4B936EF2B048B",
+        "path":  "\\level.dat"
+    },
+    {
+        "sha256":  "AA354EC596AF0BED39D46702CCCD5D856882DC98986C6C464D127B74494163E1",
+        "path":  "\\level.dat_old"
+    },
+    {
+        "sha256":  "CFD6B6564364F00F5E489EB88367183139319F72E2684558C868B22E7AE8F538",
+        "path":  "\\xaeromap.txt"
+    },
+    {
+        "sha256":  "76107CDE8FA84741012BA9F19FC823EEBBDFE7C568261D5D72072303AE314927",
+        "path":  "\\data\\collective\\itemnametranslation.txt"
+    },
+    {
+        "sha256":  "FE20BD4EB4330CEC6EE779FD42926091BA7EE1908C14AC6C77C610E5BB90965D",
+        "path":  "\\data\\fabric\\registry_entries.dat"
+    },
+    {
+        "sha256":  "36656630921F70E010EB05F2300473144A420AF9DC3BB600AB2797990102A0BC",
+        "path":  "\\data\\minecraft\\custom_boss_events.dat"
+    },
+    {
+        "sha256":  "58F7FB3A8109FFAFB4F39E1572590154F088CB8A028C98D52C5AE143A01D366B",
+        "path":  "\\data\\minecraft\\game_rules.dat"
+    },
+    {
+        "sha256":  "6055D9D0CF4499C75055D5894002955876A4865D7142312F803BE29C0D3B0726",
+        "path":  "\\data\\minecraft\\random_sequences.dat"
+    },
+    {
+        "sha256":  "70476D0306CB312E7381CE2FD5EEC50BF6C1EA2F352A9AE7D8FD1B650540ABD9",
+        "path":  "\\data\\minecraft\\scheduled_events.dat"
+    },
+    {
+        "sha256":  "36656630921F70E010EB05F2300473144A420AF9DC3BB600AB2797990102A0BC",
+        "path":  "\\data\\minecraft\\scoreboard.dat"
+    },
+    {
+        "sha256":  "15CA4B57CA52582A4CA9118E7D1CD8F22CB829482343375B09EE271397B7EFCF",
+        "path":  "\\data\\minecraft\\stopwatches.dat"
+    },
+    {
+        "sha256":  "3C11C2D6EB70C22EAC2E327D0FD2203930011BE8E79EB511D9B6786B58B30E30",
+        "path":  "\\data\\minecraft\\wandering_trader.dat"
+    },
+    {
+        "sha256":  "9A1268A6DE1263892CD4ACFAEE4A32D662145BD4657EDB1B49FA76EE22E10D90",
+        "path":  "\\data\\minecraft\\weather.dat"
+    },
+    {
+        "sha256":  "F85613344F3A2B4817D6074BE77AA76CBA2D6F9C6A22C6F86ED2CE166F7E8343",
+        "path":  "\\data\\minecraft\\world_clocks.dat"
+    },
+    {
+        "sha256":  "B6F5AF1FEC775ABC654A0EA39A5AE49778A131B6065C98AFF44A7912201F039D",
+        "path":  "\\data\\minecraft\\world_gen_settings.dat"
+    },
+    {
+        "sha256":  "374A839A950BF139A4363163E231C98AF6F11AC0718A58EBAE7C9328DF790BB2",
+        "path":  "\\data\\openpartiesandclaims\\server-info.nbt"
+    },
+    {
+        "sha256":  "966B4FC1E5BFDD76F568C66C242A8CEC31EBD83BD922C0BA38CCAB5619191F1E",
+        "path":  "\\data\\openpartiesandclaims\\player-claims\\00000000-0000-0000-0000-000000000000.nbt"
+    },
+    {
+        "sha256":  "31ECECEC845BBF51BE6FF8BB01EC7FCA2F3D7D3373489498721F89999C817C59",
+        "path":  "\\data\\openpartiesandclaims\\player-claims\\00000000-0000-0000-0000-000000000001.nbt"
+    },
+    {
+        "sha256":  "3C2C65F1F334B6EB698A0EC88C88233DD1F7EA70E908842A92353DFB9EAC558D",
+        "path":  "\\dimensions\\minecraft\\overworld\\mfix_stronghold_cache_v2.nbt"
+    },
+    {
+        "sha256":  "82CE9B627A43C4D2132113BEBBBFBC4FF639742A0BF54CF6FFE50F965533E0B6",
+        "path":  "\\dimensions\\minecraft\\overworld\\data\\DistantHorizons.sqlite"
+    },
+    {
+        "sha256":  "36656630921F70E010EB05F2300473144A420AF9DC3BB600AB2797990102A0BC",
+        "path":  "\\dimensions\\minecraft\\overworld\\data\\minecraft\\chunk_tickets.dat"
+    },
+    {
+        "sha256":  "2710AC6C3029B91116395B42C6061CCA7DE16D16E3FCF8AA6EDE284D3BA08B2C",
+        "path":  "\\dimensions\\minecraft\\overworld\\data\\minecraft\\raids.dat"
+    },
+    {
+        "sha256":  "64AA688E75359504FEB84AE0E0EF97E80E8B8D5B5DD7438F495AEB1012F5EB54",
+        "path":  "\\dimensions\\minecraft\\overworld\\data\\minecraft\\world_border.dat"
+    },
+    {
+        "sha256":  "FDBB4FE22F8A0E195D4B2D6832A2FA417A2A763FBF2B0421451EC316CFC90BD8",
+        "path":  "\\dimensions\\minecraft\\overworld\\entities\\r.-1.-1.mca"
+    },
+    {
+        "sha256":  "EA2A25C0776AD89608D65EEE35C54735E44D28ECDC0659561623C72369CF8E74",
+        "path":  "\\dimensions\\minecraft\\overworld\\entities\\r.-1.0.mca"
+    },
+    {
+        "sha256":  "931A7F2C0505EBE82237E603DEA2A0CE6E393A81B3B1D334836C1016C029D77F",
+        "path":  "\\dimensions\\minecraft\\overworld\\entities\\r.0.-1.mca"
+    },
+    {
+        "sha256":  "06E1E82DAD4AE13CA08F135495ADF5DB73B1684EE3BED6C2CFFCE6E3D336851F",
+        "path":  "\\dimensions\\minecraft\\overworld\\entities\\r.0.0.mca"
+    },
+    {
+        "sha256":  "0E4B972129CFDC9DD21906A3CE88587E23D7CAC24CF347F5B844AE81F750662C",
+        "path":  "\\dimensions\\minecraft\\overworld\\poi\\r.-1.-1.mca"
+    },
+    {
+        "sha256":  "6E5A0D66031E969EBF5F1DA92C96B9F600B85E4CEED75BD9B97A1679DDCB366B",
+        "path":  "\\dimensions\\minecraft\\overworld\\poi\\r.-1.0.mca"
+    },
+    {
+        "sha256":  "F47F4E9BD9BF8A05A794F7845A57E0DCA60292E2D9A382C7C1EF3E1BEF90545B",
+        "path":  "\\dimensions\\minecraft\\overworld\\poi\\r.0.-1.mca"
+    },
+    {
+        "sha256":  "27404212799D711A47076ECE8A23077D1870D9B8B2105363EFF71E5DF508F3F2",
+        "path":  "\\dimensions\\minecraft\\overworld\\poi\\r.0.0.mca"
+    },
+    {
+        "sha256":  "DF26A7DB7EE5E227821C3B182BA367D373AA51C616A2E1FD914DB2E08B0D9C85",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-1.-1.mca"
+    },
+    {
+        "sha256":  "03FA5ED7A6897803AB93772AEB9DE087BD00A728E3EB1F00860568574F6261B5",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-1.-2.mca"
+    },
+    {
+        "sha256":  "3CC790D7E301F6D93CED4A89C0E0BD7ADA877A15A1A077D451C1E3938EE74DD4",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-1.0.mca"
+    },
+    {
+        "sha256":  "861350A830905821AE6DA2F45F3D2EC2D8A92CBFD0D1B870EADC5419A36FF8B7",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-1.1.mca"
+    },
+    {
+        "sha256":  "5E0FAA6FEF173219943F2CF9DF6E92FB5872120E7A098EFAAF7BF797AA0E1E6F",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-2.-1.mca"
+    },
+    {
+        "sha256":  "87988631FF53EE37D82D0D81FD34A4904B810A9B66424E37AE750D1FCA6E1F31",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-2.-2.mca"
+    },
+    {
+        "sha256":  "B4F5CB87DD5BB558EF2C01BB71445ABA6A1D84DFFE87E2C42A964541A6A4B22C",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-2.0.mca"
+    },
+    {
+        "sha256":  "43A230DE0DC9D5791AC694D98AD19085392BBC370FFBDC77C03C34FC81225648",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.-2.1.mca"
+    },
+    {
+        "sha256":  "D5F38E60B0EA2F9175CFC39A9036C7EE65E1063561FBFD75723A16AAAF3C821A",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.0.-1.mca"
+    },
+    {
+        "sha256":  "EB193A665AA12D6855336169A4E0D4BAF5C80B5A32B2A4A3A2DE3019F82ED94E",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.0.-2.mca"
+    },
+    {
+        "sha256":  "8F33300E7C896CF7708205A6C73C44E8B280DAD7AB15F599F09D62C1208C11B4",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.0.0.mca"
+    },
+    {
+        "sha256":  "59A3AA7DE5D547C06EF4C7427EEC3BB03C1DFECD62686EF986DD813C3BB3AA49",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.0.1.mca"
+    },
+    {
+        "sha256":  "C7AC1652665B3E6FCB592122EF063B4E82577467F154BF7E24366049ED1E459F",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.1.-1.mca"
+    },
+    {
+        "sha256":  "478FF7F43F20F46DD65DA6F2F0CDD99F884AB9F038933BC7CEA8313B350ED184",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.1.-2.mca"
+    },
+    {
+        "sha256":  "E3AADA740B3D783E7BA9D84D8778FCDF220135FCDAF436D7883C5CEADD1258D2",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.1.0.mca"
+    },
+    {
+        "sha256":  "0E841203901AAE2662EAA19516E8DB4FFE3C402EDD9CEA2BD6E4EEE71190EC14",
+        "path":  "\\dimensions\\minecraft\\overworld\\region\\r.1.1.mca"
+    },
+    {
+        "sha256":  "01B5E5FC9B7BA33788EC3FB66F166AFD31B72C865EBCF4CE3521089F561F6694",
+        "path":  "\\dimensions\\minecraft\\the_end\\data\\DistantHorizons.sqlite"
+    },
+    {
+        "sha256":  "36656630921F70E010EB05F2300473144A420AF9DC3BB600AB2797990102A0BC",
+        "path":  "\\dimensions\\minecraft\\the_end\\data\\minecraft\\chunk_tickets.dat"
+    },
+    {
+        "sha256":  "41EBC23A93473BFF272E0F8091A3298A1DD7866C99E61946848AF2ED9BE31762",
+        "path":  "\\dimensions\\minecraft\\the_end\\data\\minecraft\\ender_dragon_fight.dat"
+    },
+    {
+        "sha256":  "2710AC6C3029B91116395B42C6061CCA7DE16D16E3FCF8AA6EDE284D3BA08B2C",
+        "path":  "\\dimensions\\minecraft\\the_end\\data\\minecraft\\raids.dat"
+    },
+    {
+        "sha256":  "64AA688E75359504FEB84AE0E0EF97E80E8B8D5B5DD7438F495AEB1012F5EB54",
+        "path":  "\\dimensions\\minecraft\\the_end\\data\\minecraft\\world_border.dat"
+    },
+    {
+        "sha256":  "EA79170D4169C3FE2F952302D37BA2749934844FF531698F74EC95CE84C3E4A0",
+        "path":  "\\dimensions\\minecraft\\the_nether\\data\\DistantHorizons.sqlite"
+    },
+    {
+        "sha256":  "36656630921F70E010EB05F2300473144A420AF9DC3BB600AB2797990102A0BC",
+        "path":  "\\dimensions\\minecraft\\the_nether\\data\\minecraft\\chunk_tickets.dat"
+    },
+    {
+        "sha256":  "2710AC6C3029B91116395B42C6061CCA7DE16D16E3FCF8AA6EDE284D3BA08B2C",
+        "path":  "\\dimensions\\minecraft\\the_nether\\data\\minecraft\\raids.dat"
+    },
+    {
+        "sha256":  "64AA688E75359504FEB84AE0E0EF97E80E8B8D5B5DD7438F495AEB1012F5EB54",
+        "path":  "\\dimensions\\minecraft\\the_nether\\data\\minecraft\\world_border.dat"
+    },
+    {
+        "sha256":  "DDE405B153D4D67668CB2E830E3CA3C1F852F8C0FB2A7B1024CE84BF5F5A07CD",
+        "path":  "\\players\\advancements\\00000000-0000-0000-0000-000000000000.json"
+    },
+    {
+        "sha256":  "E4BB827D92C2EDB44ACA2AEA59CAE4893E8938481FB357DF195004144F0D972E",
+        "path":  "\\players\\advancements\\1e3c9076-6029-36c6-8475-dd38d2030d5f.json"
+    },
+    {
+        "sha256":  "3468840AA17E85155AA884056E31417A1E083D54D4452E261A746F42062F5A85",
+        "path":  "\\players\\advancements\\924198c2-2c42-36d7-958c-f259b1738969.json"
+    },
+    {
+        "sha256":  "AC2CC40CAAEEB8AA655BF3240B0EF6D53B04AA8383C174FF4644C3A8966BBFD9",
+        "path":  "\\players\\stats\\00000000-0000-0000-0000-000000000000.json"
+    },
+    {
+        "sha256":  "01F5625DDFCBB46DBE5B3BA1A3F8C54A8F2FFF5455B33F8B5F7EF5F1E180D488",
+        "path":  "\\players\\stats\\1e3c9076-6029-36c6-8475-dd38d2030d5f.json"
+    },
+    {
+        "sha256":  "C338DFA81C312F9D8196EBF673EC8AF764C05FAB0E3B960F1B40393316F9A9E5",
+        "path":  "\\players\\stats\\924198c2-2c42-36d7-958c-f259b1738969.json"
+    },
+    {
+        "sha256":  "2CCB78D6C09A301E8BB48A4B0F33F7F907440AF66D90A0C7D29831C8B3406A0D",
+        "path":  "\\serverconfig\\openpartiesandclaims-default-player-config.toml"
+    },
+    {
+        "sha256":  "2CCB78D6C09A301E8BB48A4B0F33F7F907440AF66D90A0C7D29831C8B3406A0D",
+        "path":  "\\serverconfig\\openpartiesandclaims-expired-claim-config.toml"
+    },
+    {
+        "sha256":  "2CCB78D6C09A301E8BB48A4B0F33F7F907440AF66D90A0C7D29831C8B3406A0D",
+        "path":  "\\serverconfig\\openpartiesandclaims-server-claim-config.toml"
+    },
+    {
+        "sha256":  "BAE44CE81C5E8403E9A54D295ADCA3BBB1D4D0CE50968DC9B03292408830B6CA",
+        "path":  "\\serverconfig\\openpartiesandclaims-wilderness-config.toml"
+    },
+    {
+        "sha256":  "B1022AB932F8F0EA0CF78D9F312E95B85A4F96F59CA430E63F9A435E512D1186",
+        "path":  "\\serverconfig\\readme.txt"
+    }
+]
