@@ -6,21 +6,27 @@ import org.joml.Vector4f;
 import java.util.List;
 import java.util.function.Supplier;
 
-/** Reviewed BSL leaves and vines: evaluate the actual wave at both frame times. */
+/** Reviewed BSL cutout vegetation: evaluate the actual wave and contact bend at both frame times. */
 public final class BslFoliageMotion {
 	private static boolean sourceReady;
 	private static boolean waveReady;
 	private static Object timer;
 	private static java.lang.reflect.Method clock;
 	private static float previousTime;
+	private static final org.joml.Vector3f previousEye = new org.joml.Vector3f();
+	private static boolean haveEye;
+	private static java.lang.reflect.Method eyePosition, cameraPosition;
 	private BslFoliageMotion() { }
-	public static void reset() { sourceReady = waveReady = false; }
+	public static void reset() { sourceReady = waveReady = haveEye = false; }
 	public static boolean ready() { return sourceReady && waveReady && IrisCompat.isDrawingPack() && "BSL_v10.1.8".equals(IrisCompat.currentPackName()); }
 
 	static String adapt(String path, String source) {
 		if (path.equals("lib/vertex/waving.glsl")) {
 			waveReady = "f4163b9a6b715dd62cc3df92ffc17137eb89ce8a9b78d857869cc0b1f74d5a50".equals(
 					ComplementaryTemporalSource.sha256(List.of(source.replace("\r\n", "\n").split("\n", -1))));
+			if (waveReady) return "vec3 rxBendOffset = vec3(0.0);\n" + source.replace(
+					"position += relativeEyePosition + vec3(0.0, 0.62, 0.0);",
+					"position += relativeEyePosition + rxBendOffset + vec3(0.0, 0.62, 0.0);");
 		}
 		if (!path.equals("program/gbuffers_terrain.glsl") || !"c36e8a1d5c58c214ba1f21e5a9d468bfba92a7e53ad78382696265f2dc84aeea".equals(
 				ComplementaryTemporalSource.sha256(List.of(source.replace("\r\n", "\n").split("\n", -1))))) return source;
@@ -42,14 +48,15 @@ public final class BslFoliageMotion {
 		int end = s.indexOf("\n}\n\n#endif");
 		if (end < 0) throw new IllegalStateException("Reviewed BSL fragment boundary missing");
 		s = s.substring(0, end) + output + s.substring(end);
-		s = s.replace("#ifdef VSH", "#ifdef VSH\nvarying vec4 rxCurrentClip, rxPreviousClip;\nvarying float rxFoliage;\nuniform mat4 rxCurrentProjection, rxPreviousProjection;\nuniform vec4 rxMotionState;\n");
+		s = s.replace("#ifdef VSH", "#ifdef VSH\nvarying vec4 rxCurrentClip, rxPreviousClip;\nvarying float rxFoliage;\nuniform mat4 rxCurrentProjection, rxPreviousProjection;\nuniform vec4 rxMotionState;\nuniform vec3 rxPreviousEye;\n");
 		s = s.replace("position.xyz = WavingBlocks(position.xyz, blockID, istopv);",
 				"vec3 rxBase = position.xyz;\nfloat rxSavedTime = time;\ntime = rxMotionState.w * ANIMATION_SPEED;\n"
-				+ "vec3 rxBefore = WavingBlocks(rxBase, blockID, istopv) + rxMotionState.xyz;\ntime = rxSavedTime;\n"
+				+ "rxBendOffset = rxMotionState.xyz + rxPreviousEye - relativeEyePosition;\n"
+				+ "vec3 rxBefore = WavingBlocks(rxBase, blockID, istopv) + rxMotionState.xyz;\ntime = rxSavedTime;\nrxBendOffset = vec3(0.0);\n"
 				+ "position.xyz = WavingBlocks(position.xyz, blockID, istopv);\n"
 				+ "#ifdef WORLD_CURVATURE\nrxBefore.y -= WorldCurvature(rxBefore.xz);\n#endif\n"
 				+ "rxPreviousClip = rxPreviousProjection * vec4(rxBefore, 1.0);\n"
-				+ "rxFoliage = float(blockID == 105 || blockID == 106);\n"
+				+ "rxFoliage = float((blockID >= 100 && blockID <= 108) || blockID == 157);\n"
 				+ "#ifdef WORLD_TIME_ANIMATION\nrxFoliage = 0.0;\n#endif\n");
 		s = s.replace("gl_Position = gl_ProjectionMatrix * gbufferModelView * position;",
 				"gl_Position = gl_ProjectionMatrix * gbufferModelView * position;\nrxCurrentClip = rxCurrentProjection * position;\n"
@@ -69,12 +76,26 @@ public final class BslFoliageMotion {
 			matrix.invoke(holder, perFrame, "rxPreviousProjection", (Supplier<?>) () -> UpscalingRenderer.get().foliageProjection(true));
 			api.getMethod("uniform4f", frequency, String.class, Supplier.class).invoke(holder, perFrame, "rxMotionState",
 					(Supplier<Vector4f>) () -> UpscalingRenderer.get().foliageMotionState(previousTime));
+			api.getMethod("uniform3f", frequency, String.class, Supplier.class).invoke(holder, perFrame, "rxPreviousEye",
+					(Supplier<?>) () -> haveEye ? previousEye : relativeEye());
 		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage uniform ABI changed", e); }
 	}
 
 	public static void endFrame() {
 		if (!ready()) return;
 		previousTime = currentTime();
+		previousEye.set(relativeEye());
+		haveEye = true;
+	}
+	private static org.joml.Vector3f relativeEye() {
+		try {
+			if (eyePosition == null) {
+				eyePosition = Class.forName("net.irisshaders.iris.uniforms.IrisExclusiveUniforms").getDeclaredMethod("getEyePosition");
+				eyePosition.setAccessible(true);
+				cameraPosition = Class.forName("net.irisshaders.iris.uniforms.CameraUniforms").getMethod("getUnshiftedCameraPosition");
+			}
+			return new org.joml.Vector3f(new org.joml.Vector3d((org.joml.Vector3dc) cameraPosition.invoke(null)).sub((org.joml.Vector3dc) eyePosition.invoke(null)));
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris contact bend eye position unavailable", e); }
 	}
 	public static float previousTime() { return previousTime; }
 	public static float currentTime() {

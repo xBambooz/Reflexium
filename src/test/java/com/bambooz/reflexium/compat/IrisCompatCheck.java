@@ -69,8 +69,14 @@ public final class IrisCompatCheck {
 				String source = Files.readString(terrain);
 				String changed = BslFoliageMotion.adapt("program/gbuffers_terrain.glsl", source);
 				if (changed.equals(source) || changed.contains("DRAWBUFFERS:") || !changed.contains("rxPreviousProjection * vec4(rxBefore, 1.0)")
-						|| !changed.contains("blockID == 105 || blockID == 106") || !changed.contains("time = rxSavedTime"))
+						|| !changed.contains("blockID >= 100 && blockID <= 108") || !changed.contains("time = rxSavedTime")
+						|| !changed.contains("rxPreviousEye - relativeEyePosition") || !changed.contains("rxBendOffset = vec3(0.0)"))
 					throw new AssertionError("BSL deformation producer not installed");
+				String wave = Files.readString(fs.getPath("/shaders/lib/vertex/waving.glsl"));
+				if (!BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave).contains("relativeEyePosition + rxBendOffset"))
+					throw new AssertionError("BSL previous contact bend missing");
+				if (!BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave + "\n// edited").equals(wave + "\n// edited"))
+					throw new AssertionError("Modified BSL wave must remain untouched");
 				String modified = source + "\n// edited\n";
 				if (!BslFoliageMotion.adapt("program/gbuffers_terrain.glsl", modified).equals(modified))
 					throw new AssertionError("Modified BSL terrain must remain untouched");
@@ -114,7 +120,10 @@ public final class IrisCompatCheck {
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
 			require(zip, "net/irisshaders/iris/uniforms/CommonUniforms", "generalCommonUniforms");
-			require(zip, "net/irisshaders/iris/gl/uniform/UniformHolder", "uniformMatrix", "uniform4f");
+			require(zip, "net/irisshaders/iris/gl/uniform/UniformHolder", "uniformMatrix", "uniform4f", "uniform3f");
+			require(zip, "net/irisshaders/iris/uniforms/IrisExclusiveUniforms", "getEyePosition()Lorg/joml/Vector3d;");
+			require(zip, "net/irisshaders/iris/uniforms/CameraUniforms", "getUnshiftedCameraPosition()Lorg/joml/Vector3d;");
+			require(zip, "net/irisshaders/iris/targets/RenderTargets", "getDepthTextureView(I)Lcom/mojang/renderpearl/api/textures/GpuTextureView;");
 			require(zip, "net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer", "getFrameTimeCounter()F");
 			require(zip, "net/irisshaders/iris/targets/RenderTarget", "getTextureView(ZZ)Lcom/mojang/renderpearl/api/textures/GpuTextureView;");
 			ClassNode target = node(zip, "net/irisshaders/iris/mixin/MixinRenderTarget");
