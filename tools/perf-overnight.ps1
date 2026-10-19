@@ -4,6 +4,7 @@ param(
     [int]$Seconds = 4,
     [int]$Passes = 2,
     [string[]]$Scenes = @('shaderless','bsl'),
+    [string]$Reflex = 'on',
     [string[]]$Modes = @('native','cnn-quality','cnn-balanced','cnn-performance','transformer-quality','transformer-balanced','transformer-performance')
 )
 $ErrorActionPreference = 'Stop'
@@ -45,7 +46,7 @@ $s = Call status
 if ($s.pid -ne $session.game_pid -or $s.game_directory -ne $session.game_directory) { throw 'Wrong client' }
 if (!$s.world_loaded) { Call join @{world='PerfFrozen';timeout_s=120} | Out-Null }
 Set-Rx frame_generation off
-Set-Rx reflex_mode on
+Set-Rx reflex_mode $Reflex
 Set-Rx smart_reflex false
 Set-Rx reflex_interval_us 0
 Call command @{command='tick freeze'} | Out-Null
@@ -72,7 +73,7 @@ foreach ($scene in $Scenes) {
             $before = Call status
             $rx = $before.plugins.reflexium
             if ($before.window.width -ne 2560 -or $before.window.height -ne 1440 -or $before.focus.os_minimized) { throw 'Window mismatch' }
-            if ($rx.frame_generation -ne 'off' -or $rx.reflex_mode -ne 'ON' -or $rx.reflex_pacing_paused) { throw 'Pacing mismatch' }
+            if ($rx.frame_generation -ne 'off' -or ($Reflex -eq 'on' -and $rx.reflex_mode -ne 'ON') -or $rx.reflex_pacing_paused) { throw 'Pacing mismatch' }
             if ($mode -ne 'native' -and (!$rx.upscaling_active -or $rx.quality -ne $parts[1])) { throw 'Inactive upscaling' }
             foreach ($profile in @($false,$true)) {
                 $other = Wait-Clear
