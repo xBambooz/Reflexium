@@ -650,6 +650,20 @@ public final class DebugServer {
 				if (!Float.isFinite(offset) || offset < -4.0f || offset > 4.0f) throw new BadRequest("mip_bias_offset must be finite within -4..4 (+1 reproduces the pre-baseline bias)");
 				yield () -> DebugSettings.setMipBiasOffset(offset);
 			}
+			case "pack_shadow_cap" -> {
+				// "<resolution>,<distance>"; 0 keeps the pack's value. Recompiles the pack so the options apply.
+				String[] parts = value.trim().split(",");
+				if (parts.length != 2) throw new BadRequest("pack_shadow_cap must be <resolution>,<distance> (0 = pack value)");
+				int resolution, distance;
+				try { resolution = Integer.parseInt(parts[0].trim()); distance = Integer.parseInt(parts[1].trim()); }
+				catch (NumberFormatException e) { throw new BadRequest("pack_shadow_cap values must be whole numbers"); }
+				if (resolution < 0 || resolution > 8192 || distance < 0 || distance > 1024) throw new BadRequest("pack_shadow_cap range is 0..8192,0..1024");
+				int r = resolution, d = distance;
+				yield () -> {
+					com.bambooz.reflexium.config.ReflexiumConfig.get().setPackShadowCaps(r, d);
+					com.bambooz.reflexium.compat.IrisCompat.reloadForOptionChange();
+				};
+			}
 			case "hand_motion" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> DebugSettings.setHandMotion(on);
@@ -753,7 +767,7 @@ public final class DebugServer {
 				yield () -> DebugSettings.setDrawStaticObjects(on);
 			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|shaders|pack_taa|pack_resolve|pack_filters");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|pack_shadow_cap|shaders|pack_taa|pack_resolve|pack_filters");
 		};
 		return call(() -> {
 			apply.run();

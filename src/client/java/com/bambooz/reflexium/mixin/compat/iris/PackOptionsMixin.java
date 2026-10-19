@@ -19,6 +19,6 @@ public abstract class PackOptionsMixin {
 			target = "Lnet/irisshaders/iris/shaderpack/option/values/MutableOptionValues;<init>(Lnet/irisshaders/iris/shaderpack/option/OptionSet;Ljava/util/Map;)V"),
 			index = 1)
 	private Map<String, String> reflexium$upscalerOwnsTemporalAa(Map<String, String> values) {
-		return IrisCompat.temporalOptionOverrides(this, values);
+		return IrisCompat.packOptionOverrides(this, values);
 	}
 }
