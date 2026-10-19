@@ -85,7 +85,11 @@ public abstract class VulkanGpuSurfaceMixin {
 		reflexium$acquireCompletion = new com.mojang.renderpearl.api.commands.GpuFence[acquireSemaphores.length];
 	}
 	@Unique private void reflexium$blit(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
-		original.call(encoder, view);
+		var commands = com.bambooz.reflexium.debug.FrameProfiler.enabled()
+				? ((VulkanCommandEncoderAccessor) encoder).reflexium$commandBuffer() : null;
+		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, commands);
+		try { original.call(encoder, view); }
+		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, timing, commands); }
 		// This fence covers the submission consuming this binary acquire signal, independent of FG
 		// multiplier or ring size. RenderPearl's timeline wait takes nanoseconds despite its parameter name.
 		reflexium$acquireCompletion[currentAcquireSemaphore] = encoder.createFence();
