@@ -70,11 +70,17 @@ public final class DeferredEffects {
 				try (var frame = dispatcher.prepareFrame(storage)) {
 					var target = Minecraft.getInstance().gameRenderer.mainRenderTarget();
 					var fg = FrameGenerationRenderer.get();
+					var encoder = RenderSystem.getDevice().createCommandEncoder();
+					for (int i = 0; i < fg.generatedCount(); i++) {
+						encoder.copyTextureToTexture(target.getDepthTexture(), fg.generatedDepthTexture(i),
+								0, 0, 0, 0, 0, target.width, target.height);
+					}
 					for (int i = -1; i < fg.generatedCount(); i++) {
 						var color = i < 0 ? target.getColorTextureView() : fg.generatedView(i);
-						try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+						var depth = i < 0 ? target.getDepthTextureView() : fg.generatedDepthView(i);
+						try (var pass = encoder.createRenderPass(
 								() -> "Reflexium display particles", color, Optional.empty(),
-								target.getDepthTextureView(), OptionalDouble.empty())) {
+								depth, OptionalDouble.empty())) {
 							RenderSystem.bindDefaultUniforms(pass);
 							FeatureRenderDispatcher.renderAllFeatures(pass, frame);
 							if (weather != null) weather.render(weatherState, pass);

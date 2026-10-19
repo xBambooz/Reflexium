@@ -220,6 +220,8 @@ public final class FrameGenerationRenderer {
 		}
 	}
 	public GpuTextureView generatedView(int index) { return generated[index].getColorTextureView(); }
+	public GpuTextureView generatedDepthView(int index) { return generated[index].getDepthTextureView(); }
+	public com.mojang.renderpearl.api.textures.GpuTexture generatedDepthTexture(int index) { return generated[index].getDepthTexture(); }
 	/** One encoder per replacement slot keeps RenderPearl's two-submit reuse wait per real frame, not per output. */
 	public com.mojang.renderpearl.backend.api.CommandEncoderBackend presentEncoder(int index) {
 		if (presentEncoders[index] == null) presentEncoders[index] = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder(device);
