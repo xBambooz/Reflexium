@@ -425,12 +425,12 @@ public final class UpscalingRenderer {
 
 	/** Before GameRenderer.renderLevel: swap the render-resolution textures into the main target. */
 	public void beforeLevel(GameRenderer gameRenderer) {
+		worldTiming = FrameProfiler.enabled() && device != null ? FrameProfiler.start(FrameProfiler.WORLD, commandBuffer()) : 0;
 		if (!activeThisFrame) {
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		swap(main, renderTarget);
-		worldTiming = FrameProfiler.start(FrameProfiler.WORLD, commandBuffer());
 		swapped = true;
 		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
 				gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
@@ -680,6 +680,7 @@ public final class UpscalingRenderer {
 	 */
 	public void reconstructScene(GameRenderer gameRenderer) {
 		if (!swapped) {
+			if (worldTiming != 0) FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
@@ -731,8 +732,11 @@ public final class UpscalingRenderer {
 		if (color.texture().getFormat() != GpuFormat.RGBA16_FLOAT || color.getWidth(0) != renderWidth || color.getHeight(0) != renderHeight) {
 			throw new IllegalStateException("HDR boundary requires input-sized RGBA16F colortex0, got " + color.texture().getFormat());
 		}
+		VkCommandBuffer commands = commandBuffer();
+		long timing = FrameProfiler.start(FrameProfiler.HDR_COPY, commands);
 		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(color.texture(), hdrInput.getColorTexture(),
 				0, 0, 0, 0, 0, renderWidth, renderHeight);
+		FrameProfiler.end(FrameProfiler.HDR_COPY, timing, commands);
 		evaluate(hdrInput);
 		hdrEvaluated = true;
 	}
@@ -1235,8 +1239,11 @@ public final class UpscalingRenderer {
 	private void resolveDisplayDepth(RenderTarget main) {
 		try {
 			if (depthResolvePass == null) depthResolvePass = new DepthResolvePass();
+			VkCommandBuffer commands = commandBuffer();
+			long timing = FrameProfiler.start(FrameProfiler.DISPLAY_DEPTH, commands);
 			depthResolvePass.render(motionTarget.getDepthTextureView(), main.getDepthTextureView(), main.width, main.height,
 					depthTransform.m22(), depthTransform.m32());
+			FrameProfiler.end(FrameProfiler.DISPLAY_DEPTH, timing, commands);
 			depthResolved = true;
 		} catch (RuntimeException e) {
 			lastError = "post effect depth resolve failed: " + e;
@@ -1302,8 +1309,10 @@ public final class UpscalingRenderer {
 			throw new IllegalStateException(builtUpscaler + " evaluate returned 0x" + Integer.toHexString(result));
 		}
 		if (sharpen) {
+			timing = FrameProfiler.start(FrameProfiler.SHARPEN, commandBuffer);
 			barrier(commandBuffer);
 			sharpenPass.render(sharpenSource.getColorTextureView(), renderTarget, sharpness);
+			FrameProfiler.end(FrameProfiler.SHARPEN, timing, commandBuffer);
 		}
 		resetNext = false;
 		if (++evaluatedFrames == 1) {

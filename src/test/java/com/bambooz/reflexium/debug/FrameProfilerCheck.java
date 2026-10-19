@@ -3,8 +3,10 @@ package com.bambooz.reflexium.debug;
 public final class FrameProfilerCheck {
 	public static void main(String[] args) {
 		FrameProfiler.command("off");
+		if (FrameProfiler.enabled()) throw new AssertionError("disabled state");
 		if (FrameProfiler.start(FrameProfiler.EVALUATE, null) != 0) throw new AssertionError("disabled profiler");
 		FrameProfiler.command("reset");
+		if (!FrameProfiler.enabled()) throw new AssertionError("enabled state");
 		long start = FrameProfiler.start(FrameProfiler.EVALUATE, null);
 		FrameProfiler.end(FrameProfiler.EVALUATE, start, null);
 		var span = FrameProfiler.command("status").getAsJsonObject("spans").getAsJsonObject("evaluate");
