@@ -32,8 +32,9 @@ import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
  * <p>
  * Per frame (hooks in MinecraftMixin):
  * <pre>
- *   run():       latency sleep, SIMULATION_START,
+ *   run():       latency sleep,
  *                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
+ *                SIMULATION_START
  *   runTick():   SIMULATION_END                    (before renderFrame)
  *   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
  *                RENDERSUBMIT_END, PRESENT_START   (before present)
@@ -225,13 +226,13 @@ public final class ReflexController {
 			if (com.bambooz.reflexium.vulkan.FrameTrace.on(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep skipped configured=" + pacing.configured + " failed=" + pacing.failed
 					+ " suspended=" + pacing.suspended + " paused=" + isPacingPaused());
 		}
+		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
 		marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
 		simulationOpen = true;
 		if (LOG_LATENCY && System.nanoTime() - lastLatencyLog > LATENCY_LOG_INTERVAL_NS) {
 			lastLatencyLog = System.nanoTime();
 			ReflexiumClient.LOGGER.info("{} | {}", statusLine(), latencyLine());
 		}
-		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
 	}
 
 	public void endSimulation() {
