@@ -82,6 +82,10 @@ public final class ReflexController {
 	private long lastRefreshRead;
 	private float refreshRateHz;
 	private LatencyReport latency = LatencyReport.unavailable("no data yet");
+	private int lastMarker = -1;
+	private int lastMarkerRank;
+	private long lastMarkerFrameId = -1;
+	private long markerOrderRegressions;
 
 	public static ReflexController get() {
 		return INSTANCE;
@@ -191,6 +195,7 @@ public final class ReflexController {
 	public long sleepRecoveries() { return pacing.recoveries; }
 	public long pacingFailures() { return pacing.failures; }
 	public long modeConfigurations() { return pacing.configurations; }
+	public long markerOrderRegressions() { return markerOrderRegressions; }
 	/** Applied driver mode ordinal, or -1 while unconfigured, failed or suspended. */
 	public int appliedModeOrdinal() { return pacing.canSleep() && pacing.applied != null ? pacing.applied.ordinal() : -1; }
 
@@ -212,6 +217,9 @@ public final class ReflexController {
 		}
 		frameId++;
 		frameOpen = true;
+		lastMarker = -1;
+		lastMarkerRank = 0;
+		lastMarkerFrameId = frameId;
 		applySleepMode();
 		smartPacing.update(System.nanoTime(), canPausePacing());
 		pollPendingSleep();
@@ -520,13 +528,55 @@ public final class ReflexController {
 		if (!frameOpen || !isAvailable()) {
 			return;
 		}
+		int rank = markerRank(marker);
+		if (rank > 0) {
+			if (lastMarkerRank > 0 && rank <= lastMarkerRank && lastMarkerFrameId == frameId) {
+				markerOrderRegressions++;
+				ReflexiumClient.LOGGER.warn("Reflex marker order regression on frame {}: {} emitted after {}",
+						frameId, markerName(marker), markerName(lastMarker));
+			}
+			lastMarkerRank = rank;
+			lastMarker = marker;
+			lastMarkerFrameId = frameId;
+		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
-			if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "marker=" + marker);
+			if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "marker=" + markerName(marker));
 			vkSetLatencyMarkerNV(device, swapchain, VkSetLatencyMarkerInfoNV.calloc(stack)
 					.sType$Default()
 					.presentID(frameId)
 					.marker(marker));
 		}
+	}
+
+	public static String markerName(int marker) {
+		return switch (marker) {
+			case VK_LATENCY_MARKER_SIMULATION_START_NV -> "SIMULATION_START";
+			case VK_LATENCY_MARKER_SIMULATION_END_NV -> "SIMULATION_END";
+			case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV -> "RENDERSUBMIT_START";
+			case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV -> "RENDERSUBMIT_END";
+			case VK_LATENCY_MARKER_PRESENT_START_NV -> "PRESENT_START";
+			case VK_LATENCY_MARKER_PRESENT_END_NV -> "PRESENT_END";
+			case VK_LATENCY_MARKER_INPUT_SAMPLE_NV -> "INPUT_SAMPLE";
+			case VK_LATENCY_MARKER_TRIGGER_FLASH_NV -> "TRIGGER_FLASH";
+			case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV -> "OUT_OF_BAND_RENDERSUBMIT_START";
+			case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV -> "OUT_OF_BAND_RENDERSUBMIT_END";
+			case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV -> "OUT_OF_BAND_PRESENT_START";
+			case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV -> "OUT_OF_BAND_PRESENT_END";
+			default -> "MARKER_" + marker;
+		};
+	}
+
+	private static int markerRank(int marker) {
+		return switch (marker) {
+			case VK_LATENCY_MARKER_INPUT_SAMPLE_NV -> 1;
+			case VK_LATENCY_MARKER_SIMULATION_START_NV -> 2;
+			case VK_LATENCY_MARKER_SIMULATION_END_NV -> 3;
+			case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV -> 4;
+			case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV -> 5;
+			case VK_LATENCY_MARKER_PRESENT_START_NV -> 6;
+			case VK_LATENCY_MARKER_PRESENT_END_NV -> 7;
+			default -> 0;
+		};
 	}
 
 	/** Debug harness: complete driver reports, in microseconds relative to the first returned simulation start. */
