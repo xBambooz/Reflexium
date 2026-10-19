@@ -179,3 +179,130 @@ settings-edge adjustments. The ordinary 3x render/present implementation is the 
 The owned client was shut down with `exit=true`, and its exact PID exited before the final build.
 Final JAR SHA-256: `3d66bbcf0e25884ae322e1d138ead4a06b093a01219d09e29a91cd314f8754bc`.
 Pinned copy: `build/fg-overnight/final-candidate.jar`; build log: `build/fg-overnight/final-build.log`.
+
+## Round 2
+
+Base: `7cb1ebc`. Worktree: `C:\Users\Ryan\.t3\worktrees\Reflexium\t3-5c4a8eee`.
+Only harness port 25622 and debug port 25623 were used. Copied the main checkout's run directory.
+Primary PG27AQDP, 2560x1440, 479.99 Hz, non-minimized, no input focus or foreground ownership.
+The owner's overlay and port 25612 client were untouched. Each client was authenticated and its exact
+PID, injected harness JAR and game-directory command line checked before `quit?exit=true`.
+Ignored evidence: `build/fg-round2/`. No merge to main.
+
+### Policy correction
+
+Round 1's uncapped active-generation policy is superseded. `minimumIntervalUs` always retains the
+lower of refresh headroom and an explicit user limit while NVIDIA FG is requested. At 479.99 Hz,
+the policy target is 415 FPS and the rounded 2410 us driver interval reports approximately 414 FPS.
+The interval is never divided by the multiplier. This limits total presents, not just rendered frames.
+
+Auto is the default multiplier for newly selected NVIDIA FG and missing multiplier configuration.
+Stored fixed multipliers remain fixed. Config uses 0 for Auto; the debug API accepts `fg_multiplier=auto`
+or 0, and both vanilla/custom and Sodium options expose Auto alongside 2x through the driver maximum.
+Sodium's integer control uses its first position for Auto and maps it to config 0.
+Effective multiplier and sampling state are separately exposed as `fg_effective_multiplier` and
+`fg_policy_probing`. Raw NGX still receives ordinary static counts; this is application selection,
+not Streamline Dynamic MFG support.
+
+Auto chooses the largest multiplier fitting the sampled real FPS into the target, clamped to driver
+support. Downshifts happen when the budget is exceeded; upshifts require 5% spare budget. Below 2x,
+it renders alone. Thus a scene at 85% of target still correctly selects rendered-only under the
+requested integer-multiplier formula: even 2x would exceed the budget.
+
+Sampling deliberately uses rendered-only windows, not capped FG FPS times the multiplier. It samples
+one second on startup and after five seconds of the selected mode. The output cap remains enabled
+during sampling. When rendering can fit 2x, that rendered-only sample is below the cap and measures
+uncapped throughput; when it hits the cap, it already proves 2x cannot fit. Unknown refresh/target
+selects rendered-only Auto. Fixed multipliers bypass sampling and stay fixed under the cap.
+Limitation: these periodic probes temporarily stop generation and reset FG history. This can be
+visible and is not seamless official-title Dynamic MFG. A calibrated render-cost measurement that
+excludes limiter waits and FG work is needed to remove those interruptions without circular feedback.
+
+### Cadence investigation
+
+`VkSetPresentConfigNV` usage matches the specification: one config on the first present, complete
+generated-first/real-last batch, count at most eight. No extra CPU spacing was added on top of the
+driver's metering. However, RenderPearl `VulkanCommandEncoder.submit()` queues current work and then
+waits for its previous submission before returning. Replacement encoders performed that wait between
+metered presents. Their previous-submit fences are now waited before the first present in the batch.
+Native submit wait/reset and acquire-completion tracking remain intact. Encoders/fences survive FG
+toggles and close at device teardown. No per-frame device-idle call was introduced.
+
+`normal-trace.log` preserves 32 traced frames. For example, frame 51571 completes the replacement
+reuse waits before `metering batch begin presents=3`; both replacement submit-tail waits report their
+target index already completed. All three presents succeed, feedback 0x1, batch completed 3/3.
+This verifies CPU wait placement only. Metering controls driver presentation, so rapid CPU calls are
+not evidence of uneven scanout. There is no matched, unobscured display capture in this round.
+
+### Vulkan validation
+
+The existing VULKAN_SDK path was stale. An Unreal-bundled 1.4.304 layer was found, but rejects newer
+feature structures and prevents device creation. Its reports are preserved as `old-layer.log`.
+Downloaded the official LunarG 1.4.363.0 SDK archive and extracted it privately with 7-Zip, without
+running the installer. SDK SHA-256:
+`94a82d378f7a5e3e54c9db7d2fb7016af136e14ac0a18dbf0f2f67a36352d141`.
+The loader ignores VK_LAYER_PATH for this elevated harness. A temporary HKLM ExplicitLayers entry
+pointed to the private manifest; it was removed in `finally` after startup. Loader logs confirm both
+instance and device validation layers loaded. Launch environment:
+
+```text
+VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation
+VK_LAYER_VALIDATE_SYNC=1
+VK_LAYER_ENABLES=VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
+VK_LOADER_DEBUG=error,warn,layer
+```
+
+Real application error fixed: NGX's `vkAllocateMemory` uses `VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT`
+without the logical device's core bufferDeviceAddress feature. Validation emitted
+`VUID-VkMemoryAllocateInfo-flags-03331` and NGX creation failed with `0xbad00002`.
+Enabling the legacy EXT feature alone did not fix this core allocation flag. The final implementation
+enables supported `VkPhysicalDeviceVulkan12Features.bufferDeviceAddress` and removes the conflicting
+`VK_EXT_buffer_device_address` extension. DLSS SR and FG then create and evaluate under validation.
+The allocation VUID disappears. See `sync363-before.log`, `sync363-ext-feature.log`, and
+`sync363-final.log`. No native bridge ABI or DLL changes were needed.
+
+Synchronization validation is **not clean**. It reports WRITE_AFTER_WRITE hazards inside the
+proprietary NGX `nv.ngx.dlssg.Evaluate` command range: image layout transitions followed by clears
+without transfer-write destination access, and repeated `vkCmdFillBuffer` writes without an internal
+dependency. These are internal `nv.ngx.dlssg.resource` objects. The caller already issues an
+ALL_COMMANDS/MEMORY_READ|MEMORY_WRITE barrier before and between NGX evaluations; that cannot insert
+a dependency between commands inside one vendor call. Reports were not suppressed or classified as
+harmless. Vendor investigation or a corrected NGX runtime remains necessary. No acquire/present
+semaphore reuse or application image-lifetime hazard was reported in this exercised path.
+
+### Evidence and acceptance
+
+- Build/static: PASS, `gradlew.bat build --console=plain`, including the updated standalone policy
+  checks (budget selection, up/down hysteresis, unknown refresh, probes, fixed multiplier).
+- Normal Vulkan fixed 3x: about 114 real / 343 submitted FPS, target 415 retained, zero metering
+  rejections. These are submitted operations, not displayed frames; contention was uncontrolled.
+- Auto normal Quality: rendered-only sample 218.63 FPS, effective 1x at target 415. Native-AA sampling
+  also exercised the heavy-scene path. With validation overhead, Auto sampled 31.67 then 32.14 FPS
+  and selected supported maximum 6x. Sampling and active states alternate as documented.
+- Validation fixed 6x steady counter window: 111 real, 555 generated, 111 completed batches, exactly
+  five generated per real. Target 415 and approximately 414 FPS driver cap remain configured.
+- Validation exercised joined gameplay with depth/motion, scripted camera turn, fixed 2x/3x/6x,
+  Auto, FG off/on, resize to 1920x1080 and back to 2560x1440, and orderly shutdown. Final status
+  retained no NGX failure and zero metering rejections. Frame delivery remains functional.
+- Inspected generated_0 in `motionbatch`: visible terrain, hand and HUD, no blank/corrupt frame.
+  Same-boundary comparison: real/generated0 changed 16.8311% of scene pixels; real/generated1
+  3.1998%; generated0/generated1 15.2605%. The capture was nearly static, so these differences
+  establish distinct images, not correct interpolation fractions or motion-quality acceptance.
+- SDK/core application allocation defect: FIXED. Synchronization acceptance: FAIL due to the
+  retained internal NGX hazards. Display cadence and latency: NOT PROVEN behind the owner's overlay.
+  Missing-runtime/unsupported-hardware, moving-object quality matrix, AMD/FSR and device loss were
+  not rerun. Existing input coverage, GUI replay, project ID and production NGX runtime are unchanged.
+
+Overall: PARTIAL, experimental candidate. Remaining: remove Auto probe interruptions with valid
+uncapped-cost telemetry, investigate vendor internal hazards, and measure unobscured displayed-frame
+cadence and input latency. Do not infer official-title smoothness from these counter/CPU traces.
+
+References: [Khronos metering contract](https://docs.vulkan.org/refpages/latest/refpages/source/VkSetPresentConfigNV.html),
+[device feature constraints](https://registry.khronos.org/vulkan/specs/latest/man/html/VkDeviceCreateInfo.html),
+[LunarG SDK](https://vulkan.lunarg.com/sdk/home/), and
+[Super Resolution FG source](https://github.com/IReallyWantToSleep/superresolution/blob/dev/modules/common/src/main/java/io/homo/superresolution/common/framegeneration/FrameGeneration.java)
+(found via Modrinth, reviewed for provider/presentation separation; no source copied).
+
+Round 2 implementation commit: `ddf06eb`. Final build and diff checks pass.
+Final candidate: `build/fg-round2/final-candidate.jar`; SHA-256
+`9dbc9be4bde15eb34fef9558700355050f9787a46b3525df878a1bda1694b4dd`.
