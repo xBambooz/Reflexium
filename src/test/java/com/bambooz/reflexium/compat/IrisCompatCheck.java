@@ -64,6 +64,17 @@ public final class IrisCompatCheck {
 		owner.setBoolean(null, true);
 		IrisCompat.onPackLoading();
 		try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + zip.toAbsolutePath().toUri()), Map.of())) {
+			if (zip.getFileName().toString().equals("BSL_v10.1.8.zip")) {
+				Path terrain = fs.getPath("/shaders/program/gbuffers_terrain.glsl");
+				String source = Files.readString(terrain);
+				String changed = BslFoliageMotion.adapt("program/gbuffers_terrain.glsl", source);
+				if (changed.equals(source) || changed.contains("DRAWBUFFERS:") || !changed.contains("rxPreviousProjection * vec4(rxBefore, 1.0)")
+						|| !changed.contains("blockID == 105 || blockID == 106") || !changed.contains("time = rxSavedTime"))
+					throw new AssertionError("BSL deformation producer not installed");
+				String modified = source + "\n// edited\n";
+				if (!BslFoliageMotion.adapt("program/gbuffers_terrain.glsl", modified).equals(modified))
+					throw new AssertionError("Modified BSL terrain must remain untouched");
+			}
 			Path settings = fs.getPath("/shaders/lib/settings.glsl");
 			String original = Files.readString(settings);
 			String edited = IrisCompat.adapt("BSL_v10.1.8", settings, original);
@@ -102,6 +113,10 @@ public final class IrisCompatCheck {
 			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
+			require(zip, "net/irisshaders/iris/uniforms/CommonUniforms", "generalCommonUniforms");
+			require(zip, "net/irisshaders/iris/gl/uniform/UniformHolder", "uniformMatrix", "uniform4f");
+			require(zip, "net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer", "getFrameTimeCounter()F");
+			require(zip, "net/irisshaders/iris/targets/RenderTarget", "getTextureView(ZZ)Lcom/mojang/renderpearl/api/textures/GpuTextureView;");
 			ClassNode target = node(zip, "net/irisshaders/iris/mixin/MixinRenderTarget");
 			for (String field : List.of("iris$depthBufferVersion", "iris$colorBufferVersion"))
 				if (target.fields.stream().noneMatch(f -> f.name.equals(field) && f.desc.equals("I"))) throw new AssertionError("Iris field missing: " + field);

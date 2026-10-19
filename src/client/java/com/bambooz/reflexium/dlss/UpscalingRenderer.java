@@ -128,6 +128,13 @@ public final class UpscalingRenderer {
 	private final MipBiasSamplers materialSamplers = new MipBiasSamplers();
 	private float mipBias;
 	private MotionVectorPass motionPass;
+	private final FoliageMotionPass foliageMotionPass = new FoliageMotionPass();
+	private boolean foliageMotionApplied;
+	public Matrix4fc foliageProjection(boolean previous) { return previous ? previousUnjittered : currentUnjittered; }
+	public org.joml.Vector4f foliageMotionState(float previousTime) {
+		Vec3 delta = currentCamera.subtract(previousCamera);
+		return new org.joml.Vector4f((float) delta.x, (float) delta.y, (float) delta.z, previousTime);
+	}
 	private ObjectVelocityPass objectVelocityPass;
 	private MotionDebugPass motionDebugPass;
 	private PackHandMaskPass packHandMaskPass;
@@ -348,6 +355,7 @@ public final class UpscalingRenderer {
 		guiBlurCalls = 0;
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
+		foliageMotionApplied = false;
 		ComplementaryHdr.beginFrame();
 		DistantHorizonsCompat.beginFrame();
 		worldDepthCaptured = false;
@@ -664,6 +672,11 @@ public final class UpscalingRenderer {
 						handProjectionJittered, handProjection, handProjectionPrevious, resetNext);
 			}
 			FrameProfiler.end(FrameProfiler.OBJECTS, timing, commands);
+			GpuTextureView foliage = com.bambooz.reflexium.compat.BslFoliageMotion.surface();
+			if (foliage != null && DebugSettings.objectMotion()) {
+				foliageMotionPass.render(motionTarget, foliage, sceneDepth, handDepth);
+				foliageMotionApplied = true;
+			}
 		} catch (RuntimeException e) {
 			worldDepthCaptured = false;
 			fail("motion vector pass failed", e);
@@ -758,6 +771,7 @@ public final class UpscalingRenderer {
 					DebugSettings.jitterSignX(JITTER_SIGN) * jitterX, DebugSettings.jitterSignY(JITTER_SIGN) * jitterY,
 					cameraNear, motionFar, cameraFov, lastFrameMs, fgReset);
 		}
+		com.bambooz.reflexium.compat.BslFoliageMotion.endFrame();
 		previousUnjittered.set(currentUnjittered);
 		previousDepthTransform.set(depthTransform);
 		previousCamera = currentCamera;
@@ -860,6 +874,11 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_built", builtHdr);
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
+		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
+		if (foliageMotionApplied) {
+			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
+			o.addProperty("bsl_current_time", com.bambooz.reflexium.compat.BslFoliageMotion.currentTime());
+		}
 		o.addProperty("pack_surface_sources_verified", com.bambooz.reflexium.compat.ComplementaryMotionSource.ready());
 		o.addProperty("blended_surface_strategy", "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported");
 		o.addProperty("gui_blur_calls_this_frame", guiBlurCalls);

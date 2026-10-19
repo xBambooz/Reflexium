@@ -102,6 +102,7 @@ public final class IrisCompat {
 	/** Iris.loadShaderpack HEAD: forget the previous pack's evidence before its sources are read again. */
 	public static void onPackLoading() {
 		epoch++;
+		BslFoliageMotion.reset();
 		ComplementaryTemporalSource.reset();
 		jitterRemoved = false;
 		bslAaRemoved = false;
@@ -180,6 +181,8 @@ public final class IrisCompat {
 		List<String> lines = List.of(source.replace("\r\n", "\n").split("\n", -1));
 		List<String> result = lines;
 		if (BSL.equals(name)) {
+			String foliage = BslFoliageMotion.adapt(rel, source);
+			if (!foliage.equals(source)) return foliage;
 			if (rel.equals(BSL_SETTINGS)) result = removeBslAntiAliasing(lines);
 			else if (BSL_SAMPLING.getOrDefault(rel, "").equals(ComplementaryTemporalSource.sha256(lines))) {
 				// Removing the pack resolve must not freeze its Bayer ray-march sampling into the SR input.
