@@ -113,10 +113,11 @@ public final class BslFoliageMotion {
 		try {
 			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
 			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			if (pipeline == null) return null; // pack reloading or shaders just disabled
 			var field = pipeline.getClass().getDeclaredField("renderTargets"); field.setAccessible(true);
 			Object targets = field.get(pipeline);
 			Object target = targets.getClass().getMethod("get", int.class).invoke(targets, 15);
 			return target == null ? null : (GpuTextureView) target.getClass().getMethod("getTextureView", boolean.class, boolean.class).invoke(target, false, false);
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage target unavailable", e); }
+		} catch (ReflectiveOperationException | ClassCastException e) { throw new IllegalStateException("Iris foliage target unavailable", e); }
 	}
 }
