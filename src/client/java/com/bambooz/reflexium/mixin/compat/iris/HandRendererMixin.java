@@ -29,12 +29,15 @@ public abstract class HandRendererMixin {
 		return volume;
 	}
 
-	@Inject(method = {"renderSolid", "renderTranslucent"}, at = @At("HEAD"))
+	// These calls occur only after Iris's canRender/solid-hand early returns.
+	@Inject(method = {"renderSolid", "renderTranslucent"}, at = @At(value = "INVOKE",
+			target = "Lcom/mojang/blaze3d/systems/RenderSystem;backupProjectionMatrix()V"))
 	private void reflexium$handBefore(CallbackInfo ci) {
 		if (UpscalingRenderer.get().isUpscalingThisFrame() && IrisCompat.isDrawingPack()) UpscalingRenderer.get().capturePackHandBefore();
 	}
 
-	@Inject(method = {"renderSolid", "renderTranslucent"}, at = @At("RETURN"))
+	@Inject(method = {"renderSolid", "renderTranslucent"}, at = @At(value = "INVOKE",
+			target = "Lcom/mojang/blaze3d/systems/RenderSystem;restoreProjectionMatrix()V"))
 	private void reflexium$handAfter(CallbackInfo ci) {
 		if (UpscalingRenderer.get().isUpscalingThisFrame() && IrisCompat.isDrawingPack()) UpscalingRenderer.get().capturePackHandAfter();
 	}

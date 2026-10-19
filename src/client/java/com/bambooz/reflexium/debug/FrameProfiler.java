@@ -13,11 +13,11 @@ public final class FrameProfiler {
 			OUTLINE = 5, BARRIER_BEFORE = 6, BARRIER_AFTER = 7, REACTIVE = 8, OPAQUE_COPY = 9,
 			PACK_HAND = 10, REFLEX_SLEEP = 11, SUBMIT = 12, FENCE = 13, ACQUIRE = 14, PRESENT = 15, WORLD = 16, QUEUE = 17,
 			REFLEX_DRIVER = 18, REFLEX_WAIT = 19, FENCE_POLL = 20, POOL_RESET = 21,
-			FG_EVALUATE = 22, FG_GUI = 23, ACQUIRE_REUSE_WAIT = 24;
+			FG_EVALUATE = 22, FG_GUI = 23, ACQUIRE_REUSE_WAIT = 24, SHARPEN = 25, DISPLAY_DEPTH = 26, HDR_COPY = 27, FINAL_BLIT = 28;
 	private static final String[] NAMES = {"depth_copy", "camera_motion", "object_motion", "evaluate",
 			"outline_depth", "outline", "barrier_before", "barrier_after", "reactive", "opaque_copy",
 			"pack_hand", "reflex_sleep", "submit_including_wait", "submit_fence_wait", "acquire", "present", "world_including_upscaling", "queue_submit",
-			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait"};
+			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "sharpen", "display_depth", "hdr_copy", "final_blit"};
 	private static final int SLOTS = 16, QUERIES = 128;
 	private static final long[] cpu = new long[NAMES.length], counts = new long[NAMES.length],
 			gpu = new long[NAMES.length], gpuCounts = new long[NAMES.length];
@@ -33,6 +33,7 @@ public final class FrameProfiler {
 	private static long skipped;
 
 	private FrameProfiler() {}
+	public static boolean enabled() { return enabled; }
 
 	public static void init(VkDevice value, VkPhysicalDevice physical) {
 		device = value;

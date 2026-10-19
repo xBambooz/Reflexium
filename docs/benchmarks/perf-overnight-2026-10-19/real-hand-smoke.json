@@ -1,0 +1,466 @@
+{
+    "profile":  {
+                    "ok":  true,
+                    "enabled":  false,
+                    "skipped_gpu_frames":  0,
+                    "spans":  {
+                                  "depth_copy":  {
+                                                     "cpu_samples":  0,
+                                                     "cpu_us":  0.0,
+                                                     "gpu_samples":  0,
+                                                     "gpu_us":  0.0
+                                                 },
+                                  "camera_motion":  {
+                                                        "cpu_samples":  799,
+                                                        "cpu_us":  3.9536921151439297,
+                                                        "gpu_samples":  34,
+                                                        "gpu_us":  29.297882352941176
+                                                    },
+                                  "object_motion":  {
+                                                        "cpu_samples":  799,
+                                                        "cpu_us":  41.8081351689612,
+                                                        "gpu_samples":  34,
+                                                        "gpu_us":  0.006588235294117647
+                                                    },
+                                  "evaluate":  {
+                                                   "cpu_samples":  799,
+                                                   "cpu_us":  48.34230287859825,
+                                                   "gpu_samples":  34,
+                                                   "gpu_us":  480.79905882352944
+                                               },
+                                  "outline_depth":  {
+                                                        "cpu_samples":  0,
+                                                        "cpu_us":  0.0,
+                                                        "gpu_samples":  0,
+                                                        "gpu_us":  0.0
+                                                    },
+                                  "outline":  {
+                                                  "cpu_samples":  0,
+                                                  "cpu_us":  0.0,
+                                                  "gpu_samples":  0,
+                                                  "gpu_us":  0.0
+                                              },
+                                  "barrier_before":  {
+                                                         "cpu_samples":  799,
+                                                         "cpu_us":  0.5513141426783479,
+                                                         "gpu_samples":  34,
+                                                         "gpu_us":  2.034823529411765
+                                                     },
+                                  "barrier_after":  {
+                                                        "cpu_samples":  799,
+                                                        "cpu_us":  0.3080100125156446,
+                                                        "gpu_samples":  34,
+                                                        "gpu_us":  2.3774117647058826
+                                                    },
+                                  "reactive":  {
+                                                   "cpu_samples":  0,
+                                                   "cpu_us":  0.0,
+                                                   "gpu_samples":  0,
+                                                   "gpu_us":  0.0
+                                               },
+                                  "opaque_copy":  {
+                                                      "cpu_samples":  0,
+                                                      "cpu_us":  0.0,
+                                                      "gpu_samples":  0,
+                                                      "gpu_us":  0.0
+                                                  },
+                                  "pack_hand":  {
+                                                    "cpu_samples":  3196,
+                                                    "cpu_us":  3.4258448060075093,
+                                                    "gpu_samples":  136,
+                                                    "gpu_us":  9.716941176470588
+                                                },
+                                  "reflex_sleep":  {
+                                                       "cpu_samples":  799,
+                                                       "cpu_us":  104.8270337922403,
+                                                       "gpu_samples":  0,
+                                                       "gpu_us":  0.0
+                                                   },
+                                  "submit_including_wait":  {
+                                                                "cpu_samples":  799,
+                                                                "cpu_us":  267.21351689612015,
+                                                                "gpu_samples":  0,
+                                                                "gpu_us":  0.0
+                                                            },
+                                  "submit_fence_wait":  {
+                                                            "cpu_samples":  5633,
+                                                            "cpu_us":  29.40514823362329,
+                                                            "gpu_samples":  0,
+                                                            "gpu_us":  0.0
+                                                        },
+                                  "acquire":  {
+                                                  "cpu_samples":  799,
+                                                  "cpu_us":  4.030413016270338,
+                                                  "gpu_samples":  0,
+                                                  "gpu_us":  0.0
+                                              },
+                                  "present":  {
+                                                  "cpu_samples":  799,
+                                                  "cpu_us":  27.874342928660827,
+                                                  "gpu_samples":  0,
+                                                  "gpu_us":  0.0
+                                              },
+                                  "world_including_upscaling":  {
+                                                                    "cpu_samples":  799,
+                                                                    "cpu_us":  1900.669211514393,
+                                                                    "gpu_samples":  34,
+                                                                    "gpu_us":  2284.5129411764706
+                                                                },
+                                  "queue_submit":  {
+                                                       "cpu_samples":  799,
+                                                       "cpu_us":  42.83153942428035,
+                                                       "gpu_samples":  0,
+                                                       "gpu_us":  0.0
+                                                   },
+                                  "reflex_driver_call":  {
+                                                             "cpu_samples":  799,
+                                                             "cpu_us":  4.518147684605757,
+                                                             "gpu_samples":  0,
+                                                             "gpu_us":  0.0
+                                                         },
+                                  "reflex_semaphore_wait":  {
+                                                                "cpu_samples":  799,
+                                                                "cpu_us":  100.10212765957446,
+                                                                "gpu_samples":  0,
+                                                                "gpu_us":  0.0
+                                                            },
+                                  "fence_poll":  {
+                                                     "cpu_samples":  22892,
+                                                     "cpu_us":  2.411536781408352,
+                                                     "gpu_samples":  0,
+                                                     "gpu_us":  0.0
+                                                 },
+                                  "command_pool_reset":  {
+                                                             "cpu_samples":  799,
+                                                             "cpu_us":  2.6396745932415517,
+                                                             "gpu_samples":  0,
+                                                             "gpu_us":  0.0
+                                                         },
+                                  "fg_evaluate":  {
+                                                      "cpu_samples":  0,
+                                                      "cpu_us":  0.0,
+                                                      "gpu_samples":  0,
+                                                      "gpu_us":  0.0
+                                                  },
+                                  "fg_gui":  {
+                                                 "cpu_samples":  0,
+                                                 "cpu_us":  0.0,
+                                                 "gpu_samples":  0,
+                                                 "gpu_us":  0.0
+                                             },
+                                  "acquire_reuse_wait":  {
+                                                             "cpu_samples":  799,
+                                                             "cpu_us":  0.07972465581977471,
+                                                             "gpu_samples":  0,
+                                                             "gpu_us":  0.0
+                                                         },
+                                  "sharpen":  {
+                                                  "cpu_samples":  799,
+                                                  "cpu_us":  4.665957446808511,
+                                                  "gpu_samples":  34,
+                                                  "gpu_us":  45.40517647058824
+                                              },
+                                  "display_depth":  {
+                                                        "cpu_samples":  0,
+                                                        "cpu_us":  0.0,
+                                                        "gpu_samples":  0,
+                                                        "gpu_us":  0.0
+                                                    },
+                                  "hdr_copy":  {
+                                                   "cpu_samples":  0,
+                                                   "cpu_us":  0.0,
+                                                   "gpu_samples":  0,
+                                                   "gpu_us":  0.0
+                                               },
+                                  "final_blit":  {
+                                                     "cpu_samples":  799,
+                                                     "cpu_us":  2.4423028785982477,
+                                                     "gpu_samples":  34,
+                                                     "gpu_us":  19.182117647058824
+                                                 }
+                              }
+                },
+    "status":  {
+                   "pid":  23212,
+                   "game_directory":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-4bab0bca\\run",
+                   "world_loaded":  true,
+                   "screen":  "none",
+                   "paused":  false,
+                   "ticks":  11749,
+                   "frames":  509365,
+                   "fps":  397.0,
+                   "frame_time_ms":  2.4969396877503653,
+                   "motion_running":  false,
+                   "focus":  {
+                                 "os_input_focus":  false,
+                                 "os_foreground":  false,
+                                 "os_minimized":  false,
+                                 "hwnd":  1061947690,
+                                 "foreground_hwnd":  76482898,
+                                 "os_cursor":  {
+                                                   "x":  1426,
+                                                   "y":  691
+                                               }
+                             },
+                   "displays":  [
+                                    {
+                                        "id":  1,
+                                        "name":  "PG27AQDP",
+                                        "x":  0,
+                                        "y":  0,
+                                        "w":  2560,
+                                        "h":  1440,
+                                        "refresh_hz":  479.99,
+                                        "primary":  true
+                                    },
+                                    {
+                                        "id":  2,
+                                        "name":  "XF250Q",
+                                        "x":  2560,
+                                        "y":  0,
+                                        "w":  1920,
+                                        "h":  1080,
+                                        "refresh_hz":  239.76,
+                                        "primary":  false
+                                    }
+                                ],
+                   "window":  {
+                                  "x":  0,
+                                  "y":  0,
+                                  "width":  2560,
+                                  "height":  1440,
+                                  "placement":  "display 1 \u0027PG27AQDP\u0027 at 0,0",
+                                  "gui_width":  1280,
+                                  "gui_height":  720
+                              },
+                   "hooks":  {
+                                 "throttle":  103127,
+                                 "cursor":  3,
+                                 "pause":  509365
+                             },
+                   "camera":  {
+                                  "x":  -199.5,
+                                  "y":  110.0,
+                                  "z":  -199.5,
+                                  "yaw":  -15.0,
+                                  "pitch":  15.0
+                              },
+                   "widgets":  [
+
+                               ],
+                   "plugins":  {
+                                   "reflexium":  {
+                                                     "upscaler":  "dlss",
+                                                     "upscaler_effective":  "dlss",
+                                                     "upscaler_built":  "dlss",
+                                                     "quality":  "performance",
+                                                     "dlss_model":  "cnn",
+                                                     "dlss_preset_hint":  5,
+                                                     "history_reset_frames":  2,
+                                                     "transient_motion_uniforms":  true,
+                                                     "direct_scene_depth":  true,
+                                                     "reflex_mode":  "ON",
+                                                     "reflex_status":  "Reflex: On (requested On)",
+                                                     "smart_reflex":  false,
+                                                     "reflex_pacing_paused":  false,
+                                                     "reflex_sleeping":  true,
+                                                     "reflex_latency":  "Reflex render latency: 4.4 ms, sim 0.0, submit 2.2, GPU 2.4",
+                                                     "reflex_submission":  false,
+                                                     "reflex_extension_revision":  3,
+                                                     "reflex_attribution":  "implicit",
+                                                     "reflex_interval_us":  0,
+                                                     "fsr_sharpness":  20,
+                                                     "frame_generation":  "off",
+                                                     "fg_multiplier":  3,
+                                                     "fg_requested_generated":  0,
+                                                     "fg_effective_multiplier":  1,
+                                                     "fg_policy_probing":  false,
+                                                     "fg_refresh_bypass":  true,
+                                                     "fg_refresh_cap":  2147483647,
+                                                     "fg_policy_real_fps":  0.0,
+                                                     "fg_policy_estimate_source":  "Reflex simStart to gpuRenderEnd (includes FG and queue delay)",
+                                                     "fg_status":  "Frame generation: off",
+                                                     "fg_max_multiplier":  6,
+                                                     "swapchain_images_requested":  8,
+                                                     "swapchain_images_created":  8,
+                                                     "swapchain_present_mode":  "IMMEDIATE",
+                                                     "swapchain_surface_min_images":  2,
+                                                     "swapchain_surface_max_images":  8,
+                                                     "swapchain_extent":  "2560x1440",
+                                                     "measure_app_frame_id":  508919,
+                                                     "measure_fg_evaluated_frames":  0,
+                                                     "measure_fg_generated_presents":  0,
+                                                     "measure_fg_real_presents":  509365,
+                                                     "measure_fg_real_frames_closed":  509365,
+                                                     "measure_fg_expected_generated":  0,
+                                                     "measure_fg_batches_started":  0,
+                                                     "measure_fg_batches_completed":  0,
+                                                     "measure_fg_metering_rejected":  0,
+                                                     "measure_reflex_sleeps_issued":  508919,
+                                                     "measure_reflex_sleeps_completed":  508919,
+                                                     "measure_reflex_unpaced_frames":  0,
+                                                     "measure_reflex_suspended_frames":  0,
+                                                     "measure_reflex_timeouts":  0,
+                                                     "measure_reflex_recoveries":  0,
+                                                     "measure_reflex_failures":  0,
+                                                     "measure_reflex_mode_configurations":  3,
+                                                     "measure_fg_missing_not_evaluated":  0,
+                                                     "measure_fg_missing_unavailable":  0,
+                                                     "measure_fg_missing_reflex_not_sleeping":  0,
+                                                     "measure_fg_missing_history_reset":  0,
+                                                     "measure_fg_missing_gui_blur":  0,
+                                                     "measure_fg_missing_batch_abandoned":  0,
+                                                     "measure_fg_missing_surface_lost":  0,
+                                                     "measure_fg_missing_present_failed":  0,
+                                                     "measure_fg_missing_unpresented":  0,
+                                                     "measure_fg_failed":  0,
+                                                     "measure_fg_configured_generated":  0,
+                                                     "measure_reflex_effective_mode":  1,
+                                                     "measure_reflex_applied_mode":  1,
+                                                     "fg_evaluated_frames":  0,
+                                                     "fg_generated_presents":  0,
+                                                     "fg_real_presents":  509365,
+                                                     "fg_submitted_fps":  402,
+                                                     "fg_submitted_real_fps":  402,
+                                                     "fg_display_feedback":  "unavailable",
+                                                     "fg_metering_feedback":  2147483647,
+                                                     "fg_metering_feedback_raw":  "0x7fffffff",
+                                                     "fg_metering_result":  0,
+                                                     "fg_metering_batch_configs":  0,
+                                                     "fg_metering_reset_configs":  0,
+                                                     "fg_metering_unreported":  0,
+                                                     "fg_metering_accepted":  0,
+                                                     "fg_metering_status":  0,
+                                                     "fg_metering_rejected":  0,
+                                                     "fg_metering_rejection_streak":  0,
+                                                     "fg_metering_reset_pending":  false,
+                                                     "fg_metering_problem":  "",
+                                                     "fg_batches_started":  0,
+                                                     "fg_batches_completed":  0,
+                                                     "fg_failed":  false,
+                                                     "fg_problem":  "",
+                                                     "fg_sdk_present_count":  0,
+                                                     "fg_sdk_scheduler":  false,
+                                                     "upscaling_active":  true,
+                                                     "status_line":  "DLSS: Performance 1280x720 -\u003e 2560x1440",
+                                                     "render_size":  {
+                                                                         "w":  1280,
+                                                                         "h":  720
+                                                                     },
+                                                     "display_size":  {
+                                                                          "w":  2560,
+                                                                          "h":  1440
+                                                                      },
+                                                     "jitter_index":  19,
+                                                     "jitter_px":  {
+                                                                       "x":  0.28125,
+                                                                       "y":  -0.0925926
+                                                                   },
+                                                     "jitter_sign":  {
+                                                                         "x":  1.0,
+                                                                         "y":  1.0
+                                                                     },
+                                                     "jitter_enabled":  true,
+                                                     "mv_debug":  false,
+                                                     "object_motion":  true,
+                                                     "object_vertices_captured":  19728,
+                                                     "object_vertices_drawn":  0,
+                                                     "object_entities":  18,
+                                                     "object_block_entities":  2,
+                                                     "mip_bias":  -2.0,
+                                                     "reactive_mask":  false,
+                                                     "evaluated_frames":  5171,
+                                                     "pack_hand_mask":  true,
+                                                     "observed":  {
+                                                                      "hdr_requested":  false,
+                                                                      "hdr_sources_verified":  false,
+                                                                      "hdr_built":  false,
+                                                                      "hdr_evaluated_this_frame":  false,
+                                                                      "pack_surface_motion":  false,
+                                                                      "pack_surface_sources_verified":  false,
+                                                                      "blended_surface_strategy":  "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported",
+                                                                      "gui_blur_calls_this_frame":  0,
+                                                                      "menu_blur_radius_setting":  5,
+                                                                      "applied_post_effects":  [
+
+                                                                                               ],
+                                                                      "mip_bias_requested":  -2.0,
+                                                                      "mip_bias_offset":  0.0,
+                                                                      "mip_bias_vendor_baseline":  -1.0,
+                                                                      "material_binds":  {
+                                                                                             "Sampler0":  {
+                                                                                                              "binds":  4,
+                                                                                                              "with_requested_bias":  0,
+                                                                                                              "applied_bias":  0.0
+                                                                                                          },
+                                                                                             "u_BlockTex":  {
+                                                                                                                "binds":  6,
+                                                                                                                "with_requested_bias":  6,
+                                                                                                                "applied_bias":  -2.0
+                                                                                                            },
+                                                                                             "pack_atlas":  {
+                                                                                                                "binds":  0,
+                                                                                                                "with_requested_bias":  0
+                                                                                                            },
+                                                                                             "pack_pbr":  {
+                                                                                                              "binds":  0,
+                                                                                                              "with_requested_bias":  0
+                                                                                                          }
+                                                                                         },
+                                                                      "material_replacements":  2,
+                                                                      "jitter_phases":  32,
+                                                                      "jitter_index":  19,
+                                                                      "history_reset_frames":  2,
+                                                                      "last_reset_reason":  "feature rebuild",
+                                                                      "resets_by_reason":  {
+                                                                                               "first_frame":  0,
+                                                                                               "level":  0,
+                                                                                               "teleport":  0,
+                                                                                               "gap":  0,
+                                                                                               "camera":  0,
+                                                                                               "rotation":  0,
+                                                                                               "loading":  0,
+                                                                                               "rebuild":  2,
+                                                                                               "menu":  0
+                                                                                           },
+                                                                      "physical_camera":  {
+                                                                                              "near":  0.05,
+                                                                                              "far":  2048.0,
+                                                                                              "upscaler_far":  2048.0,
+                                                                                              "vertical_fov_rad":  1.3439034,
+                                                                                              "invalid_metadata_frames":  0
+                                                                                          },
+                                                                      "hand_vertices_drawn":  0,
+                                                                      "hand_slots":  0,
+                                                                      "hand_motion":  true,
+                                                                      "post_effects_need_depth":  false,
+                                                                      "post_depth_resolved":  false,
+                                                                      "requested_preset":  5,
+                                                                      "requested_preset_is_hint":  true,
+                                                                      "pack_resolve_bypass_requested":  true,
+                                                                      "pack_resolve_bypass_applied":  false,
+                                                                      "pack_pre_filters_requested":  false,
+                                                                      "pack_source_edits":  ""
+                                                                  },
+                                                     "pack":  "Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",
+                                                     "fps":  401,
+                                                     "frame_time_ms":  2.5,
+                                                     "frames":  509365,
+                                                     "world_loaded":  true,
+                                                     "screen":  "none",
+                                                     "hud_hidden":  false,
+                                                     "motion_running":  false,
+                                                     "camera":  {
+                                                                    "x":  -199.5,
+                                                                    "y":  110.0,
+                                                                    "z":  -199.5,
+                                                                    "eye_y":  111.62,
+                                                                    "yaw":  -15.0,
+                                                                    "pitch":  15.0
+                                                                },
+                                                     "last_error":  ""
+                                                 }
+                               },
+                   "ok":  true
+               }
+}

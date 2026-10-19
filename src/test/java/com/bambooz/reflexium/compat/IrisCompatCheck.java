@@ -118,6 +118,21 @@ public final class IrisCompatCheck {
 			if (!version.contains("\"" + IrisCompat.SUPPORTED + "\"")) throw new AssertionError("Jar is not " + IrisCompat.SUPPORTED);
 			require(zip, "net/irisshaders/iris/shaderpack/include/IncludeGraph", "readFile(Ljava/nio/file/Path;)Ljava/lang/String;");
 			require(zip, "net/irisshaders/iris/pathways/HandRenderer", "setupGlState", "renderSolid", "renderTranslucent");
+			ClassNode hand = new ClassNode();
+			new ClassReader(zip.getInputStream(zip.getEntry("net/irisshaders/iris/pathways/HandRenderer.class")).readAllBytes()).accept(hand, 0);
+			for (String name : List.of("renderSolid", "renderTranslucent")) {
+				var method = hand.methods.stream().filter(m -> m.name.equals(name)).findFirst().orElseThrow();
+				boolean earlyReturn = false, backup = false, restore = false;
+				for (var instruction : method.instructions) {
+					if (instruction.getOpcode() == org.objectweb.asm.Opcodes.RETURN && !backup) earlyReturn = true;
+					if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call
+							&& call.owner.equals("com/mojang/blaze3d/systems/RenderSystem")) {
+						if (call.name.equals("backupProjectionMatrix")) { if (!earlyReturn) throw new AssertionError("Hand capture precedes early return"); backup = true; }
+						if (call.name.equals("restoreProjectionMatrix")) { if (!backup) throw new AssertionError("Unpaired hand capture"); restore = true; }
+					}
+				}
+				if (!backup || !restore) throw new AssertionError("Hand capture boundaries missing: " + name);
+			}
 			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");

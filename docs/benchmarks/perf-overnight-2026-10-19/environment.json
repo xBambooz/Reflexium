@@ -1,0 +1,54 @@
+﻿{
+    "base":  "5776235",
+    "runtime_before_instrumentation":  "72a3d63",
+    "baseline_jar_sha256":  "04677F181BBE02EE8E46FB6F0146B4151EB7F47B23E1876E50443A9FDDE8F624",
+    "java":  "GraalVM 25.0.4+7.1",
+    "pose":  "FPS Lab first keyframe, player -199.5 110 -199.5, eye111.62, yaw-45 pitch15, spectator",
+    "resolution":  "2560x1440",
+    "monitor":  "PG27AQDP primary 479.99Hz",
+    "fg":  "off",
+    "reflex":  "On, Smart off, interval override zero",
+    "other_game_pids_seen":  [
+                                 3552,
+                                 21108
+                             ],
+    "settings":  {
+                     "maxFps":  260,
+                     "renderDistance":  12,
+                     "simulationDistance":  12,
+                     "sharpness":  20,
+                     "enableVsync":  false
+                 },
+    "mods":  [
+                 {
+                     "sha256":  "E3AE4820DBBED0CD33E2B89DBB16B8A9F40FA576B39BC83F797658F4468738A5",
+                     "name":  "BetterF3-20.0.0-Fabric-26.3.jar"
+                 },
+                 {
+                     "sha256":  "1716B9964F90D2B885F9BD3887F8824B71B55C32A4123A5853486E722F7C2E4B",
+                     "name":  "cloth-config-fabric-26.3.159.jar"
+                 },
+                 {
+                     "sha256":  "8626C189B702F466800B1C8DDAC6203CF8A1E0BDAEE75A5F9A33B18C2BAA81B1",
+                     "name":  "fabric-api-0.162.0+26.3.jar"
+                 },
+                 {
+                     "sha256":  "F16CC85CFB253AC0A0CA0F08FDA3363842EC870E21E6240F6FA5C2AE02032ADE",
+                     "name":  "iris-fabric-experimental-build-26.3.jar"
+                 },
+                 {
+                     "sha256":  "837812C6C98D66141DB7B5DCAE668F27FB78D557E8F4C0C89912985FC26A5E6F",
+                     "name":  "modmenu-21.0.0.jar"
+                 },
+                 {
+                     "sha256":  "B692ACB0F84D7477DEAE48E2BA0908E1913C0D87DB53DAA4D23CBE646E9028F0",
+                     "name":  "reeses-sodium-options-fabric-2.2.5+mc26.3.jar"
+                 },
+                 {
+                     "sha256":  "87A5BB39F7E6E41106E77F122F82FC93F9D3BC0B6EBCB746B314172A446A287A",
+                     "name":  "sodium-fabric-0.9.2+mc26.3.jar"
+                 }
+             ],
+    "candidate_runtime":  "8150bbc",
+    "candidate_jar_sha256":  "5532941C066573F17B3F456578EB6BADB39DCE1EC70B84117A1D6D9AAE55CC4D"
+}

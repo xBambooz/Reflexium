@@ -90,6 +90,14 @@ public abstract class VulkanGpuSurfaceMixin {
 		// multiplier or ring size. RenderPearl's timeline wait takes nanoseconds despite its parameter name.
 		reflexium$acquireCompletion[currentAcquireSemaphore] = encoder.createFence();
 	}
+	// Surface blits use a separate transient command buffer, which blitFromTexture ends before returning.
+	@WrapOperation(method = "blitFromTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/VK12;vkCmdBlitImage(Lorg/lwjgl/vulkan/VkCommandBuffer;JIJILorg/lwjgl/vulkan/VkImageBlit$Buffer;I)V"))
+	private void reflexium$timeBlit(org.lwjgl.vulkan.VkCommandBuffer commands, long source, int sourceLayout,
+			long destination, int destinationLayout, org.lwjgl.vulkan.VkImageBlit.Buffer regions, int filter, Operation<Void> original) {
+		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, commands);
+		try { original.call(commands, source, sourceLayout, destination, destinationLayout, regions, filter); }
+		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, timing, commands); }
+	}
 
 	@WrapMethod(method = "blitFromTexture")
 	private void reflexium$firstGenerated(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {

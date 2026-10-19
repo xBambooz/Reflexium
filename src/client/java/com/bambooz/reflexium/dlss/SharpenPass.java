@@ -21,7 +21,6 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 /** Display-resolution RCAS after DLSS, matching FSR's built-in sharpening. See dlss_sharpen.fsh. */
 final class SharpenPass {
