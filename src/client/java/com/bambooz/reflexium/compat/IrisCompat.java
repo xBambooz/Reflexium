@@ -70,6 +70,26 @@ public final class IrisCompat {
 
 	private IrisCompat() {
 	}
+	private static java.lang.reflect.Field renderTargetsField;
+	private static Method depthView;
+
+	/** Terrain seen through a blended surface owns the primary SR vector and depth. */
+	public static com.mojang.renderpearl.api.textures.GpuTextureView opaqueDepth(int width, int height) {
+		if (!isDrawingPack()) return null;
+		try {
+			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			if (renderTargetsField == null) {
+				renderTargetsField = pipeline.getClass().getDeclaredField("renderTargets");
+				renderTargetsField.setAccessible(true);
+				depthView = Class.forName("net.irisshaders.iris.targets.RenderTargets").getMethod("getDepthTextureView", int.class);
+			}
+			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), 1);
+			if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height)
+				throw new IllegalStateException("Iris pre-translucent depth does not match the current frame");
+			return view;
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris pre-translucent depth unavailable", e); }
+	}
 
 	public static boolean isLoaded() {
 		return FabricLoader.getInstance().isModLoaded(MOD_ID);

@@ -587,8 +587,11 @@ public final class UpscalingRenderer {
 				ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
 			}
 		}
-		if (usesDirectDepth()) {
-			// Vanilla uses its separate hand depth while active. Packs retain their final scene depth.
+		GpuTextureView opaqueDepth = com.bambooz.reflexium.compat.IrisCompat.opaqueDepth(renderWidth, renderHeight);
+		if (opaqueDepth != null) {
+			directWorldDepth = opaqueDepth;
+		} else if (usesDirectDepth()) {
+			// Vanilla uses its separate hand depth while active.
 			directWorldDepth = main.getDepthTextureView();
 		} else {
 			VkCommandBuffer commands = commandBuffer();
@@ -875,6 +878,7 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
+		o.addProperty("primary_depth_source", com.bambooz.reflexium.compat.IrisCompat.isDrawingPack() ? "iris_pre_translucent" : "vanilla_world");
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
 			o.addProperty("bsl_current_time", com.bambooz.reflexium.compat.BslFoliageMotion.currentTime());
