@@ -2,6 +2,8 @@ package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.config.ShadowDistanceCap;
+import com.bambooz.reflexium.config.ShadowResolutionCap;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
@@ -112,7 +114,23 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 											return u != Upscaler.OFF;
 										}, id("upscaler"))
 										.setControlHiddenWhenDisabled(true)
-										.setBinding(config::setFsrSharpness, config::fsrSharpness)))
+										.setBinding(config::setFsrSharpness, config::fsrSharpness))
+								.addOption(builder.createEnumOption(id("pack_shadow_resolution_cap"), ShadowResolutionCap.class)
+										.setName(Component.translatable("reflexium.option.pack_shadow_resolution_cap"))
+										.setTooltip(Component.translatable("reflexium.option.pack_shadow_resolution_cap.tooltip"))
+										.setElementNameProvider(ShadowResolutionCap::label)
+										.setDefaultValue(ShadowResolutionCap.OFF)
+										.setStorageHandler(SAVED_ON_SET)
+										.setEnabledProvider(state -> IrisCompat.isDrawingPack())
+										.setBinding(ReflexiumOptions::setPackShadowResolutionCap, () -> ShadowResolutionCap.fromValue(config.packShadowResolutionCap())))
+								.addOption(builder.createEnumOption(id("pack_shadow_distance_cap"), ShadowDistanceCap.class)
+										.setName(Component.translatable("reflexium.option.pack_shadow_distance_cap"))
+										.setTooltip(Component.translatable("reflexium.option.pack_shadow_distance_cap.tooltip"))
+										.setElementNameProvider(ShadowDistanceCap::label)
+										.setDefaultValue(ShadowDistanceCap.OFF)
+										.setStorageHandler(SAVED_ON_SET)
+										.setEnabledProvider(state -> IrisCompat.isDrawingPack())
+										.setBinding(ReflexiumOptions::setPackShadowDistanceCap, () -> ShadowDistanceCap.fromValue(config.packShadowDistanceCap()))))
 						.addOptionGroup(builder.createOptionGroup()
 								.setName(Component.translatable("reflexium.group.frame_generation"))
 								.addOption(builder.createEnumOption(id("frame_generation"), FrameGeneration.class)

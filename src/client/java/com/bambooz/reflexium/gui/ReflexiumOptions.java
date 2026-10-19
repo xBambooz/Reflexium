@@ -1,6 +1,9 @@
 package com.bambooz.reflexium.gui;
 
+import com.bambooz.reflexium.compat.IrisCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.config.ShadowDistanceCap;
+import com.bambooz.reflexium.config.ShadowResolutionCap;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.dlss.Upscaler;
@@ -21,6 +24,20 @@ public final class ReflexiumOptions {
 			Codec.STRING.xmap(value -> ReflexMode.parse(value, ReflexMode.OFF), ReflexMode::serializedName);
 	private static final Codec<UpscaleQuality> DLSS_CODEC =
 			Codec.STRING.xmap(value -> UpscaleQuality.parse(value, UpscaleQuality.QUALITY), UpscaleQuality::serializedName);
+	private static final Codec<ShadowResolutionCap> RESOLUTION_CAP_CODEC =
+			Codec.STRING.xmap(value -> {
+				for (ShadowResolutionCap cap : ShadowResolutionCap.values()) {
+					if (cap.serializedName().equalsIgnoreCase(value)) return cap;
+				}
+				return ShadowResolutionCap.OFF;
+			}, ShadowResolutionCap::serializedName);
+	private static final Codec<ShadowDistanceCap> DISTANCE_CAP_CODEC =
+			Codec.STRING.xmap(value -> {
+				for (ShadowDistanceCap cap : ShadowDistanceCap.values()) {
+					if (cap.serializedName().equalsIgnoreCase(value)) return cap;
+				}
+				return ShadowDistanceCap.OFF;
+			}, ShadowDistanceCap::serializedName);
 
 	private ReflexiumOptions() {
 	}
@@ -86,6 +103,44 @@ public final class ReflexiumOptions {
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fsr_sharpness.tooltip")),
 				(caption, value) -> Component.literal(value + "%"), new OptionInstance.IntRange(0, 100),
 				ReflexiumConfig.get().fsrSharpness(), ReflexiumConfig.get()::setFsrSharpness);
+	}
+
+	public static OptionInstance<ShadowResolutionCap> packShadowResolutionCap() {
+		return new OptionInstance<>("reflexium.option.pack_shadow_resolution_cap",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.pack_shadow_resolution_cap.tooltip")),
+				(caption, value) -> value.label(),
+				new OptionInstance.Enum<>(List.of(ShadowResolutionCap.values()), RESOLUTION_CAP_CODEC),
+				RESOLUTION_CAP_CODEC,
+				ShadowResolutionCap.fromValue(ReflexiumConfig.get().packShadowResolutionCap()),
+				ReflexiumOptions::setPackShadowResolutionCap);
+	}
+
+	public static OptionInstance<ShadowDistanceCap> packShadowDistanceCap() {
+		return new OptionInstance<>("reflexium.option.pack_shadow_distance_cap",
+				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.pack_shadow_distance_cap.tooltip")),
+				(caption, value) -> value.label(),
+				new OptionInstance.Enum<>(List.of(ShadowDistanceCap.values()), DISTANCE_CAP_CODEC),
+				DISTANCE_CAP_CODEC,
+				ShadowDistanceCap.fromValue(ReflexiumConfig.get().packShadowDistanceCap()),
+				ReflexiumOptions::setPackShadowDistanceCap);
+	}
+
+	public static void setPackShadowResolutionCap(ShadowResolutionCap value) {
+		setPackShadowResolutionCap(value.value());
+	}
+
+	public static void setPackShadowResolutionCap(int value) {
+		ReflexiumConfig.get().setPackShadowResolutionCap(value);
+		IrisCompat.reloadForOptionChange();
+	}
+
+	public static void setPackShadowDistanceCap(ShadowDistanceCap value) {
+		setPackShadowDistanceCap(value.value());
+	}
+
+	public static void setPackShadowDistanceCap(int value) {
+		ReflexiumConfig.get().setPackShadowDistanceCap(value);
+		IrisCompat.reloadForOptionChange();
 	}
 
 	public static OptionInstance<FrameGeneration> frameGeneration() {

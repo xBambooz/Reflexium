@@ -3,6 +3,8 @@ package com.bambooz.reflexium.gui;
 import com.bambooz.reflexium.compat.ApertureCompat;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.config.ShadowDistanceCap;
+import com.bambooz.reflexium.config.ShadowResolutionCap;
 import com.bambooz.reflexium.dlss.DlssModel;
 import com.bambooz.reflexium.dlss.FrameGeneration;
 import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
@@ -13,6 +15,7 @@ import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.Component;
@@ -80,6 +83,25 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 			list.addBig(ReflexiumOptions.fsrSharpness());
 		}
 
+		boolean irisDrawing = com.bambooz.reflexium.compat.IrisCompat.isDrawingPack();
+		var resButton = DropdownButton.create(this, Component.translatable("reflexium.option.pack_shadow_resolution_cap"),
+				() -> ShadowResolutionCap.fromValue(config.packShadowResolutionCap()),
+				List.of(ShadowResolutionCap.values()), ShadowResolutionCap::label, cap -> {
+					ReflexiumOptions.setPackShadowResolutionCap(cap);
+				});
+		resButton.active = irisDrawing;
+		resButton.setTooltip(Tooltip.create(Component.translatable("reflexium.option.pack_shadow_resolution_cap.tooltip")));
+		list.addBig(resButton);
+
+		var distButton = DropdownButton.create(this, Component.translatable("reflexium.option.pack_shadow_distance_cap"),
+				() -> ShadowDistanceCap.fromValue(config.packShadowDistanceCap()),
+				List.of(ShadowDistanceCap.values()), ShadowDistanceCap::label, cap -> {
+					ReflexiumOptions.setPackShadowDistanceCap(cap);
+				});
+		distButton.active = irisDrawing;
+		distButton.setTooltip(Tooltip.create(Component.translatable("reflexium.option.pack_shadow_distance_cap.tooltip")));
+		list.addBig(distButton);
+
 		if (config.upscaler() != Upscaler.OFF) {
 			list.addHeader(Component.translatable("reflexium.group.frame_generation"));
 
@@ -129,7 +151,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 	private static String state() {
 		return UpscalingRenderer.get().statusLine() + "|" + FrameGenerationRenderer.get().statusLine() + "|" + UpscalingRenderer.get().dlssReady()
 				+ "|" + FrameGenerationRenderer.get().isDlssFgSupported() + "|" + FrameGenerationRenderer.get().isDlssMfgSupported()
-				+ "|" + com.bambooz.reflexium.compat.ShaderPacks.status();
+				+ "|" + com.bambooz.reflexium.compat.ShaderPacks.status() + "|" + com.bambooz.reflexium.compat.IrisCompat.isDrawingPack();
 	}
 
 	@Override

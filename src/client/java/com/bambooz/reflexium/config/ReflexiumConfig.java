@@ -62,6 +62,14 @@ public final class ReflexiumConfig {
 		packShadowDistanceCap = Math.clamp(distance, 0, 1024);
 		save();
 	}
+	public void setPackShadowResolutionCap(int value) {
+		packShadowResolutionCap = Math.clamp(value, 0, 8192);
+		save();
+	}
+	public void setPackShadowDistanceCap(int value) {
+		packShadowDistanceCap = Math.clamp(value, 0, 1024);
+		save();
+	}
 
 	public boolean smartReflex() { return smartReflex; }
 	public void setSmartReflex(boolean value) { smartReflex = value; save(); }
