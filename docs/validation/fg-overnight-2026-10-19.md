@@ -400,3 +400,8 @@ AMD hardware and device-loss coverage. Overall remains an experimental candidate
 Timing-field semantics: [Khronos latency report](https://docs.vulkan.org/refpages/latest/refpages/source/VkLatencyTimingsFrameReportNV.html).
 The [Super Resolution provider source](https://github.com/IReallyWantToSleep/superresolution/blob/dev/modules/common/src/main/java/io/homo/superresolution/common/framegeneration/FrameGeneration.java)
 was revisited for provider/presentation separation; no source or new library was added.
+
+Round 3 implementation: `51ddbff`. A final fresh normal-Vulkan JVM loaded the built source,
+rejoined gameplay and selected Auto 4x by the end of its smoke run, with no FG failure.
+`final-smoke.json` confirms the estimate-source field and 9973 accumulated generated presents.
+This separate variable-workload smoke is not the stable 6x continuity capture above.
