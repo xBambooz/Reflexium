@@ -1,0 +1,7 @@
+{
+  "baseline-depth-near.png": {"red":609335,"green":209237,"panel_red":20371,"panel_green":106346},
+  "baseline-depth-far.png": {"red":825511,"green":716901,"panel_red":117188,"panel_green":1524},
+  "fixed-depth-near.png": {"red":0,"green":209321,"panel_red":0,"panel_green":106500},
+  "fixed-depth-far.png": {"red":71042,"green":645202,"panel_red":292,"panel_green":1194},
+  "same_session_stale_roi": {"clear_off_red":165362,"clear_on_red":0,"clear_on_green":0}
+}

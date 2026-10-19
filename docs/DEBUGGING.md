@@ -272,3 +272,7 @@ metering feedback and AMD scheduler present counts. These counters do not measur
   `async=1` on `/move` and `/turn` through `rxdbg.ps1 raw` if you want to poll `/status` meanwhile.
 - If the render thread is blocked (world loading), `/status` answers `504` after 30 seconds.
 - Only one scripted motion runs at a time; a new one replaces the old.
+
+### BSL foliage diagnostics
+
+`foliage_depth_debug=1` displays the BSL foliage merge gate after reconstruction: green accepted, red rejected by scene/hand depth, black no foliage coverage. The display uses the render-size attachment with nearest sampling and does not feed diagnostic vectors into DLSS. `foliage_clear=0` disables the explicit frame-start attachment clear for a dev A/B; restore `1` afterward. Both reset with the JVM. `observed.bsl_foliage_surface_cleared` reports a clear actually issued for the captured frame. See IQ Round 5 and `tools/iq-round5.mjs` for the owned-client reproduction.
