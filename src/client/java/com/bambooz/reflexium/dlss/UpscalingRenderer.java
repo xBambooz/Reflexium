@@ -620,7 +620,9 @@ public final class UpscalingRenderer {
 		RenderTarget handTarget = handInHud3dTarget
 				? ((GameRendererAccessor) gameRenderer).reflexium$hud3DTarget()
 				: gameRenderer.mainRenderTarget();
-		GpuTextureView handDepth = packHandCaptured ? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
+		// A pack that skips the hand still needs the cleared mask, never its world depth as hand coverage.
+		GpuTextureView handDepth = packHandMask != null && ShaderPacks.isDrawingPack()
+				? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
 		var dh = DistantHorizonsCompat.depthFrame(renderWidth, renderHeight);
 		float far = dh == null ? cameraFar : Math.max(cameraFar, dh.farPlane() * 2.0f);
 		if (far != motionFar) {
