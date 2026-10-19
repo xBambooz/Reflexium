@@ -108,8 +108,8 @@ public final class CaptureAnalysis {
 		double n = (double) w * h;
 		double psnr = mse == 0 ? 99.0 : 10 * Math.log10(255.0 * 255.0 / (mse / n));
 		double corr = nr == 0 || nt == 0 ? 0 : dot / Math.sqrt(nr * nt);
-		System.out.printf(Locale.ROOT, "{\"mae\":%.3f,\"psnr\":%.2f,\"detail_correlation\":%.4f,\"laplacian_reference\":%.3f,\"laplacian_test\":%.3f}%n",
-				mae / n, psnr, corr, laplacianEnergy(r), laplacianEnergy(t));
+		System.out.printf(Locale.ROOT, "{\"mae\":%.3f,\"mse\":%.3f,\"psnr\":%.2f,\"detail_correlation\":%.4f,\"laplacian_reference\":%.3f,\"laplacian_test\":%.3f}%n",
+				mae / n, mse / n, psnr, corr, laplacianEnergy(r), laplacianEnergy(t));
 	}
 
 	private static void stability(String[] a) throws Exception {

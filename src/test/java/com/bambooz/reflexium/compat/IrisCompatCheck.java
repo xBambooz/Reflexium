@@ -73,6 +73,17 @@ public final class IrisCompatCheck {
 			// Option parsing must still see the original defines so saved pack options stay valid.
 			if (!edited.contains("  #define TAA") || !edited.contains("  #define FXAA")) throw new AssertionError("BSL option defines changed");
 			if (!IrisCompat.temporalVerified()) throw new AssertionError("BSL not reported as verified");
+			for (String effect : List.of("lib/atmospherics/clouds.glsl", "lib/atmospherics/lightShafts.glsl",
+					"lib/lighting/ambientOcclusion.glsl", "lib/reflections/raytrace.glsl", "program/deferred1.glsl")) {
+				Path file = fs.getPath("/shaders/" + effect);
+				String source = Files.readString(file);
+				String sampling = IrisCompat.adapt("BSL_v10.1.8", file, source);
+				if (sampling.equals(source) || !sampling.contains("#if 1 // Reflexium: temporal effect sampling"))
+					throw new AssertionError("BSL temporal effect sampling frozen: " + effect);
+				String changed = source + "\n// user edit\n";
+				if (!IrisCompat.adapt("BSL_v10.1.8", file, changed).equals(changed))
+					throw new AssertionError("Modified BSL effect edited: " + effect);
+			}
 			String modified = original + "\n// user edit\n";
 			if (!IrisCompat.adapt("BSL_v10.1.8", settings, modified).equals(modified)) throw new AssertionError("Modified BSL source was edited");
 			owner.setBoolean(null, false);
@@ -89,6 +100,7 @@ public final class IrisCompatCheck {
 			require(zip, "net/irisshaders/iris/shaderpack/include/IncludeGraph", "readFile(Ljava/nio/file/Path;)Ljava/lang/String;");
 			require(zip, "net/irisshaders/iris/pathways/HandRenderer", "setupGlState", "renderSolid", "renderTranslucent");
 			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
+			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
 			ClassNode target = node(zip, "net/irisshaders/iris/mixin/MixinRenderTarget");
 			for (String field : List.of("iris$depthBufferVersion", "iris$colorBufferVersion"))

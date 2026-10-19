@@ -62,6 +62,12 @@ is vendor certification, and the known gaps below are not hidden by the passing 
 
 ## Validation and limits
 
+The [2026-10-19 Iris/BSL quality pass](validation/iq-overnight-2026-10-19.md) fixes frozen Bayer
+effect sampling when BSL TAA is bypassed. Exact-source edits preserve temporal sampling in clouds,
+AO, light shafts, reflections and LOD shadows while reconstruction remains owned by Reflexium.
+Quality/Balanced sky grain visibly improves without reducing measured ground detail. BSL deformation
+and blended-layer motion remain incomplete; this is not acceptance of lossless motion for every material.
+
 The 2026-10-13 smoke checks (Windows 11, Java 25.0.4, RTX 5070, driver 617.42, Vitrail 0.12.0-beta,
 Sodium 0.9.2, Complementary Reimagined r5.9.3) passed all quality modes in both upscalers, all DLSS
 model choices, resize, pack reload, shader and upscaler toggles, and world rejoin. The missing-DLL

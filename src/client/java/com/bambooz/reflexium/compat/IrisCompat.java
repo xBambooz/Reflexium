@@ -35,6 +35,12 @@ public final class IrisCompat {
 	private static final String BSL_SETTINGS_SHA256 = "808a7fb287dc081d889b3a8abb36c39590c12bff53bd751e839737e3a1cd13aa";
 	private static final String BSL_AA_LINE = "#ifdef RETRO_FILTER";
 	private static volatile boolean bslAaRemoved;
+	private static final java.util.Map<String, String> BSL_SAMPLING = java.util.Map.of(
+			"lib/atmospherics/clouds.glsl", "6195aa898de9c38fbb470ca69b87af5399aedb76bc482ce500143a019e9f96ac",
+			"lib/atmospherics/lightShafts.glsl", "e0cb5aaae178edd574d4c6d731c796c94e61ac4bcd9788234bd3c7472860baf2",
+			"lib/lighting/ambientOcclusion.glsl", "7fa271b2780efef4fc176a3b4a7e2c466ec087b5a3d2c27fe0c025222a14751b",
+			"lib/reflections/raytrace.glsl", "f1ddde3723110de60fd5f30d3bee60b2f48528fc18b94c3861bf85f199094d14",
+			"program/deferred1.glsl", "5a6e17ed30c584acc80fa9547a471d8eed138cc62c20173ff1eac1310f5f75c2");
 	/**
 	 * Pack options that select the pack's own temporal AA, post-process AA or pre-upscale sharpening. Upscaling replaces
 	 * all three: TAA would accumulate before DLSS/FSR, FXAA blurs its jittered input (NVIDIA DLSS guide 3.1), and a
@@ -127,6 +133,20 @@ public final class IrisCompat {
 		reloadPack();
 	}
 
+	/** Dev harness toggle for the supported Iris implementation. */
+	public static void debugSetPackEnabled(boolean enabled) {
+		if (!isSupportedVersion() || !lookUp()) throw new IllegalStateException("Supported Iris is not available");
+		try {
+			Object options = config.invoke(null);
+			options.getClass().getMethod("setShadersEnabled", boolean.class).invoke(options, enabled);
+			// reload() reloads the file too, matching Iris.toggleShaders' set/save/reload sequence.
+			options.getClass().getMethod("save").invoke(options);
+			reloadPack();
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Could not toggle Iris shaders", e);
+		}
+	}
+
 	private static void reloadPack() {
 		if (reloadQueued) return;
 		reloadQueued = true;
@@ -161,6 +181,13 @@ public final class IrisCompat {
 		List<String> result = lines;
 		if (BSL.equals(name)) {
 			if (rel.equals(BSL_SETTINGS)) result = removeBslAntiAliasing(lines);
+			else if (BSL_SAMPLING.getOrDefault(rel, "").equals(ComplementaryTemporalSource.sha256(lines))) {
+				// Removing the pack resolve must not freeze its Bayer ray-march sampling into the SR input.
+				// Change only sampling guards, never geometry jitter or the pack's temporal resolve.
+				String edited = String.join("\n", lines).replace("#ifdef TAA\n\t#if TAA_MODE == 0\n\tdither =",
+						"#if 1 // Reflexium: temporal effect sampling with external reconstruction\n\t#if TAA_MODE == 0\n\tdither =");
+				result = List.of(edited.split("\n", -1));
+			}
 		} else if (rel.equals(JITTER)) {
 			result = removeJitter(lines);
 		} else if (DebugSettings.packResolveBypass()) {

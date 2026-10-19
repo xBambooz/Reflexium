@@ -629,7 +629,10 @@ public final class DebugServer {
 			}
 			case "shaders" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
-				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackEnabled(on);
+				yield () -> {
+					if (com.bambooz.reflexium.compat.IrisCompat.isLoaded()) com.bambooz.reflexium.compat.IrisCompat.debugSetPackEnabled(on);
+					else com.bambooz.reflexium.compat.VitrailCompat.debugSetPackEnabled(on);
+				};
 			}
 			case "reflex_trace" -> {
 				int frames = Integer.parseInt(value);
