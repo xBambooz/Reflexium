@@ -69,7 +69,7 @@ public final class BslFoliageMotion {
 			matrix.invoke(holder, perFrame, "rxPreviousProjection", (Supplier<?>) () -> UpscalingRenderer.get().foliageProjection(true));
 			api.getMethod("uniform4f", frequency, String.class, Supplier.class).invoke(holder, perFrame, "rxMotionState",
 					(Supplier<Vector4f>) () -> UpscalingRenderer.get().foliageMotionState(previousTime));
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage uniform ABI changed", e); }
+		} catch (ReflectiveOperationException e) { com.bambooz.reflexium.ReflexiumClient.LOGGER.warn("Iris foliage uniform registration failed", e); }
 	}
 
 	public static void endFrame() {
@@ -81,21 +81,25 @@ public final class BslFoliageMotion {
 		try {
 			if (clock == null) {
 				timer = Class.forName("net.irisshaders.iris.uniforms.SystemTimeUniforms").getField("TIMER").get(null);
+				if (timer == null) return 0f;
 				clock = timer.getClass().getMethod("getFrameTimeCounter");
 			}
 			return (float) clock.invoke(timer);
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage frame time unavailable", e); }
+		} catch (Exception e) { return 0f; }
 	}
 
 	public static GpuTextureView surface() {
 		if (!ready()) return null;
 		try {
 			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+			if (manager == null) return null;
 			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			if (pipeline == null) return null;
 			var field = pipeline.getClass().getDeclaredField("renderTargets"); field.setAccessible(true);
 			Object targets = field.get(pipeline);
+			if (targets == null) return null;
 			Object target = targets.getClass().getMethod("get", int.class).invoke(targets, 15);
 			return target == null ? null : (GpuTextureView) target.getClass().getMethod("getTextureView", boolean.class, boolean.class).invoke(target, false, false);
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris foliage target unavailable", e); }
+		} catch (Exception e) { return null; }
 	}
 }
