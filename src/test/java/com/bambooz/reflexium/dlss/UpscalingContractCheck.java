@@ -294,8 +294,14 @@ public final class UpscalingContractCheck {
 		}
 	}
 
-	// 5. Transformer picks NVIDIA's recommended preset per mode; Auto and CNN do not change.
+	// 5. Explicit model presets and the shader-aware Auto backend policy.
 	private static void modelPresets() {
+		check(Upscaler.AUTO.resolve(true, true, false) == Upscaler.OFF, "Shaderless Auto keeps native rendering");
+		check(Upscaler.AUTO.resolve(true, true, true) == Upscaler.DLSS, "Shader-pack Auto prefers DLSS");
+		check(Upscaler.AUTO.resolve(false, true, true) == Upscaler.FSR, "Shader-pack Auto falls back to FSR");
+		check(Upscaler.AUTO.resolve(false, false, true) == Upscaler.OFF, "No runtime keeps native rendering");
+		check(Upscaler.DLSS.resolve(true, true, false) == Upscaler.DLSS, "Explicit shaderless DLSS remains available");
+		check(Upscaler.OFF.resolve(true, true, true) == Upscaler.OFF, "Explicit Off stays off with shaders");
 		for (UpscaleQuality quality : UpscaleQuality.values()) {
 			check(DlssModel.AUTO.preset(quality) == 0, "Auto passes zero for the runtime default");
 			check(DlssModel.CNN.preset(quality) == 5, "CNN stays preset E");
@@ -303,7 +309,7 @@ public final class UpscalingContractCheck {
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.NATIVE_AA) == 11, "DLAA K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.QUALITY) == 11, "Quality K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.BALANCED) == 11, "Balanced K");
-		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 13, "Performance M");
+		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 11, "Performance K retains detail at lower cost than M");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.ULTRA_PERFORMANCE) == 12, "Ultra Performance L");
 	}
 

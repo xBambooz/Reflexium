@@ -40,8 +40,8 @@ is vendor certification, and the known gaps below are not hidden by the passing 
 - FSR camera planes and vertical field of view are decoded from Minecraft's unmodified camera
   projection, not from the matrix after view bob, damage tilt and nausea. Reprojection keeps the drawn
   matrix. Non-finite or impossible metadata is rejected and the last valid values are kept.
-- The transformer model requests NVIDIA's recommended preset per mode (K for DLAA/Quality/Balanced, M
-  for Performance, L for Ultra Performance). Auto passes zero, CNN is preset E. The value is a hint
+- The transformer model requests K for DLAA/Quality/Balanced/Performance and L for Ultra Performance.
+  The 1440p K/M comparison favors K's retained detail and lower cost. Auto passes zero, CNN is preset E. The value is a hint
   passed to NGX at feature creation; NGX does not report which model it selected.
 - The block selection outline uses vanilla's world pass. Post-upscale depth reconstruction left
   surface edges partially clipped, so the outline is reconstructed with the scene.

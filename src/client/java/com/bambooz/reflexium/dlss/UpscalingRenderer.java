@@ -959,7 +959,7 @@ public final class UpscalingRenderer {
 		return ngxReady || fsr != null;
 	}
 	public boolean dlssReady() { return ngxReady; }
-	public Upscaler effectiveUpscaler() { return ReflexiumConfig.get().upscaler().resolve(ngxReady, fsr != null); }
+	public Upscaler effectiveUpscaler() { return ReflexiumConfig.get().upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack()); }
 	public boolean available(Upscaler value) {
 		return switch (value) { case DLSS -> ngxReady; case FSR -> fsr != null; default -> false; };
 	}

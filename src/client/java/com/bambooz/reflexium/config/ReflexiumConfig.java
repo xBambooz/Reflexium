@@ -22,6 +22,8 @@ public final class ReflexiumConfig {
 	private static final Path DIR = FabricLoader.getInstance().getConfigDir();
 	private static final Path PATH = DIR.resolve("reflexium.properties");
 	private static final Path LEGACY_PATH = DIR.resolve("nvidia-reflex-mod.properties");
+	public static final DlssModel DEFAULT_DLSS_MODEL = DlssModel.CNN;
+	public static final FrameGeneration DEFAULT_FRAME_GENERATION = FrameGeneration.DLSS;
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
@@ -30,9 +32,9 @@ public final class ReflexiumConfig {
 	private volatile boolean smartReflex = DEFAULT_SMART_REFLEX;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
-	private volatile DlssModel dlssModel = DlssModel.TRANSFORMER;
+	private volatile DlssModel dlssModel = DEFAULT_DLSS_MODEL;
 	private volatile int fsrSharpness = 20;
-	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
+	private volatile FrameGeneration frameGeneration = DEFAULT_FRAME_GENERATION;
 	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
 	/** Opt-in upper bounds for a shader pack's shadow map size and shadow distance while upscaling; 0 keeps the pack's own value. */
