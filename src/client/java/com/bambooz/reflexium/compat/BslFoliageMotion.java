@@ -24,7 +24,7 @@ public final class BslFoliageMotion {
 		if (path.equals("lib/vertex/waving.glsl")) {
 			waveReady = "f4163b9a6b715dd62cc3df92ffc17137eb89ce8a9b78d857869cc0b1f74d5a50".equals(
 					ComplementaryTemporalSource.sha256(List.of(source.replace("\r\n", "\n").split("\n", -1))));
-			if (waveReady) return "vec3 rxBendOffset = vec3(0.0);\n" + source.replace(
+			if (waveReady) return "#ifndef RX_BEND_OFFSET\nvec3 rxBendOffset = vec3(0.0);\n#endif\n" + source.replace(
 					"position += relativeEyePosition + vec3(0.0, 0.62, 0.0);",
 					"position += relativeEyePosition + rxBendOffset + vec3(0.0, 0.62, 0.0);");
 		}
@@ -48,7 +48,7 @@ public final class BslFoliageMotion {
 		int end = s.indexOf("\n}\n\n#endif");
 		if (end < 0) throw new IllegalStateException("Reviewed BSL fragment boundary missing");
 		s = s.substring(0, end) + output + s.substring(end);
-		s = s.replace("#ifdef VSH", "#ifdef VSH\nvarying vec4 rxCurrentClip, rxPreviousClip;\nvarying float rxFoliage;\nuniform mat4 rxCurrentProjection, rxPreviousProjection;\nuniform vec4 rxMotionState;\nuniform vec3 rxPreviousEye;\n");
+		s = s.replace("#ifdef VSH", "#ifdef VSH\n#define RX_BEND_OFFSET\nvec3 rxBendOffset = vec3(0.0);\nvarying vec4 rxCurrentClip, rxPreviousClip;\nvarying float rxFoliage;\nuniform mat4 rxCurrentProjection, rxPreviousProjection;\nuniform vec4 rxMotionState;\nuniform vec3 rxPreviousEye;\n");
 		s = s.replace("position.xyz = WavingBlocks(position.xyz, blockID, istopv);",
 				"vec3 rxBase = position.xyz;\nfloat rxSavedTime = time;\ntime = rxMotionState.w * ANIMATION_SPEED;\n"
 				+ "rxBendOffset = rxMotionState.xyz + rxPreviousEye - relativeEyePosition;\n"

@@ -130,6 +130,7 @@ public final class UpscalingRenderer {
 	private MotionVectorPass motionPass;
 	private final FoliageMotionPass foliageMotionPass = new FoliageMotionPass();
 	private boolean foliageMotionApplied;
+	private boolean irisOpaqueDepthApplied;
 	public Matrix4fc foliageProjection(boolean previous) { return previous ? previousUnjittered : currentUnjittered; }
 	public org.joml.Vector4f foliageMotionState(float previousTime) {
 		Vec3 delta = currentCamera.subtract(previousCamera);
@@ -356,6 +357,7 @@ public final class UpscalingRenderer {
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
 		foliageMotionApplied = false;
+		irisOpaqueDepthApplied = false;
 		ComplementaryHdr.beginFrame();
 		DistantHorizonsCompat.beginFrame();
 		worldDepthCaptured = false;
@@ -590,6 +592,7 @@ public final class UpscalingRenderer {
 		GpuTextureView opaqueDepth = com.bambooz.reflexium.compat.IrisCompat.opaqueDepth(renderWidth, renderHeight);
 		if (opaqueDepth != null) {
 			directWorldDepth = opaqueDepth;
+			irisOpaqueDepthApplied = true;
 		} else if (usesDirectDepth()) {
 			// Vanilla uses its separate hand depth while active.
 			directWorldDepth = main.getDepthTextureView();
@@ -878,7 +881,7 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
-		o.addProperty("primary_depth_source", com.bambooz.reflexium.compat.IrisCompat.isDrawingPack() ? "iris_pre_translucent" : "vanilla_world");
+		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
 			o.addProperty("bsl_current_time", com.bambooz.reflexium.compat.BslFoliageMotion.currentTime());

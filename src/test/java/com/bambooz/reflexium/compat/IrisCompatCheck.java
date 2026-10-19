@@ -70,10 +70,12 @@ public final class IrisCompatCheck {
 				String changed = BslFoliageMotion.adapt("program/gbuffers_terrain.glsl", source);
 				if (changed.equals(source) || changed.contains("DRAWBUFFERS:") || !changed.contains("rxPreviousProjection * vec4(rxBefore, 1.0)")
 						|| !changed.contains("blockID >= 100 && blockID <= 108") || !changed.contains("time = rxSavedTime")
-						|| !changed.contains("rxPreviousEye - relativeEyePosition") || !changed.contains("rxBendOffset = vec3(0.0)"))
+						|| !changed.contains("rxPreviousEye - relativeEyePosition") || !changed.contains("rxBendOffset = vec3(0.0)")
+						|| !changed.contains("#define RX_BEND_OFFSET"))
 					throw new AssertionError("BSL deformation producer not installed");
 				String wave = Files.readString(fs.getPath("/shaders/lib/vertex/waving.glsl"));
-				if (!BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave).contains("relativeEyePosition + rxBendOffset"))
+				String previousBend = BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave);
+				if (!previousBend.contains("relativeEyePosition + rxBendOffset") || !previousBend.contains("#ifndef RX_BEND_OFFSET"))
 					throw new AssertionError("BSL previous contact bend missing");
 				if (!BslFoliageMotion.adapt("lib/vertex/waving.glsl", wave + "\n// edited").equals(wave + "\n// edited"))
 					throw new AssertionError("Modified BSL wave must remain untouched");
