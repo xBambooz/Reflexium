@@ -1281,7 +1281,7 @@ public final class UpscalingRenderer {
 			VkCommandBuffer commands = commandBuffer();
 			long timing = FrameProfiler.start(FrameProfiler.DISPLAY_DEPTH, commands);
 			depthResolvePass.render(motionTarget.getDepthTextureView(), main.getDepthTextureView(), main.width, main.height,
-					depthTransform.m22(), depthTransform.m32());
+					depthTransform.m22(), depthTransform.m32(), jitterNdcX(), jitterNdcY());
 			FrameProfiler.end(FrameProfiler.DISPLAY_DEPTH, timing, commands);
 			depthResolved = true;
 		} catch (RuntimeException e) {
