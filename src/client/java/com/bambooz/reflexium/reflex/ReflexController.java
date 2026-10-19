@@ -288,10 +288,9 @@ public final class ReflexController {
 		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
 		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
-		// NVIDIA FG runs with VSync off, so the VRR proxy above never applies to it. Generated output above refresh
-		// is never seen. With FG active the driver applies this interval to presented frames, real and generated
-		// (measured 2026-10-16: caps of 110 and 73 gave 111 and 74 total at 2x and 3x), so it is not divided.
-		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
+		// NVIDIA FG runs with VSync off. Its automatic refresh cap applies only during rendered-only bypass;
+		// while generating, a total-present cap would trade real throughput for interpolated output.
+		int fgFps = mode().enabled() ? frameGenerationCap(window, userFps) : NO_CAP;
 		int autoFps = Math.min(vrrFps, fgFps);
 		int fps = Math.min(userFps, autoFps);
 		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
@@ -299,10 +298,14 @@ public final class ReflexController {
 	}
 
 	/** Presented-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
-	private int frameGenerationCap(Window window) {
+	private int frameGenerationCap(Window window, int userFps) {
 		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
-		int generated = fg.wantsMotion() ? fg.configuredGeneratedCount() : 0;
-		return generated <= 0 ? NO_CAP : vrrCap(window);
+		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
+		fg.refreshPolicy().cap(requested ? Math.min(userFps, vrrCap(window)) : NO_CAP);
+		// The driver interval caps ALL presents. Applying it during FG trades real frames for generated
+		// frames even when rendering already fills the display. Measure real throughput without that cap;
+		// use rendered-only pacing at refresh when generation offers no throughput benefit.
+		return requested && fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
 	}
 
 	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */

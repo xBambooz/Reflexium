@@ -17,6 +17,20 @@ five generated frames, hence 6x maximum. A runtime reporting one generated frame
 2x FG; it does not enable MFG. Unsupported selections show their reason in status and render normally.
 This is static MFG. Streamline's dynamic multiplier selection is not integrated.
 
+Selecting a multiplier above 2x selects MFG for NVIDIA modes. Selecting standard DLSS FG resets
+the multiplier to 2x. Saved NVIDIA settings are normalized on load, so stored 3x cannot silently
+run standard 2x FG. Off and FSR selections are preserved when changing the multiplier.
+
+NVIDIA FG first measures rendered-only throughput for about one second. At or above 95% of the
+monitor's refresh-headroom target it stays rendered-only; below 80% it enables the requested static
+multiplier. This hysteresis also applies to later workload changes. Status exposes the bypass and
+its refresh target. The policy target also respects a lower explicit user cap. Unknown refresh with
+no explicit cap leaves generation uncapped. The automatic refresh cap applies
+only during rendered-only bypass: the NVIDIA Vulkan interval limits all presents, so applying it
+while generating would sacrifice real frames to enforce an output budget. Active FG output may
+exceed refresh. An explicit user cap still limits total presents and can reduce real throughput.
+This is an application fallback policy, not NVIDIA Streamline Dynamic MFG.
+
 Current settings require Auto or the matching upscaler. Selecting Off or an explicitly mismatched
 backend disables FG. The renderer retains native and cross-backend paths from earlier acceptance;
 the [2026-10-14 check](PERFORMANCE.md) covers the current settings combinations.
@@ -40,6 +54,12 @@ Vulkan presentation surfaces track binary acquire semaphores with completion fen
 tied to the command submission that consumes each signal. Before any binary acquire semaphore is reused,
 its prior consuming submission is guaranteed complete, replacing arbitrary ring sizing with an explicit
 GPU synchronization invariant.
+
+Metered surfaces reserve 16 acquire semaphores for two real frames of up to eight presents, with
+the same completion checks before reuse. Replacement presents use a persistent encoder per output
+slot on the existing graphics queue. Each encoder retains RenderPearl's two-submit completion and
+pool-reset rules, preventing replacement blits from rotating the world's two-submit pool. Encoders
+remain alive across FG toggles because surface acquire fences can still reference their timelines.
 
 On other supported GPUs, FSR uses AMD's signed Vulkan swapchain scheduler. Three additional
 queues are reserved only when the physical family has room. SDK presentation threads use those

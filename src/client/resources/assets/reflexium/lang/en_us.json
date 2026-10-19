@@ -47,7 +47,7 @@
   "reflexium.option.frame_generation": "Frame Generation",
   "reflexium.option.frame_generation.tooltip": "Generates intermediate display frames without advancing gameplay. DLSS FG needs a supported RTX 40/50 series GPU; Multi Frame Generation needs RTX 50 series support. FSR FG uses the AMD runtime on supported Vulkan GPUs. A base rate of 60 FPS or higher is recommended. Available capabilities and errors appear in Status.",
   "reflexium.option.fg_multiplier": "MFG Multiplier",
-  "reflexium.option.fg_multiplier.tooltip": "Total frames per rendered frame, including the real frame, from 2x up to the driver-reported maximum. Only applies to DLSS Multi Frame Generation; 2x runs the same path as DLSS FG. Vulkan DLSS FG needs VSync off and enables Reflex while active.",
+  "reflexium.option.fg_multiplier.tooltip": "Total frames per rendered frame, including the real frame. Selecting more than 2x switches NVIDIA FG to MFG. FG automatically uses rendered frames alone near the monitor refresh target. Active generation has no automatic output cap; an explicit FPS limit still limits total presents. Vulkan DLSS FG needs VSync off and enables Reflex.",
   "reflexium.frame_generation.off": "Off",
   "reflexium.frame_generation.dlss": "DLSS FG",
   "reflexium.frame_generation.dlss_multi": "DLSS MFG",
