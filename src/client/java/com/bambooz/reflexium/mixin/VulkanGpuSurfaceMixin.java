@@ -151,6 +151,11 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Inject(method = "destroySwapchain", at = @At("HEAD"))
 	private void reflexium$swapchainDestroyed(CallbackInfo ci) {
 		reflexium$realView = null;
+		if (reflexium$acquireCompletion != null) {
+			for (int i = 0; i < reflexium$acquireCompletion.length; i++) {
+				if (reflexium$acquireCompletion[i] != null) { reflexium$acquireCompletion[i].close(); reflexium$acquireCompletion[i] = null; }
+			}
+		}
 		VulkanLifecycle.onSwapchainDestroyed();
 	}
 
