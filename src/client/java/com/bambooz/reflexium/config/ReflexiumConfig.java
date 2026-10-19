@@ -35,6 +35,9 @@ public final class ReflexiumConfig {
 	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
 	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
+	/** Opt-in upper bounds for a shader pack's shadow map size and shadow distance while upscaling; 0 keeps the pack's own value. */
+	private volatile int packShadowResolutionCap = 0;
+	private volatile int packShadowDistanceCap = 0;
 
 	private ReflexiumConfig() {
 	}
@@ -49,6 +52,14 @@ public final class ReflexiumConfig {
 
 	public void setReflexMode(ReflexMode mode) {
 		reflexMode = mode;
+		save();
+	}
+
+	public int packShadowResolutionCap() { return packShadowResolutionCap; }
+	public int packShadowDistanceCap() { return packShadowDistanceCap; }
+	public void setPackShadowCaps(int resolution, int distance) {
+		packShadowResolutionCap = Math.clamp(resolution, 0, 8192);
+		packShadowDistanceCap = Math.clamp(distance, 0, 1024);
 		save();
 	}
 
@@ -157,6 +168,10 @@ public final class ReflexiumConfig {
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
+		try { config.packShadowResolutionCap = Math.clamp(Integer.parseInt(props.getProperty("pack_shadow_resolution_cap", "0")), 0, 8192); }
+		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
+		try { config.packShadowDistanceCap = Math.clamp(Integer.parseInt(props.getProperty("pack_shadow_distance_cap", "0")), 0, 1024); }
+		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		if (source == LEGACY_PATH) {
 			config.save();
 			ReflexiumClient.LOGGER.info("Migrated {} to {}", LEGACY_PATH.getFileName(), PATH.getFileName());
@@ -180,6 +195,8 @@ public final class ReflexiumConfig {
 		props.setProperty("frame_generation", frameGeneration.serializedName());
 		props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
+		props.setProperty("pack_shadow_resolution_cap", Integer.toString(packShadowResolutionCap));
+		props.setProperty("pack_shadow_distance_cap", Integer.toString(packShadowDistanceCap));
 		try {
 			Files.createDirectories(DIR);
 			Path temp = PATH.resolveSibling(PATH.getFileName() + ".tmp");

@@ -168,6 +168,9 @@ public final class IrisCompat {
 		}
 	}
 
+	/** Debug and config changes to pack option overrides need the pack compiled again. */
+	public static void reloadForOptionChange() { reloadPack(); }
+
 	private static void reloadPack() {
 		if (reloadQueued) return;
 		reloadQueued = true;
@@ -265,6 +268,56 @@ public final class IrisCompat {
 			ReflexiumClient.LOGGER.warn("Iris pack option set not readable; pack temporal AA stays as configured", e);
 			return values;
 		}
+	}
+
+	/**
+	 * Pack option values for one compile: the temporal AA overrides, then the opt-in shadow caps. Shadow map size and
+	 * distance do not shrink with render resolution, so a cap is the only way to trade them for frame time while
+	 * upscaling; with both caps at 0 (the default) the pack's own values are never touched.
+	 */
+	public static java.util.Map<String, String> packOptionOverrides(Object packOptions, java.util.Map<String, String> values) {
+		return shadowCaps(packOptions, temporalOptionOverrides(packOptions, values));
+	}
+
+	private static java.util.Map<String, String> shadowCaps(Object packOptions, java.util.Map<String, String> values) {
+		var config = com.bambooz.reflexium.config.ReflexiumConfig.get();
+		if (!ownsTemporalSampling() || values == null || config.packShadowResolutionCap() <= 0 && config.packShadowDistanceCap() <= 0) return values;
+		try {
+			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+			java.util.Map<?, ?> strings = (java.util.Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+			java.util.Map<String, String> result = new java.util.HashMap<>(values);
+			List<String> capped = new ArrayList<>();
+			capOption(strings, result, capped, "shadowMapResolution", config.packShadowResolutionCap());
+			capOption(strings, result, capped, "shadowDistance", config.packShadowDistanceCap());
+			if (capped.isEmpty()) return values;
+			ReflexiumClient.LOGGER.info("Iris {}: shadow options capped while upscaling {} (saved options unchanged)", currentPackName(), capped);
+			return result;
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			ReflexiumClient.LOGGER.warn("Iris pack shadow options not readable; shadows stay as configured", e);
+			return values;
+		}
+	}
+
+	private static void capOption(java.util.Map<?, ?> strings, java.util.Map<String, String> result, List<String> capped,
+			String name, int cap) throws ReflectiveOperationException {
+		Object merged = strings.get(name);
+		if (cap <= 0 || merged == null) return;
+		Object option = merged.getClass().getMethod("getOption").invoke(merged);
+		List<?> allowed = (List<?>) option.getClass().getMethod("getAllowedValues").invoke(option);
+		String current = result.getOrDefault(name, (String) option.getClass().getMethod("getDefaultValue").invoke(option));
+		if (Double.parseDouble(current) <= cap) return;
+		String best = null;
+		double bestValue = Double.NEGATIVE_INFINITY, smallestValue = Double.POSITIVE_INFINITY;
+		String smallest = null;
+		for (Object entry : allowed) {
+			double value = Double.parseDouble((String) entry);
+			if (value <= cap && value > bestValue) { bestValue = value; best = (String) entry; }
+			if (value < smallestValue) { smallestValue = value; smallest = (String) entry; }
+		}
+		String chosen = best != null ? best : smallest;
+		if (chosen == null) return;
+		result.put(name, chosen);
+		capped.add(name + "=" + chosen);
 	}
 
 	private static List<String> removeJitter(List<String> lines) {

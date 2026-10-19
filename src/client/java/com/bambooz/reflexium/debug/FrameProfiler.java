@@ -13,11 +13,17 @@ public final class FrameProfiler {
 			OUTLINE = 5, BARRIER_BEFORE = 6, BARRIER_AFTER = 7, REACTIVE = 8, OPAQUE_COPY = 9,
 			PACK_HAND = 10, REFLEX_SLEEP = 11, SUBMIT = 12, FENCE = 13, ACQUIRE = 14, PRESENT = 15, WORLD = 16, QUEUE = 17,
 			REFLEX_DRIVER = 18, REFLEX_WAIT = 19, FENCE_POLL = 20, POOL_RESET = 21,
-			FG_EVALUATE = 22, FG_GUI = 23, ACQUIRE_REUSE_WAIT = 24, SHARPEN = 25, DISPLAY_DEPTH = 26, HDR_COPY = 27, FINAL_BLIT = 28;
+			FG_EVALUATE = 22, FG_GUI = 23, ACQUIRE_REUSE_WAIT = 24, SHARPEN = 25, DISPLAY_DEPTH = 26, HDR_COPY = 27, FINAL_BLIT = 28,
+			IRIS_SHADOWS = 29, IRIS_BEGIN = 30, IRIS_DEFERRED = 31, IRIS_COMPOSITE = 32, IRIS_FINAL = 33,
+			PHASE_SKY = 34, PHASE_TERRAIN_SOLID = 35, PHASE_TERRAIN_CUTOUT = 36, PHASE_ENTITIES = 37, PHASE_TRANSLUCENT = 38,
+			PHASE_CLOUDS_WEATHER = 39, PHASE_HAND = 40, PHASE_OTHER = 41;
 	private static final String[] NAMES = {"depth_copy", "camera_motion", "object_motion", "evaluate",
 			"outline_depth", "outline", "barrier_before", "barrier_after", "reactive", "opaque_copy",
 			"pack_hand", "reflex_sleep", "submit_including_wait", "submit_fence_wait", "acquire", "present", "world_including_upscaling", "queue_submit",
-			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "sharpen", "display_depth", "hdr_copy", "final_blit"};
+			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "sharpen", "display_depth", "hdr_copy", "final_blit",
+			"iris_shadows_and_prepare", "iris_begin", "iris_deferred", "iris_composite", "iris_final",
+			"phase_sky", "phase_terrain_solid", "phase_terrain_cutout", "phase_entities", "phase_translucent_particles",
+			"phase_clouds_weather", "phase_hand", "phase_other"};
 	private static final int SLOTS = 16, QUERIES = 128;
 	private static final long[] cpu = new long[NAMES.length], counts = new long[NAMES.length],
 			gpu = new long[NAMES.length], gpuCounts = new long[NAMES.length];
