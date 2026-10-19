@@ -69,6 +69,7 @@ public final class ReflexController {
 	private long pendingSleepValue;
 	private long pendingSince;
 	private static final int MAX_TIMEOUT_LOGS = 8;
+	private static final int MAX_REGRESSION_LOGS = 8;
 	private final PacingState pacing = new PacingState();
 	private ReflexMode loggedMode;
 	private int requestedIntervalUs;
@@ -537,7 +538,7 @@ public final class ReflexController {
 		if (rank > 0) {
 			if (lastMarkerRank > 0 && rank <= lastMarkerRank && lastMarkerFrameId == frameId) {
 				markerOrderRegressions++;
-				ReflexiumClient.LOGGER.warn("Reflex marker order regression on frame {}: {} emitted after {}",
+				if (markerOrderRegressions <= MAX_REGRESSION_LOGS) ReflexiumClient.LOGGER.warn("Reflex marker order regression on frame {}: {} emitted after {}",
 						frameId, markerName(marker), markerName(lastMarker));
 			}
 			lastMarkerRank = rank;
