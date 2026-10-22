@@ -118,7 +118,8 @@ public final class FrameGenerationRenderer {
 	/** Generated presents each real frame should deliver for the requested NVIDIA mode; 0 when off or on the FSR proxy route. */
 	public int configuredGeneratedCount() {
 		if (!ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
-		refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
+		refreshPolicy.force(ReflexiumConfig.get().fgForceMultiplier());
+ refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
 		return Math.max(0, refreshPolicy.multiplier() - 1);
 	}
 	public int requestedGeneratedCount() {

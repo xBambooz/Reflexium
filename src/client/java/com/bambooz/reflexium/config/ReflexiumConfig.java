@@ -36,7 +36,8 @@ public final class ReflexiumConfig {
 	private volatile int fsrSharpness = 20;
 	private volatile boolean postUpscaleParticles = true;
 	private volatile FrameGeneration frameGeneration = DEFAULT_FRAME_GENERATION;
-	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
+	private volatile boolean fgForceMultiplier;
+ private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
 	/** Opt-in upper bounds for a shader pack's shadow map size and shadow distance while upscaling; 0 keeps the pack's own value. */
 	private volatile int packShadowResolutionCap = 0;
@@ -117,7 +118,9 @@ public final class ReflexiumConfig {
 		save();
 	}
 
-	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
+	public boolean fgForceMultiplier() { return fgForceMultiplier; }
+ public void setFgForceMultiplier(boolean value) { fgForceMultiplier = value; save(); }
+ public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
 	public void setFrameGenerationMultiplier(int value) {
 		frameGenerationMultiplier = value == 0 ? 0 : Math.clamp(value, 2, 8);
 		frameGeneration = frameGeneration.withMultiplier(frameGenerationMultiplier);
@@ -174,7 +177,8 @@ public final class ReflexiumConfig {
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
 		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
-		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
+		config.fgForceMultiplier = Boolean.parseBoolean(props.getProperty("fg_force_multiplier", "false"));
+ config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
@@ -204,7 +208,8 @@ public final class ReflexiumConfig {
 		props.setProperty("dlss_model", dlssModel.serializedName());
 		props.setProperty("fsr_sharpness", Integer.toString(fsrSharpness));
 		props.setProperty("frame_generation", frameGeneration.serializedName());
-		props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
+		props.setProperty("fg_force_multiplier", Boolean.toString(fgForceMultiplier));
+ props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
 		props.setProperty("pack_shadow_resolution_cap", Integer.toString(packShadowResolutionCap));
 		props.setProperty("pack_shadow_distance_cap", Integer.toString(packShadowDistanceCap));

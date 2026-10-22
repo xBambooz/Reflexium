@@ -56,7 +56,11 @@ public final class FrameDeliveryCheck {
 		refresh.present(72_000_000_000L, true, 1);
 		check(refresh.multiplier() == 1, "sustained light scene can bypass after dwell");
 		refresh.configure(6, 6);
-		check(!refresh.bypass() && refresh.multiplier() == 6, "fixed multiplier remains fixed");
+		check(refresh.bypass(), "fixed request starts safely bypassed");
+ refresh.present(80_000_000_000L, true, 2);
+ check(refresh.bypass(), "fixed request never cuts high real FPS");
+ refresh.force(true);
+ check(refresh.multiplier() == 6, "force restores fixed multiplier");
 		refresh.cap(120);
 		check(refresh.multiplier() == 6, "cap never changes fixed multiplier");
 		if (VulkanLifecycle.validImageCount(8, 2, 3) != 3 || VulkanLifecycle.validImageCount(3, 2, 0) != 3

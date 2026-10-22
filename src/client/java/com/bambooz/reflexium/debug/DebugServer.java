@@ -453,7 +453,8 @@ public final class DebugServer {
 		o.addProperty("reflex_interval_us", DebugSettings.reflexIntervalUs);
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
-		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
+		o.addProperty("fg_force_multiplier", config.fgForceMultiplier());
+ o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_requested_generated", FrameGenerationRenderer.get().requestedGeneratedCount());
 		o.addProperty("fg_effective_multiplier", FrameGenerationRenderer.get().refreshPolicy().multiplier());
 		o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
@@ -731,7 +732,11 @@ public final class DebugServer {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
 				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
 			}
-			case "fg_multiplier" -> {
+			case "fg_force_multiplier" -> {
+ boolean enabled = flag(Map.of("v", value), "v", false);
+ yield () -> { ReflexiumConfig.get().setFgForceMultiplier(enabled); FrameGenerationRenderer.get().retry(); };
+ }
+ case "fg_multiplier" -> {
 				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);
 				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 				if (multiplier != 0 && (multiplier < 2 || multiplier > maximum)) throw new BadRequest("FG multiplier must be auto or 2.." + maximum + " on this GPU");
