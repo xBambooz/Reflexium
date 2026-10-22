@@ -35,12 +35,19 @@ public final class FrameProfiler {
 	private static long pool;
 	private static float period;
 	private static int slot = -1, next;
-	private static boolean enabled;
+	private static boolean enabled, automatic;
+ private static long worldTag, probeSamples;
+ private static double probeNs;
+ private static final long[][] worldTags = new long[SLOTS][QUERIES / 2];
+ public static void automatic(boolean value) { automatic = value; }
+ public static void worldProbe(long tag) { if (worldTag != tag) { worldTag = tag; probeSamples = 0; probeNs = 0; } }
+ public static long worldProbeSamples() { return probeSamples; }
+ public static double worldProbeMs() { return probeSamples == 0 ? 0 : probeNs / (probeSamples * 1_000_000.0); }
 	private static long skipped;
 
 	private FrameProfiler() {}
 	public static double gpuMeanMs(int label) { return gpuCounts[label] == 0 ? 0 : gpu[label] / (gpuCounts[label] * 1_000_000.0); }
- public static boolean enabled() { return enabled; }
+ public static boolean enabled() { return enabled || automatic; }
 
 	public static void init(VkDevice value, VkPhysicalDevice physical) {
 		device = value;
@@ -66,7 +73,7 @@ public final class FrameProfiler {
 
 	public static void beginFrame() {
 		slot = -1;
-		if (!enabled || pool == 0) return;
+		if (!enabled() || pool == 0) return;
 		int frame = next++;
 		if (frame % 16 != 0) return;
 		int candidate = (frame / 16) % SLOTS;
@@ -92,6 +99,9 @@ public final class FrameProfiler {
 				int label = labels[s][i / 2];
 				gpu[label] += (long) ((data.get(i * 2 + 2) - data.get(i * 2)) * (double) period);
 				gpuCounts[label]++;
+    if (label == WORLD && worldTag != 0 && worldTags[s][i / 2] == worldTag) {
+     probeNs += (data.get(i * 2 + 2) - data.get(i * 2)) * (double) period; probeSamples++;
+    }
 			}
 			used[s] = 0;
 			return true;
@@ -99,10 +109,11 @@ public final class FrameProfiler {
 	}
 
 	public static long start(int label, VkCommandBuffer commands) {
-		if (!enabled) return 0;
+		if (!enabled()) return 0;
 		if (commands != null && slot >= 0 && used[slot] + 2 <= QUERIES) {
 			int query = used[slot];
 			labels[slot][query / 2] = label;
+   worldTags[slot][query / 2] = worldTag;
 			VK10.vkCmdWriteTimestamp(commands, VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, pool, slot * QUERIES + query);
 			used[slot] += 2;
 			// High bits retain the query pair so nested CPU scopes cannot corrupt its end index.
