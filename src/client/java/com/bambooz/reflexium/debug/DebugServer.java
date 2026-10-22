@@ -457,11 +457,12 @@ public final class DebugServer {
  o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_requested_generated", FrameGenerationRenderer.get().requestedGeneratedCount());
 		o.addProperty("fg_effective_multiplier", FrameGenerationRenderer.get().refreshPolicy().multiplier());
-		o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
+		o.addProperty("fg_policy_probes", FrameGenerationRenderer.get().refreshPolicy().probes());
+ o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
 		o.addProperty("fg_refresh_bypass", FrameGenerationRenderer.get().refreshPolicy().bypass());
 		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
 		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
-		o.addProperty("fg_policy_estimate_source", "Reflex simStart to gpuRenderEnd (includes FG and queue delay)");
+		o.addProperty("fg_policy_estimate_source", "measured bypass real presents; GPU minus FG is an upper bound");
 		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();

@@ -315,7 +315,7 @@ public final class FrameGenerationRenderer {
 			else {
 				realPresented++;
 				Minecraft mc = Minecraft.getInstance();
-				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs());
+				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(), delivery.realRate(System.nanoTime()), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs(), FrameProfiler.gpuMeanMs(FrameProfiler.FG_EVALUATE) * generated.length);
 			}
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}

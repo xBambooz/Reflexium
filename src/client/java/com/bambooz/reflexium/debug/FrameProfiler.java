@@ -39,7 +39,8 @@ public final class FrameProfiler {
 	private static long skipped;
 
 	private FrameProfiler() {}
-	public static boolean enabled() { return enabled; }
+	public static double gpuMeanMs(int label) { return gpuCounts[label] == 0 ? 0 : gpu[label] / (gpuCounts[label] * 1_000_000.0); }
+ public static boolean enabled() { return enabled; }
 
 	public static void init(VkDevice value, VkPhysicalDevice physical) {
 		device = value;

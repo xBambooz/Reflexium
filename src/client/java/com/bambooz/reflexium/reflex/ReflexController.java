@@ -626,14 +626,13 @@ public final class ReflexController {
 
 	/** Sparse driver sample for Auto; unavailable/stale data holds the previous selection. */
 	public double frameGenerationRenderCostMs() {
-		if (!isAvailable() || !ReflexiumConfig.get().frameGeneration().nvidia()
-				|| ReflexiumConfig.get().frameGenerationMultiplier() != 0) return 0;
+		if (!isAvailable() || !ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
 		long now = System.nanoTime();
 		if (now - lastTimingRefresh > TIMING_REFRESH_NS) {
 			lastTimingRefresh = now;
 			latency = readLatency();
 		}
-		return latency.available() ? autoRenderCostMs : 0;
+		return latency.available() ? latency.gpuMs() : 0;
 	}
 	private double autoRenderCostMs;
 	private LatencyReport readLatency() {
