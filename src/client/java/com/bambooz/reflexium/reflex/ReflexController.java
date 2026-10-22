@@ -302,7 +302,7 @@ public final class ReflexController {
 		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
 		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
 		fg.refreshPolicy().cap(requested ? Math.min(userFps, vrrCap(window)) : NO_CAP);
-		return requested ? fg.refreshPolicy().cap() : NO_CAP;
+		return requested && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
 	}
 
 	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */
