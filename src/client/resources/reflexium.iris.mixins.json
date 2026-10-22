@@ -13,7 +13,8 @@
 		"HandRendererMixin",
 		"IrisLoadMixin",
 		"IrisPbrSamplerMixin",
-		"PackOptionsMixin"
+		"PackOptionsMixin",
+		"RenderTargetsMixin"
 	],
 	"injectors": { "defaultRequire": 1 }
 }

@@ -75,6 +75,7 @@ public final class DebugServer {
 				@SuppressWarnings("unchecked")
 				Map<String, String> params = (Map<String, String>) args[0].getClass().getMethod("params").invoke(args[0]);
 				if (params.containsKey("key")) return set(params);
+				if (params.containsKey("dh_targets")) return call(com.bambooz.reflexium.compat.IrisCompat::dhTargets);
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
 				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));

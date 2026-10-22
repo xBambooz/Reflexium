@@ -24,7 +24,34 @@ public final class IrisCompatCheck {
 		sources(Path.of("run/shaderpacks/" + PACK + ".zip"));
 		bsl(Path.of("run/shaderpacks/BSL_v10.1.8.zip"));
 		proxySwapchain();
+		depthOwnership();
 		System.out.println("Iris compatibility checks passed");
+	}
+
+	private static void depthOwnership() {
+		var oldMain = texture();
+		var newMain = texture();
+		var dh = texture();
+		var mainFb = new DepthFramebuffer(oldMain);
+		var dhFb = new DepthFramebuffer(dh);
+		IrisCompat.replaceMainDepth(mainFb, newMain, oldMain);
+		IrisCompat.replaceMainDepth(dhFb, newMain, oldMain);
+		if (mainFb.texture != newMain || dhFb.texture != dh) throw new AssertionError("Depth ownership lost on main-target change");
+	}
+
+	private static com.mojang.renderpearl.api.textures.GpuTexture texture() {
+		return (com.mojang.renderpearl.api.textures.GpuTexture) java.lang.reflect.Proxy.newProxyInstance(
+				IrisCompatCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTexture.class}, (p, m, a) -> null);
+	}
+
+	public static final class DepthFramebuffer {
+		private com.mojang.renderpearl.api.textures.GpuTexture texture;
+		DepthFramebuffer(com.mojang.renderpearl.api.textures.GpuTexture texture) { this.texture = texture; }
+		public void addDepthAttachment(com.mojang.renderpearl.api.textures.GpuTexture texture) { this.texture = texture; }
+		public com.mojang.renderpearl.api.textures.GpuTextureView getDepthView() {
+			return (com.mojang.renderpearl.api.textures.GpuTextureView) java.lang.reflect.Proxy.newProxyInstance(
+					IrisCompatCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTextureView.class}, (p, m, a) -> texture);
+		}
 	}
 
 	private static void sources(Path zip) throws Exception {
@@ -153,9 +180,20 @@ public final class IrisCompatCheck {
 			for (String field : List.of("iris$depthBufferVersion", "iris$colorBufferVersion"))
 				if (target.fields.stream().noneMatch(f -> f.name.equals(field) && f.desc.equals("I"))) throw new AssertionError("Iris field missing: " + field);
 			ClassNode targets = node(zip, "net/irisshaders/iris/targets/RenderTargets");
+			require(zip, "net/irisshaders/iris/targets/RenderFramebuffer", "getDepthView()Lcom/mojang/renderpearl/api/textures/GpuTextureView;",
+					"addDepthAttachment(Lcom/mojang/renderpearl/api/textures/GpuTexture;)V");
+			if (targets.fields.stream().noneMatch(f -> f.name.equals("currentDepthTexture"))) throw new AssertionError("Iris main-depth field missing");
 			// The attachment-version fix relies on resizeIfNeeded reading the version before the depth texture.
 			if (targets.methods.stream().noneMatch(m -> m.name.equals("resizeIfNeeded") && m.desc.startsWith("(ILcom/mojang/renderpearl/api/textures/GpuTexture;II")))
 				throw new AssertionError("RenderTargets.resizeIfNeeded contract changed");
+			ClassNode resizeCode = new ClassNode();
+			new ClassReader(zip.getInputStream(zip.getEntry("net/irisshaders/iris/targets/RenderTargets.class")).readAllBytes()).accept(resizeCode, 0);
+			var resize = resizeCode.methods.stream().filter(m -> m.name.equals("resizeIfNeeded")).findFirst().orElseThrow();
+			int attachments = 0;
+			for (var instruction : resize.instructions)
+				if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call && call.name.equals("addDepthAttachment")) attachments++;
+			// The first two calls resize Iris's private depth copies. Only the third updates owned framebuffers.
+			if (attachments != 3) throw new AssertionError("Iris depth-attachment redirect ordinal changed");
 		}
 	}
 

@@ -414,11 +414,12 @@ public final class UpscalingRenderer {
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
-		ShaderPacks.configureUpscaling(available(selected) && !failed && DistantHorizonsCompat.canUpscale());
+		if (!Boolean.getBoolean("reflexium.disableDhTemporal")) ShaderPacks.configureUpscaling(available(selected) && !failed && DistantHorizonsCompat.canUpscale());
 		boolean wanted = (available(selected) || FrameGenerationRenderer.get().wantsMotion()) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
 				&& window.width > 0 && window.height > 0 && ShaderPacks.canUpscale() && DistantHorizonsCompat.canUpscale();
 		DistantHorizonsCompat.configureUpscaling(wanted);
 		wanted &= DistantHorizonsCompat.canUpscale();
+		if (Boolean.getBoolean("reflexium.disableDhTargets")) wanted = false;
 		if (!wanted) {
 			ObjectMotion.get().beginFrame(false, false);
 			if (renderSizeApplied) {

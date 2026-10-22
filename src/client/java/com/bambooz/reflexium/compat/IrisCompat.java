@@ -70,6 +70,52 @@ public final class IrisCompat {
 
 	private IrisCompat() {
 	}
+
+	/** Iris owns the framebuffer list, but DH owns some of its depth attachments. */
+	public static void replaceMainDepth(Object framebuffer,
+			com.mojang.renderpearl.api.textures.GpuTexture replacement,
+			com.mojang.renderpearl.api.textures.GpuTexture previous) {
+		try {
+			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) framebuffer.getClass().getMethod("getDepthView").invoke(framebuffer);
+			if (view != null && view.texture() == previous)
+				framebuffer.getClass().getMethod("addDepthAttachment", com.mojang.renderpearl.api.textures.GpuTexture.class).invoke(framebuffer, replacement);
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris depth attachment update failed", e); }
+	}
+
+	/** Render-thread diagnostic for attachment ownership across SR/native transitions. */
+	public static com.google.gson.JsonObject dhTargets() {
+		var result = new com.google.gson.JsonObject();
+		try {
+			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			var targetsField = pipeline.getClass().getDeclaredField("renderTargets");
+			targetsField.setAccessible(true);
+			Object targets = targetsField.get(pipeline);
+			var mainDepthField = targets.getClass().getDeclaredField("currentDepthTexture");
+			mainDepthField.setAccessible(true);
+			var mainDepth = (com.mojang.renderpearl.api.textures.GpuTexture) mainDepthField.get(targets);
+			result.addProperty("iris_main_depth_size", mainDepth.getWidth(0) + "x" + mainDepth.getHeight(0));
+			result.addProperty("iris_main_depth_closed", mainDepth.isClosed());
+			result.addProperty("iris_uses_main_depth", mainDepth == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
+			Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
+			Object dh = type.getMethod("current").invoke(null);
+			if (dh == null) return result;
+			var depth = (com.mojang.renderpearl.api.textures.GpuTextureView) type.getMethod("getDepthTexture", boolean.class).invoke(dh, false);
+			result.addProperty("depth_size", depth.getWidth(0) + "x" + depth.getHeight(0));
+			for (String name : List.of("terrain", "water", "generic")) {
+				var field = type.getDeclaredField(name);
+				field.setAccessible(true);
+				Object program = field.get(dh);
+				if (program == null) continue;
+				Object fb = program.getClass().getMethod("getFramebuffer").invoke(program);
+				var attached = (com.mojang.renderpearl.api.textures.GpuTextureView) fb.getClass().getMethod("getDepthView").invoke(fb);
+				result.addProperty(name + "_depth_size", attached.getWidth(0) + "x" + attached.getHeight(0));
+				result.addProperty(name + "_uses_dh_depth", attached.texture() == depth.texture());
+				result.addProperty(name + "_uses_main_depth", attached.texture() == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
+			}
+		} catch (ReflectiveOperationException | RuntimeException e) { result.addProperty("error", e.toString()); }
+		return result;
+	}
 	private static java.lang.reflect.Field renderTargetsField;
 	private static Method depthView;
 
