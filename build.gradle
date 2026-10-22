@@ -21,6 +21,7 @@ loom {
 
 	runs {
 		client {
+			providers.gradlePropertiesPrefixedBy("reflexium.disableDh").get().each { key, value -> vmArg "-D${key}=${value}" }
 			if ("true".equalsIgnoreCase(providers.gradleProperty("rxPackHdr").orNull)) vmArg "-Dreflexium.pack.hdr=true"
 			vmArg "-Dreflexium.logLatency=true"
 			if (rxBenchJar != null) {

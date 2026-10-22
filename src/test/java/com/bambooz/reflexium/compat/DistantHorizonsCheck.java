@@ -14,6 +14,17 @@ import static org.lwjgl.util.shaderc.Shaderc.*;
 /** Numerical depth/motion checks and optional ABI checks against the installed, exact-version jars. */
 public final class DistantHorizonsCheck {
 	public static void main(String[] args) throws Exception {
+		System.setProperty("reflexium.disableDhHooks", "true");
+		check(!DistantHorizonsCompat.isSupportedVersion(), "Diagnostic switch disables DH integration");
+		check(DistantHorizonsCompat.canUpscale(), "Diagnostic switch must allow the comparison with SR enabled");
+		DistantHorizonsCompat.configureUpscaling(true);
+		DistantHorizonsCompat.captureNative(null);
+		DistantHorizonsCompat.captureIris(null);
+		check(DistantHorizonsCompat.depthFrame(1920, 1080) == null, "Disabled hooks must not publish DH depth");
+		for (String name : new String[] {"dh.BlazeDhTerrainMixin", "dh.IrisDhTerrainMixin", "iris.DhProjectionMixin"}) {
+			check(!new CompatMixinPlugin().shouldApplyMixin("unused", "com.bambooz.reflexium.mixin.compat." + name),
+					"Diagnostic switch must disable " + name);
+		}
 		float near = 0.05f, far = 1024, lodFar = 32768, outputFar = lodFar * 2;
 		Matrix4f main = perspective(near, far);
 		Matrix4f nativeDh = perspective(64, lodFar);

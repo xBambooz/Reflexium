@@ -13,6 +13,8 @@ import java.lang.reflect.Method;
 
 /** Optional, exact-version hooks for DH's separate LOD depth and temporal sampling. Render thread only. */
 public final class DistantHorizonsCompat {
+	/** Diagnostic startup switch. Disables all DH mixins, capture and API overrides. */
+	public static final boolean DISABLED = Boolean.getBoolean("reflexium.disableDhHooks");
 	public static final String SUPPORTED = "3.3.5-dev";
 	private static final String OWNER = "Reflexium";
 	private static boolean versionLogged, broken;
@@ -32,6 +34,7 @@ public final class DistantHorizonsCompat {
 	}
 
 	public static boolean isSupportedVersion() {
+		if (DISABLED) return false;
 		var mod = FabricLoader.getInstance().getModContainer("distanthorizons");
 		if (mod.isEmpty()) return false;
 		String version = mod.get().getMetadata().getVersion().getFriendlyString();
@@ -44,7 +47,7 @@ public final class DistantHorizonsCompat {
 	}
 
 	public static boolean canUpscale() {
-		return !FabricLoader.getInstance().isModLoaded("distanthorizons") || isSupportedVersion() && !broken;
+		return DISABLED || !FabricLoader.getInstance().isModLoaded("distanthorizons") || isSupportedVersion() && !broken;
 	}
 
 	public static void beginFrame() {
@@ -102,7 +105,7 @@ public final class DistantHorizonsCompat {
 
 	/** Called only after native terrain rendering, so a skipped DH frame never reuses old depth. */
 	public static void captureNative(Object params) {
-		if (broken || !UpscalingRenderer.get().isUpscalingThisFrame() || IrisCompat.isDrawingPack()) return;
+		if (DISABLED || broken || !UpscalingRenderer.get().isUpscalingThisFrame() || IrisCompat.isDrawingPack()) return;
 		try {
 			if (renderProxy == null) {
 				Class<?> param = Class.forName("com.seibel.distanthorizons.api.methods.events.sharedParameterObjects.DhApiRenderParam");
@@ -135,7 +138,7 @@ public final class DistantHorizonsCompat {
 
 	/** Iris stores pack GL clip coordinates but DepthTransformer writes reverse-Z Vulkan depth. */
 	public static void captureIris(Object compat) {
-		if (broken || !UpscalingRenderer.get().isUpscalingThisFrame()) return;
+		if (DISABLED || broken || !UpscalingRenderer.get().isUpscalingThisFrame()) return;
 		try {
 			if (irisDepth == null) {
 				Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
