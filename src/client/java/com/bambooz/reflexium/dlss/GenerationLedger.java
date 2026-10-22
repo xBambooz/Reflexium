@@ -1,10 +1,10 @@
 package com.bambooz.reflexium.dlss;
 
 /**
- * Per-real-frame accounting for NVIDIA generated presents. Every generated present a frame was configured for is
- * either delivered or counted under exactly one reason, so expected minus delivered always equals the sum of the
- * reasons. Render thread only; all totals are lifetime values for callers that compare snapshots.
- */
+	* Per-real-frame accounting for NVIDIA generated presents. Every generated present a frame was configured for is
+	* either delivered or counted under exactly one reason, so expected minus delivered always equals the sum of the
+	* reasons. Render thread only; all totals are lifetime values for callers that compare snapshots.
+	*/
 public final class GenerationLedger {
 	/**
 	 * Why a real frame delivered fewer generated presents than configured. Only HISTORY_RESET is a legitimate cut;
@@ -33,17 +33,17 @@ public final class GenerationLedger {
 	void closeIfOpen() { if (expected > 0) closeFrame(); }
 
 	public String reasonText() { return switch (reason) {
- case REFLEX_NOT_SLEEPING -> "Reflex not sleeping";
- case HISTORY_RESET -> "history reset";
- case GUI_BLUR -> "GUI blur";
- case SURFACE_LOST -> "surface lost";
- case PRESENT_FAILED -> "present failed";
- case BATCH_ABANDONED -> "present batch abandoned";
- case UNAVAILABLE -> "generation unavailable";
- case UNPRESENTED -> "generated frames not presented";
- default -> "world frame not evaluated";
- }; }
- public long expectedTotal() { return expectedTotal; }
+	case REFLEX_NOT_SLEEPING -> "Reflex not sleeping";
+	case HISTORY_RESET -> "history reset";
+	case GUI_BLUR -> "GUI blur";
+	case SURFACE_LOST -> "surface lost";
+	case PRESENT_FAILED -> "present failed";
+	case BATCH_ABANDONED -> "present batch abandoned";
+	case UNAVAILABLE -> "generation unavailable";
+	case UNPRESENTED -> "generated frames not presented";
+	default -> "world frame not evaluated";
+	}; }
+	public long expectedTotal() { return expectedTotal; }
 	public long closedFrames() { return closed; }
 	public long missing(Shortfall value) { return missing[value.ordinal()]; }
 }

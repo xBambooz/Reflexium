@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The experimental Iris Vulkan build draws OptiFine-format packs on Minecraft's own RenderPearl device, into
- * the main render target Reflexium sizes, with gbuffer projections taken from the jittered level matrix. What
- * it needs is one temporal owner: the reviewed pack's own jitter and full-scene resolve are removed from the
- * source while upscaling is selected, and its hand gets Reflexium's jitter and coverage mask
- * (mixin.compat.iris). Iris implementation classes are not a stable public API.
- */
+	* The experimental Iris Vulkan build draws OptiFine-format packs on Minecraft's own RenderPearl device, into
+	* the main render target Reflexium sizes, with gbuffer projections taken from the jittered level matrix. What
+	* it needs is one temporal owner: the reviewed pack's own jitter and full-scene resolve are removed from the
+	* source while upscaling is selected, and its hand gets Reflexium's jitter and coverage mask
+	* (mixin.compat.iris). Iris implementation classes are not a stable public API.
+	*/
 public final class IrisCompat {
 	private static final String MOD_ID = "iris";
 	public static final String SUPPORTED = "1.12.0-snapshot+mc26.3-local";
@@ -116,12 +116,15 @@ public final class IrisCompat {
 	}
 
 	public static boolean ownsTemporalSampling() { return temporalOwner && !broken; }
-	private static volatile long epoch;
+	private static volatile long epoch, configurationEpoch;
+	private static boolean temporalReload;
+	public static long configurationEpoch() { return configurationEpoch; }
 	/** Changes on every Iris pack load (reload, pack switch, shaders toggle); temporal history must restart. */
 	public static long epoch() { return epoch; }
 	/** Iris.loadShaderpack HEAD: forget the previous pack's evidence before its sources are read again. */
 	public static void onPackLoading() {
 		epoch++;
+		if (!temporalReload) configurationEpoch++;
 		BslFoliageMotion.reset();
 		ComplementaryTemporalSource.reset();
 		jitterRemoved = false;
@@ -151,7 +154,7 @@ public final class IrisCompat {
 	public static void configureUpscaling(boolean enabled) {
 		if (!isSupportedVersion() || broken || temporalOwner == enabled) return;
 		temporalOwner = enabled;
-		reloadPack();
+		reloadPack(true);
 	}
 
 	/** Dev harness toggle for the supported Iris implementation. */
@@ -162,16 +165,16 @@ public final class IrisCompat {
 			options.getClass().getMethod("setShadersEnabled", boolean.class).invoke(options, enabled);
 			// reload() reloads the file too, matching Iris.toggleShaders' set/save/reload sequence.
 			options.getClass().getMethod("save").invoke(options);
-			reloadPack();
+			reloadPack(false);
 		} catch (ReflectiveOperationException e) {
 			throw new IllegalStateException("Could not toggle Iris shaders", e);
 		}
 	}
 
 	/** Debug and config changes to pack option overrides need the pack compiled again. */
-	public static void reloadForOptionChange() { reloadPack(); }
+	public static void reloadForOptionChange() { reloadPack(false); }
 
-	private static void reloadPack() {
+	private static void reloadPack(boolean temporalOnly) {
 		if (reloadQueued) return;
 		reloadQueued = true;
 		// Iris reloads from its keybind during the tick; never tear the pipeline down inside a frame.
@@ -181,7 +184,9 @@ public final class IrisCompat {
 			// Iris compiles its pack at startup, before any world frame reports it as drawing.
 			if (currentPackName() == null) return;
 			try {
-				Class.forName("net.irisshaders.iris.Iris").getMethod("reload").invoke(null);
+				temporalReload = temporalOnly;
+				try { Class.forName("net.irisshaders.iris.Iris").getMethod("reload").invoke(null); }
+				finally { temporalReload = false; }
 			} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 				broken = true;
 				ReflexiumClient.LOGGER.error("Iris shader pack could not reload; upscaling is paused", e);

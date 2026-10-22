@@ -48,16 +48,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Super Resolution for vanilla's Vulkan renderer.
- * <p>
- * Each frame with a world: the textures of a render-resolution target are swapped into Minecraft's
- * main target before the world pass (so every world, hand and post-effect pass renders at render
- * resolution with a jittered projection), motion vectors are built from depth after the hand, the
- * upscaler reconstructs the scene into the display-resolution textures before vanilla's post effects, and
- * the swap is undone so post effects and the GUI draw at display resolution. Outside that window the main
- * target always holds the display-resolution textures, so screenshots, the swapchain blit and
- * window-size checks see what they expect.
- */
+	* Super Resolution for vanilla's Vulkan renderer.
+	* <p>
+	* Each frame with a world: the textures of a render-resolution target are swapped into Minecraft's
+	* main target before the world pass (so every world, hand and post-effect pass renders at render
+	* resolution with a jittered projection), motion vectors are built from depth after the hand, the
+	* upscaler reconstructs the scene into the display-resolution textures before vanilla's post effects, and
+	* the swap is undone so post effects and the GUI draw at display resolution. Outside that window the main
+	* target always holds the display-resolution textures, so screenshots, the swapchain blit and
+	* window-size checks see what they expect.
+	*/
 public final class UpscalingRenderer {
 	private static final UpscalingRenderer INSTANCE = new UpscalingRenderer();
 
@@ -165,12 +165,12 @@ public final class UpscalingRenderer {
 	private boolean activeThisFrame;
 	private boolean swapped;
 	private long worldTiming;
- private final UpscalerPerformanceGuard performanceGuard = new UpscalerPerformanceGuard();
- private long guardPackEpoch = -1;
- private int guardWidth, guardHeight;
- private UpscaleQuality guardQuality;
- private DlssModel guardModel;
- private Upscaler guardRequested;
+	private final UpscalerPerformanceGuard performanceGuard = new UpscalerPerformanceGuard();
+	private long guardPackEpoch = -1;
+	private int guardWidth, guardHeight;
+	private UpscaleQuality guardQuality;
+	private DlssModel guardModel;
+	private Upscaler guardRequested;
 	private boolean worldDepthCaptured;
 	private boolean opaqueCaptured;
 	private boolean reactiveGenerated;
@@ -396,22 +396,22 @@ public final class UpscalingRenderer {
 		windowWidth = window.width;
 		windowHeight = window.height;
 		ReflexiumConfig config = ReflexiumConfig.get();
-  Upscaler resolved = config.upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack());
-  long packEpoch = com.bambooz.reflexium.compat.IrisCompat.epoch();
-  if (guardPackEpoch != packEpoch || guardWidth != window.width || guardHeight != window.height
-    || guardQuality != config.upscaleQuality() || guardModel != config.dlssModel() || guardRequested != config.upscaler()) {
-   performanceGuard.reset(); guardPackEpoch = packEpoch; guardWidth = window.width; guardHeight = window.height;
-   guardQuality = config.upscaleQuality(); guardModel = config.dlssModel(); guardRequested = config.upscaler();
-  }
-  Minecraft mc = Minecraft.getInstance();
-  long now = System.nanoTime();
-  boolean comparing = resolved == Upscaler.DLSS && !failed;
-  if (comparing) performanceGuard.update(now, mc.level != null && mc.gui.screen() == null && !mc.isPaused()
-    && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized,
-    FrameProfiler.worldProbeSamples(), FrameProfiler.worldProbeMs());
-  FrameProfiler.worldProbe(comparing ? performanceGuard.sampleTag(now) : 0);
-  FrameProfiler.automatic(comparing && performanceGuard.probing() || config.frameGeneration().nvidia());
-  UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
+		Upscaler resolved = config.upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack());
+		long packEpoch = com.bambooz.reflexium.compat.IrisCompat.configurationEpoch();
+		if (guardPackEpoch != packEpoch || guardWidth != window.width || guardHeight != window.height
+				|| guardQuality != config.upscaleQuality() || guardModel != config.dlssModel() || guardRequested != config.upscaler()) {
+			performanceGuard.reset(); guardPackEpoch = packEpoch; guardWidth = window.width; guardHeight = window.height;
+			guardQuality = config.upscaleQuality(); guardModel = config.dlssModel(); guardRequested = config.upscaler();
+		}
+		Minecraft mc = Minecraft.getInstance();
+		long now = System.nanoTime();
+		boolean comparing = resolved == Upscaler.DLSS && !failed;
+		if (comparing) performanceGuard.update(now, mc.level != null && mc.gui.screen() == null && !mc.isPaused()
+				&& gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized,
+				FrameProfiler.worldProbeSamples(), FrameProfiler.worldProbeMs());
+		FrameProfiler.worldProbe(comparing ? performanceGuard.sampleTag(now) : 0);
+		FrameProfiler.automatic(comparing && performanceGuard.probing() || config.frameGeneration().nvidia());
+		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
 		ShaderPacks.configureUpscaling(available(selected) && !failed && DistantHorizonsCompat.canUpscale());
@@ -879,9 +879,9 @@ public final class UpscalingRenderer {
 		Upscaler selected = effectiveUpscaler();
 		if (ReflexiumConfig.get().upscaler() == Upscaler.OFF) return "Upscaling: off";
 		if (performanceGuard.nativeWins() && ReflexiumConfig.get().upscaler() == Upscaler.AUTO) return String.format(Locale.ROOT,
-    "Upscaling: native (DLSS not faster here: %.2f vs %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs());
-  if (performanceGuard.probing() && guardRequested != Upscaler.OFF && guardRequested != Upscaler.FSR) return "Upscaling: " + (performanceGuard.nativePhase() ? "native" : "DLSS") + " (measuring native vs DLSS)";
-  if (!available(selected)) return "Upscaling: " + (selected == Upscaler.DLSS ? unavailable : fsrUnavailable);
+				"Upscaling: native (DLSS not faster here: %.2f vs %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs());
+		if (performanceGuard.probing() && ReflexiumConfig.get().upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack()) == Upscaler.DLSS) return "Upscaling: " + (performanceGuard.nativePhase() ? "native" : "DLSS") + " (measuring native vs DLSS)";
+		if (!available(selected)) return "Upscaling: " + (selected == Upscaler.DLSS ? unavailable : fsrUnavailable);
 		String name = selected == Upscaler.FSR ? "FSR 3.1" : "DLSS";
 		if (failed) {
 			return name + ": stopped after an error (see log); change upscaling settings to retry";
@@ -894,7 +894,7 @@ public final class UpscalingRenderer {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
 		}
 		return String.format(Locale.ROOT, "%s: %s %dx%d -> %dx%d", name, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight)
-    + (performanceGuard.nativeWins() ? String.format(Locale.ROOT, " (DLSS not faster here: %.2f vs %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs()) : "");
+				+ (!performanceGuard.probing() ? String.format(Locale.ROOT, performanceGuard.nativeWins() ? " (DLSS not faster here: %.2f vs %.2f ms)" : " (DLSS %.2f vs native %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs()) : "");
 	}
 
 	/** Debug harness snapshot (see DebugServer). Values describe the most recent frame. */
@@ -1005,11 +1005,11 @@ public final class UpscalingRenderer {
 	}
 	public boolean dlssReady() { return ngxReady; }
 	public Upscaler effectiveUpscaler() {
-  Upscaler requested = ReflexiumConfig.get().upscaler();
-  Upscaler resolved = requested.resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack());
-  return resolved == Upscaler.DLSS && (performanceGuard.probing() && performanceGuard.nativePhase()
-    || requested == Upscaler.AUTO && performanceGuard.nativeWins()) ? Upscaler.OFF : resolved;
- }
+		Upscaler requested = ReflexiumConfig.get().upscaler();
+		Upscaler resolved = requested.resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack());
+		return resolved == Upscaler.DLSS && (performanceGuard.probing() && performanceGuard.nativePhase()
+				|| requested == Upscaler.AUTO && performanceGuard.nativeWins()) ? Upscaler.OFF : resolved;
+	}
 	public boolean available(Upscaler value) {
 		return switch (value) { case DLSS -> ngxReady; case FSR -> fsr != null; default -> false; };
 	}

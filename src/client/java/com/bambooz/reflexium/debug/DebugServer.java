@@ -50,11 +50,11 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
- * Dev-only HTTP command server for tuning upscaling without clicking through menus.
- * Started only when the JVM property {@code reflexium.debugPort} is set; binds 127.0.0.1 only.
- * Every command that touches the game runs on the render thread and answers with JSON.
- * Usage: docs/DEBUGGING.md and tools/rxdbg.ps1.
- */
+	* Dev-only HTTP command server for tuning upscaling without clicking through menus.
+	* Started only when the JVM property {@code reflexium.debugPort} is set; binds 127.0.0.1 only.
+	* Every command that touches the game runs on the render thread and answers with JSON.
+	* Usage: docs/DEBUGGING.md and tools/rxdbg.ps1.
+	*/
 public final class DebugServer {
 	private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 	private static final long CALL_TIMEOUT_MS = 30_000;
@@ -407,7 +407,7 @@ public final class DebugServer {
 		JsonArray endpoints = new JsonArray();
 		for (String line : new String[] {
 				"/status",
-				"/set?key=<upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter>&value=<v>",
+				"/set?key=<upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|fg_force_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter>&value=<v>",
 				"/screenshot?path=<file.png>&gui=0|1",
 				"/camera?x=&y=&z=&yaw=&pitch=",
 				"/move?dx=&dz=&ticks=&async=0|1   (total blocks along world X/Z over ticks)",
@@ -454,17 +454,17 @@ public final class DebugServer {
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
 		o.addProperty("fg_force_multiplier", config.fgForceMultiplier());
- o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
+	o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_requested_generated", FrameGenerationRenderer.get().requestedGeneratedCount());
 		o.addProperty("fg_effective_multiplier", FrameGenerationRenderer.get().refreshPolicy().multiplier());
 		o.addProperty("fg_policy_probes", FrameGenerationRenderer.get().refreshPolicy().probes());
- o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
+	o.addProperty("fg_policy_probing", FrameGenerationRenderer.get().refreshPolicy().probing());
 		o.addProperty("fg_refresh_bypass", FrameGenerationRenderer.get().refreshPolicy().bypass());
 		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
 		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
 		o.addProperty("fg_policy_estimate_source", "measured bypass real presents; GPU minus FG is an upper bound");
 		o.addProperty("fg_resets_per_s", FrameGenerationRenderer.get().resetsPerSecond());
- o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
+	o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();
 		if (swapchain != null) {
@@ -735,10 +735,10 @@ public final class DebugServer {
 				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
 			}
 			case "fg_force_multiplier" -> {
- boolean enabled = flag(Map.of("v", value), "v", false);
- yield () -> { ReflexiumConfig.get().setFgForceMultiplier(enabled); FrameGenerationRenderer.get().retry(); };
- }
- case "fg_multiplier" -> {
+	boolean enabled = flag(Map.of("v", value), "v", false);
+	yield () -> { ReflexiumConfig.get().setFgForceMultiplier(enabled); FrameGenerationRenderer.get().retry(); };
+	}
+	case "fg_multiplier" -> {
 				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);
 				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 				if (multiplier != 0 && (multiplier < 2 || multiplier > maximum)) throw new BadRequest("FG multiplier must be auto or 2.." + maximum + " on this GPU");
@@ -800,7 +800,7 @@ public final class DebugServer {
 				yield () -> DebugSettings.setDrawStaticObjects(on);
 			}
 			default -> throw new BadRequest("unknown key '" + key
-					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|pack_shadow_cap|shaders|pack_taa|pack_resolve|pack_filters");
+					+ "', expected upscaler|quality|dlss_model|fsr_sharpness|frame_generation|fg_multiplier|fg_force_multiplier|jitter_sign_x|jitter_sign_y|jitter_sign|mv_debug|jitter|object_motion|object_static|dlss_preset|mip_bias_offset|hand_motion|pack_shadow_cap|shaders|pack_taa|pack_resolve|pack_filters");
 		};
 		return call(() -> {
 			apply.run();

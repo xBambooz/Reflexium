@@ -27,22 +27,22 @@ import static org.lwjgl.vulkan.VK12.vkGetSemaphoreCounterValue;
 import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
 
 /**
- * NVIDIA Reflex through VK_NV_low_latency2. All methods except {@link #currentFrameId()} run on the
- * render thread.
- * <p>
- * Per frame (hooks in MinecraftMixin):
- * <pre>
- *   run():       latency sleep,
- *                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
- *                SIMULATION_START
- *   runTick():   SIMULATION_END                    (before renderFrame)
- *   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
- *                RENDERSUBMIT_END, PRESENT_START   (before present)
- *                PRESENT_END                       (after present)
- * </pre>
- * The same frame id is attached to every queue submission (VkLatencySubmissionPresentIdNV) and to the
- * present itself (VkPresentIdKHR), which is how the driver ties GPU work to the markers.
- */
+	* NVIDIA Reflex through VK_NV_low_latency2. All methods except {@link #currentFrameId()} run on the
+	* render thread.
+	* <p>
+	* Per frame (hooks in MinecraftMixin):
+	* <pre>
+	*   run():       latency sleep,
+	*                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
+	*                SIMULATION_START
+	*   runTick():   SIMULATION_END                    (before renderFrame)
+	*   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
+	*                RENDERSUBMIT_END, PRESENT_START   (before present)
+	*                PRESENT_END                       (after present)
+	* </pre>
+	* The same frame id is attached to every queue submission (VkLatencySubmissionPresentIdNV) and to the
+	* present itself (VkPresentIdKHR), which is how the driver ties GPU work to the markers.
+	*/
 public final class ReflexController {
 	private static final ReflexController INSTANCE = new ReflexController();
 	private static final long SLEEP_TIMEOUT_NS = 100_000_000L;
@@ -73,6 +73,7 @@ public final class ReflexController {
 	private final PacingState pacing = new PacingState();
 	private ReflexMode loggedMode;
 	private int requestedIntervalUs;
+	private int baseFpsLimit = NO_CAP;
 	private boolean requestedCapIsVrr;
 	private long timingFloorId, timingSeenId, timingSeenAt;
 	private final SmartPacing smartPacing = new SmartPacing();
@@ -287,21 +288,24 @@ public final class ReflexController {
 	 */
 	public void updateFrameLimit(int fpsLimit, boolean vsync, Window window) {
 		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
+		baseFpsLimit = userFps;
 		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
 		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
-		// low_latency2 limits total presents, including generated output. Never divide by the multiplier.
-		int fgFps = mode().enabled() ? frameGenerationCap(window, userFps) : NO_CAP;
+		// low_latency2 limits total presents; translate the user real-frame budget to an output budget.
+		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
 		int autoFps = Math.min(vrrFps, fgFps);
-		int fps = Math.min(userFps, autoFps);
+		int multiplier = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().refreshPolicy().multiplier();
+		int userOutputFps = userFps == NO_CAP ? NO_CAP : (int) Math.min(NO_CAP, (long) userFps * multiplier);
+		int fps = Math.min(userOutputFps, autoFps);
 		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
-		requestedCapIsVrr = autoFps < userFps;
+		requestedCapIsVrr = autoFps < userOutputFps;
 	}
 
 	/** Presented-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
-	private int frameGenerationCap(Window window, int userFps) {
+	private int frameGenerationCap(Window window) {
 		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
 		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
-		fg.refreshPolicy().cap(requested ? Math.min(userFps, vrrCap(window)) : NO_CAP);
+		fg.refreshPolicy().cap(requested ? vrrCap(window) : NO_CAP);
 		return requested && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
 	}
 
@@ -418,7 +422,9 @@ public final class ReflexController {
 			return;
 		}
 		ReflexMode mode = mode();
-		int interval = mode.enabled() ? Math.max(requestedIntervalUs, com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs) : 0;
+		int multiplier = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().refreshPolicy().multiplier();
+		int baseInterval = com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs;
+		int interval = mode.enabled() ? Math.max(requestedIntervalUs, baseInterval > 0 ? (baseInterval + multiplier - 1) / multiplier : 0) : 0;
 		if (!pacing.shouldApply(mode, interval)) {
 			return;
 		}
@@ -624,17 +630,20 @@ public final class ReflexController {
 		return result;
 	}
 
-	/** Sparse driver sample for Auto; unavailable/stale data holds the previous selection. */
-	public double frameGenerationRenderCostMs() {
+	/** GPU throughput bound, constrained by known real-frame limits, with unavailable data holding selection. */
+	public double frameGenerationRenderCostMs(double fgCostMs) {
 		if (!isAvailable() || !ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
 		long now = System.nanoTime();
 		if (now - lastTimingRefresh > TIMING_REFRESH_NS) {
 			lastTimingRefresh = now;
 			latency = readLatency();
 		}
-		return latency.available() ? latency.gpuMs() : 0;
+		if (!latency.available()) return 0;
+		double limitedMs = Math.max(baseFpsLimit == NO_CAP ? 0 : 1000.0 / baseFpsLimit,
+				com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs / 1000.0);
+		return Math.max(latency.gpuMs(), limitedMs + fgCostMs);
 	}
-	private double autoRenderCostMs;
+
 	private LatencyReport readLatency() {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
@@ -661,7 +670,7 @@ public final class ReflexController {
 			long now = System.nanoTime();
 			if (latest.presentID() != timingSeenId) { timingSeenId = latest.presentID(); timingSeenAt = now; }
 			if (now - timingSeenAt > 1_000_000_000L) return LatencyReport.unavailable("stale driver data");
-			autoRenderCostMs = span(latest.simStartTimeUs(), latest.gpuRenderEndTimeUs());
+
 			return LatencyReport.from(latest);
 		} catch (RuntimeException e) {
 			return LatencyReport.unavailable("timing query failed");

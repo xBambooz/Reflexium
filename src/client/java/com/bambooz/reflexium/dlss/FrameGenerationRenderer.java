@@ -40,15 +40,15 @@ public final class FrameGenerationRenderer {
 	private final com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[] presentEncoders = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[7];
 	private final com.mojang.renderpearl.api.commands.GpuFence[] presentCompletions = new com.mojang.renderpearl.api.commands.GpuFence[7];
 	private boolean failed, resetNext = true;
- private int pendingWorldFrames, resetsInWindow, resetsPerSecond;
- private long resetWindow;
- public int resetsPerSecond() { rollResetWindow(System.nanoTime()); return resetsPerSecond; }
- private void rollResetWindow(long now) {
-  if (now - resetWindow >= 1_000_000_000L) {
-   resetsPerSecond = now - resetWindow < 2_000_000_000L ? resetsInWindow : 0;
-   resetsInWindow = 0; resetWindow = now;
-  }
- }
+	private int pendingWorldFrames, resetsInWindow, resetsPerSecond;
+	private long resetWindow;
+	public int resetsPerSecond() { rollResetWindow(System.nanoTime()); return resetsPerSecond; }
+	private void rollResetWindow(long now) {
+		if (now - resetWindow >= 1_000_000_000L) {
+			resetsPerSecond = now - resetWindow < 2_000_000_000L ? resetsInWindow : 0;
+			resetsInWindow = 0; resetWindow = now;
+		}
+	}
 	private int ready, width, height;
 	private long frameId, evaluated, presented;
 	private long realPresented;
@@ -119,8 +119,8 @@ public final class FrameGenerationRenderer {
 		// Completion of SDK presentation consumers precedes overwriting the generated target.
 		FsrSwapchain.waitForPresents();
 		frameId++;
-  Minecraft mc = Minecraft.getInstance();
-  pendingWorldFrames = resetNext && mc.level != null && mc.gui.screen() == null && !mc.isPaused() ? pendingWorldFrames + 1 : 0;
+		Minecraft mc = Minecraft.getInstance();
+		pendingWorldFrames = resetNext && mc.level != null && mc.gui.screen() == null && !mc.isPaused() ? pendingWorldFrames + 1 : 0;
 		ready = 0;
 		ledger.begin(configuredGeneratedCount(), failed || !unavailableReason().isEmpty() ? GenerationLedger.Shortfall.UNAVAILABLE : GenerationLedger.Shortfall.NOT_EVALUATED);
 		if (!wantsMotion()) resetNext = true;
@@ -130,7 +130,7 @@ public final class FrameGenerationRenderer {
 	public int configuredGeneratedCount() {
 		if (!ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
 		refreshPolicy.force(ReflexiumConfig.get().fgForceMultiplier());
- refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
+	refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
 		return Math.max(0, refreshPolicy.multiplier() - 1);
 	}
 	public int requestedGeneratedCount() {
@@ -173,8 +173,8 @@ public final class FrameGenerationRenderer {
 			FrameGenerationConstants.write(constants, projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
 					near, far, fov, (float) width / height, frameMs);
 			boolean resetting = reset || resetNext;
-   rollResetWindow(System.nanoTime());
-   if (resetting) resetsInWindow++;
+			rollResetWindow(System.nanoTime());
+			if (resetting) resetsInWindow++;
 			UpscalingRenderer.barrier(commands);
 			NgxBridge.Image color = UpscalingRenderer.ngxImage(scene.getColorTexture(), scene.getColorTextureView());
 			NgxBridge.Image depth = UpscalingRenderer.ngxImage(motion.getDepthTexture(), motion.getDepthTextureView());
@@ -281,7 +281,7 @@ public final class FrameGenerationRenderer {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
 		if (mode == FrameGeneration.OFF) return "Frame generation: off";
 		String reason = failed ? problem : unavailableReason();
-  String resets = resetsPerSecond() > 0 ? ", resets " + resetsPerSecond() + "/s" : "";
+		String resets = resetsPerSecond() > 0 ? ", resets " + resetsPerSecond() + "/s" : "";
 		if (reason.isEmpty() && mode.nvidia() && refreshPolicy.bypass()) return "Frame generation: rendered only (frame target "
 				+ refreshPolicy.cap() + " FPS, Auto output budget)" + (refreshPolicy.probing() ? " (measuring real FPS probe)" : "") + resets;
 		return "Frame generation: " + (reason.isEmpty() ? (mode.nvidia() && !resetNext ? built : mode).label().getString()
@@ -329,7 +329,11 @@ public final class FrameGenerationRenderer {
 			else {
 				realPresented++;
 				Minecraft mc = Minecraft.getInstance();
-				if (mc != null) refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(), delivery.realRate(System.nanoTime()), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs(), FrameProfiler.gpuMeanMs(FrameProfiler.FG_EVALUATE) * generated.length);
+				if (mc != null) {
+					double fgCost = FrameProfiler.gpuMeanMs(FrameProfiler.FG_EVALUATE) * generated.length;
+					refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(),
+							delivery.realRate(System.nanoTime()), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs(fgCost), fgCost);
+				}
 			}
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);
 		}
