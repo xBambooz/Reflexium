@@ -463,7 +463,8 @@ public final class DebugServer {
 		o.addProperty("fg_refresh_cap", FrameGenerationRenderer.get().refreshPolicy().cap());
 		o.addProperty("fg_policy_real_fps", FrameGenerationRenderer.get().refreshPolicy().realFps());
 		o.addProperty("fg_policy_estimate_source", "measured bypass real presents; GPU minus FG is an upper bound");
-		o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
+		o.addProperty("fg_resets_per_s", FrameGenerationRenderer.get().resetsPerSecond());
+ o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
 		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();
 		if (swapchain != null) {

@@ -32,7 +32,18 @@ public final class GenerationLedger {
 	/** A batch that ended before its real present (lost surface) still closes the frame it started. */
 	void closeIfOpen() { if (expected > 0) closeFrame(); }
 
-	public long expectedTotal() { return expectedTotal; }
+	public String reasonText() { return switch (reason) {
+ case REFLEX_NOT_SLEEPING -> "Reflex not sleeping";
+ case HISTORY_RESET -> "history reset";
+ case GUI_BLUR -> "GUI blur";
+ case SURFACE_LOST -> "surface lost";
+ case PRESENT_FAILED -> "present failed";
+ case BATCH_ABANDONED -> "present batch abandoned";
+ case UNAVAILABLE -> "generation unavailable";
+ case UNPRESENTED -> "generated frames not presented";
+ default -> "world frame not evaluated";
+ }; }
+ public long expectedTotal() { return expectedTotal; }
 	public long closedFrames() { return closed; }
 	public long missing(Shortfall value) { return missing[value.ordinal()]; }
 }
