@@ -94,3 +94,23 @@ Next investigation: isolate the general render-target swap/version notifications
 Launches used the harness `tools/launch.ps1`, secondary 1920x1080, muted (`soundCategory_master:0.0`), hidden launchers and nonactivating visible windows. HTTP calls use the same authenticated session contract as `tools/mc.sh`; the PowerShell helper avoids Windows native-argument JSON quoting loss. Shutdown used authenticated PID/directory plus command-line ownership checks and `quit exit=true`, never process-name termination. The first restart began while the prior JVM was completing asynchronous shutdown (a log-file lock was recorded); subsequent restarts explicitly waited for the owned PID to disappear before launching. No two clients opened the save together.
 
 Build and installation: GraalVM 25.0.4+7.1 `gradlew build` passed, including the diagnostic check. Log: `build/dh-investigation/build.log`. Built and installed test-profile JAR SHA-256 both equal `33813F93651A93ABDA9607438B1098122DEC45E6C0FAD78B6C1BD0C3CD3C5609`. `git diff --check` passed. No shaderpack source, LOD database or permanent DH configuration changes are included in this patch.
+
+## Startup DH input recovery (2026-10-22)
+
+Base 57351c3. The startup failure is a non-finite Iris DH projection, not a closed/wrong-format depth texture: open D32_FLOAT, 1920x1080, far=2172.232, determinant=NaN. Separate matrix logging shows NaN in the projection's X/Y terms and a finite view matrix. Exact installed Iris bytecode shows DHCompatInternal.setup obtains that projection through DHCompat.getProjection(near,far), which derives FOV and aspect from CapturedRenderingState's gbuffer projection. This localizes the bad input to the startup projection producer; the captured gbuffer matrix itself was not logged, so its exact initial value is unverified.
+
+The lasting failure was Reflexium's: checkedFrame threw into disable(), setting the session-wide DH broken flag, then renderMotionVectors threw into fail(), setting the renderer failure latch. Invalid per-frame inputs now reject that frame, preserve history reset, skip SR/FG input submission and retry next frame. Reflection/linkage/API configuration errors still stop integration. Missing depth/proxy and size mismatches use the same transient path. F3/status reports `Upscaling: waiting for Distant Horizons`. Invalid data is never published to motion reconstruction. The existing executable DistantHorizonsCheck now rejects zero/NaN matrices and verifies later valid input recovery.
+
+Three consecutive fresh harness launches, hooks enabled, DLSS Transformer Performance, FG DLSS Auto, Reflex On+Boost, interval=10000. Each snapshot followed join plus a 20-second wait (below 30 seconds); all had empty last_error and ended at FG 2x:
+
+| Port | SR evaluations | FG evaluations | Generated presents |
+| --- | ---: | ---: | ---: |
+| 25652 | 1095 | 931 | 2295 |
+| 25653 | 1133 | 964 | 2320 |
+| 25654 | 1165 | 1005 | 2249 |
+
+Every launch rejected its startup NaN matrix and logged valid input recovery about one second later. Opened and inspected `build/dh-investigation/retry1.png`, `retry2.png`, `retry3.png`: clean terrain, Mellow clouds/lighting visible, no hanging columns. Adjacent `retryN-status.json`, `retryN-join.json`, `retryN-wait.json`, `retryN-runtime.log` and launch logs contain counters, timestamps and nonactivating secondary 1920x1080 placement. First run used the same recovery logic before the added raw-matrix diagnostic, native missing-depth guards, HDR rejection guard and executable test. Runs two and three used the complete patch. Config was already FG DLSS at startup, then interval was applied immediately after join. Counters are cumulative, not a claim of constant output rate during shader warmup.
+
+Build passed with the requested GraalVM (`build/dh-startup-build.log`), including distantHorizonsCheck and all existing checks. Installed and built SHA-256: 5154BE94FF19343CCD50144154E892387624C85B4FCC9A33E40D938CC4257BC5. Shutdown used owned session/PID and command-line verification, quit exit=true, followed by waiting for that PID before another launch. Muted, secondary, one client throughout.
+
+Limits: F3 waiting text is wired through statusLine but was not captured visually. The harness rejects scancode F3 without an open screen. Native-DH capture and HDR pack recovery have code coverage of the shared rejection state, but no live validation in these runs. This fixes startup recovery; native after a DLSS transition still needs separate isolation below.

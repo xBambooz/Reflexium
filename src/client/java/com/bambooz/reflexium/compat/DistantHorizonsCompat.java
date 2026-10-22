@@ -19,6 +19,18 @@ public final class DistantHorizonsCompat {
 	private static final String OWNER = "Reflexium";
 	private static boolean versionLogged, broken;
 	private static DepthFrame frame;
+	private static boolean rejectedFrame, waiting;
+	static final class FrameNotReady extends IllegalStateException {
+		FrameNotReady(String message) { super(message); }
+	}
+	public static boolean waitingForFrame() { return waiting; }
+	public static boolean rejectedFrame() { return rejectedFrame; }
+	static void retryFrame(FrameNotReady error) {
+		frame = null;
+		rejectedFrame = true;
+		if (!waiting) ReflexiumClient.LOGGER.warn("Waiting for Distant Horizons: {}", error.getMessage());
+		waiting = true;
+	}
 	private static Object aaEntry, previousAa;
 	private static String previousAaOwner;
 	private static boolean overridingAa;
@@ -52,6 +64,7 @@ public final class DistantHorizonsCompat {
 
 	public static void beginFrame() {
 		frame = null;
+		rejectedFrame = false;
 	}
 
 	/** The API override leaves the saved setting untouched and restores any earlier override we replaced. */
@@ -123,14 +136,16 @@ public final class DistantHorizonsCompat {
 				renderProxy = Class.forName("com.seibel.distanthorizons.api.DhApi$Delayed").getField("renderProxy");
 			}
 			Object proxy = renderProxy.get(null);
-			if (proxy == null) throw new IllegalStateException("DH rendered without a render proxy");
+			if (proxy == null) throw new FrameNotReady("DH rendered without a render proxy");
 			Object result = depthWrapper.invoke(proxy);
-			if (!resultSuccess.getBoolean(result)) throw new IllegalStateException("DH rendered without accessible depth");
+			if (!resultSuccess.getBoolean(result)) throw new FrameNotReady("DH rendered without accessible depth");
 			Object wrapper = resultPayload.get(result);
-			if (wrapper == null) throw new IllegalStateException("DH depth wrapper is missing");
+			if (wrapper == null) throw new FrameNotReady("DH depth wrapper is missing");
 			Object[] textures = (Object[]) wrappedObjects.invoke(wrapper);
 			Matrix4f viewProjection = (Matrix4f) toJoml.invoke(null, nativeViewProjection.get(params));
 			frame = checkedFrame((GpuTextureView) textures[1], viewProjection, nativeFar.getFloat(params));
+		} catch (FrameNotReady e) {
+			retryFrame(e);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			disable(e);
 		}
@@ -151,9 +166,14 @@ public final class DistantHorizonsCompat {
 			}
 			if ((boolean) irisShadows.invoke(null)) return;
 			GpuTextureView depth = (GpuTextureView) irisDepth.invoke(compat, false);
-			if (depth == null) throw new IllegalStateException("Iris DH rendered without accessible depth");
-			Matrix4f projection = irisDeviceProjection((Matrix4fc) irisProjection.invoke(compat));
-			frame = checkedFrame(depth, projection.mul((Matrix4fc) irisView.invoke(compat)), (float) irisFar.invoke(null));
+			if (depth == null) throw new FrameNotReady("Iris DH rendered without accessible depth");
+			Matrix4fc sourceProjection = (Matrix4fc) irisProjection.invoke(compat);
+			Matrix4fc view = (Matrix4fc) irisView.invoke(compat);
+			if ((!sourceProjection.isFinite() || !view.isFinite()) && !waiting)
+				ReflexiumClient.LOGGER.warn("DH startup matrices: projection={}, view={}", sourceProjection, view);
+			frame = checkedFrame(depth, irisDeviceProjection(sourceProjection).mul(view), (float) irisFar.invoke(null));
+		} catch (FrameNotReady e) {
+			retryFrame(e);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			disable(e);
 		}
@@ -163,17 +183,21 @@ public final class DistantHorizonsCompat {
 		return new Matrix4f().m22(-0.5f).m32(0.5f).mul(projection);
 	}
 
-	private static DepthFrame checkedFrame(GpuTextureView depth, Matrix4f viewProjection, float far) {
+	static DepthFrame checkedFrame(GpuTextureView depth, Matrix4f viewProjection, float far) {
 		if (depth.isClosed() || depth.texture().getFormat() != GpuFormat.D32_FLOAT
 				|| !viewProjection.isFinite() || Math.abs(viewProjection.determinant()) < 1.0e-12f
-				|| !Float.isFinite(far) || far <= 0) throw new IllegalStateException("Invalid DH depth or projection");
+				|| !Float.isFinite(far) || far <= 0) throw new FrameNotReady("Invalid DH depth or projection: closed=" + depth.isClosed()
+					+ ", format=" + depth.texture().getFormat() + ", size=" + depth.getWidth(0) + "x" + depth.getHeight(0)
+					+ ", far=" + far + ", determinant=" + viewProjection.determinant() + ", matrix=" + viewProjection);
+		if (waiting) ReflexiumClient.LOGGER.info("Distant Horizons inputs ready; temporal reconstruction can resume");
+		waiting = false;
 		return new DepthFrame(depth, viewProjection, far);
 	}
 
 	public static DepthFrame depthFrame(int width, int height) {
 		if (frame == null || broken) return null;
 		if (frame.depth().isClosed() || frame.depth().getWidth(0) != width || frame.depth().getHeight(0) != height) {
-			disable(new IllegalStateException("DH depth does not match this frame's render size"));
+			retryFrame(new FrameNotReady("DH depth does not match this frame's render size"));
 			return null;
 		}
 		return frame;

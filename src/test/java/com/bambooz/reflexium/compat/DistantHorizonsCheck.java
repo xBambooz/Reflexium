@@ -14,6 +14,31 @@ import static org.lwjgl.util.shaderc.Shaderc.*;
 /** Numerical depth/motion checks and optional ABI checks against the installed, exact-version jars. */
 public final class DistantHorizonsCheck {
 	public static void main(String[] args) throws Exception {
+		var texture = (com.mojang.renderpearl.api.textures.GpuTexture) java.lang.reflect.Proxy.newProxyInstance(
+				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTexture.class},
+				(proxy, method, values) -> method.getName().equals("getFormat") ? com.mojang.renderpearl.api.GpuFormat.D32_FLOAT : null);
+		var depth = (com.mojang.renderpearl.api.textures.GpuTextureView) java.lang.reflect.Proxy.newProxyInstance(
+				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTextureView.class},
+				(proxy, method, values) -> switch (method.getName()) {
+					case "texture" -> texture;
+					case "isClosed" -> false;
+					case "getWidth" -> 960;
+					case "getHeight" -> 540;
+					default -> null;
+				});
+		for (Matrix4f invalid : new Matrix4f[] {new Matrix4f().zero(), new Matrix4f().m00(Float.NaN)}) {
+			try {
+				DistantHorizonsCompat.checkedFrame(depth, invalid, 32768);
+				throw new AssertionError("Invalid startup matrix accepted");
+			} catch (DistantHorizonsCompat.FrameNotReady expected) {
+				DistantHorizonsCompat.retryFrame(expected);
+			}
+			check(DistantHorizonsCompat.waitingForFrame() && DistantHorizonsCompat.rejectedFrame(), "Invalid frame waits");
+			DistantHorizonsCompat.beginFrame();
+			check(!DistantHorizonsCompat.rejectedFrame(), "Next frame can retry");
+			DistantHorizonsCompat.checkedFrame(depth, perspective(64, 32768), 32768);
+			check(!DistantHorizonsCompat.waitingForFrame(), "Valid later matrix recovers");
+		}
 		System.setProperty("reflexium.disableDhHooks", "true");
 		check(!DistantHorizonsCompat.isSupportedVersion(), "Diagnostic switch disables DH integration");
 		check(DistantHorizonsCompat.canUpscale(), "Diagnostic switch must allow the comparison with SR enabled");
@@ -50,9 +75,9 @@ public final class DistantHorizonsCheck {
 			check(lod > ndc(main.transform(new Vector4f(0, 0, -768, 1))).z, "Near LOD must win over farther main geometry");
 			motion(dh);
 		}
-		for (float depth : new float[] {1, 0.5f, 0.001f}) {
-			float encoded = depth * encoding.m22() + encoding.m32();
-			close((encoded - encoding.m32()) / encoding.m22(), depth, 1.0e-7, "Main/hand depth round trip");
+		for (float value : new float[] {1, 0.5f, 0.001f}) {
+			float encoded = value * encoding.m22() + encoding.m32();
+			close((encoded - encoding.m32()) / encoding.m22(), value, 1.0e-7, "Main/hand depth round trip");
 		}
 		shaders();
 		abi();

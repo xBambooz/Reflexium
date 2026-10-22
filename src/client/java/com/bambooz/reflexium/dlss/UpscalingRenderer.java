@@ -677,6 +677,13 @@ public final class UpscalingRenderer {
 		GpuTextureView handDepth = packHandMask != null && ShaderPacks.isDrawingPack()
 				? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
 		var dh = DistantHorizonsCompat.depthFrame(renderWidth, renderHeight);
+		if (DistantHorizonsCompat.rejectedFrame()) {
+			worldDepthCaptured = false;
+			havePrevious = false;
+			requestReset(ResetReason.LOADING);
+			ObjectMotion.get().endFrame();
+			return;
+		}
 		float far = dh == null ? cameraFar : Math.max(cameraFar, dh.farPlane() * 2.0f);
 		if (far != motionFar) {
 			requestReset(ResetReason.REBUILD);
@@ -783,6 +790,7 @@ public final class UpscalingRenderer {
 	private void reconstructPackHdrInputs(Object pass, Object targets) {
 		GameRenderer renderer = Minecraft.getInstance().gameRenderer;
 		afterLevel(renderer); // Geometry and hand are complete here, before the pack's final chain returns.
+		if (DistantHorizonsCompat.rejectedFrame()) return;
 		if (!worldDepthCaptured) throw new IllegalStateException("HDR boundary has no aligned world depth");
 		if (com.bambooz.reflexium.compat.ComplementaryMotionSource.ready() && !resetNext) {
 			var encoder = RenderSystem.getDevice().createCommandEncoder();
@@ -878,6 +886,7 @@ public final class UpscalingRenderer {
 		UpscaleQuality mode = ReflexiumConfig.get().upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (ReflexiumConfig.get().upscaler() == Upscaler.OFF) return "Upscaling: off";
+		if (DistantHorizonsCompat.waitingForFrame()) return "Upscaling: waiting for Distant Horizons";
 		if (performanceGuard.nativeWins() && ReflexiumConfig.get().upscaler() == Upscaler.AUTO) return String.format(Locale.ROOT,
 				"Upscaling: native (DLSS not faster here: %.2f vs %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs());
 		if (performanceGuard.probing() && ReflexiumConfig.get().upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack()) == Upscaler.DLSS) return "Upscaling: " + (performanceGuard.nativePhase() ? "native" : "DLSS") + " (measuring native vs DLSS)";
