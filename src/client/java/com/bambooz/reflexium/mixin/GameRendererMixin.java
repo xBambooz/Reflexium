@@ -35,9 +35,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** DLSS frame hooks; see {@link UpscalingRenderer} for the sequence. Every hook is a no-op while DLSS is off. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+	@Shadow @Final private DebugCrosshairRenderer debugCrosshairRenderer;
+	@Shadow @Final private Projection hudProjection;
+	@Shadow @Final private ProjectionMatrixBuffer hud3dProjectionMatrixBuffer;
+	@Shadow @Final private RenderTarget mainRenderTarget;
+	@Unique private CameraRenderState reflexium$crosshairCamera;
+	@Unique private int reflexium$crosshairGuiScale;
+	@Unique private boolean reflexium$originalConsistentDepth;
+
 	@Inject(method = "processBlurEffect", at = @At("HEAD"))
 	private void reflexium$noteActualGuiBlur(CallbackInfo ci) { UpscalingRenderer.get().noteGuiBlur(); }
-	@Unique private boolean reflexium$originalConsistentDepth;
+
 	@ModifyVariable(method = "render3dHud", at = @At("HEAD"), argsOnly = true)
 	private boolean reflexium$preserveWorldDepth(boolean consistentDepthRequired) {
 		reflexium$originalConsistentDepth = consistentDepthRequired;
@@ -49,6 +57,7 @@ public abstract class GameRendererMixin {
 		// The motion pass already combines world and hand depth for SR and FG.
 		if (reflexium$originalConsistentDepth) original.call(renderer);
 	}
+
 	@WrapMethod(method = "render")
 	private void reflexium$frame(Operation<Void> original) {
 		GameRenderer self = (GameRenderer) (Object) this;
@@ -100,13 +109,6 @@ public abstract class GameRendererMixin {
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 		reflexium$drawDeferredCrosshair();
 	}
-
-	@Shadow @Final private DebugCrosshairRenderer debugCrosshairRenderer;
-	@Shadow @Final private Projection hudProjection;
-	@Shadow @Final private ProjectionMatrixBuffer hud3dProjectionMatrixBuffer;
-	@Shadow @Final private RenderTarget mainRenderTarget;
-	@Unique private CameraRenderState reflexium$crosshairCamera;
-	@Unique private int reflexium$crosshairGuiScale;
 
 	/**
 	 * The F3 axis crosshair is fixed on screen but drawn 1 block ahead of the camera into the world target, so the
