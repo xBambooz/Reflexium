@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.debug;
 
 /**
- * Runtime overrides for the upscaling debug harness (see {@link DebugServer}). Every default reproduces
+ * Runtime overrides for the upscaling debug harness (see {@link com.bambooz.reflexium.debug.server.DebugServer}). Every default reproduces
  * the shipped behavior exactly, so nothing here changes rendering unless a debug command sets it.
  */
 public final class DebugSettings {

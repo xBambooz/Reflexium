@@ -1,4 +1,4 @@
-package com.bambooz.reflexium.debug;
+package com.bambooz.reflexium.debug.server;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

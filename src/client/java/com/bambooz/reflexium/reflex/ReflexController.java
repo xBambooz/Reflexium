@@ -26,7 +26,6 @@ import org.lwjgl.vulkan.VkSemaphoreWaitInfo;
 import org.lwjgl.vulkan.VkSetLatencyMarkerInfoNV;
 
 import java.nio.LongBuffer;
-import java.util.Locale;
 
 import static org.lwjgl.vulkan.NVLowLatency2.*;
 import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
@@ -281,10 +280,10 @@ public final class ReflexController {
 		VulkanLifecycle.clearSubmissionAttribution();
 	}
 
-	public void beforeBatchPresent(boolean generated) {
+	public void beforeBatchPresent() {
 		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV);
 	}
-	public void afterBatchPresent(boolean generated) {
+	public void afterBatchPresent() {
 		marker(VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV);
 	}
 	public void beginReplacementSubmit() { marker(VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV); }
@@ -384,48 +383,11 @@ public final class ReflexController {
 
 	public String latencyLine() {
 		if (!isAvailable()) return LatencyReport.unavailable("no native swapchain").format();
-		long now = System.nanoTime();
-		if (isAvailable() && now - lastTimingRefresh > TIMING_REFRESH_NS) {
-			lastTimingRefresh = now;
-			latency = readLatency();
-		}
-		return latency.format();
+		return currentLatency().format();
 	}
 
 	// ---------------------------------------------------------------------------------------------
 	// Vulkan
-
-	/** Half-second frame-time mean with 320/280 FPS hysteresis, independent of generated frames. */
-	static final class SmartPacing {
-		private long start;
-		private int frames;
-		boolean paused;
-
-		void reset() {
-			start = 0;
-			frames = 0;
-			paused = false;
-		}
-
-		void update(long now, boolean allowed) {
-			if (!allowed) {
-				reset();
-				return;
-			}
-			if (start == 0) {
-				start = now;
-				return;
-			}
-			frames++;
-			long elapsed = now - start;
-			if (elapsed < 500_000_000L) return;
-			double meanNs = (double) elapsed / frames;
-			if (meanNs < 1_000_000_000.0 / 320) paused = true;
-			else if (meanNs > 1_000_000_000.0 / 280) paused = false;
-			start = now;
-			frames = 0;
-		}
-	}
 
 	private void applySleepMode() {
 		if (!isAvailable()) {
@@ -609,13 +571,9 @@ public final class ReflexController {
 		result.add("frames", frames);
 		if (!isAvailable()) return result;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
-			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
-			for (int i = 0; i < reports.capacity(); i++) reports.get(i).sType$Default();
-			VkGetLatencyMarkerInfoNV info = VkGetLatencyMarkerInfoNV.calloc(stack).sType$Default()
-					.timingCount(reports.capacity()).pTimings(reports);
-			vkGetLatencyTimingsNV(device, swapchain, info);
+			VkLatencyTimingsFrameReportNV.Buffer reports = queryTimings(stack);
 			long origin = 0;
-			for (int i = 0; i < info.timingCount(); i++) {
+			for (int i = 0; i < reports.limit(); i++) {
 				VkLatencyTimingsFrameReportNV r = reports.get(i);
 				if (r.presentID() == 0 || r.presentEndTimeUs() == 0 || r.gpuRenderEndTimeUs() == 0) continue;
 				if (origin == 0) origin = r.simStartTimeUs();
@@ -643,31 +601,38 @@ public final class ReflexController {
 	/** GPU throughput bound, constrained by known real-frame limits, with unavailable data holding selection. */
 	public double frameGenerationRenderCostMs(double fgCostMs) {
 		if (!isAvailable() || !ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
-		long now = System.nanoTime();
-		if (now - lastTimingRefresh > TIMING_REFRESH_NS) {
-			lastTimingRefresh = now;
-			latency = readLatency();
-		}
+		LatencyReport latency = currentLatency();
 		if (!latency.available()) return 0;
 		double limitedMs = Math.max(baseFpsLimit == NO_CAP ? 0 : 1000.0 / baseFpsLimit,
 				DebugSettings.reflexIntervalUs / 1000.0);
 		return Math.max(latency.gpuMs(), limitedMs + fgCostMs);
 	}
 
+	/** Up to 64 recent driver frame reports, allocated on {@code stack}; the buffer limit is the count returned. */
+	private VkLatencyTimingsFrameReportNV.Buffer queryTimings(MemoryStack stack) {
+		VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
+		for (int i = 0; i < reports.capacity(); i++) reports.get(i).sType$Default();
+		VkGetLatencyMarkerInfoNV info = VkGetLatencyMarkerInfoNV.calloc(stack).sType$Default()
+				.timingCount(reports.capacity()).pTimings(reports);
+		vkGetLatencyTimingsNV(device, swapchain, info);
+		return reports.limit(info.timingCount());
+	}
+
+	/** The cached report, re-read from the driver at most every {@link #TIMING_REFRESH_NS}. */
+	private LatencyReport currentLatency() {
+		long now = System.nanoTime();
+		if (now - lastTimingRefresh > TIMING_REFRESH_NS) {
+			lastTimingRefresh = now;
+			latency = readLatency();
+		}
+		return latency;
+	}
+
 	private LatencyReport readLatency() {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
-			VkLatencyTimingsFrameReportNV.Buffer reports = VkLatencyTimingsFrameReportNV.calloc(64, stack);
-			for (int i = 0; i < reports.capacity(); i++) {
-				reports.get(i).sType$Default();
-			}
-			VkGetLatencyMarkerInfoNV info = VkGetLatencyMarkerInfoNV.calloc(stack)
-					.sType$Default()
-					.timingCount(reports.capacity())
-					.pTimings(reports);
-			vkGetLatencyTimingsNV(device, swapchain, info);
-
+			VkLatencyTimingsFrameReportNV.Buffer reports = queryTimings(stack);
 			VkLatencyTimingsFrameReportNV latest = null;
-			for (int i = 0; i < info.timingCount(); i++) {
+			for (int i = 0; i < reports.limit(); i++) {
 				VkLatencyTimingsFrameReportNV report = reports.get(i);
 				if (report.presentID() > 0 && report.presentEndTimeUs() > 0 && report.gpuRenderEndTimeUs() > 0
 						&& (latest == null || report.presentID() > latest.presentID())) {
@@ -687,10 +652,6 @@ public final class ReflexController {
 		}
 	}
 
-	private static double span(long start, long end) {
-		return start > 0 && end > start ? (end - start) / 1000.0 : -1;
-	}
-
 	private static long createTimelineSemaphore(VkDevice device) {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkSemaphoreTypeCreateInfo type = VkSemaphoreTypeCreateInfo.calloc(stack)
@@ -707,41 +668,6 @@ public final class ReflexController {
 				return 0;
 			}
 			return handle.get(0);
-		}
-	}
-
-	record LatencyReport(boolean available, String reason, double totalMs, double simMs, double submitMs, double gpuMs) {
-		static LatencyReport from(VkLatencyTimingsFrameReportNV report) {
-			long start = report.inputSampleTimeUs() > 0 ? report.inputSampleTimeUs() : report.simStartTimeUs();
-			if (start <= 0 || report.gpuRenderEndTimeUs() <= start || report.gpuRenderStartTimeUs() <= 0
-					|| report.gpuRenderEndTimeUs() < report.gpuRenderStartTimeUs()) return unavailable("incomplete driver data");
-			if (report.driverStartTimeUs() > 0 && report.driverEndTimeUs() > 0
-					&& report.driverStartTimeUs() > report.driverEndTimeUs()) return unavailable("inconsistent driver timestamps");
-			return new LatencyReport(true, "", (report.gpuRenderEndTimeUs() - start) / 1000.0,
-					span(report.simStartTimeUs(), report.simEndTimeUs()),
-					span(report.renderSubmitStartTimeUs(), report.renderSubmitEndTimeUs()),
-					span(report.gpuRenderStartTimeUs(), report.gpuRenderEndTimeUs()));
-		}
-
-		static LatencyReport unavailable(String reason) {
-			return new LatencyReport(false, reason, 0, -1, -1, -1);
-		}
-
-		String format() {
-			if (!available) {
-				return "Reflex latency: " + reason;
-			}
-			StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "Reflex render latency: %.1f ms", totalMs));
-			append(line, "sim", simMs);
-			append(line, "submit", submitMs);
-			append(line, "GPU", gpuMs);
-			return line.toString();
-		}
-
-		private static void append(StringBuilder line, String label, double ms) {
-			if (ms >= 0) {
-				line.append(String.format(Locale.ROOT, ", %s %.1f", label, ms));
-			}
 		}
 	}
 }

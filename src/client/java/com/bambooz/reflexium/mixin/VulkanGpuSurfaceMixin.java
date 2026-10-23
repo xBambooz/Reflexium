@@ -190,13 +190,13 @@ public abstract class VulkanGpuSurfaceMixin {
 		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
 		ReflexController reflex = ReflexController.get();
-		if (fg.inPresentBatch()) reflex.beforeBatchPresent(fg.isGeneratedPresent());
+		if (fg.inPresentBatch()) reflex.beforeBatchPresent();
 		int result;
 		long timing = FrameProfiler.start(FrameProfiler.PRESENT, null);
 		try { result = original.call(queue, info); }
 		finally {
 			FrameProfiler.end(FrameProfiler.PRESENT, timing, null);
-			if (fg.inPresentBatch()) reflex.afterBatchPresent(fg.isGeneratedPresent());
+			if (fg.inPresentBatch()) reflex.afterBatchPresent();
 		}
 		fg.onPresentResult(info, result);
 		long id = reflex.currentFrameId();

@@ -67,7 +67,7 @@ public final class ReflexTimingCheck {
 		if (!state.canSleep() || state.ownsCap(ReflexMode.OFF, 0)) throw new AssertionError("Off reporting sleep never owns cap");
 		state.reset(); state.configuration(ReflexMode.ON, 8334, 0); state.sleepResult(0);
 		if (!state.ownsCap(ReflexMode.ON, 8334)) throw new AssertionError("lifecycle recovery");
-		var pacing = new ReflexController.SmartPacing();
+		var pacing = new SmartPacing();
 		long now = 1;
 		pacing.update(now, true);
 		for (int i = 0; i < 199; i++) pacing.update(now += 2_500_000, true);
@@ -91,17 +91,17 @@ public final class ReflexTimingCheck {
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.PRESENTENDTIMEUS, 1500);
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.GPURENDERSTARTTIMEUS, 1600);
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.GPURENDERENDTIMEUS, 3100);
-			var latency = ReflexController.LatencyReport.from(report);
+			var latency = LatencyReport.from(report);
 			if (!latency.available() || latency.totalMs() != 2 || latency.gpuMs() != 1.5)
 				throw new AssertionError("Latency must include GPU completion: " + latency);
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.INPUTSAMPLETIMEUS, 0);
-			if (ReflexController.LatencyReport.from(report).totalMs() != 2.1) throw new AssertionError("simulation fallback");
+			if (LatencyReport.from(report).totalMs() != 2.1) throw new AssertionError("simulation fallback");
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.DRIVERSTARTTIMEUS, 2000);
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.DRIVERENDTIMEUS, 1900);
-			if (ReflexController.LatencyReport.from(report).available()) throw new AssertionError("inconsistent driver report");
+			if (LatencyReport.from(report).available()) throw new AssertionError("inconsistent driver report");
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.DRIVERSTARTTIMEUS, 0);
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.GPURENDERENDTIMEUS, 0);
-			if (ReflexController.LatencyReport.from(report).available()) throw new AssertionError("incomplete GPU report");
+			if (LatencyReport.from(report).available()) throw new AssertionError("incomplete GPU report");
 		}
 		System.out.println("Reflex GPU-complete latency and sleep timeout recovery checks passed");
 	}
