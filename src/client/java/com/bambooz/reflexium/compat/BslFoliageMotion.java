@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.debug.DebugSettings;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import org.joml.Vector3d;

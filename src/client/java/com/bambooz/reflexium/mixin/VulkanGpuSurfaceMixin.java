@@ -2,9 +2,9 @@ package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.debug.FrameProfiler;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
-import com.bambooz.reflexium.dlss.FsrSwapchain;
-import com.bambooz.reflexium.dlss.GenerationLedger;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
+import com.bambooz.reflexium.framegen.GenerationLedger;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.vulkan.FrameTrace;
 import com.bambooz.reflexium.vulkan.VulkanLifecycle;

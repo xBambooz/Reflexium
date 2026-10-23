@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.fabricmc.loader.api.FabricLoader;

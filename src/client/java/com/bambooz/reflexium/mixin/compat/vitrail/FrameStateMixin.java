@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin.compat.vitrail;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4fc;

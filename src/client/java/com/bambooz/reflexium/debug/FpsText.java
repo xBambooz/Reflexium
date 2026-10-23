@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.debug;
 
 
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 
 /** Puts the rendered frame rate in brackets after the displayed (frame generation) one on F3 lines. */
 public final class FpsText {

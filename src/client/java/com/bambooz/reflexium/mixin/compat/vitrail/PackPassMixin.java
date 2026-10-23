@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.mixin.compat.vitrail;
 
 import com.bambooz.reflexium.compat.ComplementaryHdr;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.buffers.Std140Builder;

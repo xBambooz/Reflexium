@@ -2,10 +2,10 @@ package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.debug.DebugSettings;
-import com.bambooz.reflexium.dlss.DlssSupport;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
-import com.bambooz.reflexium.dlss.FsrSwapchain;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.dlss.DlssSupport;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanInstance;

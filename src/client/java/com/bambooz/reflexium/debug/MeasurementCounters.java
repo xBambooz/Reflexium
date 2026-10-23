@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.debug;
 
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
-import com.bambooz.reflexium.dlss.GenerationLedger;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.framegen.GenerationLedger;
 import com.bambooz.reflexium.reflex.ReflexController;
 
 import java.util.Locale;

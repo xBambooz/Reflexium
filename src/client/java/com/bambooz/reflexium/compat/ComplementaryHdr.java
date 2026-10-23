@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.compat;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.renderpearl.api.textures.GpuTextureView;

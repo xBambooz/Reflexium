@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.compat.betterf3;
 
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import me.cominixo.betterf3.modules.BaseModule;
 import me.cominixo.betterf3.utils.DebugLine;

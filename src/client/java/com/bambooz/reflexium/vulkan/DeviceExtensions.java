@@ -1,8 +1,8 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.DlssSupport;
-import com.bambooz.reflexium.dlss.NgxBridge;
+import com.bambooz.reflexium.upscale.dlss.DlssSupport;
+import com.bambooz.reflexium.upscale.dlss.NgxBridge;
 import com.mojang.renderpearl.backend.vulkan.VulkanFeatureSets;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
 import com.mojang.renderpearl.backend.vulkan.init.FeatureSet;

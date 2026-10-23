@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.mixin.compat.iris;
 
-import com.bambooz.reflexium.dlss.MaterialBinding;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.MaterialBinding;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.mojang.renderpearl.api.textures.GpuSampler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

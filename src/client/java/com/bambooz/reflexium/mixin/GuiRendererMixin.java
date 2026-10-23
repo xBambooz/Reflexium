@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;

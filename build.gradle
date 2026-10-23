@@ -90,63 +90,32 @@ java {
 sourceSets.test.compileClasspath += sourceSets.client.output + sourceSets.client.compileClasspath
 sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client.runtimeClasspath
 
-tasks.register("dlssMathCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.DlssMathCheck"
-}
-
-tasks.register("objectMotionCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.ObjectMotionCheck"
-}
-
-// The assertion main above is the test runner; no JUnit dependency is needed.
+// Assertion checks: each is a plain main() run against the client classes, no Minecraft process or GPU.
+// Every one runs as part of check, which build and installReflexium depend on. No JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
-tasks.register("upscalingContractCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.UpscalingContractCheck"
+def assertionChecks = [
+	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
+	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
+	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",
+	dlssRuntimeInstallerCheck    : "com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstallerCheck",
+	objectMotionCheck            : "com.bambooz.reflexium.motion.ObjectMotionCheck",
+	frameDeliveryCheck           : "com.bambooz.reflexium.framegen.FrameDeliveryCheck",
+	frameGenerationConstantsCheck: "com.bambooz.reflexium.framegen.FrameGenerationConstantsCheck",
+	frameProfilerCheck           : "com.bambooz.reflexium.debug.FrameProfilerCheck",
+	reflexTimingCheck            : "com.bambooz.reflexium.reflex.ReflexTimingCheck",
+	irisCompatCheck              : "com.bambooz.reflexium.compat.IrisCompatCheck",
+	distantHorizonsCheck         : "com.bambooz.reflexium.compat.DistantHorizonsCheck",
+]
+assertionChecks.each { name, main ->
+	tasks.register(name, JavaExec) {
+		group = "verification"
+		dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+		classpath = sourceSets.test.runtimeClasspath
+		mainClass = main
+		workingDir = projectDir
+	}
+	tasks.named("check") { dependsOn name }
 }
-tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck", "upscalingContractCheck" }
-
-tasks.register("frameProfilerCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.debug.FrameProfilerCheck"
-}
-tasks.named("check") { dependsOn "frameProfilerCheck" }
-
-tasks.register("reflexTimingCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.reflex.ReflexTimingCheck"
-}
-tasks.named("check") { dependsOn "reflexTimingCheck" }
-
-tasks.register("frameDeliveryCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.FrameDeliveryCheck"
-}
-tasks.named("check") { dependsOn "frameDeliveryCheck" }
-
-tasks.register("irisCompatCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.compat.IrisCompatCheck"
-	workingDir = projectDir
-}
-tasks.named("check") { dependsOn "irisCompatCheck" }
-
-tasks.register("distantHorizonsCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.compat.DistantHorizonsCheck"
-	workingDir = projectDir
-}
-tasks.named("check") { dependsOn "distantHorizonsCheck" }
 
 // -PrxBenchJar: the run classpath otherwise still lists this tree's build/classes and build/resources
 // ahead of the selected jar, so an "old" jar would silently execute the working tree's client code.

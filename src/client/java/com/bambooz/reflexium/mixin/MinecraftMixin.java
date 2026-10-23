@@ -2,7 +2,7 @@ package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.debug.DebugServer;
 import com.bambooz.reflexium.debug.FpsText;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.Minecraft;

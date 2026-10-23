@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.gui.ReflexiumOptions;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import net.minecraft.client.Options;

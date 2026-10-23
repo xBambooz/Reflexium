@@ -1,10 +1,10 @@
 package com.bambooz.reflexium.config;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.DlssModel;
-import com.bambooz.reflexium.dlss.FrameGeneration;
-import com.bambooz.reflexium.dlss.UpscaleQuality;
-import com.bambooz.reflexium.dlss.Upscaler;
+import com.bambooz.reflexium.upscale.dlss.DlssModel;
+import com.bambooz.reflexium.framegen.FrameGeneration;
+import com.bambooz.reflexium.upscale.UpscaleQuality;
+import com.bambooz.reflexium.upscale.Upscaler;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import net.fabricmc.loader.api.FabricLoader;
 

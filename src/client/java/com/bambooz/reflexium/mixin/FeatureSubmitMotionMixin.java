@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.ObjectMotion;
+import com.bambooz.reflexium.motion.ObjectMotion;
 import net.minecraft.client.renderer.feature.phase.SimpleFeatureRenderPhase;
 import net.minecraft.client.renderer.feature.phase.TranslucentFeatureRenderPhase;
 import net.minecraft.client.renderer.feature.submit.SubmitNode;

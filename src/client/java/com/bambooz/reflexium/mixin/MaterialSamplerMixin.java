@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.MaterialBinding;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.MaterialBinding;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.frontend.FrontendRenderPass;

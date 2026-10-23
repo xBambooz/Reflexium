@@ -94,9 +94,9 @@ public final class BmDriver implements ClientModInitializer {
 			return;
 		} catch (ReflectiveOperationException | LinkageError ignored) { }
 		String[][] legacy = {{"app_frame_id", "com.bambooz.reflexium.reflex.ReflexController", "lastFrameId"},
-				{"fg_evaluated_frames", "com.bambooz.reflexium.dlss.FrameGenerationRenderer", "evaluatedFrames"},
-				{"fg_generated_presents", "com.bambooz.reflexium.dlss.FrameGenerationRenderer", "generatedPresents"},
-				{"fg_real_presents", "com.bambooz.reflexium.dlss.FrameGenerationRenderer", "realPresents"}};
+				{"fg_evaluated_frames", "com.bambooz.reflexium.framegen.FrameGenerationRenderer", "evaluatedFrames"},
+				{"fg_generated_presents", "com.bambooz.reflexium.framegen.FrameGenerationRenderer", "generatedPresents"},
+				{"fg_real_presents", "com.bambooz.reflexium.framegen.FrameGenerationRenderer", "realPresents"}};
 		names = new String[legacy.length];
 		MethodHandle[] getters = new MethodHandle[legacy.length];
 		for (int i = 0; i < legacy.length; i++) {

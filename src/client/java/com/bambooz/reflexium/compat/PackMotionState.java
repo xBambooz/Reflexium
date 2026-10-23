@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.compat;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.google.gson.JsonObject;
 
 import java.lang.reflect.Method;

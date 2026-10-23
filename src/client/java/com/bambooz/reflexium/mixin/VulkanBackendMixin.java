@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.FsrSwapchain;
+import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.vulkan.DeviceExtensions;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
