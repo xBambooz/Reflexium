@@ -47,11 +47,6 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		reflexButton.active = reflexSupported;
 		list.addBig(reflexButton);
 
-		var smartReflexOption = ReflexiumOptions.smartReflex();
-		list.addBig(smartReflexOption);
-		var smartWidget = list.findOption(smartReflexOption);
-		if (smartWidget != null) smartWidget.active = reflexSupported;
-
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));
 
 		List<Upscaler> allowedUpscalers = new ArrayList<>();

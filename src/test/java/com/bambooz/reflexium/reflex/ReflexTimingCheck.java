@@ -67,23 +67,10 @@ public final class ReflexTimingCheck {
 		if (!state.canSleep() || state.ownsCap(ReflexMode.OFF, 0)) throw new AssertionError("Off reporting sleep never owns cap");
 		state.reset(); state.configuration(ReflexMode.ON, 8334, 0); state.sleepResult(0);
 		if (!state.ownsCap(ReflexMode.ON, 8334)) throw new AssertionError("lifecycle recovery");
-		var pacing = new SmartPacing();
-		long now = 1;
-		pacing.update(now, true);
-		for (int i = 0; i < 199; i++) pacing.update(now += 2_500_000, true);
-		if (pacing.paused) throw new AssertionError("must observe half a second before pausing");
-		pacing.update(now += 2_500_000, true);
-		if (!pacing.paused) throw new AssertionError("400 FPS must pause pacing");
-		for (int i = 0; i < 151; i++) pacing.update(now += 3_333_333, true);
-		if (!pacing.paused) throw new AssertionError("300 FPS must retain paused state");
-		for (int i = 0; i < 250; i++) pacing.update(now += 4_000_000, true);
-		if (pacing.paused) throw new AssertionError("250 FPS must resume pacing");
-		for (int i = 0; i < 302; i++) pacing.update(now += 3_333_333, true);
-		if (pacing.paused) throw new AssertionError("300 FPS must retain sleeping state");
-		for (int i = 0; i < 400; i++) pacing.update(now += 2_500_000, true);
-		if (!pacing.paused) throw new AssertionError("400 FPS must pause again");
-		pacing.update(++now, false);
-		if (pacing.paused) throw new AssertionError("FG, caps and disabled Smart Reflex must reset immediately");
+		// Only an explicit Minecraft cap becomes a Reflex minimum interval. No refresh-rate cap exists.
+		if (ReflexController.presentedIntervalUs(Integer.MAX_VALUE, 1) != 0) throw new AssertionError("uncapped interval");
+		if (ReflexController.presentedIntervalUs(240, 1) != 4167) throw new AssertionError("240 FPS interval");
+		if (ReflexController.presentedIntervalUs(240, 2) != 2084) throw new AssertionError("FG presents double the budget");
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			var report = VkLatencyTimingsFrameReportNV.calloc(stack).sType$Default();
 			memPutLong(report.address() + VkLatencyTimingsFrameReportNV.SIMSTARTTIMEUS, 1000);

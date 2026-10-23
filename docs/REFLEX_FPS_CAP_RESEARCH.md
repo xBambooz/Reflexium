@@ -303,8 +303,8 @@ In practical competitive play, capping at 1250 FPS via Reflex provides superior 
   `https://forums.blurbusters.com/viewtopic.php?t=8656`
   Documents automatic VRR headroom capping and render queue avoidance.
 - **Reflexium Repository Internal Performance & Sleep Audits:**
-  `docs/PERFORMANCE.md` and `docs/SMART_REFLEX.md`
-  Documents measured driver-level overheads in `vkLatencySleepNV` on NVIDIA Vulkan drivers (driver 617.42) and establishes the high-FPS Smart Reflex hysteresis threshold (320 FPS / 280 FPS).
+  `docs/PERFORMANCE.md`
+  Documents measured driver-level overheads in `vkLatencySleepNV` on NVIDIA Vulkan drivers (driver 617.42). The high-FPS adaptive pause described there was removed on 23 October 2026.
 
 ---
 
@@ -314,41 +314,32 @@ Based on the verified driver behavior and shipping game conventions, Reflexium m
 
 ### 7.1 What `minimumIntervalUs` Value to Set
 
-Reflexium should configure `minimumIntervalUs` in `VkLatencySleepModeInfoNV` according to four distinct operational states:
+Reflexium configures `minimumIntervalUs` in `VkLatencySleepModeInfoNV` from Minecraft's own Max
+Framerate. It does not invent a cap from VSync, the refresh rate, or the frame rate:
 
-1. **State 1: Unlimited FPS with VSync Off (Uncapped Mode)**
+1. **State 1: Unlimited FPS**
    - **Set `minimumIntervalUs = 0`.**
    - **Do NOT set `minimumIntervalUs = 800` or `1250`.**
-   - Setting `minimumIntervalUs = 0` instructs the driver to run in adaptive predictive latency-reduction mode. The driver's internal scheduler will naturally enforce its ~800 $\mu$s (~1250 FPS) floor when needed without application interference. 
+   - Setting `minimumIntervalUs = 0` instructs the driver to run in adaptive predictive latency-reduction mode. The driver's internal scheduler enforces its own floor when needed without application interference.
    - Setting an artificial non-zero interval overrides the driver's predictive algorithm, forcing it to act as a hard frame limiter.
 
 2. **State 2: User Configured an Explicit In-Game FPS Cap**
-   - If the user sets a custom frame rate limit in video settings (e.g. 144, 240, 360 FPS):
-   - **Set `minimumIntervalUs = (uint32_t) Math.round(1_000_000.0 / targetFps)`.**
+   - If the player sets Minecraft's Max Framerate (e.g. 144, 240, 360 FPS):
+   - **Set `minimumIntervalUs = ceil(1_000_000 / targetFps)`**, multiplied into the presented-frame budget when frame generation is active.
    - Example: For 240 FPS, set `minimumIntervalUs = 4167`.
-   - By delegating the frame cap directly to the Reflex driver through `minimumIntervalUs`, the sleep occurs at the optimal point in the pipeline (immediately before `INPUT_SAMPLE_NV` and simulation), completely replacing Minecraft's post-present sleep and eliminating timer jitter.
+   - By delegating the cap to Reflex through `minimumIntervalUs`, the sleep occurs at the optimal point in the pipeline (immediately before `INPUT_SAMPLE_NV` and simulation), replacing Minecraft's post-present sleep.
 
-3. **State 3: Automatic VRR / G-Sync Headroom Cap (VSync Active with Reflex)**
-   - When VSync is enabled alongside Reflex on a VRR display:
-   - **Set `minimumIntervalUs = (uint32_t) Math.round(1_000_000.0 / vrrFps)`.**
-   - Compute `vrrFps` using the standard Reflex refresh headroom formula:
-     $$\text{vrrFps} = \text{floor}\left(\text{Hz} - \frac{\text{Hz}^2}{3600}\right)$$
-   - Examples: ~138 FPS on 144 Hz, ~225 FPS on 240 Hz, ~327 FPS on 360 Hz.
-   - This prevents presentation requests from hitting the G-Sync ceiling, avoiding VSync backpressure and input lag.
-
-4. **State 4: High-FPS Workaround (Smart Reflex Pacing Bypass)**
-   - As documented in [`SMART_REFLEX.md`](file:///C:/Users/Ryan/source/repos/Reflexium/docs/SMART_REFLEX.md), current NVIDIA Vulkan driver versions suffer from a driver scheduling flaw where `vkLatencySleepNV` consumes 0.9 to 1.1 ms per call at high framerates.
-   - When Smart Reflex is active and the frame rate exceeds 320 FPS:
-     - Pause `vkLatencySleepNV` and its semaphore wait.
-     - Keep `minimumIntervalUs = 0`, Reflex latency markers, and present IDs active.
-     - When frame rates drop below 280 FPS, resume calling `vkLatencySleepNV` with `minimumIntervalUs = 0`.
+Automatic VRR headroom and the high-FPS Smart Reflex pause were removed. Neither is part of
+Reflex. The first silently lowered the player's frame rate; the second bypassed pacing and hid the
+driver behavior that needs to be measured.
 
 ### 7.2 Summary Table for Reflexium
 
 | User Setting | Condition | `lowLatencyMode` | `minimumIntervalUs` | Sleep Execution |
 | :--- | :--- | :--- | :--- | :--- |
-| **Reflex Off** | Any FPS | `VK_FALSE` | `0` (or `1_000_000 / cap` if capped) | Skipped |
-| **Reflex On / Boost** | Unlimited FPS, VSync Off | `VK_TRUE` | **`0`** (driver defaults to ~800 $\mu$s floor) | `vkLatencySleepNV` + Semaphore wait |
-| **Reflex On / Boost** | Explicit FPS Cap (e.g. 240) | `VK_TRUE` | **`1_000_000 / cap`** (e.g. `4167`) | `vkLatencySleepNV` + Semaphore wait |
-| **Reflex On / Boost** | VSync On (VRR Headroom) | `VK_TRUE` | **`1_000_000 / vrrCap`** | `vkLatencySleepNV` + Semaphore wait |
-| **Smart Reflex (Opt-in)** | High FPS (> 320 FPS) | `VK_TRUE` | **`0`** | Paused (markers retained) |
+| **Reflex Off** | Any FPS | `VK_FALSE` | `0` | `vkLatencySleepNV` + semaphore wait |
+| **Reflex On / Boost** | Unlimited FPS | `VK_TRUE` | **`0`** | `vkLatencySleepNV` + semaphore wait |
+| **Reflex On / Boost** | Explicit FPS cap (e.g. 240) | `VK_TRUE` | **`ceil(1_000_000 / cap)`** (e.g. `4167`) | `vkLatencySleepNV` + semaphore wait |
+
+The sleep call stays active in every mode because the extension also services the driver's frame
+limiter, including the NVIDIA Control Panel Maximum Frame Rate setting, when low latency mode is off.

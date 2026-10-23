@@ -4,7 +4,6 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
-import com.bambooz.reflexium.framegen.FrameGeneration;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.vulkan.FrameTrace;
@@ -36,25 +35,32 @@ import static org.lwjgl.vulkan.VK12.vkGetSemaphoreCounterValue;
 import static org.lwjgl.vulkan.VK12.vkWaitSemaphores;
 
 /**
-	* NVIDIA Reflex through VK_NV_low_latency2. All methods except {@link #currentFrameId()} run on the
-	* render thread.
-	* <p>
-	* Per frame (hooks in MinecraftMixin):
-	* <pre>
-	*   run():       latency sleep,
-	*                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
-	*                SIMULATION_START
-	*   runTick():   SIMULATION_END                    (before renderFrame)
-	*   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
-	*                RENDERSUBMIT_END, PRESENT_START   (before present)
-	*                PRESENT_END                       (after present)
-	* </pre>
-	* The same frame id is attached to every queue submission (VkLatencySubmissionPresentIdNV) and to the
-	* present itself (VkPresentIdKHR), which is how the driver ties GPU work to the markers.
-	*/
+ * NVIDIA Reflex through VK_NV_low_latency2. All methods except {@link #currentFrameId()} run on the
+ * render thread.
+ * <p>
+ * Per frame (hooks in MinecraftMixin):
+ * <pre>
+ *   run():       latency sleep,
+ *                INPUT_SAMPLE                     (before SDL event polling, so input is sampled late)
+ *                SIMULATION_START
+ *   runTick():   SIMULATION_END                    (before renderFrame)
+ *   renderFrame: RENDERSUBMIT_START                (before render-state extraction)
+ *                RENDERSUBMIT_END, PRESENT_START   (before present)
+ *                PRESENT_END                       (after present)
+ * </pre>
+ * The same frame id is attached to every queue submission (VkLatencySubmissionPresentIdNV) and to the
+ * present itself (VkPresentIdKHR), which is how the driver ties GPU work to the markers.
+ * <p>
+ * This follows the Streamline Vulkan path: exactly one sleep per frame in every mode, including Off,
+ * because the driver also services the NVIDIA Control Panel frame limit from it. The only frame limit
+ * Reflexium passes is Minecraft's own Max Framerate. Automatic refresh-rate caps and adaptive pacing
+ * pauses are deliberately absent: they are not part of Reflex and they change the rate the player asked
+ * for.
+ */
 public final class ReflexController {
 	private static final ReflexController INSTANCE = new ReflexController();
-	private static final long SLEEP_TIMEOUT_NS = 100_000_000L;
+	/** Streamline's sl.chi/vulkan.h uses 500 ms for the timeline wait. */
+	private static final long SLEEP_TIMEOUT_NS = 500_000_000L;
 	private static final long TIMING_REFRESH_NS = 250_000_000L;
 	private static final long REFRESH_RATE_INTERVAL_NS = 1_000_000_000L;
 	/** Minecraft treats 260 as "unlimited" for Max Framerate. */
@@ -83,15 +89,14 @@ public final class ReflexController {
 	private ReflexMode loggedMode;
 	private int requestedIntervalUs;
 	private int baseFpsLimit = NO_CAP;
-	private boolean requestedCapIsVrr;
 	private long timingFloorId, timingSeenId, timingSeenAt;
-	private final SmartPacing smartPacing = new SmartPacing();
 	/** Lifetime counters for measured-span validation; never reset, so callers compare deltas. */
 	private long sleepsIssued, sleepsCompleted, unpacedFrames, suspendedFrames;
 
 	private long lastTimingRefresh;
 	private long lastRefreshRead;
 	private float refreshRateHz;
+	private boolean requestedCapIsFrameGeneration;
 	private LatencyReport latency = LatencyReport.unavailable("no data yet");
 	private int lastMarker = -1;
 	private int lastMarkerRank;
@@ -132,7 +137,6 @@ public final class ReflexController {
 		simulationOpen = false;
 		pacing.reset();
 		resetTiming();
-		smartPacing.reset();
 	}
 
 	public void shutdown() {
@@ -151,11 +155,11 @@ public final class ReflexController {
 		simulationOpen = false;
 		pacing.reset();
 		requestedIntervalUs = 0;
+		requestedCapIsFrameGeneration = false;
 		lastRefreshRead = 0;
 		refreshRateHz = 0;
 		resetTiming();
 		latency = LatencyReport.unavailable("no data yet");
-		smartPacing.reset();
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -172,19 +176,9 @@ public final class ReflexController {
 		return device != null && swapchain != 0;
 	}
 
+	/** The driver is currently permitted to pace this frame. */
 	public boolean isSleeping() {
-		return isAvailable() && pacing.canSleep() && pacing.applied != null && pacing.applied.enabled()
-				&& sleepSemaphore != 0 && !isPacingPaused();
-	}
-
-	public boolean isPacingPaused() {
-		return isAvailable() && smartPacing.paused && canPausePacing();
-	}
-
-	private boolean canPausePacing() {
-		// Keep explicit and VRR caps paced, and never bypass Reflex for any requested FG mode.
-		return mode().enabled() && ReflexiumConfig.get().smartReflex() && requestedIntervalUs == 0
-				&& ReflexiumConfig.get().frameGeneration() == FrameGeneration.OFF;
+		return isAvailable() && pacing.canSleep() && sleepSemaphore != 0;
 	}
 
 	public ReflexMode mode() {
@@ -238,10 +232,11 @@ public final class ReflexController {
 		lastMarkerRank = 0;
 		lastMarkerFrameId = frameId;
 		applySleepMode();
-		smartPacing.update(System.nanoTime(), canPausePacing());
 		pollPendingSleep();
-		// The raw Vulkan reference also sleeps in Off (mode=false, interval=0) for reporting.
-		if (pacing.canSleep() && sleepSemaphore != 0 && !isPacingPaused()) {
+		// Streamline calls sleep in every mode: with lowLatencyMode false and a zero interval the call
+		// still services the driver's own frame limiter, and the control panel can enable features that
+		// depend on it.
+		if (pacing.canSleep() && sleepSemaphore != 0) {
 			long timing = FrameProfiler.start(FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
 			FrameProfiler.end(FrameProfiler.REFLEX_SLEEP, timing, null);
@@ -249,7 +244,7 @@ public final class ReflexController {
 			unpacedFrames++;
 			if (pacing.suspended) suspendedFrames++;
 			if (FrameTrace.on(frameId)) FrameTrace.event(frameId, "sleep skipped configured=" + pacing.configured + " failed=" + pacing.failed
-					+ " suspended=" + pacing.suspended + " paused=" + isPacingPaused());
+					+ " suspended=" + pacing.suspended);
 		}
 		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
 		marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
@@ -291,35 +286,41 @@ public final class ReflexController {
 	public void triggerFlash() { if (simulationOpen) marker(VK_LATENCY_MARKER_TRIGGER_FLASH_NV); }
 
 	/**
-	 * Called every frame with vanilla's effective FPS cap (menu and AFK throttles included). Reflex paces
-	 * frames to the lower of that cap and the automatic VRR cap, applied as the driver's minimum frame
-	 * interval at the next sleep.
+	 * Called every frame with vanilla's effective Max Framerate (menu and AFK throttles included).
+	 * Reflex enforces that cap itself, so vanilla's post-present sleep can be skipped while Reflex owns
+	 * it. No cap is inferred from VSync or the refresh rate. Frame generation still needs the display's
+	 * output budget to choose a multiplier, and that budget is passed to the policy only.
 	 */
-	public void updateFrameLimit(int fpsLimit, boolean vsync, Window window) {
-		int userFps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
-		baseFpsLimit = userFps;
-		// VSync is a proxy for refresh headroom; this does not detect actual G-Sync engagement.
-		int vrrFps = vsync && mode().enabled() ? vrrCap(window) : NO_CAP;
-		// low_latency2 limits total presents; translate the user real-frame budget to an output budget.
-		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
-		int autoFps = Math.min(vrrFps, fgFps);
+	public void updateFrameLimit(int fpsLimit, Window window) {
+		int fps = fpsLimit > 0 && fpsLimit < UNLIMITED_FPS ? fpsLimit : NO_CAP;
+		baseFpsLimit = fps;
 		int multiplier = FrameGenerationRenderer.get().refreshPolicy().multiplier();
-		int userOutputFps = userFps == NO_CAP ? NO_CAP : (int) Math.min(NO_CAP, (long) userFps * multiplier);
-		int fps = Math.min(userOutputFps, autoFps);
-		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
-		requestedCapIsVrr = autoFps < userOutputFps;
+		int userInterval = presentedIntervalUs(fps, multiplier);
+		int fgInterval = presentedIntervalUs(mode().enabled() ? frameGenerationCap(window) : NO_CAP, 1);
+		requestedIntervalUs = Math.max(userInterval, fgInterval);
+		requestedCapIsFrameGeneration = fgInterval > userInterval;
 	}
 
-	/** Presented-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
+	/** Present interval in microseconds. minimumIntervalUs is defined between vkQueuePresentKHR calls. */
+	static int presentedIntervalUs(int fps, int multiplier) {
+		if (fps == NO_CAP) return 0;
+		long presented = Math.min(NO_CAP, (long) fps * Math.max(1, multiplier));
+		return (int) ((1_000_000L + presented - 1) / presented);
+	}
+
+	/**
+	 * Presented-frame ceiling while NVIDIA frame generation is requested. This feeds the multiplier
+	 * policy and caps output frames only; it is not a general Reflex refresh cap.
+	 */
 	private int frameGenerationCap(Window window) {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
-		fg.refreshPolicy().cap(requested ? vrrCap(window) : NO_CAP);
+		fg.refreshPolicy().cap(requested ? refreshHeadroom(window) : NO_CAP);
 		return requested && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
 	}
 
-	/** Refresh-headroom heuristic. Unknown refresh rate means no automatic cap. */
-	private int vrrCap(Window window) {
+	/** Frame generation output budget: the refresh rate minus headroom for presentation jitter. */
+	private int refreshHeadroom(Window window) {
 		float hz = refreshRate(window);
 		return hz <= 0 ? NO_CAP : Math.max(1, (int) Math.floor(hz - hz * hz / 3600f));
 	}
@@ -339,7 +340,7 @@ public final class ReflexController {
 		return refreshRateHz;
 	}
 
-	/** True when vanilla's post-present sleep should be skipped because the Reflex sleep paces frames. */
+	/** True when vanilla's post-present sleep should be skipped because Reflex enforces the same cap. */
 	public boolean ownsFrameLimit() {
 		return isSleeping() && pacing.ownsCap(mode(), requestedIntervalUs);
 	}
@@ -366,13 +367,9 @@ public final class ReflexController {
 			line.append(" (pacing failed: ").append(pacing.lastResult).append(", native limiter)");
 		} else if (pacing.suspended) {
 			line.append(" (sleep signal pending ").append((System.nanoTime() - pendingSince) / 1_000_000).append(" ms, native limiter)");
-		} else if (isPacingPaused()) {
-			line.append(" (paused, high FPS)");
 		} else if (pacing.interval > 0) {
 			line.append(", cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
-			if (requestedCapIsVrr) {
-				line.append(" (automatic refresh headroom)");
-			}
+			if (requestedCapIsFrameGeneration) line.append(" (frame generation budget)");
 		}
 		if (!presentIdEnabled) {
 			line.append(", no present id");

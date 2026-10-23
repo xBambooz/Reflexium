@@ -1,0 +1,16 @@
+[
+    {
+        "mode":  "on",
+        "laplacian_before":  5.0605597897179067,
+        "laplacian_after":  5.1698208310849578,
+        "mean_luma_difference":  0.025218580900029972,
+        "psnr_db":  57.421945529577663
+    },
+    {
+        "mode":  "on_boost",
+        "laplacian_before":  5.0605597897179067,
+        "laplacian_after":  5.2981558208309272,
+        "mean_luma_difference":  0.03255605761330365,
+        "psnr_db":  57.766233512255965
+    }
+]

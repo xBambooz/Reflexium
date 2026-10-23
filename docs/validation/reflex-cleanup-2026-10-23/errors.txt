@@ -1,0 +1,29 @@
+2026-10-23T06:28:23.8388962-04:00 raw error (invalid rows discarded): 'rxdbg raw /reflexium frame_mark=1' on debug port 25599 returned ok:true with the endpoint help list. /reflexium exists only on the harness endpoint (POST, port 25910), so frame_mark/frame_stats_from/reflex_timings must be posted there.
+--- raw error 1 (debug port, 25599) ---
+command: tools\rxdbg.ps1 raw /reflexium frame_mark=1
+reply: {"endpoints": [...help list...], "ok": true}  (no frames key; /reflexium is not routed on the debug port)
+resolution: frame_mark, frame_stats_from and reflex_timings were POSTed to the harness /reflexium endpoint (port 25910, bearer auth) instead.
+
+--- raw error 2 (harness key injection, title/none screen) ---
+command: POST http://127.0.0.1:25910/key {"scancode":"60","keycode":"1073741888","modifiers":"0"}
+reply: {"ok":false,"error":"HarnessException: scancode requires an open screen"}
+note: the first F3 attempt used keycode 1073741888, which is SDL F7, not F3 (F3 = 1073741884).
+
+--- F3 on chat screen (scancode 60, keycode 1073741884) ---
+reply: screen=ChatScreen, ok. HUD screenshot (screenshots/A-on_boost-hud-gui.png) shows hotbar and chat, but no F3 overlay, so the Reflex latency line is NOT visible in that capture.
+
+--- raw error 3 (game log, window resize to 1600x900 at 06:35:48) ---
+Couldn't acquire next surface texture with config Optional[Configuration[width=1600, height=900, presentMode=IMMEDIATE]]
+com.mojang.renderpearl.api.device.SurfaceException: ... Failed to present image, swapchain out of date  (2 occurrences, followed by 'Swapchain created: 8 images ... 1600x900')
+
+--- raw error 4 (shutdown, gradle output) ---
+#@!@# Game crashed! Crash report saved to: run\crash-reports\crash-2026-10-23_06.36.59-client.txt
+> Task :runClient FAILED / BUILD FAILED in 12m 14s
+crash report: java.lang.Error: Watchdog (Client shutdown from post-main); threads: DestroyJavaVM, HTTP-Dispatcher x2 (jdk.httpserver); no Render thread in dump
+
+--- raw error 5 (script bug, my side, not the mod) ---
+PowerShell variable name collision: $session (token object) overwrote $script:Session (session.json path). Result: Get-Content -Raw parameter error and 'Bearer token required'. Fixed by renaming; no game state affected.
+
+--- startup log noise (06:24-06:25) ---
+[NGX] error: failed to load NGXCore: 126 (JDK bin _nvngx.dll / nvngx.dll). DLSS later reported built and evaluating frames (upscaler_built=dlss, evaluated_frames advancing).
+Authlib 401 InvalidCredentialsException, Realms ERROR lines: offline account, not Reflex related.

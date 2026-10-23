@@ -33,7 +33,7 @@ final class SetCommand {
 	static final List<String> KEYS = List.of(
 			// Player settings
 			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier", "fg_force_multiplier",
-			"reflex_mode", "smart_reflex", "pack_shadow_cap",
+			"reflex_mode", "pack_shadow_cap",
 			// Vanilla options
 			"vsync", "fullscreen", "pause", "improved_transparency", "crosshair_3d",
 			// Upscaling dev overrides
@@ -162,10 +162,6 @@ final class SetCommand {
 			case "reflex_mode" -> {
 				ReflexMode mode = parseEnum(ReflexMode.class, value);
 				yield () -> ReflexController.get().setMode(mode);
-			}
-			case "smart_reflex" -> {
-				boolean enabled = flag(value, true);
-				yield () -> ReflexiumConfig.get().setSmartReflex(enabled);
 			}
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);

@@ -98,25 +98,13 @@ typedef struct VkLatencySleepModeInfoNV {
 * Formula for integer FPS limit $N$: `minimumIntervalUs = 1000000 / N`.
 * Critical specification detail: Even if `lowLatencyMode` is set to `VK_FALSE`, the driver still respects and enforces `minimumIntervalUs`. Setting `minimumIntervalUs = 0` disables the internal limiter.
 
-### 1.8 VRR Auto-Cap Formula (G-Sync / V-Sync Integration)
-When Variable Refresh Rate (G-Sync / FreeSync) is active in combination with V-Sync, the framerate must remain within the monitor refresh window. If the framerate reaches or exceeds the monitor refresh rate ($Hz$), hardware V-Sync engages, causing queue backpressure and dramatic latency spikes.
-
-Reflexium uses this refresh-headroom heuristic:
-$$\text{Cap}(Hz) = \left\lfloor Hz - \frac{Hz^2}{3600} \right\rfloor$$
-
-Representative values:
-* 60 Hz display: $60 - 1 = 59$ FPS
-* 120 Hz display: $120 - 4 = 116$ FPS
-* 144 Hz display: $144 - 5.76 = 138$ FPS
-* 165 Hz display: $165 - 7.56 = 157$ FPS
-* 240 Hz display: $240 - 16 = 224$ FPS
-* 360 Hz display: $360 - 36 = 324$ FPS
-
-This formula provides non-linear headroom subtraction because millisecond variance per frame represents a much larger percentage of total frame time at high refresh rates.
-
-This is a project policy, not an official Vulkan G-Sync detection API. The current implementation
-uses Minecraft VSync as a proxy and cannot determine whether G-Sync is actually engaged. It also
-applies headroom on fixed-refresh VSync displays. Do not claim that it activates only under G-Sync.
+### 1.8 Frame Limiter Ownership
+Reflexium does not infer a Reflex cap from the refresh rate. The value sent as `minimumIntervalUs` is
+the player's Minecraft Max Framerate, including the menu and AFK throttles, multiplied by the
+presented-frame factor when frame generation is active. NVIDIA's refresh-headroom formula is display
+vendor and driver policy, not part of Reflex; applying it in the game silently changes the rate the
+player asked for. Frame generation still uses the refresh budget to choose its multiplier and output
+ceiling.
 
 ### 1.9 UI Naming, Branding, and Certification Rules
 According to NVIDIA RTX UI Developer Guidelines:
@@ -342,7 +330,7 @@ Status definitions:
 | Reflex Present ID Attribution | OK | `VulkanLifecycle.java:78, 101` | Present ID is chained via `VkLatencySubmissionPresentIdNV` on submit and `VkPresentIdKHR` on present. |
 | Reflex Boost Mode | OK | `ReflexController.java:231` | `lowLatencyBoost` correctly passed to `VkLatencySleepModeInfoNV`. |
 | Reflex Frame Limiter | OK | `ReflexController.java:171` | `minimumIntervalUs` calculated as `1000000 / fps` and applied via `vkSetLatencySleepModeNV`. |
-| Reflex VRR Auto-Cap | PARTIAL | `ReflexController.updateFrameLimit` | Refresh-headroom formula is implemented, but VSync is only a proxy. Actual G-Sync engagement is not detected. |
+| Reflex Frame Cap Policy | OK | `ReflexController.updateFrameLimit` | Uses only Minecraft's explicit Max Framerate. Automatic refresh-rate caps and adaptive pacing pauses were removed. |
 | Reflex PCL Markers when Off | OK (reviewed) | `ReflexController.marker` | marker() only requires a swapchain with low_latency2; it is not gated on the Reflex mode, so PC Latency stats keep working with Reflex Off. Earlier draft said WRONG by mistake. |
 | Reflex UI Naming | OK | `ReflexiumConfig.java`, UI screens | Uses "NVIDIA Reflex" with "Off", "On", "On + Boost". |
 | DLSS Required Buffer Formats | OK | `UpscalingRenderer.java:441` | Passes RGBA8/D32_FLOAT/RG16F, valid under NGX Vulkan requirements. |

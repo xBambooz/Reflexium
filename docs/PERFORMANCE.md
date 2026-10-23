@@ -243,7 +243,7 @@ In the normal set, Off spent about 0.76 ms per frame in RenderPearl submit inclu
 
 ## Reflex isolation and 800 us interval check, 14 October 2026
 
-Smart Reflex is disabled by default on this investigation branch. Every new measurement also explicitly sets `smart_reflex=0`; a pacing pause is not an accepted optimization. The test jar is SHA-256 `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`.
+Smart Reflex was removed on 23 October 2026. The measurements in this section predate the removal and explicitly disabled it; a pacing pause is not an accepted optimization. The test jar is SHA-256 `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`.
 
 The inherited `build/trace-tools/api-reflex-route.txt` is a detailed LunarG API dump of 50 sampled frames, numbered 10000 through 59000 at intervals of 1000. Each sampled frame has one `vkQueueSubmit2KHR` call with two `VkSubmitInfo2` batches, both tagged with the simulation ID, followed by one present carrying that same ID in `VkPresentIdKHR`. All simulation/render/present-start marker IDs match. There are no extra loader-visible NGX submissions in these samples. NGX receives the application's Vulkan resolver functions and records its SR work into supplied command buffers. Driver-private submissions remain outside this observation. [Trace summary and retained queue/pNext packets](benchmarks/bm/reflex-investigation/trace-summary.json).
 
@@ -253,7 +253,7 @@ A fresh dump of 32 consecutive active frames (LunarG 12000 through 12031, applic
 
 The old `reflex-images-20261014-A` measurements overlap the other agent's benchmark campaign and are excluded from performance conclusions. Nsight Systems is not installed. New GPU work waits until both Minecraft clients and benchmark parent processes have exited, including gaps between launches.
 
-The runtime-only `reflex_interval_us` debug override adds a minimum interval while retaining full Reflex sleep and any slower user/VRR cap. `-1` restores the normal setting. The 800 us hypothesis is that requesting an explicit 1250 FPS ceiling selects a better driver pacing path even when the actual rendered rate is below that ceiling. Status must show the requested interval, `reflex_sleeping=true` and `reflex_pacing_paused=false`.
+The runtime-only `reflex_interval_us` debug override adds a minimum interval while retaining full Reflex sleep and any slower user cap. `-1` restores the normal setting. The 800 us hypothesis is that requesting an explicit 1250 FPS ceiling selects a better driver pacing path even when the actual rendered rate is below that ceiling. Status must show the requested interval and `reflex_sleeping=true`.
 
 The native [reflex-reference.cpp](../tools/reflex-reference.cpp) isolates the driver without Minecraft, NGX, SDL or Java. It creates a non-activating secondary-monitor Win32 window, an Immediate three-image latency-enabled swapchain and a timeline sleep semaphore. It calibrates device-local buffer fills to roughly 1.1 ms GPU work, adds 350 us of simulated CPU work after sleep/input markers, and compares Off, On/0 us and On/800 us. It can use one submission batch or RenderPearl's two-batch layout. Its timestamps and driver reports are diagnostics for this transfer-heavy workload, not a game latency or mouse-feel acceptance test.
 

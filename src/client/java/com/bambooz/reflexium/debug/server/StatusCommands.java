@@ -50,8 +50,6 @@ final class StatusCommands {
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
 		o.addProperty("reflex_mode", config.reflexMode().name());
 		o.addProperty("reflex_status", reflex.statusLine());
-		o.addProperty("smart_reflex", config.smartReflex());
-		o.addProperty("reflex_pacing_paused", reflex.isPacingPaused());
 		o.addProperty("reflex_sleeping", reflex.isSleeping());
 		o.addProperty("reflex_latency", reflex.latencyLine());
 		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);

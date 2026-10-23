@@ -476,7 +476,7 @@ $definitions = @(
 $chosen = if ($Modes) { @($Modes.Split(',')) } elseif ($IncludeFG) { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance','fg2','fg4') } else { @('native','cnn-performance','tf-performance','tf-dlaa','fsr-performance') }
 # A mode may carry runtime overrides after '@', for example tf-performance@reflex_mode=off. Only keys listed
 # here are accepted; each is restored to its shipped value before the next capture that does not set it.
-$knobs = @{reflex_submission='1';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on';smart_reflex='0';reflex_interval_us='-1'}
+$knobs = @{reflex_submission='1';perf_uniforms='1';perf_depth='1';dlss_preset='-1';reflex_mode='on';reflex_interval_us='-1'}
 $selected = foreach ($entry in $chosen) {
     $parts = $entry.Split('@')
     $base = $definitions | Where-Object id -eq $parts[0]

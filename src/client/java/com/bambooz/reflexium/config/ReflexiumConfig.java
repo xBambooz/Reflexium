@@ -28,9 +28,6 @@ public final class ReflexiumConfig {
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
-	/** Shared with Sodium's reset-to-default; docs/SMART_REFLEX.md documents off. */
-	public static final boolean DEFAULT_SMART_REFLEX = false;
-	private volatile boolean smartReflex = DEFAULT_SMART_REFLEX;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DEFAULT_DLSS_MODEL;
@@ -76,10 +73,8 @@ public final class ReflexiumConfig {
 		save();
 	}
 
-	public boolean smartReflex() { return smartReflex; }
 	public boolean postUpscaleParticles() { return postUpscaleParticles; }
 	public void setPostUpscaleParticles(boolean value) { postUpscaleParticles = value; save(); }
-	public void setSmartReflex(boolean value) { smartReflex = value; save(); }
 
 	/** DLSS Super Resolution preset. Needs the Vulkan renderer. */
 	public UpscaleQuality upscaleQuality() {
@@ -167,9 +162,8 @@ public final class ReflexiumConfig {
 			return config;
 		}
 
-		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
+		// reflex_frame_limiter and smart_reflex (removed) are not read, so they are dropped on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
-		config.smartReflex = parseBoolean(props, "smart_reflex", config.smartReflex);
 		config.postUpscaleParticles = parseBoolean(props, "post_upscale_particles", config.postUpscaleParticles);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
@@ -202,7 +196,6 @@ public final class ReflexiumConfig {
 	private synchronized void save() {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
-		props.setProperty("smart_reflex", Boolean.toString(smartReflex));
 		props.setProperty("post_upscale_particles", Boolean.toString(postUpscaleParticles));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());

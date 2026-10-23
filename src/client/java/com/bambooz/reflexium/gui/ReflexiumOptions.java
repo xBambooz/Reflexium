@@ -55,11 +55,6 @@ public final class ReflexiumOptions {
 				value -> ReflexController.get().setMode(value));
 	}
 
-	public static OptionInstance<Boolean> smartReflex() {
-		return OptionInstance.createBoolean("reflexium.option.smart_reflex",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.smart_reflex.tooltip")),
-				ReflexiumConfig.get().smartReflex(), ReflexiumConfig.get()::setSmartReflex);
-	}
 	public static OptionInstance<Boolean> postUpscaleParticles() {
 		return OptionInstance.createBoolean("reflexium.option.post_upscale_particles",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.post_upscale_particles.tooltip")),

@@ -54,8 +54,7 @@ public abstract class MinecraftMixin {
 			target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=frameLimiter"))
 	private void reflexium$observeFrameLimit(boolean advanceGameTime, CallbackInfo ci) {
 		Minecraft minecraft = (Minecraft) (Object) this;
-		ReflexController.get().updateFrameLimit(minecraft.gameRenderer.gameRenderState().framerateLimit,
-				minecraft.options.enableVsync().get(), minecraft.getWindow());
+		ReflexController.get().updateFrameLimit(minecraft.gameRenderer.gameRenderState().framerateLimit, minecraft.getWindow());
 	}
 
 	/** While Reflex paces frames with the same cap, vanilla's extra post-present sleep would only add latency. */
