@@ -4,6 +4,12 @@ Targets DH `3.3.5-dev` and the supported Iris `1.12.0-snapshot+mc26.3` Vulkan bu
 Both integrations use reflection and optional mixins, without a DH or Iris compile dependency.
 Unknown DH versions or invalid captured resources disable upscaling with a log message.
 
+The Iris Vulkan b3 artifact (`iris-fabric-1.12.0-b3+mc26.3-local.jar`) is also supported.
+It reports the same internal version as the earlier snapshot. Reflexium prepares DH depth
+at the end of `beginLevelRendering`, before terrain opens its render pass. This prevents
+b3's depth resize/clear from running inside that pass when upscaling changes resolution.
+See [b3 validation](validation/iris-b3.md) for artifact identity and smoke-test coverage.
+
 ## Inputs
 
 - Native DH contributes its D32 depth view and the exact `dhMvmProjMatrix` uploaded by

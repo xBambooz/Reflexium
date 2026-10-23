@@ -8,6 +8,7 @@
 		"CommonUniformsMixin",
 		"FoliageSurfaceMixin",
 		"DhProjectionMixin",
+		"DhDepthResizeMixin",
 		"IncludeGraphMixin",
 		"IrisPipelineProfileMixin",
 		"HandRendererMixin",

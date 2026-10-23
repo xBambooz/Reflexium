@@ -127,15 +127,19 @@ public final class DistantHorizonsCheck {
 	}
 
 	private static void abi() throws Exception {
-		String appData = System.getenv("APPDATA");
-		if (appData == null) return;
-		Path mods = Path.of(appData, "ModrinthApp/profiles/Fabric 26.3/mods");
-		for (String name : new String[] {"DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar", "iris-fabric-1.12.0-snapshot+mc26.3-local.jar"}) {
-			Path path = mods.resolve(name);
-			if (!Files.isRegularFile(path)) { System.out.println("DH ABI check skipped: " + path); continue; }
+		for (String property : new String[] {"reflexium.dhJar", "reflexium.irisJar"}) {
+			boolean dh = property.equals("reflexium.dhJar");
+			Path path = Path.of(System.getProperty(property, dh
+					? "run/mods/DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar"
+					: "run/mods/iris-fabric-experimental-build-26.3.jar"));
+			if (!Files.isRegularFile(path)) {
+				if (System.getProperty(property) != null) throw new AssertionError("Requested ABI jar missing: " + path);
+				System.out.println("DH ABI check skipped: " + path);
+				continue;
+			}
 			try (ZipFile zip = new ZipFile(path.toFile())) {
 				String render = "(Lcom/seibel/distanthorizons/api/methods/events/sharedParameterObjects/DhApiRenderParam;ZLcom/seibel/distanthorizons/api/objects/util/IDhApiReadOnlyList;)V";
-				if (name.startsWith("Distant")) {
+				if (dh) {
 					require(zip, "com/seibel/distanthorizons/common/render/blaze/BlazeDhTerrainRenderer", "render" + render);
 					require(zip, "com/seibel/distanthorizons/core/config/types/ConfigEntry", "setApiValue(Ljava/lang/Object;Ljava/lang/String;)V", "getApiUser()Ljava/lang/String;", "getApiValue()Ljava/lang/Object;");
 					require(zip, "com/seibel/distanthorizons/core/util/math/DhMat4f", "createJomlMatrix(Lcom/seibel/distanthorizons/api/objects/math/DhApiMat4f;)Lorg/joml/Matrix4f;");
@@ -143,8 +147,10 @@ public final class DistantHorizonsCheck {
 				} else {
 					require(zip, "net/irisshaders/iris/compat/dh/DHCompat", "getProjection(FF)Lorg/joml/Matrix4f;");
 					require(zip, "net/irisshaders/iris/compat/dh/DHCompatInternal", "renderTerrain" + render,
+							"current()Lnet/irisshaders/iris/compat/dh/DHCompatInternal;", "resizeDepth()V",
 							"getDepthTexture(Z)Lcom/mojang/renderpearl/api/textures/GpuTextureView;", "getProjection()Lorg/joml/Matrix4f;", "getModelView()Lorg/joml/Matrix4f;", "getFarPlane()F");
 				}
+				System.out.println("DH ABI checked: " + path);
 			}
 		}
 	}

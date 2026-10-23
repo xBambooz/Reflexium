@@ -113,6 +113,9 @@ assertionChecks.each { name, main ->
 		classpath = sourceSets.test.runtimeClasspath
 		mainClass = main
 		workingDir = projectDir
+		for (property in ["reflexium.irisJar", "reflexium.dhJar"]) {
+			if (providers.gradleProperty(property).isPresent()) systemProperty property, providers.gradleProperty(property).get()
+		}
 	}
 	tasks.named("check") { dependsOn name }
 }

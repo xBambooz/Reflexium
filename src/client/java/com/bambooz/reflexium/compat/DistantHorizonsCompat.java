@@ -38,6 +38,7 @@ public final class DistantHorizonsCompat {
 	private static Field renderProxy, resultSuccess, resultPayload, nativeViewProjection, nativeFar;
 	private static Method depthWrapper, wrappedObjects, toJoml;
 	private static Method irisDepth, irisProjection, irisView, irisFar, irisShadows;
+	private static Method irisCurrent, irisResizeDepth;
 
 	private DistantHorizonsCompat() {
 	}
@@ -146,6 +147,23 @@ public final class DistantHorizonsCompat {
 			frame = checkedFrame((GpuTextureView) textures[1], viewProjection, nativeFar.getFloat(params));
 		} catch (FrameNotReady e) {
 			retryFrame(e);
+		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+			disable(e);
+		}
+	}
+
+	/** Resize before terrain opens a pass. Iris b3 cannot clear resized DH depth inside that pass. */
+	public static void prepareIrisDepth() {
+		if (!isSupportedVersion() || broken) return;
+		try {
+			if (irisCurrent == null) {
+				Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
+				irisCurrent = type.getMethod("current");
+				irisResizeDepth = type.getDeclaredMethod("resizeDepth");
+				irisResizeDepth.setAccessible(true);
+			}
+			Object compat = irisCurrent.invoke(null);
+			if (compat != null) irisResizeDepth.invoke(compat);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			disable(e);
 		}

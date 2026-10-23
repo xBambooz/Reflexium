@@ -160,7 +160,7 @@ public final class IrisCompat {
 
 	/** The inspected experimental Vulkan build. Stable OpenGL Iris never reaches Reflexium's Vulkan path. */
 	public static boolean isSupportedVersion() {
-		// Exact: every hook below was checked against this artifact. A newer snapshot reports unsupported.
+		// The original Vulkan build and b3 share this version; validate each artifact with irisCompatCheck.
 		return isLoaded() && version().equals(SUPPORTED);
 	}
 
