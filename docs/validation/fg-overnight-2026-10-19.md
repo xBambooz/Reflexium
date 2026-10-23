@@ -120,7 +120,7 @@ layer was installed in this session. The encoder/ring change still requires sync
 
 The new opt-in harness plugin request `reflexium?fg_capture=1&dir=<absolute directory>` reads the real
 target and every requested generated target at one render-thread boundary, with metadata. It does not
-compare unrelated screenshot requests. `tools/CompareFgCapture.java` checks scene pixels above the HUD.
+compare unrelated screenshot requests. `tools/investigations/CompareFgCapture.java` checks scene pixels above the HUD.
 
 Inspected `panbatch`, `primary-panbatch` and `primary-motionbatch` images. In the primary moving-camera
 batch, generated0 differed from real in 26.7623% of scene pixels (mean RGB error 0.393764/255),
@@ -495,7 +495,7 @@ identity; it does not measure particle correspondence or interpolation accuracy.
 ### Reflex marker and present trace
 
 [Full 32-frame API trace](fg-evidence-2026-10-19/round4/trace.log), frames **93438..93469**, checked by
-`node tools/CheckFgTrace.mjs <trace.log>`: **PASS**. All 32 frames have one successful sleep and one
+`node tools/investigations/CheckFgTrace.mjs <trace.log>`: **PASS**. All 32 frames have one successful sleep and one
 ordered input/simulation/submit/present marker sequence. There are **94 physical presents**, comprising
 32 real and 62 generated, with **62 replacement submits**. Every batch present and replacement submit
 has balanced out-of-band markers. Frame 93438 is rendered-only while Auto changes 2x to 3x and resets
@@ -547,10 +547,10 @@ checker pass. Only unrelated dev-session authentication errors and rejected expl
 requests occurred; accepted captures have empty reconstruction errors. Owned client cleanup and
 FG Off smoke completed before final shutdown/build.
 
-Reproduce with `tools/fg-round4.mjs` modes `setup`, `stress`, `before`, `after`, `trace`, `quality`,
+Reproduce with `tools/investigations/fg-round4.mjs` modes `setup`, `stress`, `before`, `after`, `trace`, `quality`,
 `cleanup`, `quit`. It rejects a session directory outside this worktree and uses MCP's verified
-shutdown. `node tools/CheckFgRound4.mjs` checks saved raw capture statuses;
-`java tools/FgRound4Evidence.java <absolute-worktree>` regenerates sheets.
+shutdown. `node tools/investigations/CheckFgRound4.mjs` checks saved raw capture statuses;
+`java tools/investigations/FgRound4Evidence.java <absolute-worktree>` regenerates sheets.
 The trace checker runs directly on the committed log without Minecraft.
 
 Remaining: replayed world effects and occlusion are current-real-frame samples shared by generated

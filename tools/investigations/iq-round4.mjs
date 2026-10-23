@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..','..');
 const out=path.join(root,'build/validation/round4');
 await fs.mkdir(out,{recursive:true});
 const session=JSON.parse((await fs.readFile('C:/Users/Ryan/source/repos/mc-agent-harness/instances/25614/session.json','utf8')).replace(/^\uFEFF/,''));

@@ -17,7 +17,7 @@ The expected black topmost overlay was left in place. Render-target images can e
 - Native, CNN E Quality/Balanced/Performance, Transformer K Quality/Balanced and M Performance, shaderless and BSL v10.1.8 HIGH. Forward then reverse mode order in each JVM, one baseline JVM and one candidate JVM. Eight seconds after shader toggle, four seconds after each mode change. This is not fresh-JVM ABBA with BM conditioning; cold-capture and launch drift remain additional reasons not to accept an FPS delta.
 - Separate four-second uninstrumented frame-interval samples and four-second instrumented samples. No status polling within either interval. Raw before/after state and port-25612 availability retained per sample. FPS comes only from uninstrumented rows.
 - GPU timestamp pairs at bottom-of-pipe, one sampled frame per 16, 16-slot ring, availability-only reads, no query WAIT. CPU timings cover every instrumented frame. Pending tail GPU queries need not have drained at stop. Nested spans are not additive. GPU world residual is world-including-upscaling minus its measured child spans, an attribution estimate rather than an independently measured world-only pass.
-- `tools/perf-overnight.ps1` reproduces the matrix. Raw JSONL and environment/mod hashes: `docs/benchmarks/perf-overnight-2026-10-19/`.
+- `tools/investigations/perf-overnight.ps1` reproduces the matrix. Raw JSONL and environment/mod hashes: `docs/benchmarks/perf-overnight-2026-10-19/`.
 
 ## Reference costs and interpretation
 
@@ -145,4 +145,4 @@ Opened and inspected the retained BSL Performance still, camera-motion output, p
 
 On continuation, no owned game JVM remained. Another worktree's harness client was running and was left untouched. No new GPU measurements were taken. Re-ran `gradlew.bat build --console=plain -PreflexiumInstallDir=<this-worktree>/build/perf-install`: BUILD SUCCESSFUL, including profiler, Iris ABI, DLSS math, object motion, upscaling contract, frame delivery and Reflex timing checks. No source changes were needed after runtime commit `8150bbc`.
 
-`tools/summarize-perf-overnight.ps1` regenerates `summary.json` and `build/perf-tables.md` from the retained raw JSONL without requiring a running client. The branch remains unmerged.
+`tools/investigations/summarize-perf-overnight.ps1` regenerates `summary.json` and `build/perf-tables.md` from the retained raw JSONL without requiring a running client. The branch remains unmerged.

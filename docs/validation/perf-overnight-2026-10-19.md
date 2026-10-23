@@ -17,7 +17,7 @@ The expected black topmost overlay was left in place. Render-target images can e
 - Native, CNN E Quality/Balanced/Performance, Transformer K Quality/Balanced and M Performance, shaderless and BSL v10.1.8 HIGH. Forward then reverse mode order in each JVM, one baseline JVM and one candidate JVM. Eight seconds after shader toggle, four seconds after each mode change. This is not fresh-JVM ABBA with BM conditioning; cold-capture and launch drift remain additional reasons not to accept an FPS delta.
 - Separate four-second uninstrumented frame-interval samples and four-second instrumented samples. No status polling within either interval. Raw before/after state and port-25612 availability retained per sample. FPS comes only from uninstrumented rows.
 - GPU timestamp pairs at bottom-of-pipe, one sampled frame per 16, 16-slot ring, availability-only reads, no query WAIT. CPU timings cover every instrumented frame. Pending tail GPU queries need not have drained at stop. Nested spans are not additive. GPU world residual is world-including-upscaling minus its measured child spans, an attribution estimate rather than an independently measured world-only pass.
-- `tools/perf-overnight.ps1` reproduces the matrix. Raw JSONL and environment/mod hashes: `docs/benchmarks/perf-overnight-2026-10-19/`.
+- `tools/investigations/perf-overnight.ps1` reproduces the matrix. Raw JSONL and environment/mod hashes: `docs/benchmarks/perf-overnight-2026-10-19/`.
 
 ## Reference costs and interpretation
 
@@ -47,7 +47,7 @@ Rejected profiler attempt: `e97bf69` included an invalid whole-surface-call time
 
 ## Round 2: what does not scale with render resolution (BSL v10.1.8 HIGH, 1440p)
 
-Same scene, hardware, harness client (port 25632, isolated copy of `run`), FG off, Reflex On, sharpness 20 and method as above, run on the primary monitor with no other Minecraft client rendering (every sample waits until ports 25612 and 25641 and all other harness JVMs are gone). Raw rows: `docs/benchmarks/perf-overnight-2026-10-19/r2-*.jsonl`; `tools/perf-overnight-summary.ps1` rebuilds the table. Two passes per mode, forward then reverse, one JVM per jar. These are the same indicative fixed-camera diagnostics as Round 1, not acceptance.
+Same scene, hardware, harness client (port 25632, isolated copy of `run`), FG off, Reflex On, sharpness 20 and method as above, run on the primary monitor with no other Minecraft client rendering (every sample waits until ports 25612 and 25641 and all other harness JVMs are gone). Raw rows: `docs/benchmarks/perf-overnight-2026-10-19/r2-*.jsonl`; `tools/investigations/perf-overnight-summary.ps1` rebuilds the table. Two passes per mode, forward then reverse, one JVM per jar. These are the same indicative fixed-camera diagnostics as Round 1, not acceptance.
 
 Jars: before `build/perf-jars/r2-before-iris-timers.jar` (`d89f552`, SHA-256 `92DCA0FCFC84D286662BB7667E2EF71BFA6E6D3DA5315A508D7625A2F3841FC7`), after `build/perf-jars/r2-after-shadowcap.jar` (`191690b`, SHA-256 `96E90055C06D9E8D51A8D015ABEB36690A3285EB21F9C61F5DB21EB1D895EDC0`). The "before" jar only adds GPU timestamps, so it is the Round 1 behavior.
 
@@ -89,7 +89,7 @@ Shadow distance sets the shadow pass cost (geometry). Map resolution barely move
 ### Changes
 
 - `d89f552`: opt-in GPU timestamps for the shadow pass, begin/deferred/composite/final chains and each world phase (sky, terrain, cutout, entities, translucent, clouds, hand), CPU spans included. Instrumentation only, the baseline for this round.
-- `ea792b0`: `tools/perf-overnight.ps1` waits for competing harness clients before each sample and takes `-Reflex`; raw Round 2 captures.
+- `ea792b0`: `tools/investigations/perf-overnight.ps1` waits for competing harness clients before each sample and takes `-Reflex`; raw Round 2 captures.
 - `191690b`: opt-in `pack_shadow_resolution_cap` and `pack_shadow_distance_cap` in `reflexium.properties` (debug key `pack_shadow_cap=<resolution>,<distance>`). They clamp the pack's `shadowMapResolution` and `shadowDistance` option values for the compile only, to the largest allowed value at or below the cap, and only while Reflexium owns upscaling. Both default to 0, which never touches a pack's values; the saved option file is not written. Packs without those option names are unaffected. A change recompiles the pack.
 
 No default behavior changed, so the default rows are a regression check, not a gain.

@@ -1,5 +1,5 @@
 param([string[]]$Labels = @('r2-before'), [string]$Scene = 'bsl')
-$dir = Join-Path (Split-Path -Parent $PSScriptRoot) 'docs/benchmarks/perf-overnight-2026-10-19'
+$dir = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'docs/benchmarks/perf-overnight-2026-10-19'
 $modes = 'native','cnn-quality','cnn-balanced','cnn-performance','transformer-quality','transformer-balanced','transformer-performance'
 function Mean($v) { if (@($v).Count -eq 0) { return $null }; ($v | Measure-Object -Average).Average }
 foreach ($label in $Labels) {

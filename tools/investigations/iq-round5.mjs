@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {dispatch} from 'file:///C:/Users/Ryan/source/repos/mc-agent-harness/tools/mcp-server.mjs';
-const root=path.resolve(import.meta.dirname,'..'), out=path.join(root,'build/validation/round5');
+const root=path.resolve(import.meta.dirname,'..','..'), out=path.join(root,'build/validation/round5');
 const session=JSON.parse((await fs.readFile('C:/Users/Ryan/source/repos/mc-agent-harness/instances/25616/session.json','utf8')).replace(/^\uFEFF/,''));
 if(path.resolve(session.game_directory)!==path.join(root,'run')) throw Error('Wrong owned directory');
 async function call(endpoint,params={}) {const response=await dispatch({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'mc_call',arguments:{port:25616,endpoint,params}}});const content=response.result?.content??response.content;const result=JSON.parse(content.find(c=>c.type==='text').text);if(!result.ok)throw Error(JSON.stringify(result));return result;}

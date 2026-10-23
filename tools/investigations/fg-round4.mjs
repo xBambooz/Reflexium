@@ -2,7 +2,7 @@ import {dispatch} from 'file:///C:/Users/Ryan/source/repos/mc-agent-harness/tool
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..','..');
 const session=JSON.parse((await fs.readFile('C:/Users/Ryan/source/repos/mc-agent-harness/instances/25624/session.json','utf8')).replace(/^\uFEFF/,''));
 if(path.resolve(session.game_directory)!==path.join(root,'run'))throw Error('Wrong owned client');
 const out=root+'/build/fg-round4';

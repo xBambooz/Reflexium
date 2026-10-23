@@ -5,7 +5,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'build/validation/defaults'
 SESSION = Path('C:/Users/Ryan/source/repos/mc-agent-harness/instances/25671/session.json')
 

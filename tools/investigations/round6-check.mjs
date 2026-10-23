@@ -1,6 +1,6 @@
 ﻿import fs from "node:fs/promises";
 import path from "node:path";
-const root=path.resolve(import.meta.dirname,".."),out=process.argv[2]?path.resolve(process.argv[2]):path.join(root,"build/validation/round6");
+const root=path.resolve(import.meta.dirname,"..",".."),out=process.argv[2]?path.resolve(process.argv[2]):path.join(root,"build/validation/round6");
 const results=[];
 for(const name of await fs.readdir(out)){
  if(!name.endsWith(".json")||name.includes("status"))continue;

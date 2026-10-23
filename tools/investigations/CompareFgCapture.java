@@ -2,7 +2,7 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
-/** java tools/CompareFgCapture.java <batch directory>. Compare scene pixels, excluding the HUD. */
+/** java tools/investigations/CompareFgCapture.java <batch directory>. Compare scene pixels, excluding the HUD. */
 class CompareFgCapture {
     public static void main(String[] args) throws Exception {
         Path dir = Path.of(args[0]);

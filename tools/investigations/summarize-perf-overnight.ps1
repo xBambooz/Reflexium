@@ -1,4 +1,4 @@
-﻿$root=(Split-Path -Parent $PSScriptRoot)
+﻿$root=(Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 $dir=Join-Path $root 'docs/benchmarks/perf-overnight-2026-10-19'
 $rows=@(foreach($phase in @('before','after')) {Get-Content (Join-Path $dir "$phase.jsonl")|ForEach-Object{$_|ConvertFrom-Json}})
 function Span($profiles,[string]$Name,[bool]$Cpu=$false) {

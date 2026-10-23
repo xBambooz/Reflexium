@@ -58,6 +58,8 @@ game runs on the render thread.
 
 ### `set` keys
 
+The table covers the common keys. `/` (help) and an unknown-key error list every key (`SetCommand.KEYS`).
+
 | Key | Values | Notes |
 | --- | --- | --- |
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | Same as the config value |
@@ -275,4 +277,4 @@ metering feedback and AMD scheduler present counts. These counters do not measur
 
 ### BSL foliage diagnostics
 
-`foliage_depth_debug=1` displays the BSL foliage merge gate after reconstruction: green accepted, red rejected by scene/hand depth, black no foliage coverage. The display uses the render-size attachment with nearest sampling and does not feed diagnostic vectors into DLSS. `foliage_clear=0` disables the explicit frame-start attachment clear for a dev A/B; restore `1` afterward. Both reset with the JVM. `observed.bsl_foliage_surface_cleared` reports a clear actually issued for the captured frame. See IQ Round 5 and `tools/iq-round5.mjs` for the owned-client reproduction.
+`foliage_depth_debug=1` displays the BSL foliage merge gate after reconstruction: green accepted, red rejected by scene/hand depth, black no foliage coverage. The display uses the render-size attachment with nearest sampling and does not feed diagnostic vectors into DLSS. `foliage_clear=0` disables the explicit frame-start attachment clear for a dev A/B; restore `1` afterward. Both reset with the JVM. `observed.bsl_foliage_surface_cleared` reports a clear actually issued for the captured frame. See IQ Round 5 and `tools/investigations/iq-round5.mjs` for the owned-client reproduction.

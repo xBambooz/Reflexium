@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..','..');
 const out=root+'/docs/validation/fg-evidence-2026-10-19/round4';await fs.mkdir(out,{recursive:true});
 const captures=[];
 for(const arm of ['before','after'])for(const scene of ['smoke','rain'])for(const multiplier of ['2','auto']){

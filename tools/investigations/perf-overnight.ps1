@@ -8,7 +8,7 @@ param(
     [string[]]$Modes = @('native','cnn-quality','cnn-balanced','cnn-performance','transformer-quality','transformer-balanced','transformer-performance')
 )
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $out = Join-Path $root 'docs/benchmarks/perf-overnight-2026-10-19'
 New-Item -ItemType Directory -Force $out | Out-Null
 $session = Get-Content "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$Port/session.json" -Raw | ConvertFrom-Json

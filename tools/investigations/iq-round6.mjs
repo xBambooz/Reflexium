@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {dispatch} from "file:///C:/Users/Ryan/source/repos/mc-agent-harness/tools/mcp-server.mjs";
-const root=path.resolve(import.meta.dirname,".."), out=path.join(root,"build/validation/round6");
+const root=path.resolve(import.meta.dirname,"..",".."), out=path.join(root,"build/validation/round6");
 async function tool(name,args){const r=await dispatch({jsonrpc:"2.0",id:1,method:"tools/call",params:{name,arguments:args}});const c=r.result?.content??r.content;const v=JSON.parse(c.find(x=>x.type==="text").text);if(r.result?.isError||!v.ok&&name!=="mc_launch")throw Error(JSON.stringify(v));return v;}
 async function call(endpoint,params={}){const s=JSON.parse((await fs.readFile("C:/Users/Ryan/source/repos/mc-agent-harness/instances/25618/session.json","utf8")).replace(/^\uFEFF/,""));if(path.resolve(s.game_directory)!==path.join(root,"run"))throw Error("Wrong owned directory");return tool("mc_call",{port:25618,endpoint,params});}
 const set=(key,value)=>call("reflexium",{key,value:String(value)});
