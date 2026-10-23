@@ -179,7 +179,7 @@ public final class ReflexiumConfig {
 		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.fgForceMultiplier = Boolean.parseBoolean(props.getProperty("fg_force_multiplier", "false"));
-	config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
+		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
 		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
@@ -210,7 +210,7 @@ public final class ReflexiumConfig {
 		props.setProperty("fsr_sharpness", Integer.toString(fsrSharpness));
 		props.setProperty("frame_generation", frameGeneration.serializedName());
 		props.setProperty("fg_force_multiplier", Boolean.toString(fgForceMultiplier));
-	props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
+		props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
 		props.setProperty("pack_shadow_resolution_cap", Integer.toString(packShadowResolutionCap));
 		props.setProperty("pack_shadow_distance_cap", Integer.toString(packShadowDistanceCap));

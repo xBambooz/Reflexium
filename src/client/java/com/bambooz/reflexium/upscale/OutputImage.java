@@ -1,7 +1,6 @@
 package com.bambooz.reflexium.upscale;
 
 import com.bambooz.reflexium.vulkan.ImageRef;
-import com.bambooz.reflexium.upscale.dlss.NgxBridge;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;

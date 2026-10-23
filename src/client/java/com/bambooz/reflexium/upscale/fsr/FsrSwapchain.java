@@ -3,7 +3,6 @@ package com.bambooz.reflexium.upscale.fsr;
 import com.bambooz.reflexium.upscale.NativeLibraries;
 import com.bambooz.reflexium.vulkan.ImageRef;
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.upscale.dlss.NgxBridge;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import org.lwjgl.system.MemoryStack;

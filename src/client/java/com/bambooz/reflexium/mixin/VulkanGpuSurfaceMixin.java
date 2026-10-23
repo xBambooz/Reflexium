@@ -19,7 +19,6 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface;
-import com.mojang.renderpearl.backend.vulkan.VulkanUtils;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VK12;

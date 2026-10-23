@@ -7,7 +7,6 @@ import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.Minecraft;

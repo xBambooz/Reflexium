@@ -21,7 +21,6 @@ public final class ReflexiumClient implements ClientModInitializer {
 		ReflexiumConfig config = ReflexiumConfig.get();
 		LOGGER.info("Reflexium loaded (Reflex: {}, Vitrail: {}, Aperture: {})",
 				config.reflexMode().displayName(),
-				
 				VitrailCompat.version(),
 				ApertureCompat.status());
 		DebugServer.startIfRequested();

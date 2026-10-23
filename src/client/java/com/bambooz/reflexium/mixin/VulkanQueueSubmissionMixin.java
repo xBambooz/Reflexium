@@ -14,7 +14,6 @@ import org.lwjgl.vulkan.VkSubmitInfo2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 /** Tags every queue submission with the current Reflex frame id (VkLatencySubmissionPresentIdNV). */
 @Mixin(targets = "com.mojang.renderpearl.backend.vulkan.VulkanQueue$Submission")

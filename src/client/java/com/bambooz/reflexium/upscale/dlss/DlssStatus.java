@@ -17,11 +17,6 @@ public record DlssStatus(boolean prerequisitesMet, String reason, boolean extens
 		return new DlssStatus(extensionsEnabled, "", extensionsEnabled, Set.copyOf(featureDlls));
 	}
 
-	/** {@link #summary()} without the feature DLL list, for narrow screens. */
-	public String shortSummary() {
-		return reason.isEmpty() && extensionsEnabled ? "prerequisites met" : summary();
-	}
-
 	public String summary() {
 		if (!reason.isEmpty()) {
 			return reason;

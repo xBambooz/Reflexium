@@ -23,7 +23,6 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
-import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Matrix4fc;
@@ -144,7 +143,7 @@ public final class FrameGenerationRenderer {
 	public int configuredGeneratedCount() {
 		if (!ReflexiumConfig.get().frameGeneration().nvidia()) return 0;
 		refreshPolicy.force(ReflexiumConfig.get().fgForceMultiplier());
-	refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
+		refreshPolicy.configure(ReflexiumConfig.get().frameGenerationMultiplier(), maximumMultiplier());
 		return Math.max(0, refreshPolicy.multiplier() - 1);
 	}
 	public int requestedGeneratedCount() {

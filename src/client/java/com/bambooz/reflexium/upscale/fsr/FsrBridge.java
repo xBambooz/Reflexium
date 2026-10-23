@@ -2,7 +2,6 @@ package com.bambooz.reflexium.upscale.fsr;
 
 import com.bambooz.reflexium.upscale.NativeLibraries;
 import com.bambooz.reflexium.vulkan.ImageRef;
-import com.bambooz.reflexium.upscale.dlss.NgxBridge;
 
 import java.io.IOException;
 import java.lang.foreign.*;
