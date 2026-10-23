@@ -1,19 +1,22 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.NgxBridge;
 import com.bambooz.reflexium.dlss.DlssSupport;
-import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
+import com.bambooz.reflexium.dlss.NgxBridge;
 import com.mojang.renderpearl.backend.vulkan.VulkanFeatureSets;
+import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
 import com.mojang.renderpearl.backend.vulkan.init.FeatureSet;
 import com.mojang.renderpearl.backend.vulkan.init.VulkanFeature;
 import com.mojang.renderpearl.backend.vulkan.init.VulkanPNextStruct;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRPresentId;
 import org.lwjgl.vulkan.NVLowLatency2;
-import org.lwjgl.vulkan.VkPhysicalDevicePresentIdFeaturesKHR;
-import org.lwjgl.vulkan.VkPhysicalDeviceSubgroupSizeControlFeatures;
 import org.lwjgl.vulkan.NVPresentMetering;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkExtensionProperties;
+import org.lwjgl.vulkan.VkPhysicalDevicePresentIdFeaturesKHR;
 import org.lwjgl.vulkan.VkPhysicalDevicePresentMeteringFeaturesNV;
+import org.lwjgl.vulkan.VkPhysicalDeviceSubgroupSizeControlFeatures;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -109,12 +112,12 @@ public final class DeviceExtensions {
 				? vanilla.composite(requested) : vanilla;
 	}
 	private static int extensionRevision(VulkanPhysicalDevice device) {
-		try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
+		try (var stack = MemoryStack.stackPush()) {
 			var count = stack.callocInt(1);
-			if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, null) != 0) return 0;
-			var extensions = org.lwjgl.vulkan.VkExtensionProperties.calloc(count.get(0));
+			if (VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, null) != 0) return 0;
+			var extensions = VkExtensionProperties.calloc(count.get(0));
 			try {
-				if (org.lwjgl.vulkan.VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, extensions) != 0) return 0;
+				if (VK10.vkEnumerateDeviceExtensionProperties(device.vkPhysicalDevice(), (String) null, count, extensions) != 0) return 0;
 				for (var extension : extensions) if (extension.extensionNameString().equals(NVLowLatency2.VK_NV_LOW_LATENCY_2_EXTENSION_NAME)) return extension.specVersion();
 				return 0;
 			} finally {

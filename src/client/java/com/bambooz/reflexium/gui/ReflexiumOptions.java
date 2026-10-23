@@ -4,19 +4,21 @@ import com.bambooz.reflexium.compat.IrisCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.config.ShadowDistanceCap;
 import com.bambooz.reflexium.config.ShadowResolutionCap;
-import com.bambooz.reflexium.dlss.UpscaleQuality;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
-import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
 import com.bambooz.reflexium.dlss.FrameGeneration;
 import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.dlss.UpscaleQuality;
+import com.bambooz.reflexium.dlss.Upscaler;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.OptionInstance;
+import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 /** Option widgets shared by Video Settings and the Mod Menu config screen. */
 public final class ReflexiumOptions {
@@ -164,10 +166,10 @@ public final class ReflexiumOptions {
 		return new OptionInstance<>("reflexium.option.fg_multiplier",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
 				(caption, value) -> Component.literal(value == 0 ? "Auto" : value + "x"),
-				new OptionInstance.Enum<>(java.util.stream.IntStream.concat(java.util.stream.IntStream.of(0), java.util.stream.IntStream.rangeClosed(2, maximum)).boxed().toList(), Codec.INT),
+				new OptionInstance.Enum<>(IntStream.concat(IntStream.of(0), IntStream.rangeClosed(2, maximum)).boxed().toList(), Codec.INT),
 				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
 	}
-	public static void addFrameGeneration(net.minecraft.client.gui.components.OptionsList list) {
+	public static void addFrameGeneration(OptionsList list) {
 		list.addBig(frameGeneration());
 		OptionInstance<Integer> multiplier = frameGenerationMultiplier();
 		list.addBig(multiplier);

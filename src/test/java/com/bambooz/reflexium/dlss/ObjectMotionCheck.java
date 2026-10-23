@@ -3,6 +3,12 @@ package com.bambooz.reflexium.dlss;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.feature.FeatureRendererType;
 import net.minecraft.client.renderer.feature.submit.SubmitNode;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 import java.nio.FloatBuffer;
 import java.util.List;
 
@@ -99,14 +105,14 @@ public final class ObjectMotionCheck {
 	}
 
 	/** One first-person hand frame: a single quad submitted with the given modelview, model-space x offset and UV variant. */
-	private static void handFrame(ObjectMotion motion, org.joml.Matrix4f modelView, float x, int count, int uvVariant) throws Exception {
+	private static void handFrame(ObjectMotion motion, Matrix4f modelView, float x, int count, int uvVariant) throws Exception {
 		motion.beginFrame(true, false);
 		motion.enterHand(modelView);
 		Node node = new Node(TYPE); motion.onSubmit(node); motion.leaveContext();
 		motion.observe(List.of(node)).iterator().next();
 		// The real arm uses entityTranslucent, including its fully opaque skin texels.
-		VertexConsumer capture = motion.capture(SINK, net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(
-				net.minecraft.resources.Identifier.withDefaultNamespace("textures/entity/player/wide/steve.png")));
+		VertexConsumer capture = motion.capture(SINK, RenderTypes.entityTranslucent(
+				Identifier.withDefaultNamespace("textures/entity/player/wide/steve.png")));
 		check(capture != SINK, "depth-writing blended hand must enter the velocity producer");
 		for (int i = 0; i < count; i++) {
 			capture.addVertex(x + i % 4 * 0.1f, i / 2 % 2 * 0.1f, -0.5f, -1, uvVariant + i % 4, i % 4, 0, 0, 0, 1, 0);
@@ -116,7 +122,7 @@ public final class ObjectMotionCheck {
 	private static void handAnimation() throws Exception {
 		ObjectMotion motion = new ObjectMotion();
 		// Vanilla's hand modelview is the camera rotation.
-		org.joml.Matrix4f view = new org.joml.Matrix4f().rotationY(0.4f);
+		Matrix4f view = new Matrix4f().rotationY(0.4f);
 		handFrame(motion, view, 0.0f, 4, 0);
 		check(motion.prepareHandDraws(false, false) == 0, "first hand frame has no history");
 		motion.endFrame();
@@ -125,29 +131,29 @@ public final class ObjectMotionCheck {
 		check(motion.prepareHandDraws(false, false) == 4, "swinging hand is drawn");
 		FloatBuffer out = FloatBuffer.allocate(28);
 		motion.writeHandVertices(out);
-		org.joml.Vector3f expectedNow = view.transformPosition(new org.joml.Vector3f(0.05f, 0, -0.5f), new org.joml.Vector3f());
-		org.joml.Vector3f expectedBefore = view.transformPosition(new org.joml.Vector3f(0, 0, -0.5f), new org.joml.Vector3f());
+		Vector3f expectedNow = view.transformPosition(new Vector3f(0.05f, 0, -0.5f), new Vector3f());
+		Vector3f expectedBefore = view.transformPosition(new Vector3f(0, 0, -0.5f), new Vector3f());
 		check(near(out.get(0), expectedNow.x) && near(out.get(1), expectedNow.y) && near(out.get(2), expectedNow.z), "current eye position");
 		check(near(out.get(3), expectedBefore.x) && near(out.get(4), expectedBefore.y) && near(out.get(5), expectedBefore.z), "previous eye position");
 		// The projected pixel displacement matches the known swing, independently of the camera.
-		org.joml.Matrix4f projection = new org.joml.Matrix4f().setPerspective((float) Math.toRadians(70), 16f / 9f, 1024, 0.05f, true);
-		org.joml.Vector4f now = projection.transform(new org.joml.Vector4f(expectedNow, 1));
-		org.joml.Vector4f before = projection.transform(new org.joml.Vector4f(expectedBefore, 1));
-		org.joml.Vector4f nowRead = projection.transform(new org.joml.Vector4f(out.get(0), out.get(1), out.get(2), 1));
-		org.joml.Vector4f beforeRead = projection.transform(new org.joml.Vector4f(out.get(3), out.get(4), out.get(5), 1));
+		Matrix4f projection = new Matrix4f().setPerspective((float) Math.toRadians(70), 16f / 9f, 1024, 0.05f, true);
+		Vector4f now = projection.transform(new Vector4f(expectedNow, 1));
+		Vector4f before = projection.transform(new Vector4f(expectedBefore, 1));
+		Vector4f nowRead = projection.transform(new Vector4f(out.get(0), out.get(1), out.get(2), 1));
+		Vector4f beforeRead = projection.transform(new Vector4f(out.get(3), out.get(4), out.get(5), 1));
 		check(near((beforeRead.x / beforeRead.w - nowRead.x / nowRead.w), (before.x / before.w - now.x / now.w)), "projected displacement");
 		check(Math.abs(before.x / before.w - now.x / now.w) > 1.0e-4f, "swing is a visible displacement");
 		motion.endFrame();
 		// A camera turn that carries the screen-fixed hand along: model positions rotate, eye positions do not change.
-		org.joml.Matrix4f turned = new org.joml.Matrix4f().rotationY(0.55f);
-		org.joml.Matrix4f carry = new org.joml.Matrix4f(turned).invert().mul(view);
+		Matrix4f turned = new Matrix4f().rotationY(0.55f);
+		Matrix4f carry = new Matrix4f(turned).invert().mul(view);
 		motion.beginFrame(true, false);
 		motion.enterHand(turned);
 		Node node = new Node(TYPE); motion.onSubmit(node); motion.leaveContext();
 		motion.observe(List.of(node)).iterator().next();
 		VertexConsumer capture = new ObjectMotion.Capture(SINK, current(motion), motion, true);
 		for (int i = 0; i < 4; i++) {
-			org.joml.Vector3f p = carry.transformPosition(new org.joml.Vector3f(0.05f + i % 4 * 0.1f, i / 2 % 2 * 0.1f, -0.5f), new org.joml.Vector3f());
+			Vector3f p = carry.transformPosition(new Vector3f(0.05f + i % 4 * 0.1f, i / 2 % 2 * 0.1f, -0.5f), new Vector3f());
 			capture.addVertex(p.x, p.y, p.z, -1, i % 4, i % 4, 0, 0, 0, 1, 0);
 		}
 		check(motion.prepareHandDraws(false, false) == 0, "camera rotation alone is no hand motion");

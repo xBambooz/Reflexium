@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /** Actual pack vertex deformation, evaluated twice with the two frames' parameters, not CPU mesh replay. */
 public final class ComplementaryMotionSource {
@@ -44,7 +45,7 @@ public final class ComplementaryMotionSource {
 			StringBuilder rewritten = new StringBuilder();
 			while (matcher.find()) {
 				String digits = matcher.group(1);
-				String targets = digits.chars().mapToObj(c -> String.valueOf((char)c)).collect(java.util.stream.Collectors.joining(","));
+				String targets = digits.chars().mapToObj(c -> String.valueOf((char)c)).collect(Collectors.joining(","));
 				matcher.appendReplacement(rewritten, "/* RENDERTARGETS: " + targets + "," + (water ? 15 : 14) + " */");
 			}
 			matcher.appendTail(rewritten); source = rewritten.toString();

@@ -3,17 +3,18 @@ package com.bambooz.reflexium.dlss;
 import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.mixin.GameRendererAccessor;
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WeatherEffectRenderer;
-import net.minecraft.client.renderer.state.level.WeatherRenderState;
 import net.minecraft.client.renderer.ProjectionMatrixBuffer;
 import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.WeatherEffectRenderer;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
-import net.minecraft.client.renderer.state.level.ParticlesRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.level.ParticlesRenderState;
+import net.minecraft.client.renderer.state.level.WeatherRenderState;
 import org.joml.Matrix4f;
 
 import java.util.Optional;
@@ -34,7 +35,7 @@ public final class DeferredEffects {
 	public static boolean enabled() {
 		// A post chain must transform particles with the world. Until it can replay per output, retain vanilla order.
 		return DebugSettings.deferParticles && ReflexiumConfig.get().postUpscaleParticles() && available()
-				&& (!FrameGenerationRenderer.get().wantsMotion() || ((com.bambooz.reflexium.mixin.GameRendererAccessor)
+				&& (!FrameGenerationRenderer.get().wantsMotion() || ((GameRendererAccessor)
 				Minecraft.getInstance().gameRenderer).reflexium$appliedPostEffects().isEmpty());
 	}
 	// OIT requires a display-size transparency composition contract; preserve vanilla ordering there.

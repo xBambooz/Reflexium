@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.compat.ComplementaryHdr;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.backend.vulkan.VulkanConst;
 import org.lwjgl.vulkan.VK10;
@@ -23,7 +24,7 @@ public abstract class VulkanConstMixin {
 			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
 		}
 		if (format == GpuFormat.RGBA16_FLOAT && (usage & 8) != 0
-				&& com.bambooz.reflexium.compat.ComplementaryHdr.ENABLED && com.bambooz.reflexium.compat.ComplementaryHdr.storageSupported()) {
+				&& ComplementaryHdr.ENABLED && ComplementaryHdr.storageSupported()) {
 			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
 		}
 	}

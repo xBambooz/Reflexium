@@ -1,6 +1,15 @@
 package com.bambooz.reflexium.compat;
 
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+
+import java.lang.reflect.Proxy;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -9,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
 
 /**
  * No game needed. Checks the exact-hash source edits against the reviewed pack as Iris reads it, the fail-safe
@@ -39,18 +46,18 @@ public final class IrisCompatCheck {
 		if (mainFb.texture != newMain || dhFb.texture != dh) throw new AssertionError("Depth ownership lost on main-target change");
 	}
 
-	private static com.mojang.renderpearl.api.textures.GpuTexture texture() {
-		return (com.mojang.renderpearl.api.textures.GpuTexture) java.lang.reflect.Proxy.newProxyInstance(
-				IrisCompatCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTexture.class}, (p, m, a) -> null);
+	private static GpuTexture texture() {
+		return (GpuTexture) Proxy.newProxyInstance(
+				IrisCompatCheck.class.getClassLoader(), new Class<?>[] {GpuTexture.class}, (p, m, a) -> null);
 	}
 
 	public static final class DepthFramebuffer {
-		private com.mojang.renderpearl.api.textures.GpuTexture texture;
-		DepthFramebuffer(com.mojang.renderpearl.api.textures.GpuTexture texture) { this.texture = texture; }
-		public void addDepthAttachment(com.mojang.renderpearl.api.textures.GpuTexture texture) { this.texture = texture; }
-		public com.mojang.renderpearl.api.textures.GpuTextureView getDepthView() {
-			return (com.mojang.renderpearl.api.textures.GpuTextureView) java.lang.reflect.Proxy.newProxyInstance(
-					IrisCompatCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTextureView.class}, (p, m, a) -> texture);
+		private GpuTexture texture;
+		DepthFramebuffer(GpuTexture texture) { this.texture = texture; }
+		public void addDepthAttachment(GpuTexture texture) { this.texture = texture; }
+		public GpuTextureView getDepthView() {
+			return (GpuTextureView) Proxy.newProxyInstance(
+					IrisCompatCheck.class.getClassLoader(), new Class<?>[] {GpuTextureView.class}, (p, m, a) -> texture);
 		}
 	}
 
@@ -153,8 +160,8 @@ public final class IrisCompatCheck {
 				var method = hand.methods.stream().filter(m -> m.name.equals(name)).findFirst().orElseThrow();
 				boolean earlyReturn = false, backup = false, restore = false;
 				for (var instruction : method.instructions) {
-					if (instruction.getOpcode() == org.objectweb.asm.Opcodes.RETURN && !backup) earlyReturn = true;
-					if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call
+					if (instruction.getOpcode() == Opcodes.RETURN && !backup) earlyReturn = true;
+					if (instruction instanceof MethodInsnNode call
 							&& call.owner.equals("com/mojang/blaze3d/systems/RenderSystem")) {
 						if (call.name.equals("backupProjectionMatrix")) { if (!earlyReturn) throw new AssertionError("Hand capture precedes early return"); backup = true; }
 						if (call.name.equals("restoreProjectionMatrix")) { if (!backup) throw new AssertionError("Unpaired hand capture"); restore = true; }
@@ -191,7 +198,7 @@ public final class IrisCompatCheck {
 			var resize = resizeCode.methods.stream().filter(m -> m.name.equals("resizeIfNeeded")).findFirst().orElseThrow();
 			int attachments = 0;
 			for (var instruction : resize.instructions)
-				if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call && call.name.equals("addDepthAttachment")) attachments++;
+				if (instruction instanceof MethodInsnNode call && call.name.equals("addDepthAttachment")) attachments++;
 			// The first two calls resize Iris's private depth copies. Only the third updates owned framebuffers.
 			if (attachments != 3) throw new AssertionError("Iris depth-attachment redirect ordinal changed");
 		}
@@ -218,7 +225,7 @@ public final class IrisCompatCheck {
 		try (var in = IrisCompatCheck.class.getClassLoader().getResourceAsStream("com/bambooz/reflexium/mixin/VulkanGpuSurfaceMixin.class")) {
 			if (in == null) throw new AssertionError("VulkanGpuSurfaceMixin not on the classpath");
 			// Injection targets live in the constant pool as descriptor strings.
-			String text = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1);
+			String text = new String(in.readAllBytes(), StandardCharsets.ISO_8859_1);
 			for (String call : List.of("vkCreateSwapchainKHR", "vkGetSwapchainImagesKHR", "vkAcquireNextImageKHR", "vkQueuePresentKHR", "vkDestroySwapchainKHR"))
 				if (!text.contains(call)) throw new AssertionError("FSR proxy does not route " + call);
 		}

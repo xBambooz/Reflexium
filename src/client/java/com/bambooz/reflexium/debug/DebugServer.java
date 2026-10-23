@@ -1,13 +1,23 @@
 package com.bambooz.reflexium.debug;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.ShaderPacks;
+import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.dlss.DlssModel;
+import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.dlss.FsrSwapchain;
+import com.bambooz.reflexium.dlss.UpscaleCapture;
 import com.bambooz.reflexium.dlss.UpscaleQuality;
 import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
-import com.bambooz.reflexium.dlss.FrameGeneration;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.reflex.ReflexController;
+import com.bambooz.reflexium.reflex.ReflexMode;
+import com.bambooz.reflexium.vulkan.FrameTrace;
+import com.bambooz.reflexium.vulkan.VulkanLifecycle;
+import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -16,8 +26,11 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.server.IntegratedServer;
@@ -27,6 +40,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
@@ -36,11 +50,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -65,23 +83,23 @@ public final class DebugServer {
 
 	/** Optional dev harness integration, loaded reflectively so release users need no test dependency. */
 	public static void registerHarnessEndpoints() {
-		if (!net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("agentharness")) return;
+		if (!FabricLoader.getInstance().isModLoaded("agentharness")) return;
 		try {
 			Class<?> api = Class.forName("com.bambooz.agentharness.api.AgentHarness");
 			if (!(boolean) api.getMethod("isActive").invoke(null)) return;
 			Class<?> handler = Class.forName("com.bambooz.agentharness.api.EndpointHandler");
-			Object endpoint = java.lang.reflect.Proxy.newProxyInstance(handler.getClassLoader(), new Class<?>[] {handler}, (proxy, method, args) -> {
+			Object endpoint = Proxy.newProxyInstance(handler.getClassLoader(), new Class<?>[] {handler}, (proxy, method, args) -> {
 				if (!method.getName().equals("handle")) return method.getName().equals("toString") ? "Reflexium debug endpoint" : null;
 				@SuppressWarnings("unchecked")
 				Map<String, String> params = (Map<String, String>) args[0].getClass().getMethod("params").invoke(args[0]);
 				if (params.containsKey("key")) return set(params);
-				if (params.containsKey("dh_targets")) return call(com.bambooz.reflexium.compat.IrisCompat::dhTargets);
+				if (params.containsKey("dh_targets")) return call(IrisCompat::dhTargets);
 				if (params.containsKey("frame_mark")) return frameMark();
 				if (params.containsKey("frame_stats_from")) return frameStats(params);
 				if (params.containsKey("profile")) return call(() -> FrameProfiler.command(params.get("profile")));
 				if (params.containsKey("fg_capture")) return captureGeneratedBatch(params);
 					if (params.containsKey("capture")) return captureUpscale(params);
-				if (params.containsKey("reflex_timings")) return call(() -> com.bambooz.reflexium.reflex.ReflexController.get().timingReports());
+				if (params.containsKey("reflex_timings")) return call(() -> ReflexController.get().timingReports());
 				return status();
 			});
 			api.getMethod("register", String.class, String.class, handler)
@@ -104,7 +122,7 @@ public final class DebugServer {
 		if (name.isEmpty() || name.equals("1")) name = "capture_" + stamp();
 		Path dir = resolve(mc, params.getOrDefault("dir", "screenshots/upscaling"));
 		boolean extras = !"0".equals(params.get("extras"));
-		com.bambooz.reflexium.dlss.UpscaleCapture request = UpscalingRenderer.get().requestCapture(extras);
+		UpscaleCapture request = UpscalingRenderer.get().requestCapture(extras);
 		JsonObject result = new JsonObject();
 		try {
 			JsonObject meta = request.metadata.get(20, TimeUnit.SECONDS);
@@ -137,7 +155,7 @@ public final class DebugServer {
 			} finally {
 				UpscalingRenderer.get().cancelCapture(request);
 			}
-		} catch (TimeoutException | java.util.concurrent.CancellationException e) {
+		} catch (TimeoutException | CancellationException e) {
 			UpscalingRenderer.get().cancelCapture(request);
 			throw new TimeoutException("upscaler capture did not complete (no evaluated world frame within 20 s)");
 		} catch (Exception e) {
@@ -150,7 +168,7 @@ public final class DebugServer {
 	/** Read every output at one render-thread boundary, rather than comparing unrelated screenshot frames. */
 	private static JsonObject captureGeneratedBatch(Map<String, String> params) throws Exception {
 		Path dir = resolve(Minecraft.getInstance(), params.getOrDefault("dir", "screenshots/fg_" + stamp()));
-		java.util.List<CompletableFuture<NativeImage>> images = new java.util.ArrayList<>();
+		List<CompletableFuture<NativeImage>> images = new ArrayList<>();
 		try {
 			JsonObject meta = call(() -> {
 				var fg = FrameGenerationRenderer.get();
@@ -442,13 +460,13 @@ public final class DebugServer {
 		o.addProperty("transient_motion_uniforms", upscaling.usesTransientUniforms());
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
 		o.addProperty("reflex_mode", config.reflexMode().name());
-		o.addProperty("reflex_status", com.bambooz.reflexium.reflex.ReflexController.get().statusLine());
+		o.addProperty("reflex_status", ReflexController.get().statusLine());
 		o.addProperty("smart_reflex", config.smartReflex());
-		o.addProperty("reflex_pacing_paused", com.bambooz.reflexium.reflex.ReflexController.get().isPacingPaused());
-		o.addProperty("reflex_sleeping", com.bambooz.reflexium.reflex.ReflexController.get().isSleeping());
-		o.addProperty("reflex_latency", com.bambooz.reflexium.reflex.ReflexController.get().latencyLine());
+		o.addProperty("reflex_pacing_paused", ReflexController.get().isPacingPaused());
+		o.addProperty("reflex_sleeping", ReflexController.get().isSleeping());
+		o.addProperty("reflex_latency", ReflexController.get().latencyLine());
 		o.addProperty("reflex_submission", DebugSettings.reflexSubmission);
-		var session = com.bambooz.reflexium.vulkan.VulkanSession.current();
+		var session = VulkanSession.current();
 		o.addProperty("reflex_extension_revision", session == null ? 0 : session.lowLatencyRevision());
 		o.addProperty("reflex_attribution", DebugSettings.reflexSubmission && session != null && session.explicitAttributionSupported() ? "explicit (graphics queue only)" : "implicit");
 		o.addProperty("reflex_interval_us", DebugSettings.reflexIntervalUs);
@@ -467,11 +485,11 @@ public final class DebugServer {
 		o.addProperty("fg_resets_per_s", FrameGenerationRenderer.get().resetsPerSecond());
 	o.addProperty("fg_status", FrameGenerationRenderer.get().statusLine());
 		o.addProperty("fg_max_multiplier", FrameGenerationRenderer.get().maximumMultiplier());
-		var swapchain = com.bambooz.reflexium.vulkan.VulkanLifecycle.swapchainState();
+		var swapchain = VulkanLifecycle.swapchainState();
 		if (swapchain != null) {
 			o.addProperty("swapchain_images_requested", swapchain.requested());
 			o.addProperty("swapchain_images_created", swapchain.created());
-			o.addProperty("swapchain_present_mode", com.bambooz.reflexium.vulkan.VulkanLifecycle.presentModeName(swapchain.presentMode()));
+			o.addProperty("swapchain_present_mode", VulkanLifecycle.presentModeName(swapchain.presentMode()));
 			o.addProperty("swapchain_surface_min_images", swapchain.surfaceMin());
 			o.addProperty("swapchain_surface_max_images", swapchain.surfaceMax());
 			o.addProperty("swapchain_extent", swapchain.width() + "x" + swapchain.height());
@@ -502,8 +520,8 @@ public final class DebugServer {
 		o.addProperty("fg_batches_completed", fg.batchesCompleted());
 		o.addProperty("fg_failed", fg.failed());
 		o.addProperty("fg_problem", fg.problem());
-		o.addProperty("fg_sdk_present_count", com.bambooz.reflexium.dlss.FsrSwapchain.presentCount());
-		o.addProperty("fg_sdk_scheduler", com.bambooz.reflexium.dlss.FsrSwapchain.active());
+		o.addProperty("fg_sdk_present_count", FsrSwapchain.presentCount());
+		o.addProperty("fg_sdk_scheduler", FsrSwapchain.active());
 		o.addProperty("upscaling_active", info.active());
 		o.addProperty("status_line", upscaling.statusLine());
 		o.add("render_size", pair("w", info.renderWidth(), "h", info.renderHeight()));
@@ -530,7 +548,7 @@ public final class DebugServer {
 		o.addProperty("evaluated_frames", info.evaluatedFrames());
 		o.addProperty("pack_hand_mask", info.packHandMask());
 		o.add("observed", upscaling.observedInputs());
-		o.addProperty("pack", com.bambooz.reflexium.compat.ShaderPacks.status());
+		o.addProperty("pack", ShaderPacks.status());
 		o.addProperty("fps", mc.getFps());
 		o.addProperty("frame_time_ms", Math.round(DebugSettings.frameTimeMs() * 100f) / 100f);
 		o.addProperty("frames", DebugSettings.frames());
@@ -586,8 +604,8 @@ public final class DebugServer {
 		o.addProperty("intervals", ms.length);
 		if (ms.length > 0) {
 			double[] sorted = ms.clone();
-			java.util.Arrays.sort(sorted);
-			double mean = java.util.Arrays.stream(sorted).average().orElse(0);
+			Arrays.sort(sorted);
+			double mean = Arrays.stream(sorted).average().orElse(0);
 			o.addProperty("mean_ms", round(mean));
 			o.addProperty("p50_ms", round(sorted[sorted.length / 2]));
 			o.addProperty("p99_ms", round(sorted[(int) Math.min(sorted.length - 1, Math.floor(sorted.length * 0.99))]));
@@ -617,9 +635,9 @@ public final class DebugServer {
 				// F3's axis crosshair, for composition-order captures; leaves the rest of the debug overlay alone.
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> Minecraft.getInstance().debugEntries.setStatus(
-						net.minecraft.client.gui.components.debug.DebugScreenEntries.THREE_DIMENSIONAL_CROSSHAIR,
-						on ? net.minecraft.client.gui.components.debug.DebugScreenEntryStatus.ALWAYS_ON
-								: net.minecraft.client.gui.components.debug.DebugScreenEntryStatus.IN_OVERLAY);
+						DebugScreenEntries.THREE_DIMENSIONAL_CROSSHAIR,
+						on ? DebugScreenEntryStatus.ALWAYS_ON
+								: DebugScreenEntryStatus.IN_OVERLAY);
 			}
 			case "vsync", "fullscreen", "pause" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
@@ -682,8 +700,8 @@ public final class DebugServer {
 				if (resolution < 0 || resolution > 8192 || distance < 0 || distance > 1024) throw new BadRequest("pack_shadow_cap range is 0..8192,0..1024");
 				int r = resolution, d = distance;
 				yield () -> {
-					com.bambooz.reflexium.config.ReflexiumConfig.get().setPackShadowCaps(r, d);
-					com.bambooz.reflexium.compat.IrisCompat.reloadForOptionChange();
+					ReflexiumConfig.get().setPackShadowCaps(r, d);
+					IrisCompat.reloadForOptionChange();
 				};
 			}
 			case "hand_motion" -> {
@@ -692,27 +710,27 @@ public final class DebugServer {
 			}
 			case "pack_taa" -> {
 				boolean retained = value.trim().equalsIgnoreCase("retain") || flag(Map.of("v", value.equals("retain") ? "1" : value.equals("off") ? "0" : value), "v", true);
-				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackTaa(retained);
+				yield () -> VitrailCompat.debugSetPackTaa(retained);
 			}
 			case "pack_resolve" -> {
 				boolean bypass = flag(Map.of("v", value), "v", true);
-				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackResolveBypass(bypass);
+				yield () -> VitrailCompat.debugSetPackResolveBypass(bypass);
 			}
 			case "pack_filters" -> {
 				boolean retained = flag(Map.of("v", value), "v", true);
-				yield () -> com.bambooz.reflexium.compat.VitrailCompat.debugSetPackPreFilters(retained);
+				yield () -> VitrailCompat.debugSetPackPreFilters(retained);
 			}
 			case "shaders" -> {
 				boolean on = flag(Map.of("v", value), "v", true);
 				yield () -> {
-					if (com.bambooz.reflexium.compat.IrisCompat.isLoaded()) com.bambooz.reflexium.compat.IrisCompat.debugSetPackEnabled(on);
-					else com.bambooz.reflexium.compat.VitrailCompat.debugSetPackEnabled(on);
+					if (IrisCompat.isLoaded()) IrisCompat.debugSetPackEnabled(on);
+					else VitrailCompat.debugSetPackEnabled(on);
 				};
 			}
 			case "reflex_trace" -> {
 				int frames = Integer.parseInt(value);
 				if (frames < 0 || frames > 32) throw new BadRequest("Reflex trace must be 0..32 frames");
-				yield () -> com.bambooz.reflexium.vulkan.FrameTrace.arm(frames);
+				yield () -> FrameTrace.arm(frames);
 			}
 			case "reflex_submission" -> {
 				boolean enabled = flag(Map.of("v", value), "v", true);
@@ -724,8 +742,8 @@ public final class DebugServer {
 				yield () -> DebugSettings.reflexIntervalUs = interval;
 			}
 			case "reflex_mode" -> {
-				var mode = parseEnum(com.bambooz.reflexium.reflex.ReflexMode.class, value);
-				yield () -> com.bambooz.reflexium.reflex.ReflexController.get().setMode(mode);
+				var mode = parseEnum(ReflexMode.class, value);
+				yield () -> ReflexController.get().setMode(mode);
 			}
 			case "smart_reflex" -> {
 				boolean enabled = flag(Map.of("v", value), "v", true);

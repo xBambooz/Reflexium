@@ -1,10 +1,14 @@
 package com.bambooz.reflexium.compat;
 
+import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipFile;
@@ -14,11 +18,11 @@ import static org.lwjgl.util.shaderc.Shaderc.*;
 /** Numerical depth/motion checks and optional ABI checks against the installed, exact-version jars. */
 public final class DistantHorizonsCheck {
 	public static void main(String[] args) throws Exception {
-		var texture = (com.mojang.renderpearl.api.textures.GpuTexture) java.lang.reflect.Proxy.newProxyInstance(
-				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTexture.class},
-				(proxy, method, values) -> method.getName().equals("getFormat") ? com.mojang.renderpearl.api.GpuFormat.D32_FLOAT : null);
-		var depth = (com.mojang.renderpearl.api.textures.GpuTextureView) java.lang.reflect.Proxy.newProxyInstance(
-				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {com.mojang.renderpearl.api.textures.GpuTextureView.class},
+		var texture = (GpuTexture) Proxy.newProxyInstance(
+				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {GpuTexture.class},
+				(proxy, method, values) -> method.getName().equals("getFormat") ? GpuFormat.D32_FLOAT : null);
+		var depth = (GpuTextureView) Proxy.newProxyInstance(
+				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {GpuTextureView.class},
 				(proxy, method, values) -> switch (method.getName()) {
 					case "texture" -> texture;
 					case "isClosed" -> false;

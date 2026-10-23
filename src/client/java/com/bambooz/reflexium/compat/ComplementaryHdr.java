@@ -1,12 +1,24 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkFormatProperties;
+
+import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Reviewed composite5 boundary. Pack world targets stay at input size; post targets are independent. */
 public final class ComplementaryHdr {
@@ -19,12 +31,12 @@ public final class ComplementaryHdr {
 	private static volatile long epoch;
 	public static long epoch() { return epoch; }
 	public static boolean reviewedArchive() { return archiveVerified; }
-	public static void verifyArchive(java.nio.file.Path path) {
+	public static void verifyArchive(Path path) {
 		archiveVerified = false;
 		try {
-			archiveVerified = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(java.nio.file.Files.readAllBytes(path)))
+			archiveVerified = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)))
 					.equals("fed6c879e732cf7fc7bc6570ebb1def43235aa7e96f62859fbdbdbfa0b484b38");
-		} catch (java.io.IOException | java.security.NoSuchAlgorithmException ignored) { /* Unknown pack keeps its ordinary route. */ }
+		} catch (IOException | NoSuchAlgorithmException ignored) { /* Unknown pack keeps its ordinary route. */ }
 	}
 	private static final Map<GpuTextureView, TextureTarget> post = new IdentityHashMap<>();
 	private static final Map<GpuTextureView, GpuTextureView> written = new IdentityHashMap<>();
@@ -32,18 +44,18 @@ public final class ComplementaryHdr {
 	private static Object originalWorld, displayWorld;
 	private ComplementaryHdr() {}
 	public static boolean storageSupported() {
-		var session = com.bambooz.reflexium.vulkan.VulkanSession.current();
+		var session = VulkanSession.current();
 		if (session == null) return false;
-		try (var stack = org.lwjgl.system.MemoryStack.stackPush()) {
-			var properties = org.lwjgl.vulkan.VkFormatProperties.calloc(stack);
-			org.lwjgl.vulkan.VK10.vkGetPhysicalDeviceFormatProperties(session.physicalDevice(), org.lwjgl.vulkan.VK10.VK_FORMAT_R16G16B16A16_SFLOAT, properties);
-			return (properties.optimalTilingFeatures() & org.lwjgl.vulkan.VK10.VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) != 0;
+		try (var stack = MemoryStack.stackPush()) {
+			var properties = VkFormatProperties.calloc(stack);
+			VK10.vkGetPhysicalDeviceFormatProperties(session.physicalDevice(), VK10.VK_FORMAT_R16G16B16A16_SFLOAT, properties);
+			return (properties.optimalTilingFeatures() & VK10.VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) != 0;
 		}
 	}
 
 	public static void resetSource() { epoch++; sourceVerified = formatVerified = archiveVerified = false; ComplementaryMotionSource.reset(); PackMotionState.resetEvidence(); }
 	public static boolean ready() { return ENABLED && sourceVerified && formatVerified && ComplementaryTemporalSource.appliedEdits().containsAll(
-			java.util.Set.of(ComplementaryTemporalSource.RESOLVE, ComplementaryTemporalSource.FXAA, ComplementaryTemporalSource.SHARPEN)); }
+			Set.of(ComplementaryTemporalSource.RESOLVE, ComplementaryTemporalSource.FXAA, ComplementaryTemporalSource.SHARPEN)); }
 
 	public static List<String> adapt(String pack, String path, List<String> lines) {
 		if (!archiveVerified) return lines;
@@ -67,7 +79,7 @@ public final class ComplementaryHdr {
 
 	public static boolean downstream(String path) {
 		String program = path.substring(path.lastIndexOf('/') + 1);
-		return java.util.Set.of("composite5", "composite6", "composite7", "final").contains(program);
+		return Set.of("composite5", "composite6", "composite7", "final").contains(program);
 	}
 	/**
 	 * Viewport and viewWidth/viewHeight follow the same per-frame state as attachments and samplers. composite5

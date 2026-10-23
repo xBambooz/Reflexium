@@ -1,6 +1,8 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.google.gson.JsonObject;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -69,8 +71,8 @@ public final class PackMotionState {
 			latest = this;
 		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Pack previous deformation parameters unavailable", e); }
 	}
-	public static com.google.gson.JsonObject evidence() {
-		var out = new com.google.gson.JsonObject();
+	public static JsonObject evidence() {
+		var out = new JsonObject();
 		if (latest == null) return out;
 		out.addProperty("pack_frame", latest.frame); out.addProperty("previous_parameters_valid", latest.valid);
 		String[] names = {"time", "rain", "snow", "eye_light"};

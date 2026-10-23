@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.reflex.ReflexController;
 
 /**
  * Opt-in bounded API-boundary trace. Submission order is not display feedback. Every line carries the CPU
@@ -10,10 +11,10 @@ import com.bambooz.reflexium.ReflexiumClient;
  */
 public final class FrameTrace {
 	private static long endId;
-	public static void arm(int frames) { endId = com.bambooz.reflexium.reflex.ReflexController.get().lastFrameId() + Math.clamp(frames, 0, 32); }
+	public static void arm(int frames) { endId = ReflexController.get().lastFrameId() + Math.clamp(frames, 0, 32); }
 	public static boolean enabled(long id) { return id > 0 && id <= endId; }
 	/** Inside the armed window, including gaps where no application frame is open. */
-	public static boolean armed() { return endId > 0 && com.bambooz.reflexium.reflex.ReflexController.get().lastFrameId() <= endId; }
+	public static boolean armed() { return endId > 0 && ReflexController.get().lastFrameId() <= endId; }
 	/** Guard string building with this; untraced frames must not allocate. */
 	public static boolean on(long id) { return enabled(id) || id == 0 && armed(); }
 	public static void event(long id, String event) {

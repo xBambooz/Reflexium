@@ -3,6 +3,7 @@ package com.bambooz.reflexium.dlss;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,7 +34,7 @@ public final class UpscaleCapture {
 		if (cancelled) return;
 		cancelled = true;
 		// The request owns every delivered image, including completed futures the HTTP handler never read.
-		for (CompletableFuture<NativeImage> future : java.util.List.of(input, output, motion, depth)) {
+		for (CompletableFuture<NativeImage> future : List.of(input, output, motion, depth)) {
 			future.thenAccept(NativeImage::close);
 			future.cancel(false);
 		}

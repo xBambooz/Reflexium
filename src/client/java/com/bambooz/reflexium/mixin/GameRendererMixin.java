@@ -1,14 +1,16 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.dlss.DeferredEffects;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.renderer.DebugCrosshairRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -23,11 +25,11 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** DLSS frame hooks; see {@link UpscalingRenderer} for the sequence. Every hook is a no-op while DLSS is off. */
@@ -83,8 +85,8 @@ public abstract class GameRendererMixin {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
 	private void reflexium$upscale(CallbackInfo ci) {
 		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
-		if (!com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().wantsMotion()
-				|| !com.bambooz.reflexium.debug.DebugSettings.replayFgParticles)
+		if (!FrameGenerationRenderer.get().wantsMotion()
+				|| !DebugSettings.replayFgParticles)
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 	}
 
@@ -93,8 +95,8 @@ public abstract class GameRendererMixin {
 	private void reflexium$completeScene(CallbackInfo ci) {
 		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
 		// FG consumes particle-free scene color. Replay current effects on every output, before GUI.
-		if (com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().wantsMotion()
-				&& com.bambooz.reflexium.debug.DebugSettings.replayFgParticles)
+		if (FrameGenerationRenderer.get().wantsMotion()
+				&& DebugSettings.replayFgParticles)
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 		reflexium$drawDeferredCrosshair();
 	}
@@ -115,7 +117,7 @@ public abstract class GameRendererMixin {
 			target = "Lnet/minecraft/client/renderer/DebugCrosshairRenderer;render(Lnet/minecraft/client/renderer/state/level/CameraRenderState;ILcom/mojang/renderpearl/api/textures/GpuTextureView;Lcom/mojang/renderpearl/api/textures/GpuTextureView;)V"))
 	private void reflexium$deferCrosshair(DebugCrosshairRenderer renderer, CameraRenderState camera, int guiScale,
 			GpuTextureView color, GpuTextureView depth, Operation<Void> original) {
-		if (!UpscalingRenderer.get().isUpscalingThisFrame() || !com.bambooz.reflexium.debug.DebugSettings.deferCrosshair) {
+		if (!UpscalingRenderer.get().isUpscalingThisFrame() || !DebugSettings.deferCrosshair) {
 			original.call(renderer, camera, guiScale, color, depth);
 			return;
 		}
@@ -135,7 +137,7 @@ public abstract class GameRendererMixin {
 			debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
 					mainRenderTarget.getDepthTextureView());
 		};
-		com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().drawGuiCopies((GameRenderer) (Object) this, draw);
+		FrameGenerationRenderer.get().drawGuiCopies((GameRenderer) (Object) this, draw);
 		draw.run();
 	}
 

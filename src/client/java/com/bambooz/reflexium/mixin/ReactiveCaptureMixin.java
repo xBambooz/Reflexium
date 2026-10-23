@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -48,7 +50,7 @@ public abstract class ReactiveCaptureMixin {
 	@Inject(method = "executeAlwaysOnTop", at = @At("HEAD"))
 	private void reflexium$packDepthBeforeGizmos(FeatureRenderDispatcher.PreparedFrame features, RenderTarget target,
 			boolean consistentDepthRequired, CallbackInfo ci) {
-		if (com.bambooz.reflexium.compat.ShaderPacks.isDrawingPack()) {
+		if (ShaderPacks.isDrawingPack()) {
 			UpscalingRenderer.get().captureWorldDepth(Minecraft.getInstance().gameRenderer);
 		}
 	}

@@ -4,6 +4,8 @@ import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.bambooz.reflexium.dlss.GenerationLedger;
 import com.bambooz.reflexium.reflex.ReflexController;
 
+import java.util.Locale;
+
 /**
  * Cumulative counters an external benchmark driver copies at its own measured-frame boundaries. Render thread
  * only, no allocation. Every value except the trailing state fields is monotonic, so a pass is the difference
@@ -27,7 +29,7 @@ public final class MeasurementCounters {
 		String[] state = {"fg_failed", "fg_configured_generated", "reflex_effective_mode", "reflex_applied_mode"};
 		String[] all = new String[fixed.length + SHORTFALLS.length + state.length];
 		System.arraycopy(fixed, 0, all, 0, fixed.length);
-		for (int i = 0; i < SHORTFALLS.length; i++) all[fixed.length + i] = "fg_missing_" + SHORTFALLS[i].name().toLowerCase(java.util.Locale.ROOT);
+		for (int i = 0; i < SHORTFALLS.length; i++) all[fixed.length + i] = "fg_missing_" + SHORTFALLS[i].name().toLowerCase(Locale.ROOT);
 		System.arraycopy(state, 0, all, fixed.length + SHORTFALLS.length, state.length);
 		return all;
 	}

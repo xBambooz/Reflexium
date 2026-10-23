@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.dlss;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.renderpearl.api.textures.AddressMode;
 import com.mojang.renderpearl.api.textures.FilterMode;
 import com.mojang.renderpearl.api.textures.GpuSampler;
@@ -8,6 +9,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +28,7 @@ public final class UpscalingContractCheck {
 	private static void fsrAbi() {
 		if (!System.getProperty("os.name").startsWith("Windows") || !System.getProperty("os.arch").equals("amd64")) return;
 		{
-			var folder = java.nio.file.Path.of("src/client/resources/natives/windows-x86_64").toAbsolutePath();
+			var folder = Path.of("src/client/resources/natives/windows-x86_64").toAbsolutePath();
 			FsrBridge bridge = new FsrBridge(folder.resolve("amd_fidelityfx_vk.dll"), folder.resolve("reflexium_fsr.dll"));
 			NgxBridge.Image dummy = new NgxBridge.Image(0, 0, 37, 1, 1, 1);
 			for (NgxBridge.Image mask : new NgxBridge.Image[]{null, dummy}) {
@@ -65,8 +67,8 @@ public final class UpscalingContractCheck {
 
 	private static void captureCancellation() {
 		UpscaleCapture request = new UpscaleCapture(true);
-		var delivered = new com.mojang.blaze3d.platform.NativeImage(1, 1, false);
-		var late = new com.mojang.blaze3d.platform.NativeImage(1, 1, false);
+		var delivered = new NativeImage(1, 1, false);
+		var late = new NativeImage(1, 1, false);
 		request.deliver(request.input, delivered);
 		check(!delivered.isClosed(), "completed capture images stay alive for the HTTP writer");
 		request.cancel();

@@ -1,33 +1,49 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.vulkan.VulkanLifecycle;
+import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.debug.FrameProfiler;
 import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
 import com.bambooz.reflexium.dlss.FsrSwapchain;
+import com.bambooz.reflexium.dlss.GenerationLedger;
+import com.bambooz.reflexium.reflex.ReflexController;
+import com.bambooz.reflexium.vulkan.FrameTrace;
+import com.bambooz.reflexium.vulkan.VulkanLifecycle;
+import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.renderpearl.api.commands.GpuFence;
 import com.mojang.renderpearl.api.device.GpuSurface;
+import com.mojang.renderpearl.api.device.SurfaceException;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface;
 import com.mojang.renderpearl.backend.vulkan.VulkanUtils;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VK12;
+import org.lwjgl.vulkan.VkAllocationCallbacks;
+import org.lwjgl.vulkan.VkCommandBuffer;
+import org.lwjgl.vulkan.VkDevice;
+import org.lwjgl.vulkan.VkImageBlit;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
+import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.Arrays;
 
 /**
  * VK_NV_low_latency2 needs the swapchain created with VkSwapchainLatencyCreateInfoNV and each present
@@ -41,32 +57,32 @@ public abstract class VulkanGpuSurfaceMixin {
 		var completion = reflexium$acquireCompletion[next];
 		if (completion != null) {
 			// Outside ACQUIRE so that span keeps meaning the acquire call alone.
-			long wait = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE_REUSE_WAIT, null);
+			long wait = FrameProfiler.start(FrameProfiler.ACQUIRE_REUSE_WAIT, null);
 			try { if (!completion.awaitCompletion(5_000_000_000L)) throw new IllegalStateException("Acquire semaphore's previous wait has not completed"); }
-			finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE_REUSE_WAIT, wait, null); }
+			finally { FrameProfiler.end(FrameProfiler.ACQUIRE_REUSE_WAIT, wait, null); }
 			completion.close(); reflexium$acquireCompletion[next] = null;
 		}
-		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, null);
+		long timing = FrameProfiler.start(FrameProfiler.ACQUIRE, null);
 		try { original.call(); }
-		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.ACQUIRE, timing, null); }
+		finally { FrameProfiler.end(FrameProfiler.ACQUIRE, timing, null); }
 	}
 	@Shadow private long swapchain;
 	@Shadow @Final private VulkanDevice device;
-	@Shadow private com.mojang.renderpearl.api.device.SurfaceException eatenException;
+	@Shadow private SurfaceException eatenException;
 	@Shadow private boolean swapchainOutOfDate;
 	@Shadow @Final @Mutable private long[] acquireSemaphores;
 	@Shadow private int currentAcquireSemaphore;
-	@Unique private com.mojang.renderpearl.api.commands.GpuFence[] reflexium$acquireCompletion;
+	@Unique private GpuFence[] reflexium$acquireCompletion;
 	@Unique private GpuTextureView reflexium$realView;
 	@Unique private boolean reflexium$presenting;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
-		var session = com.bambooz.reflexium.vulkan.VulkanSession.current();
+		var session = VulkanSession.current();
 		if (session != null && session.presentMetering()) {
 			// Two real frames in flight, each with at most eight physical presents. Completion tracking below,
 			// rather than ring size, proves binary semaphore reuse safe. Avoid waiting mid-batch on the world's submit.
-			long[] expanded = java.util.Arrays.copyOf(acquireSemaphores, 16);
+			long[] expanded = Arrays.copyOf(acquireSemaphores, 16);
 			int created = acquireSemaphores.length;
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				LongBuffer out = stack.mallocLong(1);
@@ -79,10 +95,10 @@ public abstract class VulkanGpuSurfaceMixin {
 				acquireSemaphores = expanded;
 			} catch (RuntimeException failure) {
 				for (int i = acquireSemaphores.length; i < created; i++) VK12.vkDestroySemaphore(device.vkDevice(), expanded[i], null);
-				com.bambooz.reflexium.ReflexiumClient.LOGGER.warn("Using native acquire ring after FG allocation failure", failure);
+				ReflexiumClient.LOGGER.warn("Using native acquire ring after FG allocation failure", failure);
 			}
 		}
-		reflexium$acquireCompletion = new com.mojang.renderpearl.api.commands.GpuFence[acquireSemaphores.length];
+		reflexium$acquireCompletion = new GpuFence[acquireSemaphores.length];
 	}
 	@Unique private void reflexium$blit(CommandEncoderBackend encoder, GpuTextureView view, Operation<Void> original) {
 		original.call(encoder, view);
@@ -92,11 +108,11 @@ public abstract class VulkanGpuSurfaceMixin {
 	}
 	// Surface blits use a separate transient command buffer, which blitFromTexture ends before returning.
 	@WrapOperation(method = "blitFromTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/VK12;vkCmdBlitImage(Lorg/lwjgl/vulkan/VkCommandBuffer;JIJILorg/lwjgl/vulkan/VkImageBlit$Buffer;I)V"))
-	private void reflexium$timeBlit(org.lwjgl.vulkan.VkCommandBuffer commands, long source, int sourceLayout,
-			long destination, int destinationLayout, org.lwjgl.vulkan.VkImageBlit.Buffer regions, int filter, Operation<Void> original) {
-		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, commands);
+	private void reflexium$timeBlit(VkCommandBuffer commands, long source, int sourceLayout,
+			long destination, int destinationLayout, VkImageBlit.Buffer regions, int filter, Operation<Void> original) {
+		long timing = FrameProfiler.start(FrameProfiler.FINAL_BLIT, commands);
 		try { original.call(commands, source, sourceLayout, destination, destinationLayout, regions, filter); }
-		finally { com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.FINAL_BLIT, timing, commands); }
+		finally { FrameProfiler.end(FrameProfiler.FINAL_BLIT, timing, commands); }
 	}
 
 	@WrapMethod(method = "blitFromTexture")
@@ -120,10 +136,10 @@ public abstract class VulkanGpuSurfaceMixin {
 			fg.beginPresent(true);
 			original.call();
 			for (int i = 1; i <= count && !swapchainOutOfDate; i++) {
-				if (fg.batchRejected()) { i = count; fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.BATCH_ABANDONED); } // valid swapchain: abandon remaining interpolation and deliver the real image
+				if (fg.batchRejected()) { i = count; fg.noteShortfall(GenerationLedger.Shortfall.BATCH_ABANDONED); } // valid swapchain: abandon remaining interpolation and deliver the real image
 				surface.acquireNextTexture();
 				fg.beginPresent(i < count);
-				var reflex = com.bambooz.reflexium.reflex.ReflexController.get();
+				var reflex = ReflexController.get();
 				reflex.beginReplacementSubmit();
 				CommandEncoderBackend encoder = fg.presentEncoder(i - 1);
 				surface.blitFromTexture(encoder, i < count ? fg.generatedView(i) : reflexium$realView);
@@ -132,12 +148,12 @@ public abstract class VulkanGpuSurfaceMixin {
 				reflex.endReplacementSubmit();
 				original.call();
 			}
-		} catch (com.mojang.renderpearl.api.device.SurfaceException resized) {
+		} catch (SurfaceException resized) {
 			eatenException = resized;
 			fg.invalidate();
-			fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.SURFACE_LOST);
+			fg.noteShortfall(GenerationLedger.Shortfall.SURFACE_LOST);
 		} finally {
-			if (swapchainOutOfDate) fg.noteShortfall(com.bambooz.reflexium.dlss.GenerationLedger.Shortfall.SURFACE_LOST);
+			if (swapchainOutOfDate) fg.noteShortfall(GenerationLedger.Shortfall.SURFACE_LOST);
 			// The batch's real image is its last present; a lost surface can end the batch before it.
 			fg.endPresentBatch();
 			reflexium$realView = null;
@@ -164,7 +180,7 @@ public abstract class VulkanGpuSurfaceMixin {
 
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",
 			target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkQueuePresentKHR(Lorg/lwjgl/vulkan/VkQueue;Lorg/lwjgl/vulkan/VkPresentInfoKHR;)I"))
-	private int reflexium$tagPresent(org.lwjgl.vulkan.VkQueue queue, VkPresentInfoKHR info, Operation<Integer> original) {
+	private int reflexium$tagPresent(VkQueue queue, VkPresentInfoKHR info, Operation<Integer> original) {
 		if (FsrSwapchain.owns(swapchain)) {
 			int result = FsrSwapchain.present(info);
 			FrameGenerationRenderer.get().onProxyPresentResult(result);
@@ -173,46 +189,46 @@ public abstract class VulkanGpuSurfaceMixin {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
-		com.bambooz.reflexium.reflex.ReflexController reflex = com.bambooz.reflexium.reflex.ReflexController.get();
+		ReflexController reflex = ReflexController.get();
 		if (fg.inPresentBatch()) reflex.beforeBatchPresent(fg.isGeneratedPresent());
 		int result;
-		long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.PRESENT, null);
+		long timing = FrameProfiler.start(FrameProfiler.PRESENT, null);
 		try { result = original.call(queue, info); }
 		finally {
-			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.PRESENT, timing, null);
+			FrameProfiler.end(FrameProfiler.PRESENT, timing, null);
 			if (fg.inPresentBatch()) reflex.afterBatchPresent(fg.isGeneratedPresent());
 		}
 		fg.onPresentResult(info, result);
 		long id = reflex.currentFrameId();
-		if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(id)) com.bambooz.reflexium.vulkan.FrameTrace.event(id,
+		if (FrameTrace.enabled(id)) FrameTrace.event(id,
 				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedbackRaw());
 		return result;
 	}
 
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkCreateSwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;Lorg/lwjgl/vulkan/VkSwapchainCreateInfoKHR;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)I"))
-	private int reflexium$fsrCreate(org.lwjgl.vulkan.VkDevice device, VkSwapchainCreateInfoKHR info, org.lwjgl.vulkan.VkAllocationCallbacks allocator,
-			java.nio.LongBuffer out, Operation<Integer> original) {
+	private int reflexium$fsrCreate(VkDevice device, VkSwapchainCreateInfoKHR info, VkAllocationCallbacks allocator,
+			LongBuffer out, Operation<Integer> original) {
 		if (FsrSwapchain.canCreate(info)) {
 			int result = FsrSwapchain.create(info, allocator, out);
-			if (result == org.lwjgl.vulkan.VK10.VK_SUCCESS) return result;
-			com.bambooz.reflexium.ReflexiumClient.LOGGER.warn("FSR swapchain creation failed ({}); using vanilla presentation", result);
+			if (result == VK10.VK_SUCCESS) return result;
+			ReflexiumClient.LOGGER.warn("FSR swapchain creation failed ({}); using vanilla presentation", result);
 		}
 		return original.call(device, info, allocator, out);
 	}
 	/** The proxy handle is not a driver swapchain: acquisition and destruction must go through the SDK too. */
 	@WrapOperation(method = "acquireNextTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkAcquireNextImageKHR(Lorg/lwjgl/vulkan/VkDevice;JJJJLjava/nio/IntBuffer;)I"))
-	private int reflexium$fsrAcquire(org.lwjgl.vulkan.VkDevice device, long swapchain, long timeout, long semaphore, long fence,
-			java.nio.IntBuffer index, Operation<Integer> original) {
+	private int reflexium$fsrAcquire(VkDevice device, long swapchain, long timeout, long semaphore, long fence,
+			IntBuffer index, Operation<Integer> original) {
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.acquire(timeout, semaphore, fence, index) : original.call(device, swapchain, timeout, semaphore, fence, index);
 	}
 	@WrapOperation(method = "destroySwapchain", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkDestroySwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
-	private void reflexium$fsrDestroy(org.lwjgl.vulkan.VkDevice device, long swapchain, org.lwjgl.vulkan.VkAllocationCallbacks allocator, Operation<Void> original) {
+	private void reflexium$fsrDestroy(VkDevice device, long swapchain, VkAllocationCallbacks allocator, Operation<Void> original) {
 		if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
 		else original.call(device, swapchain, allocator);
 	}
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkGetSwapchainImagesKHR(Lorg/lwjgl/vulkan/VkDevice;JLjava/nio/IntBuffer;Ljava/nio/LongBuffer;)I"))
-	private int reflexium$fsrImages(org.lwjgl.vulkan.VkDevice device, long swapchain, java.nio.IntBuffer count,
-			java.nio.LongBuffer images, Operation<Integer> original) {
+	private int reflexium$fsrImages(VkDevice device, long swapchain, IntBuffer count,
+			LongBuffer images, Operation<Integer> original) {
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.images(count, images) : original.call(device, swapchain, count, images);
 	}
 }

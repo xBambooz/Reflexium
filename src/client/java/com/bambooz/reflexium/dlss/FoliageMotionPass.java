@@ -3,10 +3,12 @@ package com.bambooz.reflexium.dlss;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.pipeline.*;
 import com.mojang.renderpearl.api.textures.FilterMode;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.resources.Identifier;
+
 import java.util.Optional;
 
 /** Overwrite only the visible, independently animated foliage surface. */
@@ -22,7 +24,7 @@ final class FoliageMotionPass {
 					.withUniform("Surface", UniformType.COMBINED_IMAGE_SAMPLER)
 					.withUniform("SceneDepth", UniformType.COMBINED_IMAGE_SAMPLER)
 					.withUniform("HandDepth", UniformType.COMBINED_IMAGE_SAMPLER).build())
-			.withColorTargetState(new ColorTargetState(Optional.empty(), debug ? com.mojang.renderpearl.api.GpuFormat.RGBA8_UNORM : MotionVectorPass.FORMAT, ColorTargetState.WRITE_ALL));
+			.withColorTargetState(new ColorTargetState(Optional.empty(), debug ? GpuFormat.RGBA8_UNORM : MotionVectorPass.FORMAT, ColorTargetState.WRITE_ALL));
 		if (debug) builder.withShaderDefine("RX_DEPTH_DEBUG");
 		return builder.build();
 	}

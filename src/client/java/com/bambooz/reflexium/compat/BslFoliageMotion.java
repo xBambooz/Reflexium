@@ -1,10 +1,20 @@
 package com.bambooz.reflexium.compat;
 
+import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
+
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /** Reviewed BSL cutout vegetation: evaluate the actual wave and contact bend at both frame times. */
 public final class BslFoliageMotion {
@@ -12,11 +22,11 @@ public final class BslFoliageMotion {
 	private static boolean waveReady;
 	private static boolean cleared;
 	private static Object timer;
-	private static java.lang.reflect.Method clock;
+	private static Method clock;
 	private static float previousTime;
-	private static final org.joml.Vector3f previousEye = new org.joml.Vector3f();
+	private static final Vector3f previousEye = new Vector3f();
 	private static boolean haveEye;
-	private static java.lang.reflect.Method eyePosition, cameraPosition;
+	private static Method eyePosition, cameraPosition;
 	private BslFoliageMotion() { }
 	public static void reset() { sourceReady = waveReady = haveEye = cleared = false; }
 	public static boolean clearedThisFrame() { return cleared; }
@@ -35,11 +45,11 @@ public final class BslFoliageMotion {
 		String s = source.replace("\r\n", "\n");
 		// Buffer 15 is unused by this reviewed source. No composite flips or blends its vectors.
 		s = s.replace("#ifdef FSH", "#ifdef FSH\nvarying vec4 rxCurrentClip, rxPreviousClip;\nvarying float rxFoliage;\n/*\nconst int colortex15Format = RGBA32F;\nconst bool colortex15Clear = true;\nconst vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);\n*/\n");
-		var matcher = java.util.regex.Pattern.compile("/\\* DRAWBUFFERS:([0-9]+) \\*/").matcher(s);
+		var matcher = Pattern.compile("/\\* DRAWBUFFERS:([0-9]+) \\*/").matcher(s);
 		StringBuilder out = new StringBuilder();
 		while (matcher.find()) {
 			String digits = matcher.group(1);
-			String targets = digits.chars().mapToObj(c -> String.valueOf((char)c)).collect(java.util.stream.Collectors.joining(","));
+			String targets = digits.chars().mapToObj(c -> String.valueOf((char)c)).collect(Collectors.joining(","));
 			matcher.appendReplacement(out, "/* RENDERTARGETS: " + targets + ",15 */");
 		}
 		matcher.appendTail(out); s = out.toString();
@@ -90,14 +100,14 @@ public final class BslFoliageMotion {
 		previousEye.set(relativeEye());
 		haveEye = true;
 	}
-	private static org.joml.Vector3f relativeEye() {
+	private static Vector3f relativeEye() {
 		try {
 			if (eyePosition == null) {
 				eyePosition = Class.forName("net.irisshaders.iris.uniforms.IrisExclusiveUniforms").getDeclaredMethod("getEyePosition");
 				eyePosition.setAccessible(true);
 				cameraPosition = Class.forName("net.irisshaders.iris.uniforms.CameraUniforms").getMethod("getUnshiftedCameraPosition");
 			}
-			return new org.joml.Vector3f(new org.joml.Vector3d((org.joml.Vector3dc) cameraPosition.invoke(null)).sub((org.joml.Vector3dc) eyePosition.invoke(null)));
+			return new Vector3f(new Vector3d((Vector3dc) cameraPosition.invoke(null)).sub((Vector3dc) eyePosition.invoke(null)));
 		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris contact bend eye position unavailable", e); }
 	}
 	public static float previousTime() { return previousTime; }
@@ -114,12 +124,12 @@ public final class BslFoliageMotion {
 	/** The terrain-only attachment is allocated lazily, after Iris builds its clear passes. */
 	public static void beginFrame() {
 		cleared = false;
-		if (!com.bambooz.reflexium.debug.DebugSettings.clearFoliageSurface) return;
+		if (!DebugSettings.clearFoliageSurface) return;
 		GpuTextureView surface = surface();
 		if (surface == null) return;
-		com.mojang.blaze3d.systems.RenderSystem.getDevice().createCommandEncoder()
+		RenderSystem.getDevice().createCommandEncoder()
 				.createRenderPass(() -> "Reflexium clear foliage surface", surface,
-						java.util.Optional.of(new Vector4f(0.0f, 0.0f, 0.0f, 0.0f))).close();
+						Optional.of(new Vector4f(0.0f, 0.0f, 0.0f, 0.0f))).close();
 		cleared = true;
 	}
 	public static GpuTextureView surface() {

@@ -2,7 +2,16 @@ package com.bambooz.reflexium.reflex;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.dlss.FsrSwapchain;
+import com.bambooz.reflexium.vulkan.FrameTrace;
+import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.bambooz.reflexium.vulkan.VulkanSession;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.VideoMode;
 import com.mojang.blaze3d.platform.Window;
 import org.lwjgl.system.MemoryStack;
@@ -17,6 +26,7 @@ import org.lwjgl.vulkan.VkSemaphoreWaitInfo;
 import org.lwjgl.vulkan.VkSetLatencyMarkerInfoNV;
 
 import java.nio.LongBuffer;
+import java.util.Locale;
 
 import static org.lwjgl.vulkan.NVLowLatency2.*;
 import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
@@ -117,7 +127,7 @@ public final class ReflexController {
 	}
 
 	public void onSwapchainDestroyed() {
-		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
+		VulkanLifecycle.clearSubmissionAttribution();
 		swapchain = 0;
 		frameOpen = false;
 		simulationOpen = false;
@@ -155,7 +165,7 @@ public final class ReflexController {
 	/** VK_NV_low_latency2 is supported and active presentation scheduler allows low latency. */
 	public boolean isSupported() {
 		VulkanSession session = VulkanSession.current();
-		return session != null && session.lowLatency2() && !com.bambooz.reflexium.dlss.FsrSwapchain.active();
+		return session != null && session.lowLatency2() && !FsrSwapchain.active();
 	}
 
 	/** VK_NV_low_latency2 is enabled on the device and a swapchain exists. */
@@ -175,12 +185,12 @@ public final class ReflexController {
 	private boolean canPausePacing() {
 		// Keep explicit and VRR caps paced, and never bypass Reflex for any requested FG mode.
 		return mode().enabled() && ReflexiumConfig.get().smartReflex() && requestedIntervalUs == 0
-				&& ReflexiumConfig.get().frameGeneration() == com.bambooz.reflexium.dlss.FrameGeneration.OFF;
+				&& ReflexiumConfig.get().frameGeneration() == FrameGeneration.OFF;
 	}
 
 	public ReflexMode mode() {
 		ReflexMode requested = ReflexiumConfig.get().reflexMode();
-		return requested == ReflexMode.OFF && com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().needsReflex() ? ReflexMode.ON : requested;
+		return requested == ReflexMode.OFF && FrameGenerationRenderer.get().needsReflex() ? ReflexMode.ON : requested;
 	}
 
 	public void setMode(ReflexMode mode) {
@@ -233,13 +243,13 @@ public final class ReflexController {
 		pollPendingSleep();
 		// The raw Vulkan reference also sleeps in Off (mode=false, interval=0) for reporting.
 		if (pacing.canSleep() && sleepSemaphore != 0 && !isPacingPaused()) {
-			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, null);
+			long timing = FrameProfiler.start(FrameProfiler.REFLEX_SLEEP, null);
 			sleep();
-			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_SLEEP, timing, null);
+			FrameProfiler.end(FrameProfiler.REFLEX_SLEEP, timing, null);
 		} else {
 			unpacedFrames++;
 			if (pacing.suspended) suspendedFrames++;
-			if (com.bambooz.reflexium.vulkan.FrameTrace.on(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep skipped configured=" + pacing.configured + " failed=" + pacing.failed
+			if (FrameTrace.on(frameId)) FrameTrace.event(frameId, "sleep skipped configured=" + pacing.configured + " failed=" + pacing.failed
 					+ " suspended=" + pacing.suspended + " paused=" + isPacingPaused());
 		}
 		marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
@@ -268,7 +278,7 @@ public final class ReflexController {
 	public void afterPresent() {
 		marker(VK_LATENCY_MARKER_PRESENT_END_NV);
 		frameOpen = false;
-		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
+		VulkanLifecycle.clearSubmissionAttribution();
 	}
 
 	public void beforeBatchPresent(boolean generated) {
@@ -294,7 +304,7 @@ public final class ReflexController {
 		// low_latency2 limits total presents; translate the user real-frame budget to an output budget.
 		int fgFps = mode().enabled() ? frameGenerationCap(window) : NO_CAP;
 		int autoFps = Math.min(vrrFps, fgFps);
-		int multiplier = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().refreshPolicy().multiplier();
+		int multiplier = FrameGenerationRenderer.get().refreshPolicy().multiplier();
 		int userOutputFps = userFps == NO_CAP ? NO_CAP : (int) Math.min(NO_CAP, (long) userFps * multiplier);
 		int fps = Math.min(userOutputFps, autoFps);
 		requestedIntervalUs = fps == NO_CAP ? 0 : (int) ((1_000_000L + fps - 1) / fps);
@@ -303,7 +313,7 @@ public final class ReflexController {
 
 	/** Presented-frame cap while NVIDIA frame generation is requested; unknown refresh rate means no automatic cap. */
 	private int frameGenerationCap(Window window) {
-		com.bambooz.reflexium.dlss.FrameGenerationRenderer fg = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get();
+		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
 		fg.refreshPolicy().cap(requested ? vrrCap(window) : NO_CAP);
 		return requested && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
@@ -350,7 +360,7 @@ public final class ReflexController {
 		if (!session.lowLatency2()) {
 			return "Reflex: unavailable (" + (session.isNvidia() ? "driver lacks VK_NV_low_latency2" : "not an NVIDIA GPU") + ")";
 		}
-		if (com.bambooz.reflexium.dlss.FsrSwapchain.active()) return "Reflex: unavailable (FSR presentation scheduler)";
+		if (FsrSwapchain.active()) return "Reflex: unavailable (FSR presentation scheduler)";
 		StringBuilder line = new StringBuilder("Reflex: ").append(pacing.configured ? pacing.applied.displayName() : "markers only")
 				.append(" (requested ").append(ReflexiumConfig.get().reflexMode().displayName()).append(")");
 		if (pacing.failed) {
@@ -422,8 +432,8 @@ public final class ReflexController {
 			return;
 		}
 		ReflexMode mode = mode();
-		int multiplier = com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().refreshPolicy().multiplier();
-		int baseInterval = com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs;
+		int multiplier = FrameGenerationRenderer.get().refreshPolicy().multiplier();
+		int baseInterval = DebugSettings.reflexIntervalUs;
 		int interval = mode.enabled() ? Math.max(requestedIntervalUs, baseInterval > 0 ? (baseInterval + multiplier - 1) / multiplier : 0) : 0;
 		if (!pacing.shouldApply(mode, interval)) {
 			return;
@@ -454,14 +464,14 @@ public final class ReflexController {
 					.sType$Default()
 					.signalSemaphore(sleepSemaphore)
 					.value(value);
-			long timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, null);
+			long timing = FrameProfiler.start(FrameProfiler.REFLEX_DRIVER, null);
 			sleepsIssued++;
-			boolean traced = com.bambooz.reflexium.vulkan.FrameTrace.on(frameId);
-			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep call value=" + value + " applied=" + pacing.applied + " interval_us=" + pacing.interval
+			boolean traced = FrameTrace.on(frameId);
+			if (traced) FrameTrace.event(frameId, "sleep call value=" + value + " applied=" + pacing.applied + " interval_us=" + pacing.interval
 					+ " requested=" + mode());
 			int result = vkLatencySleepNV(device, swapchain, info);
-			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep call exit result=" + result);
-			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_DRIVER, timing, null);
+			if (traced) FrameTrace.event(frameId, "sleep call exit result=" + result);
+			FrameProfiler.end(FrameProfiler.REFLEX_DRIVER, timing, null);
 			if (result != VK_SUCCESS) {
 				failSleep("vkLatencySleepNV", result);
 				return;
@@ -472,10 +482,10 @@ public final class ReflexController {
 					.semaphoreCount(1)
 					.pSemaphores(stack.longs(sleepSemaphore))
 					.pValues(stack.longs(value));
-			timing = com.bambooz.reflexium.debug.FrameProfiler.start(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, null);
+			timing = FrameProfiler.start(FrameProfiler.REFLEX_WAIT, null);
 			result = vkWaitSemaphores(device, wait, SLEEP_TIMEOUT_NS);
-			com.bambooz.reflexium.debug.FrameProfiler.end(com.bambooz.reflexium.debug.FrameProfiler.REFLEX_WAIT, timing, null);
-			if (traced) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "sleep wait exit value=" + value + " result=" + result);
+			FrameProfiler.end(FrameProfiler.REFLEX_WAIT, timing, null);
+			if (traced) FrameTrace.event(frameId, "sleep wait exit value=" + value + " result=" + result);
 			// failSleep records a failed result itself; recording it here too counted each timeout twice.
 			if (result == VK_SUCCESS) { pacing.sleepResult(result); pendingSleepValue = 0; sleepsCompleted++; }
 			else {
@@ -552,7 +562,7 @@ public final class ReflexController {
 			lastMarkerFrameId = frameId;
 		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
-			if (com.bambooz.reflexium.vulkan.FrameTrace.enabled(frameId)) com.bambooz.reflexium.vulkan.FrameTrace.event(frameId, "marker=" + markerName(marker));
+			if (FrameTrace.enabled(frameId)) FrameTrace.event(frameId, "marker=" + markerName(marker));
 			vkSetLatencyMarkerNV(device, swapchain, VkSetLatencyMarkerInfoNV.calloc(stack)
 					.sType$Default()
 					.presentID(frameId)
@@ -592,10 +602,10 @@ public final class ReflexController {
 	}
 
 	/** Debug harness: complete driver reports, in microseconds relative to the first returned simulation start. */
-	public com.google.gson.JsonObject timingReports() {
-		com.google.gson.JsonObject result = new com.google.gson.JsonObject();
+	public JsonObject timingReports() {
+		JsonObject result = new JsonObject();
 		result.addProperty("ok", true);
-		com.google.gson.JsonArray frames = new com.google.gson.JsonArray();
+		JsonArray frames = new JsonArray();
 		result.add("frames", frames);
 		if (!isAvailable()) return result;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -609,7 +619,7 @@ public final class ReflexController {
 				VkLatencyTimingsFrameReportNV r = reports.get(i);
 				if (r.presentID() == 0 || r.presentEndTimeUs() == 0 || r.gpuRenderEndTimeUs() == 0) continue;
 				if (origin == 0) origin = r.simStartTimeUs();
-				com.google.gson.JsonObject f = new com.google.gson.JsonObject();
+				JsonObject f = new JsonObject();
 				f.addProperty("id", r.presentID());
 				f.addProperty("input", r.inputSampleTimeUs() - origin);
 				f.addProperty("sim_start", r.simStartTimeUs() - origin);
@@ -640,7 +650,7 @@ public final class ReflexController {
 		}
 		if (!latency.available()) return 0;
 		double limitedMs = Math.max(baseFpsLimit == NO_CAP ? 0 : 1000.0 / baseFpsLimit,
-				com.bambooz.reflexium.debug.DebugSettings.reflexIntervalUs / 1000.0);
+				DebugSettings.reflexIntervalUs / 1000.0);
 		return Math.max(latency.gpuMs(), limitedMs + fgCostMs);
 	}
 
@@ -721,7 +731,7 @@ public final class ReflexController {
 			if (!available) {
 				return "Reflex latency: " + reason;
 			}
-			StringBuilder line = new StringBuilder(String.format(java.util.Locale.ROOT, "Reflex render latency: %.1f ms", totalMs));
+			StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "Reflex render latency: %.1f ms", totalMs));
 			append(line, "sim", simMs);
 			append(line, "submit", submitMs);
 			append(line, "GPU", gpuMs);
@@ -730,7 +740,7 @@ public final class ReflexController {
 
 		private static void append(StringBuilder line, String label, double ms) {
 			if (ms >= 0) {
-				line.append(String.format(java.util.Locale.ROOT, ", %s %.1f", label, ms));
+				line.append(String.format(Locale.ROOT, ", %s %.1f", label, ms));
 			}
 		}
 	}

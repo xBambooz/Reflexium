@@ -1,19 +1,24 @@
 package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.reflex.ReflexController;
+import com.bambooz.reflexium.vulkan.FrameTrace;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder;
+import com.mojang.renderpearl.backend.vulkan.VulkanCommandPool;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 @Mixin(VulkanCommandEncoder.class)
 public abstract class VulkanSubmitTimingMixin {
-	@org.spongepowered.asm.mixin.Shadow private long currentSubmitIndex;
-	@org.spongepowered.asm.mixin.Shadow private long completedSubmitIndex;
+	@Shadow private long currentSubmitIndex;
+	@Shadow private long completedSubmitIndex;
 	@WrapMethod(method = "awaitSubmitCompletion")
 	private boolean reflexium$wait(long index, long timeout, Operation<Boolean> original) {
 		int label = timeout == 0 ? FrameProfiler.FENCE_POLL : FrameProfiler.FENCE;
@@ -28,14 +33,14 @@ public abstract class VulkanSubmitTimingMixin {
 		}
 	}
 	@Unique private static boolean reflexium$traced() {
-		return com.bambooz.reflexium.vulkan.FrameTrace.on(com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId());
+		return FrameTrace.on(ReflexController.get().currentFrameId());
 	}
 	@Unique private static void reflexium$trace(String event) {
-		com.bambooz.reflexium.vulkan.FrameTrace.event(com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId(), event);
+		FrameTrace.event(ReflexController.get().currentFrameId(), event);
 	}
-	@com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method = "submit", at = @At(value = "INVOKE",
+	@WrapOperation(method = "submit", at = @At(value = "INVOKE",
 			target = "Lcom/mojang/renderpearl/backend/vulkan/VulkanCommandPool;reset()V"))
-	private void reflexium$timeReset(com.mojang.renderpearl.backend.vulkan.VulkanCommandPool pool, Operation<Void> original) {
+	private void reflexium$timeReset(VulkanCommandPool pool, Operation<Void> original) {
 		long timing = FrameProfiler.start(FrameProfiler.POOL_RESET, null);
 		try { original.call(pool); }
 		finally { FrameProfiler.end(FrameProfiler.POOL_RESET, timing, null); }

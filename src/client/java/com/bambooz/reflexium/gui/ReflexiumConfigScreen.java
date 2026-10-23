@@ -1,6 +1,8 @@
 package com.bambooz.reflexium.gui;
 
 import com.bambooz.reflexium.compat.ApertureCompat;
+import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.config.ShadowDistanceCap;
@@ -84,7 +86,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 			list.addBig(ReflexiumOptions.postUpscaleParticles());
 		}
 
-		boolean irisDrawing = com.bambooz.reflexium.compat.IrisCompat.isDrawingPack();
+		boolean irisDrawing = IrisCompat.isDrawingPack();
 		var resButton = DropdownButton.create(this, Component.translatable("reflexium.option.pack_shadow_resolution_cap"),
 				() -> ShadowResolutionCap.fromValue(config.packShadowResolutionCap()),
 				List.of(ShadowResolutionCap.values()), ShadowResolutionCap::label, cap -> {
@@ -137,8 +139,8 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		if (VitrailCompat.isLoaded()) {
 			list.addHeader(Component.literal("Vitrail: " + VitrailCompat.status()));
 		}
-		if (com.bambooz.reflexium.compat.IrisCompat.isLoaded()) {
-			list.addHeader(Component.literal("Iris: " + com.bambooz.reflexium.compat.IrisCompat.status()));
+		if (IrisCompat.isLoaded()) {
+			list.addHeader(Component.literal("Iris: " + IrisCompat.status()));
 		}
 		list.addHeader(Component.literal("Aperture: " + ApertureCompat.status()));
 	}
@@ -150,7 +152,7 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 	private static String state() {
 		return UpscalingRenderer.get().statusLine() + "|" + FrameGenerationRenderer.get().statusLine() + "|" + UpscalingRenderer.get().dlssReady()
 				+ "|" + FrameGenerationRenderer.get().isDlssFgSupported() + "|" + FrameGenerationRenderer.get().isDlssMfgSupported()
-				+ "|" + com.bambooz.reflexium.compat.ShaderPacks.status() + "|" + com.bambooz.reflexium.compat.IrisCompat.isDrawingPack();
+				+ "|" + ShaderPacks.status() + "|" + IrisCompat.isDrawingPack();
 	}
 
 	@Override

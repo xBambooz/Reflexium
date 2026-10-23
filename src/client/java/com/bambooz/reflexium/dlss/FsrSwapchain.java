@@ -6,10 +6,13 @@ import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
+
+import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+
 import static java.lang.foreign.ValueLayout.*;
 
 /** FSR's vendor-neutral presentation scheduler. A proxy owns all five Vulkan swapchain operations. */
@@ -20,7 +23,7 @@ public final class FsrSwapchain {
 	private final MethodHandle init, create, destroy, images, acquire, present, schedule, wait, count;
 	private final MemorySegment image = Arena.global().allocate(32, 8);
 
-	private FsrSwapchain() throws java.io.IOException {
+	private FsrSwapchain() throws IOException {
 		SymbolLookup lib = SymbolLookup.libraryLookup(NgxBridge.extract("reflexium_fsr"), Arena.global());
 		Linker linker = Linker.nativeLinker();
 		init = bind(linker, lib, "init", FunctionDescriptor.ofVoid(ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT, JAVA_INT));

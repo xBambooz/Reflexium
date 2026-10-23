@@ -1,10 +1,10 @@
 package com.bambooz.reflexium.config;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.UpscaleQuality;
-import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.dlss.DlssModel;
 import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.dlss.UpscaleQuality;
+import com.bambooz.reflexium.dlss.Upscaler;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 /**
@@ -219,7 +220,7 @@ public final class ReflexiumConfig {
 			try (Writer writer = Files.newBufferedWriter(temp)) {
 				props.store(writer, "Reflexium. reflex_mode: off | on | on_boost");
 			}
-			Files.move(temp, PATH, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+			Files.move(temp, PATH, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		} catch (IOException e) {
 			ReflexiumClient.LOGGER.warn("Could not save {}", PATH, e);
 		}

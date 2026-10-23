@@ -1,7 +1,10 @@
 package com.bambooz.reflexium.dlss;
 
+import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
+import java.nio.file.Path;
+
 import static java.lang.foreign.ValueLayout.*;
 
 /** FSR 3.1 Vulkan API. Resources and calls are owned by the render thread. */
@@ -10,12 +13,12 @@ final class FsrBridge {
 	private final MethodHandle fgCreate, fgEvaluate, fgRelease;
 	private final MemorySegment images = Arena.global().allocate(192, 8);
 
-	FsrBridge() throws java.io.IOException {
+	FsrBridge() throws IOException {
 		this(NgxBridge.extract("amd_fidelityfx_vk"), NgxBridge.extract("reflexium_fsr"));
 	}
 
 	/** Also used by the offline ABI check, before Fabric has a game directory or a Vulkan device. */
-	FsrBridge(java.nio.file.Path dependency, java.nio.file.Path bridge) {
+	FsrBridge(Path dependency, Path bridge) {
 		// Resolve the signed AMD dependency before loading our import-library bridge.
 		SymbolLookup.libraryLookup(dependency, Arena.global());
 		SymbolLookup library = SymbolLookup.libraryLookup(bridge, Arena.global());

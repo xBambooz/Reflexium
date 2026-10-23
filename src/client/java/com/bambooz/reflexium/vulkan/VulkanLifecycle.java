@@ -1,18 +1,26 @@
 package com.bambooz.reflexium.vulkan;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.dlss.DlssSupport;
+import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.dlss.FsrSwapchain;
+import com.bambooz.reflexium.dlss.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanInstance;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.KHRSurface;
+import org.lwjgl.vulkan.KHRSwapchain;
+import org.lwjgl.vulkan.KHRSynchronization2;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkLatencySubmissionPresentIdNV;
 import org.lwjgl.vulkan.VkPresentIdKHR;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
+import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSubmitInfo2;
+import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 import org.lwjgl.vulkan.VkSwapchainLatencyCreateInfoNV;
 
@@ -22,7 +30,7 @@ import org.lwjgl.vulkan.VkSwapchainLatencyCreateInfoNV;
  * as long as the Vulkan call that reads them.
  */
 public final class VulkanLifecycle {
-	private static org.lwjgl.vulkan.VkQueue graphicsQueue;
+	private static VkQueue graphicsQueue;
 	private static boolean queueTagged;
 	static final int PREFERRED_IMAGE_COUNT = 8;
 	/** Last native swapchain: requested count is not proof, so the created count is read back from the driver. */
@@ -73,7 +81,7 @@ public final class VulkanLifecycle {
 		if (session != null) {
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				var count = stack.mallocInt(1);
-				int created = org.lwjgl.vulkan.KHRSwapchain.vkGetSwapchainImagesKHR(session.device(), swapchain, count, null) == 0 ? count.get(0) : -1;
+				int created = KHRSwapchain.vkGetSwapchainImagesKHR(session.device(), swapchain, count, null) == 0 ? count.get(0) : -1;
 				swapchainState = new SwapchainState(pendingRequested, created, pendingPresentMode, pendingMin, pendingMax, pendingWidth, pendingHeight);
 				ReflexiumClient.LOGGER.info("Swapchain created: {} images (requested {}, surface {}..{}), present mode {}, {}x{}", created, pendingRequested,
 						pendingMin, pendingMax == 0 ? "unbounded" : pendingMax, presentModeName(pendingPresentMode), pendingWidth, pendingHeight);
@@ -84,24 +92,24 @@ public final class VulkanLifecycle {
 
 	public static String presentModeName(int mode) {
 		return switch (mode) {
-			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_IMMEDIATE_KHR -> "IMMEDIATE";
-			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_MAILBOX_KHR -> "MAILBOX";
-			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_FIFO_KHR -> "FIFO";
-			case org.lwjgl.vulkan.KHRSurface.VK_PRESENT_MODE_FIFO_RELAXED_KHR -> "FIFO_RELAXED";
+			case KHRSurface.VK_PRESENT_MODE_IMMEDIATE_KHR -> "IMMEDIATE";
+			case KHRSurface.VK_PRESENT_MODE_MAILBOX_KHR -> "MAILBOX";
+			case KHRSurface.VK_PRESENT_MODE_FIFO_KHR -> "FIFO";
+			case KHRSurface.VK_PRESENT_MODE_FIFO_RELAXED_KHR -> "FIFO_RELAXED";
 			default -> "mode " + mode;
 		};
 	}
 
 	public static void onSwapchainDestroyed() {
-		com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().invalidate();
+		FrameGenerationRenderer.get().invalidate();
 		ReflexController.get().onSwapchainDestroyed();
 	}
 
 	public static VkSwapchainCreateInfoKHR chainSwapchainLatency(VkSwapchainCreateInfoKHR info) {
 		VulkanSession session = VulkanSession.current();
 		if (session != null) {
-			var caps = org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR.calloc(MemoryStack.stackGet());
-			if (org.lwjgl.vulkan.KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(session.physicalDevice(), info.surface(), caps) == 0) {
+			var caps = VkSurfaceCapabilitiesKHR.calloc(MemoryStack.stackGet());
+			if (KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(session.physicalDevice(), info.surface(), caps) == 0) {
 				// Eight images measured +10% uncapped shaderless native FPS versus the default count (2026-10-15);
 				// surface limits still bound it, so a smaller maxImageCount stays valid.
 				info.minImageCount(validImageCount(Math.max(info.minImageCount(), PREFERRED_IMAGE_COUNT), caps.minImageCount(), caps.maxImageCount()));
@@ -110,7 +118,7 @@ public final class VulkanLifecycle {
 			pendingRequested = info.minImageCount(); pendingPresentMode = info.presentMode();
 			pendingWidth = info.imageExtent().width(); pendingHeight = info.imageExtent().height();
 		}
-		if (session == null || !session.lowLatency2() || com.bambooz.reflexium.dlss.FsrSwapchain.canCreate(info)) {
+		if (session == null || !session.lowLatency2() || FsrSwapchain.canCreate(info)) {
 			return info;
 		}
 		VkSwapchainLatencyCreateInfoNV latency = VkSwapchainLatencyCreateInfoNV.calloc(MemoryStack.stackGet())
@@ -139,7 +147,7 @@ public final class VulkanLifecycle {
 		return maximum == 0 ? count : Math.min(count, maximum);
 	}
 
-	public static VkSubmitInfo2.Buffer chainSubmissionIds(org.lwjgl.vulkan.VkQueue queue, VkSubmitInfo2.Buffer submits) {
+	public static VkSubmitInfo2.Buffer chainSubmissionIds(VkQueue queue, VkSubmitInfo2.Buffer submits) {
 		long id = ReflexController.get().currentFrameId();
 		VulkanSession session = VulkanSession.current();
 		if (session == null || !session.explicitAttributionSupported() || graphicsQueue == null || queue.address() != graphicsQueue.address()) {
@@ -147,8 +155,8 @@ public final class VulkanLifecycle {
 		}
 		// Only this queue is ever explicitly tagged. Clearing it returns the entire device to implicit
 		// attribution; zero alone would not exclude work if another queue still held a nonzero ID.
-		if (!com.bambooz.reflexium.debug.DebugSettings.reflexSubmission
-				|| com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().inPresentBatch()) id = 0;
+		if (!DebugSettings.reflexSubmission
+				|| FrameGenerationRenderer.get().inPresentBatch()) id = 0;
 		if (id == 0 && !queueTagged) return submits;
 		queueTagged = id != 0;
 		MemoryStack stack = MemoryStack.stackGet();
@@ -167,7 +175,7 @@ public final class VulkanLifecycle {
 		try (var stack = MemoryStack.stackPush()) {
 			var clear = VkSubmitInfo2.calloc(1, stack).sType$Default();
 			clear.pNext(VkLatencySubmissionPresentIdNV.calloc(stack).sType$Default().presentID(0).address());
-			org.lwjgl.vulkan.KHRSynchronization2.vkQueueSubmit2KHR(graphicsQueue, clear, 0);
+			KHRSynchronization2.vkQueueSubmit2KHR(graphicsQueue, clear, 0);
 			queueTagged = false;
 		}
 	}

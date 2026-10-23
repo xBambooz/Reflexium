@@ -1,13 +1,18 @@
 package com.bambooz.reflexium.debug;
 
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+
 public final class FrameProfilerCheck {
 	public static void main(String[] args) throws Exception {
 		try (var in = FrameProfilerCheck.class.getClassLoader().getResourceAsStream("com/mojang/renderpearl/backend/vulkan/VulkanGpuSurface.class")) {
-			var node = new org.objectweb.asm.tree.ClassNode();
-			new org.objectweb.asm.ClassReader(in.readAllBytes()).accept(node, 0);
+			var node = new ClassNode();
+			new ClassReader(in.readAllBytes()).accept(node, 0);
 			var blit = node.methods.stream().filter(m -> m.name.equals("blitFromTexture")).findFirst().orElseThrow();
 			boolean found = false;
-			for (var instruction : blit.instructions) if (instruction instanceof org.objectweb.asm.tree.MethodInsnNode call
+			for (var instruction : blit.instructions) if (instruction instanceof MethodInsnNode call
 					&& call.owner.equals("org/lwjgl/vulkan/VK12") && call.name.equals("vkCmdBlitImage")) found = true;
 			if (!found) throw new AssertionError("Transient surface blit profiling target changed");
 		}

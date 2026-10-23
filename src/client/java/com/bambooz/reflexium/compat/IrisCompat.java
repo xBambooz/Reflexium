@@ -1,14 +1,25 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
 	* The experimental Iris Vulkan build draws OptiFine-format packs on Minecraft's own RenderPearl device, into
@@ -35,7 +46,7 @@ public final class IrisCompat {
 	private static final String BSL_SETTINGS_SHA256 = "808a7fb287dc081d889b3a8abb36c39590c12bff53bd751e839737e3a1cd13aa";
 	private static final String BSL_AA_LINE = "#ifdef RETRO_FILTER";
 	private static volatile boolean bslAaRemoved;
-	private static final java.util.Map<String, String> BSL_SAMPLING = java.util.Map.of(
+	private static final Map<String, String> BSL_SAMPLING = Map.of(
 			"lib/atmospherics/clouds.glsl", "6195aa898de9c38fbb470ca69b87af5399aedb76bc482ce500143a019e9f96ac",
 			"lib/atmospherics/lightShafts.glsl", "e0cb5aaae178edd574d4c6d731c796c94e61ac4bcd9788234bd3c7472860baf2",
 			"lib/lighting/ambientOcclusion.glsl", "7fa271b2780efef4fc176a3b4a7e2c466ec087b5a3d2c27fe0c025222a14751b",
@@ -47,12 +58,12 @@ public final class IrisCompat {
 	 * render-size sharpen amplifies aliasing the upscaler then has to resolve; Reflexium sharpens after reconstruction.
 	 * Matched by option name, so any pack exposing them in its menu needs no Reflexium change.
 	 */
-	private static final java.util.Set<String> TEMPORAL_OPTIONS = java.util.Set.of("TAA", "TAA_ENABLED", "ENABLE_TAA",
+	private static final Set<String> TEMPORAL_OPTIONS = Set.of("TAA", "TAA_ENABLED", "ENABLE_TAA",
 			"TAA_ENABLE", "USE_TAA", "TEMPORAL_AA", "TEMPORAL_ANTIALIASING", "TEMPORAL_ANTI_ALIASING", "TAAU", "TAA_UPSCALING",
 			"FXAA", "FXAA_ENABLED", "ENABLE_FXAA", "USE_FXAA", "IMAGE_SHARPENING", "CONTRAST_ADAPTATIVE_SHARPENING",
 			"CONTRAST_ADAPTIVE_SHARPENING");
 	/** Value options and their off value (Complementary family: TAA_DEFINE 0, FXAA_DEFINE -1); used only if the pack lists it. */
-	private static final java.util.Map<String, List<String>> TEMPORAL_VALUE_OPTIONS = java.util.Map.of("TAA_DEFINE", List.of("0"),
+	private static final Map<String, List<String>> TEMPORAL_VALUE_OPTIONS = Map.of("TAA_DEFINE", List.of("0"),
 			"FXAA_DEFINE", List.of("-1", "0"), "IMAGE_SHARPENING", List.of("0"),
 			"SHARPENING", List.of("0", "0.0", "0.00"), "SHARPEN", List.of("0"));
 	private static volatile List<String> optionsOverridden = List.of();
@@ -73,18 +84,18 @@ public final class IrisCompat {
 
 	/** Iris owns the framebuffer list, but DH owns some of its depth attachments. */
 	public static void replaceMainDepth(Object framebuffer,
-			com.mojang.renderpearl.api.textures.GpuTexture replacement,
-			com.mojang.renderpearl.api.textures.GpuTexture previous) {
+			GpuTexture replacement,
+			GpuTexture previous) {
 		try {
-			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) framebuffer.getClass().getMethod("getDepthView").invoke(framebuffer);
+			var view = (GpuTextureView) framebuffer.getClass().getMethod("getDepthView").invoke(framebuffer);
 			if (view != null && view.texture() == previous)
-				framebuffer.getClass().getMethod("addDepthAttachment", com.mojang.renderpearl.api.textures.GpuTexture.class).invoke(framebuffer, replacement);
+				framebuffer.getClass().getMethod("addDepthAttachment", GpuTexture.class).invoke(framebuffer, replacement);
 		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris depth attachment update failed", e); }
 	}
 
 	/** Render-thread diagnostic for attachment ownership across SR/native transitions. */
-	public static com.google.gson.JsonObject dhTargets() {
-		var result = new com.google.gson.JsonObject();
+	public static JsonObject dhTargets() {
+		var result = new JsonObject();
 		try {
 			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
 			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
@@ -93,14 +104,14 @@ public final class IrisCompat {
 			Object targets = targetsField.get(pipeline);
 			var mainDepthField = targets.getClass().getDeclaredField("currentDepthTexture");
 			mainDepthField.setAccessible(true);
-			var mainDepth = (com.mojang.renderpearl.api.textures.GpuTexture) mainDepthField.get(targets);
+			var mainDepth = (GpuTexture) mainDepthField.get(targets);
 			result.addProperty("iris_main_depth_size", mainDepth.getWidth(0) + "x" + mainDepth.getHeight(0));
 			result.addProperty("iris_main_depth_closed", mainDepth.isClosed());
 			result.addProperty("iris_uses_main_depth", mainDepth == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
 			Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
 			Object dh = type.getMethod("current").invoke(null);
 			if (dh == null) return result;
-			var depth = (com.mojang.renderpearl.api.textures.GpuTextureView) type.getMethod("getDepthTexture", boolean.class).invoke(dh, false);
+			var depth = (GpuTextureView) type.getMethod("getDepthTexture", boolean.class).invoke(dh, false);
 			result.addProperty("depth_size", depth.getWidth(0) + "x" + depth.getHeight(0));
 			for (String name : List.of("terrain", "water", "generic")) {
 				var field = type.getDeclaredField(name);
@@ -108,7 +119,7 @@ public final class IrisCompat {
 				Object program = field.get(dh);
 				if (program == null) continue;
 				Object fb = program.getClass().getMethod("getFramebuffer").invoke(program);
-				var attached = (com.mojang.renderpearl.api.textures.GpuTextureView) fb.getClass().getMethod("getDepthView").invoke(fb);
+				var attached = (GpuTextureView) fb.getClass().getMethod("getDepthView").invoke(fb);
 				result.addProperty(name + "_depth_size", attached.getWidth(0) + "x" + attached.getHeight(0));
 				result.addProperty(name + "_uses_dh_depth", attached.texture() == depth.texture());
 				result.addProperty(name + "_uses_main_depth", attached.texture() == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
@@ -116,11 +127,11 @@ public final class IrisCompat {
 		} catch (ReflectiveOperationException | RuntimeException e) { result.addProperty("error", e.toString()); }
 		return result;
 	}
-	private static java.lang.reflect.Field renderTargetsField;
+	private static Field renderTargetsField;
 	private static Method depthView;
 
 	/** Terrain seen through a blended surface owns the primary SR vector and depth. */
-	public static com.mojang.renderpearl.api.textures.GpuTextureView opaqueDepth(int width, int height) {
+	public static GpuTextureView opaqueDepth(int width, int height) {
 		if (!isDrawingPack()) return null;
 		try {
 			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
@@ -130,7 +141,7 @@ public final class IrisCompat {
 				renderTargetsField.setAccessible(true);
 				depthView = Class.forName("net.irisshaders.iris.targets.RenderTargets").getMethod("getDepthTextureView", int.class);
 			}
-			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), 1);
+			var view = (GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), 1);
 			if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height)
 				throw new IllegalStateException("Iris pre-translucent depth does not match the current frame");
 			return view;
@@ -241,11 +252,11 @@ public final class IrisCompat {
 	}
 
 	/** IncludeGraph.readFile RETURN: the same exact-hash source edits Vitrail receives, for the reviewed pack only. */
-	public static String adapt(java.nio.file.Path file, String source) {
+	public static String adapt(Path file, String source) {
 		return adapt(currentPackName(), file, source);
 	}
 
-	static String adapt(String name, java.nio.file.Path file, String source) {
+	static String adapt(String name, Path file, String source) {
 		if (!ownsTemporalSampling() || source == null) return source;
 		if (!PACK.equals(name) && !BSL.equals(name)) return source;
 		String path = file.toString().replace('\\', '/');
@@ -280,25 +291,25 @@ public final class IrisCompat {
 	 * while Reflexium owns temporal sampling. The returned copy feeds only this compile; Iris saves its option file
 	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
 	 */
-	public static java.util.Map<String, String> temporalOptionOverrides(Object packOptions, java.util.Map<String, String> values) {
+	public static Map<String, String> temporalOptionOverrides(Object packOptions, Map<String, String> values) {
 		if (!ownsTemporalSampling() || values == null) return values;
 		String name = currentPackName();
 		if (PACK.equals(name) || BSL.equals(name)) return values;
 		try {
 			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
-			java.util.Map<?, ?> booleans = (java.util.Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
-			java.util.Map<String, String> result = new java.util.HashMap<>(values);
+			Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+			Map<String, String> result = new HashMap<>(values);
 			List<String> overridden = new ArrayList<>();
 			for (Object key : booleans.keySet()) {
 				String option = (String) key;
-				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(java.util.Locale.ROOT))) continue;
+				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) continue;
 				result.put(option, "false");
 				overridden.add(option);
 			}
-			java.util.Map<?, ?> strings = (java.util.Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
-			for (java.util.Map.Entry<?, ?> entry : strings.entrySet()) {
+			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+			for (Map.Entry<?, ?> entry : strings.entrySet()) {
 				String option = (String) entry.getKey();
-				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(java.util.Locale.ROOT));
+				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
 				if (offValues == null) continue;
 				Object merged = entry.getValue();
 				Object stringOption = merged.getClass().getMethod("getOption").invoke(merged);
@@ -312,7 +323,7 @@ public final class IrisCompat {
 			}
 			if (overridden.isEmpty()) return values;
 			optionsOverridden = List.copyOf(overridden);
-			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(java.util.Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
+			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
 			ReflexiumClient.LOGGER.info("Iris {}: pack options {} switched off while upscaling (saved options unchanged)", name, overridden);
 			return result;
 		} catch (ReflectiveOperationException | RuntimeException e) {
@@ -326,17 +337,17 @@ public final class IrisCompat {
 	 * distance do not shrink with render resolution, so a cap is the only way to trade them for frame time while
 	 * upscaling; with both caps at 0 (the default) the pack's own values are never touched.
 	 */
-	public static java.util.Map<String, String> packOptionOverrides(Object packOptions, java.util.Map<String, String> values) {
+	public static Map<String, String> packOptionOverrides(Object packOptions, Map<String, String> values) {
 		return shadowCaps(packOptions, temporalOptionOverrides(packOptions, values));
 	}
 
-	private static java.util.Map<String, String> shadowCaps(Object packOptions, java.util.Map<String, String> values) {
-		var config = com.bambooz.reflexium.config.ReflexiumConfig.get();
+	private static Map<String, String> shadowCaps(Object packOptions, Map<String, String> values) {
+		var config = ReflexiumConfig.get();
 		if (!ownsTemporalSampling() || values == null || config.packShadowResolutionCap() <= 0 && config.packShadowDistanceCap() <= 0) return values;
 		try {
 			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
-			java.util.Map<?, ?> strings = (java.util.Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
-			java.util.Map<String, String> result = new java.util.HashMap<>(values);
+			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+			Map<String, String> result = new HashMap<>(values);
 			List<String> capped = new ArrayList<>();
 			capOption(strings, result, capped, "shadowMapResolution", config.packShadowResolutionCap());
 			capOption(strings, result, capped, "shadowDistance", config.packShadowDistanceCap());
@@ -349,7 +360,7 @@ public final class IrisCompat {
 		}
 	}
 
-	private static void capOption(java.util.Map<?, ?> strings, java.util.Map<String, String> result, List<String> capped,
+	private static void capOption(Map<?, ?> strings, Map<String, String> result, List<String> capped,
 			String name, int cap) throws ReflectiveOperationException {
 		Object merged = strings.get(name);
 		if (cap <= 0 || merged == null) return;
@@ -402,7 +413,7 @@ public final class IrisCompat {
 		return lines;
 	}
 
-	private static java.lang.reflect.Field depthVersion, colorVersion;
+	private static Field depthVersion, colorVersion;
 	private static boolean versionsLookedUp;
 
 	/**
@@ -410,13 +421,13 @@ public final class IrisCompat {
 	 * so a swapped-in render-size depth would stay paired with display-size history. Tie each version to the
 	 * attached texture's identity: it changes exactly when the attachment does and stays stable across frames.
 	 */
-	public static void syncTargetVersions(com.mojang.blaze3d.pipeline.RenderTarget target) {
+	public static void syncTargetVersions(RenderTarget target) {
 		if (!isLoaded()) return;
 		if (!versionsLookedUp) {
 			versionsLookedUp = true;
 			try {
-				depthVersion = com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
-				colorVersion = com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
+				depthVersion = RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+				colorVersion = RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
 				depthVersion.setAccessible(true);
 				colorVersion.setAccessible(true);
 			} catch (ReflectiveOperationException | RuntimeException e) {
@@ -462,8 +473,8 @@ public final class IrisCompat {
 			config = iris.getMethod("getIrisConfig");
 			packName = config.getReturnType().getMethod("getShaderPackName");
 			// Without these, a swapped render-size depth stays paired with display-size Iris targets.
-			com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
-			com.mojang.blaze3d.pipeline.RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
+			RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+			RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
 			return true;
 		} catch (ReflectiveOperationException | LinkageError e) {
 			broken = true;

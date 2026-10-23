@@ -3,12 +3,19 @@ package com.bambooz.reflexium.dlss;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.reflex.ReflexController;
+import com.bambooz.reflexium.vulkan.FrameTrace;
+import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.commands.GpuFence;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
+import com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
 import net.minecraft.client.Minecraft;
@@ -17,10 +24,11 @@ import org.joml.Matrix4fc;
 import org.joml.Quaternionfc;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
 
 /** Owns interpolation images and full-resolution GUI composition. No generated image advances simulation. */
 public final class FrameGenerationRenderer {
@@ -37,8 +45,8 @@ public final class FrameGenerationRenderer {
 	private NgxBridge.FrameGenerationSupport support;
 	private FrameGeneration built = FrameGeneration.OFF;
 	private TextureTarget[] generated = new TextureTarget[0];
-	private final com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[] presentEncoders = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder[7];
-	private final com.mojang.renderpearl.api.commands.GpuFence[] presentCompletions = new com.mojang.renderpearl.api.commands.GpuFence[7];
+	private final VulkanCommandEncoder[] presentEncoders = new VulkanCommandEncoder[7];
+	private final GpuFence[] presentCompletions = new GpuFence[7];
 	private boolean failed, resetNext = true;
 	private int pendingWorldFrames, resetsInWindow, resetsPerSecond;
 	private long resetWindow;
@@ -145,7 +153,7 @@ public final class FrameGenerationRenderer {
 			float near, float far, float fov, float frameMs, boolean reset) {
 		if (!wantsMotion()) return;
 		if (ReflexiumConfig.get().frameGeneration().nvidia() && refreshPolicy.bypass()) { resetNext = true; return; }
-		if (ReflexiumConfig.get().frameGeneration().nvidia() && !com.bambooz.reflexium.reflex.ReflexController.get().isSleeping()) {
+		if (ReflexiumConfig.get().frameGeneration().nvidia() && !ReflexController.get().isSleeping()) {
 			ledger.reason(GenerationLedger.Shortfall.REFLEX_NOT_SLEEPING);
 			invalidate(); return;
 		}
@@ -235,10 +243,10 @@ public final class FrameGenerationRenderer {
 	}
 	public GpuTextureView generatedView(int index) { return generated[index].getColorTextureView(); }
 	public GpuTextureView generatedDepthView(int index) { return generated[index].getDepthTextureView(); }
-	public com.mojang.renderpearl.api.textures.GpuTexture generatedDepthTexture(int index) { return generated[index].getDepthTexture(); }
+	public GpuTexture generatedDepthTexture(int index) { return generated[index].getDepthTexture(); }
 	/** One encoder per replacement slot keeps RenderPearl's two-submit reuse wait per real frame, not per output. */
-	public com.mojang.renderpearl.backend.api.CommandEncoderBackend presentEncoder(int index) {
-		if (presentEncoders[index] == null) presentEncoders[index] = new com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder(device);
+	public CommandEncoderBackend presentEncoder(int index) {
+		if (presentEncoders[index] == null) presentEncoders[index] = new VulkanCommandEncoder(device);
 		return presentEncoders[index];
 	}
 	/** Move the replacement encoders' previous-submit reuse waits ahead of the first metered present.
@@ -292,9 +300,9 @@ public final class FrameGenerationRenderer {
 	public void beginPresentBatch(int frames) {
 		if (frames < 2 || frames > 8) throw new IllegalArgumentException("FG batch must contain 2..8 presents");
 		presentBatch = frames; presentIndex = 0; batchRejected = false; batchesStarted++;
-		long traceId = com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId();
-		if (com.bambooz.reflexium.vulkan.FrameTrace.on(traceId)) com.bambooz.reflexium.vulkan.FrameTrace.event(traceId, "metering batch begin presents=" + frames);
-		com.bambooz.reflexium.vulkan.VulkanLifecycle.clearSubmissionAttribution();
+		long traceId = ReflexController.get().currentFrameId();
+		if (FrameTrace.on(traceId)) FrameTrace.event(traceId, "metering batch begin presents=" + frames);
+		VulkanLifecycle.clearSubmissionAttribution();
 	}
 	public boolean batchRejected() { return batchRejected; }
 	public boolean inPresentBatch() { return presentBatch > 1; }
@@ -303,8 +311,8 @@ public final class FrameGenerationRenderer {
 	public void endPresentBatch() {
 		if (presentBatch > 1 && !batchRejected && presentIndex == presentBatch) batchesCompleted++;
 		if (presentBatch > 1) ledger.closeIfOpen(); // ended before its real present
-		long traceId = com.bambooz.reflexium.reflex.ReflexController.get().currentFrameId();
-		if (presentBatch > 1 && com.bambooz.reflexium.vulkan.FrameTrace.on(traceId)) com.bambooz.reflexium.vulkan.FrameTrace.event(traceId,
+		long traceId = ReflexController.get().currentFrameId();
+		if (presentBatch > 1 && FrameTrace.on(traceId)) FrameTrace.event(traceId,
 				"metering batch end presented=" + presentIndex + "/" + presentBatch + " rejected=" + batchRejected);
 		presentBatch = 0; generatedPresent = false; ready = 0;
 	}
@@ -332,7 +340,7 @@ public final class FrameGenerationRenderer {
 				if (mc != null) {
 					double fgCost = FrameProfiler.gpuMeanMs(FrameProfiler.FG_EVALUATE) * generated.length;
 					refreshPolicy.present(System.nanoTime(), mc.level != null && mc.gui.screen() == null && !mc.isPaused(),
-							delivery.realRate(System.nanoTime()), com.bambooz.reflexium.reflex.ReflexController.get().frameGenerationRenderCostMs(fgCost), fgCost);
+							delivery.realRate(System.nanoTime()), ReflexController.get().frameGenerationRenderCostMs(fgCost), fgCost);
 				}
 			}
 			delivery.record(System.nanoTime(), generatedPresent ? 0 : 1, generatedPresent ? 1 : 0);

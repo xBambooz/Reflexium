@@ -1,11 +1,15 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.debug.DebugSettings;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -69,7 +73,7 @@ public final class VitrailCompat {
 			if (lookUp() && ((Optional<?>) session.invoke(null)).isPresent()) {
 				// Vitrail's flattened-unit cache keys exclude our external source policy.
 				Class.forName("dev.vitrail.pack.source.OpenedPack").getMethod("forgetKept").invoke(null);
-				Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", java.nio.file.Path.class)
+				Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class)
 						.invoke(null, Minecraft.getInstance().gameDirectory.toPath());
 			}
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
@@ -97,7 +101,7 @@ public final class VitrailCompat {
 			Map<?, ?> original = (Map<?, ?>) type.getMethod("forced").invoke(pack);
 			Map<Object, Object> forced = new LinkedHashMap<>(original);
 			Method optionValueOf = Class.forName("dev.vitrail.pack.option.OptionValue").getMethod("of", String.class);
-			forced.put("TAA_DEFINE", optionValueOf.invoke(null, com.bambooz.reflexium.debug.DebugSettings.packTaaRetained() ? "1" : "0"));
+			forced.put("TAA_DEFINE", optionValueOf.invoke(null, DebugSettings.packTaaRetained() ? "1" : "0"));
 			forced.put("TAA_JITTER", optionValueOf.invoke(null, "0"));
 			RecordComponent[] components = type.getRecordComponents();
 			Class<?>[] types = new Class<?>[components.length];
@@ -108,7 +112,7 @@ public final class VitrailCompat {
 						: components[i].getAccessor().invoke(pack);
 			}
 			ReflexiumClient.LOGGER.info("Vitrail {}: TAA-dependent sampling {} with Reflexium projection jitter", name,
-					com.bambooz.reflexium.debug.DebugSettings.packTaaRetained() ? "enabled" : "disabled for diagnostic comparison");
+					DebugSettings.packTaaRetained() ? "enabled" : "disabled for diagnostic comparison");
 			return type.getConstructor(types).newInstance(values);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			integrationBroken = true;
@@ -126,32 +130,32 @@ public final class VitrailCompat {
 			throw new IllegalStateException("Vitrail " + version() + " is not supported");
 		}
 		try {
-			java.nio.file.Path gameDirectory = Minecraft.getInstance().gameDirectory.toPath();
-			java.nio.file.Path file = gameDirectory.resolve("vitrail").resolve("pack.txt");
-			String text = java.nio.file.Files.readString(file);
+			Path gameDirectory = Minecraft.getInstance().gameDirectory.toPath();
+			Path file = gameDirectory.resolve("vitrail").resolve("pack.txt");
+			String text = Files.readString(file);
 			String updated = text.replaceAll("(?m)^enabled=(true|false)", "enabled=" + enabled);
 			if (!updated.equals(text)) {
-				java.nio.file.Files.writeString(file, updated);
+				Files.writeString(file, updated);
 			}
-			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", java.nio.file.Path.class).invoke(null, gameDirectory);
-		} catch (java.io.IOException | ReflectiveOperationException e) {
+			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class).invoke(null, gameDirectory);
+		} catch (IOException | ReflectiveOperationException e) {
 			throw new IllegalStateException("could not change the Vitrail pack state", e);
 		}
 	}
 
 	/** Dev harness only: A/B the pack's own TAA with upscaling (DebugServer {@code set pack_taa}). */
 	public static void debugSetPackTaa(boolean retained) {
-		com.bambooz.reflexium.debug.DebugSettings.setPackTaaRetained(retained);
+		DebugSettings.setPackTaaRetained(retained);
 		debugReloadPack();
 	}
 
 	public static void debugSetPackResolveBypass(boolean bypass) {
-		com.bambooz.reflexium.debug.DebugSettings.setPackResolveBypass(bypass);
+		DebugSettings.setPackResolveBypass(bypass);
 		debugReloadPack();
 	}
 
 	public static void debugSetPackPreFilters(boolean retained) {
-		com.bambooz.reflexium.debug.DebugSettings.setPackPreFilters(retained);
+		DebugSettings.setPackPreFilters(retained);
 		debugReloadPack();
 	}
 
@@ -159,7 +163,7 @@ public final class VitrailCompat {
 		ComplementaryTemporalSource.reset();
 		try {
 			Class.forName("dev.vitrail.pack.source.OpenedPack").getMethod("forgetKept").invoke(null);
-			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", java.nio.file.Path.class)
+			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class)
 					.invoke(null, Minecraft.getInstance().gameDirectory.toPath());
 		} catch (ReflectiveOperationException e) {
 			throw new IllegalStateException("could not reload the Vitrail pack", e);

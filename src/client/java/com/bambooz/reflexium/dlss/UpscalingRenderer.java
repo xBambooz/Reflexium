@@ -1,14 +1,21 @@
 package com.bambooz.reflexium.dlss;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.compat.BslFoliageMotion;
+import com.bambooz.reflexium.compat.ComplementaryHdr;
+import com.bambooz.reflexium.compat.ComplementaryMotionSource;
+import com.bambooz.reflexium.compat.ComplementaryTemporalSource;
+import com.bambooz.reflexium.compat.DistantHorizonsCompat;
+import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.PackMotionState;
 import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
-import com.bambooz.reflexium.compat.ComplementaryHdr;
-import com.bambooz.reflexium.compat.DistantHorizonsCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
+import com.bambooz.reflexium.mixin.PostChainAccessor;
+import com.bambooz.reflexium.mixin.PostPassAccessor;
 import com.bambooz.reflexium.mixin.RenderTargetAccessor;
 import com.bambooz.reflexium.mixin.VulkanCommandEncoderAccessor;
 import com.bambooz.reflexium.vulkan.VulkanSession;
@@ -16,10 +23,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.textures.GpuSampler;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder;
 import com.mojang.renderpearl.backend.vulkan.VulkanConst;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuTexture;
@@ -37,15 +47,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import com.mojang.renderpearl.api.textures.GpuSampler;
 import org.joml.Quaternionf;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VK;
 import org.lwjgl.vulkan.VkCommandBuffer;
 
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 
 /**
 	* Super Resolution for vanilla's Vulkan renderer.
@@ -107,7 +122,7 @@ public final class UpscalingRenderer {
 	private long builtPackEpoch;
 	private long irisEpoch;
 	private float previousJitterNdcX, previousJitterNdcY;
-	public void writePackJitter(Object out, java.lang.reflect.Method set) throws ReflectiveOperationException {
+	public void writePackJitter(Object out, Method set) throws ReflectiveOperationException {
 		set.invoke(out, jitterNdcX(), jitterNdcY(), previousJitterNdcX, previousJitterNdcY);
 	}
 	private int guiBlurCalls;
@@ -144,9 +159,9 @@ public final class UpscalingRenderer {
 	private boolean foliageMotionApplied;
 	private boolean irisOpaqueDepthApplied;
 	public Matrix4fc foliageProjection(boolean previous) { return previous ? previousUnjittered : currentUnjittered; }
-	public org.joml.Vector4f foliageMotionState(float previousTime) {
+	public Vector4f foliageMotionState(float previousTime) {
 		Vec3 delta = currentCamera.subtract(previousCamera);
-		return new org.joml.Vector4f((float) delta.x, (float) delta.y, (float) delta.z, previousTime);
+		return new Vector4f((float) delta.x, (float) delta.y, (float) delta.z, previousTime);
 	}
 	private ObjectVelocityPass objectVelocityPass;
 	private MotionDebugPass motionDebugPass;
@@ -237,8 +252,8 @@ public final class UpscalingRenderer {
 	private boolean useRgss;
 
 	private UpscalingRenderer() {
-		java.util.Arrays.fill(frameBias, Float.NaN);
-		java.util.Arrays.fill(lastBias, Float.NaN);
+		Arrays.fill(frameBias, Float.NaN);
+		Arrays.fill(lastBias, Float.NaN);
 	}
 
 	public static UpscalingRenderer get() {
@@ -364,7 +379,7 @@ public final class UpscalingRenderer {
 			if (DlssRuntimeInstaller.ensureInstalledAsync().isDone()) {
 				awaitingRuntime = false;
 				if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY
-						|| java.nio.file.Files.isRegularFile(DlssSupport.featureFolder().resolve(DlssRuntimeInstaller.FILE_NAME))) {
+						|| Files.isRegularFile(DlssSupport.featureFolder().resolve(DlssRuntimeInstaller.FILE_NAME))) {
 					DlssSupport.probe(session);
 					initializeNgx();
 				} else {
@@ -397,7 +412,7 @@ public final class UpscalingRenderer {
 		windowHeight = window.height;
 		ReflexiumConfig config = ReflexiumConfig.get();
 		Upscaler resolved = config.upscaler().resolve(ngxReady, fsr != null, ShaderPacks.isDrawingPack());
-		long packEpoch = com.bambooz.reflexium.compat.IrisCompat.configurationEpoch();
+		long packEpoch = IrisCompat.configurationEpoch();
 		if (guardPackEpoch != packEpoch || guardWidth != window.width || guardHeight != window.height
 				|| guardQuality != config.upscaleQuality() || guardModel != config.dlssModel() || guardRequested != config.upscaler()) {
 			performanceGuard.reset(); guardPackEpoch = packEpoch; guardWidth = window.width; guardHeight = window.height;
@@ -437,9 +452,9 @@ public final class UpscalingRenderer {
 				applyRenderSize(gameRenderer);
 			}
 			refreshMipBias();
-			if (irisEpoch != com.bambooz.reflexium.compat.IrisCompat.epoch()) {
+			if (irisEpoch != IrisCompat.epoch()) {
 				// A reloaded or switched pack: camera, object and hand history all describe the previous pipeline.
-				irisEpoch = com.bambooz.reflexium.compat.IrisCompat.epoch();
+				irisEpoch = IrisCompat.epoch();
 				requestReset(ResetReason.REBUILD);
 				havePrevious = false;
 			}
@@ -629,7 +644,7 @@ public final class UpscalingRenderer {
 				ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
 			}
 		}
-		GpuTextureView opaqueDepth = com.bambooz.reflexium.compat.IrisCompat.opaqueDepth(renderWidth, renderHeight);
+		GpuTextureView opaqueDepth = IrisCompat.opaqueDepth(renderWidth, renderHeight);
 		if (opaqueDepth != null) {
 			directWorldDepth = opaqueDepth;
 			irisOpaqueDepthApplied = true;
@@ -731,7 +746,7 @@ public final class UpscalingRenderer {
 						handProjectionJittered, handProjection, handProjectionPrevious, resetNext);
 			}
 			FrameProfiler.end(FrameProfiler.OBJECTS, timing, commands);
-			GpuTextureView foliage = com.bambooz.reflexium.compat.BslFoliageMotion.surface();
+			GpuTextureView foliage = BslFoliageMotion.surface();
 			if (foliage != null && DebugSettings.objectMotion()) {
 				foliageMotionPass.render(motionTarget, foliage, sceneDepth, handDepth);
 				foliageMotionApplied = true;
@@ -793,7 +808,7 @@ public final class UpscalingRenderer {
 		afterLevel(renderer); // Geometry and hand are complete here, before the pack's final chain returns.
 		if (DistantHorizonsCompat.rejectedFrame()) return;
 		if (!worldDepthCaptured) throw new IllegalStateException("HDR boundary has no aligned world depth");
-		if (com.bambooz.reflexium.compat.ComplementaryMotionSource.ready() && !resetNext) {
+		if (ComplementaryMotionSource.ready() && !resetNext) {
 			var encoder = RenderSystem.getDevice().createCommandEncoder();
 			encoder.copyTextureToTexture(motionTarget.getColorTexture(), packMotionBase.getColorTexture(), 0, 0, 0, 0, 0, renderWidth, renderHeight);
 			encoder.copyTextureToTexture(motionTarget.getDepthTexture(), packMotionBase.getDepthTexture(), 0, 0, 0, 0, 0, renderWidth, renderHeight);
@@ -823,7 +838,7 @@ public final class UpscalingRenderer {
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		boolean fgReset = frameGenerationReset;
 		if (DebugSettings.foliageDepthDebug && foliageMotionApplied) {
-			foliageMotionPass.render(main, com.bambooz.reflexium.compat.BslFoliageMotion.surface(),
+			foliageMotionPass.render(main, BslFoliageMotion.surface(),
 					directWorldDepth != null ? directWorldDepth : worldDepth.getDepthTextureView(), packHandMask.getDepthTextureView(), true);
 		}
 		if (DebugSettings.motionVectorView() && worldDepthCaptured && motionTarget != null) {
@@ -839,7 +854,7 @@ public final class UpscalingRenderer {
 					DebugSettings.jitterSignX(JITTER_SIGN) * jitterX, DebugSettings.jitterSignY(JITTER_SIGN) * jitterY,
 					cameraNear, motionFar, cameraFov, lastFrameMs, fgReset);
 		}
-		com.bambooz.reflexium.compat.BslFoliageMotion.endFrame();
+		BslFoliageMotion.endFrame();
 		previousUnjittered.set(currentUnjittered);
 		previousDepthTransform.set(depthTransform);
 		previousCamera = currentCamera;
@@ -948,17 +963,17 @@ public final class UpscalingRenderer {
 		o.addProperty("hdr_evaluated_this_frame", hdrEvaluated);
 		o.addProperty("pack_surface_motion", packSurfaceApplied);
 		o.addProperty("bsl_foliage_motion", foliageMotionApplied);
-		o.addProperty("bsl_foliage_surface_cleared", foliageMotionApplied && com.bambooz.reflexium.compat.BslFoliageMotion.clearedThisFrame());
+		o.addProperty("bsl_foliage_surface_cleared", foliageMotionApplied && BslFoliageMotion.clearedThisFrame());
 		o.addProperty("vanilla_cloud_motion", vanillaCloudMotionApplied);
 		o.addProperty("post_upscale_particles", DeferredEffects.applied);
 		o.addProperty("particle_generated_copies", DeferredEffects.generatedCopies);
 		o.addProperty("vanilla_cloud_previous_displacement_x", vanillaCloudMotion.displacement());
 		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		if (foliageMotionApplied) {
-			o.addProperty("bsl_previous_time", com.bambooz.reflexium.compat.BslFoliageMotion.previousTime());
-			o.addProperty("bsl_current_time", com.bambooz.reflexium.compat.BslFoliageMotion.currentTime());
+			o.addProperty("bsl_previous_time", BslFoliageMotion.previousTime());
+			o.addProperty("bsl_current_time", BslFoliageMotion.currentTime());
 		}
-		o.addProperty("pack_surface_sources_verified", com.bambooz.reflexium.compat.ComplementaryMotionSource.ready());
+		o.addProperty("pack_surface_sources_verified", ComplementaryMotionSource.ready());
 		o.addProperty("blended_surface_strategy", "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported");
 		o.addProperty("gui_blur_calls_this_frame", guiBlurCalls);
 		o.addProperty("menu_blur_radius_setting", menuBlurRadius);
@@ -1004,9 +1019,9 @@ public final class UpscalingRenderer {
 		o.addProperty("requested_preset", builtPreset);
 		o.addProperty("requested_preset_is_hint", true);
 		o.addProperty("pack_resolve_bypass_requested", DebugSettings.packResolveBypass());
-		o.addProperty("pack_resolve_bypass_applied", com.bambooz.reflexium.compat.ComplementaryTemporalSource.applied());
+		o.addProperty("pack_resolve_bypass_applied", ComplementaryTemporalSource.applied());
 		o.addProperty("pack_pre_filters_requested", DebugSettings.packPreFilters());
-		o.addProperty("pack_source_edits", String.join(",", new java.util.TreeSet<>(com.bambooz.reflexium.compat.ComplementaryTemporalSource.appliedEdits())));
+		o.addProperty("pack_source_edits", String.join(",", new TreeSet<>(ComplementaryTemporalSource.appliedEdits())));
 		return o;
 	}
 
@@ -1069,7 +1084,7 @@ public final class UpscalingRenderer {
 		meta.addProperty("color_stage", builtHdr ? "scene linear before composite5 bloom/tonemap" : "finished scene");
 		meta.addProperty("pre_exposure", 1.0f);
 		meta.addProperty("vendor_auto_exposure", builtHdr);
-		if (packSurfaceApplied) meta.add("pack_deformation", com.bambooz.reflexium.compat.PackMotionState.evidence());
+		if (packSurfaceApplied) meta.add("pack_deformation", PackMotionState.evidence());
 		meta.addProperty("motion_encoding", "RGB packed 12-bit XY, 1/32 render pixel, range -64..63.96875, clamped");
 		meta.addProperty("depth_encoding", "RGB unorm24, reverse-Z device depth");
 		meta.addProperty("evaluated_frame", evaluatedFrames + 1);
@@ -1162,14 +1177,14 @@ public final class UpscalingRenderer {
 		encodeCapture(request, request.motion, CaptureEncodePass.MOTION);
 		encodeCapture(request, request.depth, CaptureEncodePass.DEPTH);
 	}
-	private void encodeColorCapture(UpscaleCapture request, java.util.concurrent.CompletableFuture<com.mojang.blaze3d.platform.NativeImage> future, RenderTarget source) {
+	private void encodeColorCapture(UpscaleCapture request, CompletableFuture<NativeImage> future, RenderTarget source) {
 		if (captureEncodePass == null) captureEncodePass = new CaptureEncodePass();
 		TextureTarget encoded = new TextureTarget("Reflexium linear HDR diagnostic", source.width, source.height, GpuFormat.RGBA8_UNORM, null);
 		captureEncodePass.render(source, encoded, CaptureEncodePass.HDR);
 		Screenshot.takeScreenshot(encoded, image -> { request.deliver(future, image); Minecraft.getInstance().execute(encoded::destroyBuffers); });
 	}
 
-	private void encodeCapture(UpscaleCapture request, java.util.concurrent.CompletableFuture<com.mojang.blaze3d.platform.NativeImage> future, int mode) {
+	private void encodeCapture(UpscaleCapture request, CompletableFuture<NativeImage> future, int mode) {
 		TextureTarget encoded = new TextureTarget("Reflexium capture encode", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, null);
 		captureEncodePass.render(motionTarget, encoded, mode);
 		// The readback callback runs after the copy finished, which is when the temporary target can go.
@@ -1249,7 +1264,7 @@ public final class UpscalingRenderer {
 		lastEvaluateNs = 0;
 		evaluatedFrames = 0;
 		historyResetFrames = 0;
-		java.util.Arrays.fill(resetsByReason, 0L);
+		Arrays.fill(resetsByReason, 0L);
 		ReflexiumClient.LOGGER.info("{} {}: rendering {}x{}, output {}x{}; DLSS model {} (requested preset {}), texture LOD bias {}",
 				selected, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight, builtModel, builtPreset, mipBias);
 	}
@@ -1323,8 +1338,8 @@ public final class UpscalingRenderer {
 			depthProbeChains = List.copyOf(applied);
 			boolean needs = false;
 			for (PostChain chain : depthProbeChains) {
-				for (PostPass pass : ((com.bambooz.reflexium.mixin.PostChainAccessor) chain).reflexium$passes()) {
-					for (PostPass.Input input : ((com.bambooz.reflexium.mixin.PostPassAccessor) pass).reflexium$inputs()) {
+				for (PostPass pass : ((PostChainAccessor) chain).reflexium$passes()) {
+					for (PostPass.Input input : ((PostPassAccessor) pass).reflexium$inputs()) {
 						if (input instanceof PostPass.TargetInput target && target.depthBuffer()) needs = true;
 					}
 				}
@@ -1444,7 +1459,7 @@ public final class UpscalingRenderer {
 
 	static void barrier(VkCommandBuffer commandBuffer) {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
-			com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder.memoryBarrier(commandBuffer, stack);
+			VulkanCommandEncoder.memoryBarrier(commandBuffer, stack);
 		}
 	}
 
@@ -1472,8 +1487,8 @@ public final class UpscalingRenderer {
 		accB.reflexium$setDepthTextureView(depthView);
 		b.width = width;
 		b.height = height;
-		com.bambooz.reflexium.compat.IrisCompat.syncTargetVersions(a);
-		com.bambooz.reflexium.compat.IrisCompat.syncTargetVersions(b);
+		IrisCompat.syncTargetVersions(a);
+		IrisCompat.syncTargetVersions(b);
 	}
 
 	private void updateGlobals(int width, int height) {

@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -135,7 +136,7 @@ public final class BmDriver implements ClientModInitializer {
 	}
 
 	private static long[] withIndex(long[] values, long index) {
-		long[] copy = java.util.Arrays.copyOf(values, values.length + 1);
+		long[] copy = Arrays.copyOf(values, values.length + 1);
 		copy[values.length] = index;
 		return copy;
 	}
