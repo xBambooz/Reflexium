@@ -18,18 +18,33 @@ import static org.lwjgl.util.shaderc.Shaderc.*;
 /** Numerical depth/motion checks and optional ABI checks against the installed, exact-version jars. */
 public final class DistantHorizonsCheck {
 	public static void main(String[] args) throws Exception {
+		boolean[] closed = new boolean[2];
 		var texture = (GpuTexture) Proxy.newProxyInstance(
 				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {GpuTexture.class},
-				(proxy, method, values) -> method.getName().equals("getFormat") ? GpuFormat.D32_FLOAT : null);
+				(proxy, method, values) -> switch (method.getName()) {
+					case "getFormat" -> GpuFormat.D32_FLOAT;
+					case "isClosed" -> closed[1];
+					default -> null;
+				});
 		var depth = (GpuTextureView) Proxy.newProxyInstance(
 				DistantHorizonsCheck.class.getClassLoader(), new Class<?>[] {GpuTextureView.class},
 				(proxy, method, values) -> switch (method.getName()) {
 					case "texture" -> texture;
-					case "isClosed" -> false;
+					case "isClosed" -> closed[0];
 					case "getWidth" -> 960;
 					case "getHeight" -> 540;
 					default -> null;
 				});
+		check(DistantHorizonsCompat.acceptIrisDepth(depth, 960, 540), "Matching DH depth can render");
+		check(!DistantHorizonsCompat.acceptIrisDepth(depth, 1920, 1080), "Late DH size change must skip setup");
+		check(DistantHorizonsCompat.rejectedFrame(), "Skipped DH frame must reject temporal input");
+		for (int i = 0; i < closed.length; i++) {
+			closed[i] = true;
+			check(!DistantHorizonsCompat.acceptIrisDepth(depth, 960, 540), "Closed DH input must skip setup");
+			closed[i] = false;
+		}
+		DistantHorizonsCompat.beginFrame();
+		check(DistantHorizonsCompat.acceptIrisDepth(depth, 960, 540), "Matching next-frame depth can render again");
 		for (Matrix4f invalid : new Matrix4f[] {new Matrix4f().zero(), new Matrix4f().m00(Float.NaN)}) {
 			try {
 				DistantHorizonsCompat.checkedFrame(depth, invalid, 32768);
@@ -50,7 +65,7 @@ public final class DistantHorizonsCheck {
 		DistantHorizonsCompat.captureNative(null);
 		DistantHorizonsCompat.captureIris(null);
 		check(DistantHorizonsCompat.depthFrame(1920, 1080) == null, "Disabled hooks must not publish DH depth");
-		for (String name : new String[] {"dh.BlazeDhTerrainMixin", "dh.IrisDhTerrainMixin", "iris.DhProjectionMixin"}) {
+		for (String name : new String[] {"dh.BlazeDhTerrainMixin", "dh.IrisDhTerrainMixin", "dh.IrisDhRenderGuardMixin", "iris.DhProjectionMixin"}) {
 			check(!new CompatMixinPlugin().shouldApplyMixin("unused", "com.bambooz.reflexium.mixin.compat." + name),
 					"Diagnostic switch must disable " + name);
 		}
@@ -140,6 +155,8 @@ public final class DistantHorizonsCheck {
 			try (ZipFile zip = new ZipFile(path.toFile())) {
 				String render = "(Lcom/seibel/distanthorizons/api/methods/events/sharedParameterObjects/DhApiRenderParam;ZLcom/seibel/distanthorizons/api/objects/util/IDhApiReadOnlyList;)V";
 				if (dh) {
+					require(zip, "com/seibel/distanthorizons/core/render/renderer/LodRenderer",
+							"renderTerrain(Lcom/seibel/distanthorizons/core/render/RenderParam;Lcom/seibel/distanthorizons/core/wrapperInterfaces/minecraft/IProfilerWrapper;Z)V");
 					require(zip, "com/seibel/distanthorizons/common/render/blaze/BlazeDhTerrainRenderer", "render" + render);
 					require(zip, "com/seibel/distanthorizons/core/config/types/ConfigEntry", "setApiValue(Ljava/lang/Object;Ljava/lang/String;)V", "getApiUser()Ljava/lang/String;", "getApiValue()Ljava/lang/Object;");
 					require(zip, "com/seibel/distanthorizons/core/util/math/DhMat4f", "createJomlMatrix(Lcom/seibel/distanthorizons/api/objects/math/DhApiMat4f;)Lorg/joml/Matrix4f;");

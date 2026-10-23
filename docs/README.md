@@ -11,6 +11,7 @@
 
 - [Vitrail](VITRAIL.md)
 - [Distant Horizons](DISTANT_HORIZONS.md)
+- [Late Iris/DH depth-resize verification](validation/dh-late-depth-resize.md)
 - [Shader loader direction](SHADER_LOADER.md)
 
 ## Development

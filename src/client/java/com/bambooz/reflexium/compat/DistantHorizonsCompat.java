@@ -5,6 +5,7 @@ import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
@@ -38,7 +39,7 @@ public final class DistantHorizonsCompat {
 	private static Field renderProxy, resultSuccess, resultPayload, nativeViewProjection, nativeFar;
 	private static Method depthWrapper, wrappedObjects, toJoml;
 	private static Method irisDepth, irisProjection, irisView, irisFar, irisShadows;
-	private static Method irisCurrent, irisResizeDepth;
+	private static Method irisCurrent, irisResizeDepth, irisGuardDepth;
 
 	private DistantHorizonsCompat() {
 	}
@@ -156,17 +157,46 @@ public final class DistantHorizonsCompat {
 	public static void prepareIrisDepth() {
 		if (!isSupportedVersion() || broken) return;
 		try {
-			if (irisCurrent == null) {
-				Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
-				irisCurrent = type.getMethod("current");
-				irisResizeDepth = type.getDeclaredMethod("resizeDepth");
-				irisResizeDepth.setAccessible(true);
-			}
-			Object compat = irisCurrent.invoke(null);
+			Object compat = currentIris();
 			if (compat != null) irisResizeDepth.invoke(compat);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			disable(e);
 		}
+	}
+
+	private static Object currentIris() throws ReflectiveOperationException {
+		if (irisCurrent == null) {
+			Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
+			irisGuardDepth = type.getMethod("getDepthTexture", boolean.class);
+			irisResizeDepth = type.getDeclaredMethod("resizeDepth");
+			irisResizeDepth.setAccessible(true);
+			irisCurrent = type.getMethod("current");
+		}
+		return irisCurrent.invoke(null);
+	}
+
+	/** DH setup runs inside the terrain pass. Never let it resize/clear depth there after a late target change. */
+	public static boolean irisDepthReady() {
+		if (DISABLED || !IrisCompat.isDrawingPack()) return true;
+		try {
+			Object compat = currentIris();
+			if (compat == null) return true;
+			var depth = (GpuTextureView) irisGuardDepth.invoke(compat, false);
+			// Packs without DH terrain shaders have no depth target and retain Iris's own no-op path.
+			if (depth == null) return true;
+			var main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+			return acceptIrisDepth(depth, main.width, main.height);
+		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+			disable(e);
+			return false;
+		}
+	}
+
+	static boolean acceptIrisDepth(GpuTextureView depth, int width, int height) {
+		if (!depth.isClosed() && !depth.texture().isClosed()
+				&& depth.getWidth(0) == width && depth.getHeight(0) == height) return true;
+		retryFrame(new FrameNotReady("Deferring Iris DH depth resize until the next world frame"));
+		return false;
 	}
 
 	/** Iris stores pack GL clip coordinates but DepthTransformer writes reverse-Z Vulkan depth. */
