@@ -1,0 +1,4 @@
+case,real_frames,generated_frames,ratio,status,note
+bsl1080_performance_2x,1418,707,0.499,2,sustained during 5 s sample
+bsl1080_performance_2x_long,5198,2597,0.500,2,sustained during 12 s sample
+fg_only_control,404,403,0.998,0,DLSS SR off; no status 2

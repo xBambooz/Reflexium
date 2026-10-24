@@ -69,6 +69,9 @@ public final class FrameGenerationRenderer {
 	private int streamlineNoGenerateFrames;
 	private boolean streamlineUnfocused;
 	private String streamlineProblem = "";
+	private long streamlineSkipLogAt;
+	private String streamlineSkipReason = "";
+	private boolean streamlineSceneLogged;
 	private final VulkanCommandEncoder[] presentEncoders = new VulkanCommandEncoder[7];
 	private final GpuFence[] presentCompletions = new GpuFence[7];
 	private boolean failed, resetNext = true;
@@ -167,6 +170,14 @@ public final class FrameGenerationRenderer {
 			resetNext = true;
 		}
 	}
+
+	/** Called before the swapchain is destroyed or recreated, not after. */
+	public void beforeSurfaceChange() {
+		if (session == null || !session.streamline()) return;
+		disableStreamlineFrameGeneration();
+		StreamlineSupport.invalidateFrameGenerationOptions();
+		resetNext = true;
+	}
 	public void retry() {
 		failed = false; problem = ""; streamlineProblem = ""; resetNext = true;
 		streamlineUnfocused = false; streamlineNoGenerateFrames = 0;
@@ -174,7 +185,7 @@ public final class FrameGenerationRenderer {
 	}
 	public void invalidate() { ready = 0; resetNext = true; delivery.reset(); disableStreamlineFrameGeneration(); }
 
-	private String unavailableReason() {
+	public String unavailableReason() {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
 		if (mode == FrameGeneration.OFF) return "";
 		if (session == null) return "needs Windows x64 and Vulkan";
@@ -192,7 +203,13 @@ public final class FrameGenerationRenderer {
 			}
 			if (mode == FrameGeneration.DLSS_MULTI && maximumMultiplier() < 3) return "Multi Frame Generation requires a supported RTX 50 series GPU/runtime";
 			int status = StreamlineSupport.frameGenerationStatus();
-			if (status != 0) return "DLSS Frame Generation runtime status " + status;
+			// Bit 1 (Reflex not detected at runtime) can be reported for a present that the
+			// asynchronous DLSS-G pacer processes one host frame behind the marker. Reflex is
+			// forced on and slept every frame, so keep generating while the per-frame gate passes;
+			// every other status bit is a real integration failure.
+			if (status != 0 && !(status == 2 && ReflexController.get().isSleeping())) {
+				return "DLSS Frame Generation runtime status " + status;
+			}
 			return "";
 		}
 		if (!session.presentMetering() || FsrSwapchain.active()) return "presentation scheduler unavailable";
@@ -344,10 +361,12 @@ public final class FrameGenerationRenderer {
 			Matrix4fc projection, Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z,
 			float jitterX, float jitterY, float near, float far, float fov, float frameMs, boolean reset,
 			boolean srOwnsConstants, int displayWidth, int displayHeight) {
-		if (!streamlinePath()) return;
+		if (!streamlinePath()) { noteStreamlineSkip("no streamline path"); return; }
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.gui.screen() != null || mc.isPaused()) {
 			ledger.reason(GenerationLedger.Shortfall.MENU);
+			noteStreamlineSkip("menu screen=" + (mc.gui.screen() == null ? "none" : mc.gui.screen().getClass().getSimpleName())
+					+ " paused=" + mc.isPaused());
 			// Guide 17.0: null every DLSS-G tag on menus and loading screens so the plugin never
 			// consumes stale depth/motion from a paused world.
 			if (streamlineActive) StreamlineSupport.clearFrameGenerationTags(commands.address());
@@ -356,15 +375,17 @@ public final class FrameGenerationRenderer {
 		}
 		if (!ReflexController.get().isSleeping()) {
 			ledger.reason(GenerationLedger.Shortfall.REFLEX_NOT_SLEEPING);
+			noteStreamlineSkip("reflex not sleeping");
 			disableStreamlineFrameGeneration();
 			return;
 		}
 		FrameGeneration requested = ReflexiumConfig.get().frameGeneration();
 		int count = requested.nvidia() ? configuredGeneratedCount() : 0;
-		if (count < 1) { resetNext = true; disableStreamlineFrameGeneration(); return; }
+		if (count < 1) { resetNext = true; noteStreamlineSkip("configured count 0"); disableStreamlineFrameGeneration(); return; }
 		int maximum = maximumMultiplier();
 		if (count < 1 || count + 1 > maximum) {
 			streamlineProblem = "multiplier " + (count + 1) + " exceeds DLSS-G maximum " + maximum;
+			noteStreamlineSkip(streamlineProblem);
 			ledger.reason(GenerationLedger.Shortfall.UNAVAILABLE);
 			disableStreamlineFrameGeneration();
 			return;
@@ -394,15 +415,17 @@ public final class FrameGenerationRenderer {
 		rollResetWindow(System.nanoTime());
 		if (resetting) resetsInWindow++;
 		try {
-			if (!srOwnsConstants) {
-				StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
-						near, far, fov, (float) displayWidth / displayHeight, resetting, motion.width, motion.height, true);
-			}
+			// One constants block per frame, supplied before DLSS-G options and before SR evaluates,
+			// so both features and sl.reflex see the same frame data. The tagged images are mirrored
+			// into the presented orientation, hence flipY.
+			StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
+					near, far, fov, (float) displayWidth / displayHeight, resetting, motion.width, motion.height, true);
 			VulkanLifecycle.SwapchainState swapchain = VulkanLifecycle.swapchainState();
 			int optionResult = StreamlineSupport.setFrameGeneration(1, count, UI_RECOMPOSITION,
 					swapchain == null ? 0 : swapchain.created(), motion.width, motion.height, displayWidth, displayHeight);
 			if (optionResult != 0) {
 				streamlineProblem = "DLSS-G options failed " + Integer.toHexString(optionResult);
+				noteStreamlineSkip(streamlineProblem);
 				ledger.reason(GenerationLedger.Shortfall.UNAVAILABLE);
 				disableStreamlineFrameGeneration();
 				return;
@@ -410,6 +433,11 @@ public final class FrameGenerationRenderer {
 			streamlineActive = true;
 			streamlineInputsPrepared = false;
 			streamlineProblem = "";
+			if (!streamlineSceneLogged) {
+				streamlineSceneLogged = true;
+				LOG.info("DLSS-G scene marked active ({}x, {}x{})", count + 1, displayWidth, displayHeight);
+			}
+			streamlineSkipReason = "";
 			evaluated++;
 			resetNext = false;
 			ready = 0;
@@ -463,8 +491,7 @@ public final class FrameGenerationRenderer {
 		if (srColorTarget == null) return -3;
 		if (srOutputTarget == null) return -4;
 		if (output == null) return -5;
-		StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
-				near, far, fov, (float) width / height, reset, srColorTarget.width, srColorTarget.height, true);
+		// streamlineSceneReady already set this frame's single shared constants block.
 		int result = StreamlineSupport.evaluateDlss(commands.address(),
 				VulkanInterop.image(srColorTarget.getColorTexture(), srColorTarget.getColorTextureView()),
 				VulkanInterop.image(fgDepthTarget.getDepthTexture(), fgDepthTarget.getDepthTextureView()),
@@ -541,8 +568,17 @@ public final class FrameGenerationRenderer {
 		streamlineMotion = null;
 	}
 
+	private void noteStreamlineSkip(String reason) {
+		long now = System.nanoTime();
+		if (reason.equals(streamlineSkipReason) && now - streamlineSkipLogAt < 2_000_000_000L) return;
+		streamlineSkipReason = reason;
+		streamlineSkipLogAt = now;
+		LOG.info("DLSS-G scene not marked active: {}", reason);
+	}
+
 	private void disableStreamlineFrameGeneration() {
 		streamlineActive = false;
+		streamlineSceneLogged = false;
 		if (session != null && session.streamline() && StreamlineSupport.dlssgAvailable()) {
 			StreamlineSupport.setFrameGeneration(0, 1, false, 0, 0, 0, 0, 0);
 		}

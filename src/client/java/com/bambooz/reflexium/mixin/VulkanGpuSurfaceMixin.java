@@ -239,6 +239,13 @@ public abstract class VulkanGpuSurfaceMixin {
 		ReflexiumClient.LOGGER.info("Vulkan surface has no A2B10G10R10 UNORM format; frame generation output stays 8-bit");
 	}
 
+	/** Guide 17.0: disable frame generation and drop latency markers before any surface change. */
+	@Inject(method = "configure", at = @At("HEAD"))
+	private void reflexium$prepareSurfaceChange(GpuSurface.Configuration configuration, CallbackInfo ci) {
+		FrameGenerationRenderer.get().beforeSurfaceChange();
+		ReflexController.get().beforeSurfaceChange();
+	}
+
 	@Inject(method = "configure", at = @At("TAIL"))
 	private void reflexium$swapchainCreated(GpuSurface.Configuration configuration, CallbackInfo ci) {
 		if (!FsrSwapchain.owns(swapchain)) VulkanLifecycle.onSwapchainCreated(swapchain);

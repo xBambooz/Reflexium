@@ -1,0 +1,9 @@
+mode,rep,fps,eval_fps,line
+native,1,299.3,0,Upscaling: off
+native,2,300.1,0,Upscaling: off
+quality,1,280.1,280,DLSS: Quality 1280x720 -> 1920x1080
+quality,2,281.8,282,DLSS: Quality 1280x720 -> 1920x1080
+balanced,1,283.7,284,DLSS: Balanced 1114x626 -> 1920x1080
+balanced,2,284.3,284,DLSS: Balanced 1114x626 -> 1920x1080
+performance,1,305.6,306,DLSS: Performance 960x540 -> 1920x1080
+performance,2,306.0,306,DLSS: Performance 960x540 -> 1920x1080

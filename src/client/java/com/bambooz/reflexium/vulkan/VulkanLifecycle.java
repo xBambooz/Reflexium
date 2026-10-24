@@ -94,6 +94,7 @@ public final class VulkanLifecycle {
 		}
 		FrameGenerationRenderer.get().onSwapchainCreated();
 		ReflexController.get().onSwapchainCreated(swapchain);
+		ReflexController.get().suspendMarkers(4);
 	}
 
 	public static String presentModeName(int mode) {
@@ -109,6 +110,7 @@ public final class VulkanLifecycle {
 	public static void onSwapchainDestroyed() {
 		FrameGenerationRenderer.get().invalidate();
 		ReflexController.get().onSwapchainDestroyed();
+		ReflexController.get().suspendMarkers(4);
 	}
 
 	public static VkSwapchainCreateInfoKHR chainSwapchainLatency(VkSwapchainCreateInfoKHR info) {

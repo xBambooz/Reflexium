@@ -366,11 +366,14 @@ public final class StreamlineSupport {
 		return bridge.dlssgClearTags(commandBuffer);
 	}
 
-	/** One Streamline token per real frame, used by SR tags/constants, Reflex sleep and PCL markers. */
-	public static void beginFrame(boolean reset) {
+	/**
+	 * One Streamline token per real frame, used by SR tags/constants, Reflex sleep and PCL markers.
+	 * The caller supplies the frame number so it stays identical to the Reflex present id.
+	 */
+	public static void beginFrame(int frame, boolean reset) {
 		if (!deviceReady || bridge == null) return;
-		frameIndex++;
-		int result = bridge.beginFrame(frameIndex, reset);
+		frameIndex = frame;
+		int result = bridge.beginFrame(frame, reset);
 		if (result != 0) {
 			problem = "frame token failed " + result;
 			deviceReady = false;

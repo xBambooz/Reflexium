@@ -459,17 +459,9 @@ RX_EXPORT int rx_sl_set_device(VkInstance instance, VkPhysicalDevice physicalDev
 	if (g_dlssgSupported) {
 		featureFunction(sl::kFeatureDLSS_G, "slDLSSGSetOptions", g_slDLSSGSetOptions);
 		featureFunction(sl::kFeatureDLSS_G, "slDLSSGGetState", g_slDLSSGGetState);
-		if (g_slDLSSGGetState != nullptr) {
-			sl::DLSSGState state{};
-			sl::Result stateResult = g_slDLSSGGetState(sl::ViewportHandle(0), state, nullptr);
-			if (stateResult == sl::Result::eOk) {
-				g_dlssgMaxGenerated = static_cast<int>(state.numFramesToGenerateMax);
-				g_dlssgDynamicSupported = state.bIsDynamicMFGSupported == sl::Boolean::eTrue;
-				g_dlssgStatus = static_cast<int>(state.status);
-			} else {
-				appendLog("slDLSSGGetState after device set failed " + std::to_string(static_cast<int>(stateResult)));
-			}
-		}
+		// Do not query DLSS-G state here. slDLSSGGetState is present-thread only and the plugin has no
+		// swapchain or Reflex state yet; a query at device registration returns a stale status and
+		// logs the SDK's thread-synchronization warning. The Java present loop reads it once per frame.
 	}
 	if (g_reflexSupported) {
 		featureFunction(sl::kFeatureReflex, "slReflexSetOptions", g_slReflexSetOptions);

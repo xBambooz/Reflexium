@@ -179,21 +179,21 @@ final class SetCommand {
 			}
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
-				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
+				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "fg_multiplier" -> {
 				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);
 				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 				if (multiplier != 0 && (multiplier < 2 || multiplier > maximum)) throw new DebugHttp.BadRequest("FG multiplier must be auto or 2.." + maximum + " on this GPU");
-				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); };
+				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "upscaler" -> {
 				Upscaler upscaler = parseEnum(Upscaler.class, value);
-				yield () -> ReflexiumConfig.get().setUpscaler(upscaler);
+				yield () -> { ReflexiumConfig.get().setUpscaler(upscaler); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "quality" -> {
 				UpscaleQuality quality = parseEnum(UpscaleQuality.class, value);
-				yield () -> ReflexiumConfig.get().setUpscaleQuality(quality);
+				yield () -> { ReflexiumConfig.get().setUpscaleQuality(quality); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "dlss_model" -> {
 				DlssModel model = parseEnum(DlssModel.class, value);

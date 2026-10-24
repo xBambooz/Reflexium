@@ -106,6 +106,8 @@ public final class ReflexController {
 	private int lastMarkerRank;
 	private long lastMarkerFrameId = -1;
 	private long markerOrderRegressions;
+	private int markerSuppressFrames;
+	private int transitionFrames;
 
 	public static ReflexController get() {
 		return INSTANCE;
@@ -198,6 +200,7 @@ public final class ReflexController {
 
 	/** The driver is currently permitted to pace this frame. */
 	public boolean isSleeping() {
+		if (transitionFrames > 0) return false;
 		if (streamline) return isAvailable() && pacing.canSleep();
 		return isAvailable() && pacing.canSleep() && sleepSemaphore != 0;
 	}
@@ -243,12 +246,30 @@ public final class ReflexController {
 	// ---------------------------------------------------------------------------------------------
 	// Frame hooks
 
+	/** Drops latency markers while presentation/upscaler resources are being rebuilt. */
+	public void suspendMarkers(int frames) {
+		if (frames > 0) markerSuppressFrames = Math.max(markerSuppressFrames, frames);
+	}
+
+	/** Temporarily disables Reflex sleep and markers while DLSS/DLSS-G resources are rebuilt. */
+	public void beforeSurfaceChange() {
+		suspendMarkers(8);
+		transitionFrames = Math.max(transitionFrames, 30);
+		if (!streamline) return;
+		pacing.reset();
+		applySleepMode();
+	}
+
 	public void beginFrame() {
-		if (StreamlineSupport.initialized()) StreamlineSupport.beginFrame(false);
 		if (!isAvailable()) {
 			return;
 		}
+		if (markerSuppressFrames > 0) markerSuppressFrames--;
+		if (transitionFrames > 0) transitionFrames--;
 		frameId++;
+		// The Streamline token index is also the Reflex present id. Keeping one number for the
+		// token, constants, PCL markers and VkPresentIdKHR is what DLSS-G compares at present.
+		if (StreamlineSupport.initialized()) StreamlineSupport.beginFrame((int) frameId, false);
 		frameOpen = true;
 		lastMarker = -1;
 		lastMarkerRank = 0;
@@ -442,7 +463,7 @@ public final class ReflexController {
 			return;
 		}
 		if (streamline) {
-			ReflexMode mode = mode();
+			ReflexMode mode = transitionFrames > 0 ? ReflexMode.OFF : mode();
 			int multiplier = FrameGenerationRenderer.get().refreshPolicy().multiplier();
 			int baseInterval = DebugSettings.reflexIntervalUs;
 			int interval = mode.enabled() ? Math.max(requestedIntervalUs, baseInterval > 0 ? (baseInterval + multiplier - 1) / multiplier : 0) : 0;
@@ -574,7 +595,7 @@ public final class ReflexController {
 	}
 
 	private void marker(int marker) {
-		if (!frameOpen || !isAvailable()) {
+		if (!frameOpen || !isAvailable() || markerSuppressFrames > 0) {
 			return;
 		}
 		int rank = markerRank(marker);
