@@ -83,6 +83,7 @@ public final class StreamlineSupport {
 	public static void setEnabled(boolean value) { override = value; }
 
 	public static boolean initialized() { return initialized; }
+	public static int currentFrame() { return frameIndex; }
 	public static boolean deviceReady() { return deviceReady; }
 	public static boolean dlssAvailable() { return deviceReady && dlssAvailable; }
 	public static boolean dlssgAvailable() { return deviceReady && dlssgAvailable; }
@@ -443,6 +444,7 @@ public final class StreamlineSupport {
 		if (!pclAvailable || bridge == null) return 1;
 		return bridge.pclMarker(marker);
 	}
+
 
 	public static int pclStatsMessage() {
 		if (!pclAvailable || bridge == null) return -1;

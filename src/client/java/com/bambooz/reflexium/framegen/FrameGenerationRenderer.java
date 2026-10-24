@@ -62,7 +62,8 @@ public final class FrameGenerationRenderer {
 	private boolean streamlineActive;
 	private Boolean dlssgFeatureWanted;
 	private boolean dlssgLoadFailed;
-	private int[] streamlineStateBeforePresent;
+	
+	
 	private int lastStreamlinePresentResult;
 	private long streamlineGeneratedPresents;
 	private int streamlineNoGenerateLogs;
@@ -203,13 +204,7 @@ public final class FrameGenerationRenderer {
 			}
 			if (mode == FrameGeneration.DLSS_MULTI && maximumMultiplier() < 3) return "Multi Frame Generation requires a supported RTX 50 series GPU/runtime";
 			int status = StreamlineSupport.frameGenerationStatus();
-			// Bit 1 (Reflex not detected at runtime) can be reported for a present that the
-			// asynchronous DLSS-G pacer processes one host frame behind the marker. Reflex is
-			// forced on and slept every frame, so keep generating while the per-frame gate passes;
-			// every other status bit is a real integration failure.
-			if (status != 0 && !(status == 2 && ReflexController.get().isSleeping())) {
-				return "DLSS Frame Generation runtime status " + status;
-			}
+			if (status != 0 && !(status == 2 && ReflexController.get().isSleeping())) return "DLSS Frame Generation runtime status " + status;
 			return "";
 		}
 		if (!session.presentMetering() || FsrSwapchain.active()) return "presentation scheduler unavailable";
@@ -768,19 +763,11 @@ public final class FrameGenerationRenderer {
 		if (reset) resetMetering = false;
 		else { rejectionStreak = 0; meteringProblem = ""; }
 	}
-	/**
-	 * The one DLSS-G state read per frame, on the present thread immediately before
-	 * vkQueuePresentKHR. The count it returns covers the previous present cycle.
-	 */
-	public void beforeStreamlinePresent() {
-		streamlineStateBeforePresent = streamlineActive ? StreamlineSupport.refreshFrameGenerationState() : null;
-	}
-
 	/** One host present; Streamline has already presented the real frame plus N interpolated frames. */
 	private void onStreamlinePresentResult(int result) {
 		boolean delivered = result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR;
 		lastStreamlinePresentResult = result;
-		int[] state = streamlineStateBeforePresent;
+		int[] state = streamlineActive ? StreamlineSupport.refreshFrameGenerationState() : null;
 		int actual = state == null ? 0 : state[3];
 		int generated = Math.max(0, actual - 1);
 		if (generated > 0) {
@@ -821,15 +808,10 @@ public final class FrameGenerationRenderer {
 		}
 		for (int i = 0; i < generated; i++) ledger.generatedPresent(delivered);
 		if (state != null && (state[2] & ~2) != 0) {
-			// Bit 1 (Reflex not detected) can be reported for the first frames after enabling DLSS-G
-			// while the sleep loop is still starting; Reflex availability is already gated per frame.
 			streamlineProblem = "DLSS-G runtime status " + state[2];
 			ReflexiumClient.LOGGER.warn("DLSS-G runtime status {}; turning frame generation off", state[2]);
 			failed = true;
 			problem = streamlineProblem;
-		} else if (state != null && state[2] == 2 && streamlineNoGenerateLogs < 3) {
-			streamlineNoGenerateLogs++;
-			ReflexiumClient.LOGGER.info("DLSS-G reported the transient Reflex-not-detected status while Reflex is active");
 		}
 		ledger.closeFrame();
 		streamlineActive = false;

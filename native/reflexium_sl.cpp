@@ -831,7 +831,8 @@ RX_EXPORT int rx_sl_dlss_evaluate(void* commandBuffer, const RxImage* color, con
 		sl::ResourceTag(&depthRes, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent, &depthExtent),
 		sl::ResourceTag(&motionRes, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eOnlyValidNow, &motionExtent),
 	};
-	sl::Result result = g_slSetTagForFrame(*g_token, sl::ViewportHandle(0), tags, 4,
+	uint32_t tagCount = 4;
+	sl::Result result = g_slSetTagForFrame(*g_token, sl::ViewportHandle(0), tags, tagCount,
 			reinterpret_cast<sl::CommandBuffer*>(commandBuffer));
 	if (result != sl::Result::eOk) {
 		appendLog("slSetTagForFrame(DLSS) failed " + std::to_string(static_cast<int>(result)));

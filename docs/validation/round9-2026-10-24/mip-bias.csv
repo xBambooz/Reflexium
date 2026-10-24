@@ -1,0 +1,5 @@
+offset,mip_bias,fps,terrain_gpu_us,world_gpu_us,evaluate_gpu_us,laplacian_variance,tenengrad,note
+0,-1.585,261.9,1093.8,3552.1,471.7,820.31,11509.82,guide baseline -1
+0,-1.585,262.7,1067.6,3453.7,466.7,820.31,11509.82,repeat
+1,-0.585,261.7,1081.3,3476.8,442.5,733.56,10926.70,log2 only
+native,0,0,0,0,0,650.11,8809.11,reference sharpness at 2560x1440

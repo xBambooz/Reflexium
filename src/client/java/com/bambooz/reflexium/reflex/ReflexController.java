@@ -78,6 +78,7 @@ public final class ReflexController {
 	private boolean streamline;
 	private boolean presentIdEnabled;
 	private long swapchain;
+	private boolean swapchainPresented;
 	private long sleepSemaphore;
 	private long sleepValue;
 
@@ -144,6 +145,7 @@ public final class ReflexController {
 			return;
 		}
 		swapchain = newSwapchain;
+		swapchainPresented = false;
 		pacing.reset();
 		resetTiming();
 		applySleepMode();
@@ -152,6 +154,7 @@ public final class ReflexController {
 	public void onSwapchainDestroyed() {
 		VulkanLifecycle.clearSubmissionAttribution();
 		swapchain = 0;
+		swapchainPresented = false;
 		frameOpen = false;
 		simulationOpen = false;
 		pacing.reset();
@@ -166,6 +169,7 @@ public final class ReflexController {
 		}
 		device = null;
 		swapchain = 0;
+		swapchainPresented = false;
 		streamline = false;
 		sleepSemaphore = 0;
 		sleepValue = 0;
@@ -200,7 +204,7 @@ public final class ReflexController {
 
 	/** The driver is currently permitted to pace this frame. */
 	public boolean isSleeping() {
-		if (transitionFrames > 0) return false;
+		if (!swapchainPresented || transitionFrames > 0) return false;
 		if (streamline) return isAvailable() && pacing.canSleep();
 		return isAvailable() && pacing.canSleep() && sleepSemaphore != 0;
 	}
@@ -276,6 +280,13 @@ public final class ReflexController {
 		lastMarkerFrameId = frameId;
 		applySleepMode();
 		pollPendingSleep();
+		if (!swapchainPresented) {
+			// A swapchain that has never presented has no Reflex attribution to sleep on. Sleeping on
+			// it after a resize or rebuild dereferences a stale presented state in the driver. Resume
+			// after the first successful present of the replacement swapchain.
+			unpacedFrames++;
+			return;
+		}
 		if (streamline) {
 			if (pacing.canSleep()) {
 				long timing = FrameProfiler.start(FrameProfiler.REFLEX_SLEEP, null);
@@ -335,6 +346,7 @@ public final class ReflexController {
 
 	public void afterPresent() {
 		marker(VK_LATENCY_MARKER_PRESENT_END_NV);
+		swapchainPresented = swapchain != 0;
 		frameOpen = false;
 		VulkanLifecycle.clearSubmissionAttribution();
 	}
@@ -595,7 +607,7 @@ public final class ReflexController {
 	}
 
 	private void marker(int marker) {
-		if (!frameOpen || !isAvailable() || markerSuppressFrames > 0) {
+		if (!frameOpen || !swapchainPresented || !isAvailable() || markerSuppressFrames > 0) {
 			return;
 		}
 		int rank = markerRank(marker);

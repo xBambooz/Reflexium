@@ -254,10 +254,20 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Inject(method = "destroySwapchain", at = @At("HEAD"))
 	private void reflexium$swapchainDestroyed(CallbackInfo ci) {
 		reflexium$realView = null;
-		reflexium$streamlineSwapchain = false;
 		VulkanLifecycle.onSwapchainDestroyed();
 		// Guide 18.0: the DLSS-G load/unload transition happens while no swapchain exists.
 		StreamlineSupport.onSwapchainDestroyed();
+	}
+
+	/**
+	 * The flag must stay set while the wrapped vkDestroySwapchainKHR runs, otherwise the proxy
+	 * swapchain is passed to the raw driver entry point and DLSS-G keeps its internal swapchain.
+	 * The next creation is then rejected as a second swapchain, presentCommon() stops running and
+	 * Reflex sleeps on a presented state that never arrives.
+	 */
+	@Inject(method = "destroySwapchain", at = @At("TAIL"))
+	private void reflexium$swapchainDestroyedTail(CallbackInfo ci) {
+		reflexium$streamlineSwapchain = false;
 	}
 
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",
@@ -271,8 +281,7 @@ public abstract class VulkanGpuSurfaceMixin {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
-		// slDLSSGGetState belongs on the present thread, immediately before the present it reports on.
-		fg.beforeStreamlinePresent();
+		// slDLSSGGetState is read after this present, once its markers have been processed.
 		ReflexController reflex = ReflexController.get();
 		if (fg.inPresentBatch()) reflex.beforeBatchPresent();
 		int result;
