@@ -31,15 +31,11 @@ public final class ReflexiumConfig {
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
 	private volatile DlssModel dlssModel = DEFAULT_DLSS_MODEL;
-	private volatile int fsrSharpness = 20;
+	private volatile int fsrSharpness = 0;
 	private volatile boolean postUpscaleParticles = true;
 	private volatile FrameGeneration frameGeneration = DEFAULT_FRAME_GENERATION;
-	private volatile boolean fgForceMultiplier;
 	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
-	/** Opt-in upper bounds for a shader pack's shadow map size and shadow distance while upscaling; 0 keeps the pack's own value. */
-	private volatile int packShadowResolutionCap = 0;
-	private volatile int packShadowDistanceCap = 0;
 
 	private ReflexiumConfig() {
 	}
@@ -54,22 +50,6 @@ public final class ReflexiumConfig {
 
 	public void setReflexMode(ReflexMode mode) {
 		reflexMode = mode;
-		save();
-	}
-
-	public int packShadowResolutionCap() { return packShadowResolutionCap; }
-	public int packShadowDistanceCap() { return packShadowDistanceCap; }
-	public void setPackShadowCaps(int resolution, int distance) {
-		packShadowResolutionCap = Math.clamp(resolution, 0, 8192);
-		packShadowDistanceCap = Math.clamp(distance, 0, 1024);
-		save();
-	}
-	public void setPackShadowResolutionCap(int value) {
-		packShadowResolutionCap = Math.clamp(value, 0, 8192);
-		save();
-	}
-	public void setPackShadowDistanceCap(int value) {
-		packShadowDistanceCap = Math.clamp(value, 0, 1024);
 		save();
 	}
 
@@ -114,8 +94,6 @@ public final class ReflexiumConfig {
 		save();
 	}
 
-	public boolean fgForceMultiplier() { return fgForceMultiplier; }
-	public void setFgForceMultiplier(boolean value) { fgForceMultiplier = value; save(); }
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
 	public void setFrameGenerationMultiplier(int value) {
 		frameGenerationMultiplier = value == 0 ? 0 : Math.clamp(value, 2, 8);
@@ -172,15 +150,10 @@ public final class ReflexiumConfig {
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
 		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
-		config.fgForceMultiplier = Boolean.parseBoolean(props.getProperty("fg_force_multiplier", "false"));
 		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
-		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
+		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "0")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
-		try { config.packShadowResolutionCap = Math.clamp(Integer.parseInt(props.getProperty("pack_shadow_resolution_cap", "0")), 0, 8192); }
-		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
-		try { config.packShadowDistanceCap = Math.clamp(Integer.parseInt(props.getProperty("pack_shadow_distance_cap", "0")), 0, 1024); }
-		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		if (source == LEGACY_PATH) {
 			config.save();
 			ReflexiumClient.LOGGER.info("Migrated {} to {}", LEGACY_PATH.getFileName(), PATH.getFileName());
@@ -202,11 +175,8 @@ public final class ReflexiumConfig {
 		props.setProperty("dlss_model", dlssModel.serializedName());
 		props.setProperty("fsr_sharpness", Integer.toString(fsrSharpness));
 		props.setProperty("frame_generation", frameGeneration.serializedName());
-		props.setProperty("fg_force_multiplier", Boolean.toString(fgForceMultiplier));
 		props.setProperty("frame_generation_multiplier", Integer.toString(frameGenerationMultiplier));
 		props.setProperty("betterf3_module_placed", Boolean.toString(betterF3ModulePlaced));
-		props.setProperty("pack_shadow_resolution_cap", Integer.toString(packShadowResolutionCap));
-		props.setProperty("pack_shadow_distance_cap", Integer.toString(packShadowDistanceCap));
 		try {
 			Files.createDirectories(DIR);
 			Path temp = PATH.resolveSibling(PATH.getFileName() + ".tmp");

@@ -4,8 +4,11 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.framegen.FrameGenerationRefreshPolicy;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
+import com.bambooz.reflexium.upscale.dlss.StreamlineBridge;
 import com.bambooz.reflexium.vulkan.FrameTrace;
 import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.bambooz.reflexium.vulkan.VulkanSession;
@@ -72,6 +75,7 @@ public final class ReflexController {
 	private long lastLatencyLog;
 
 	private VkDevice device;
+	private boolean streamline;
 	private boolean presentIdEnabled;
 	private long swapchain;
 	private long sleepSemaphore;
@@ -112,6 +116,17 @@ public final class ReflexController {
 
 	public void onDeviceCreated(VulkanSession session) {
 		shutdown();
+		streamline = session.streamline() && StreamlineSupport.reflexAvailable();
+		if (streamline) {
+			device = session.device();
+			presentIdEnabled = false;
+			// Configure Reflex before the first swapchain: sl.reflex decides at vkCreateSwapchainKHR whether
+			// the presentation path carries VK_NV_low_latency2 latency mode, and that decides whether the
+			// driver publishes frame reports for the latency readout.
+			applySleepMode();
+			ReflexiumClient.LOGGER.info("Reflex: Streamline tokens and PCL markers");
+			return;
+		}
 		if (!session.lowLatency2()) {
 			return;
 		}
@@ -147,6 +162,7 @@ public final class ReflexController {
 		}
 		device = null;
 		swapchain = 0;
+		streamline = false;
 		sleepSemaphore = 0;
 		sleepValue = 0;
 		pendingSleepValue = 0;
@@ -168,16 +184,19 @@ public final class ReflexController {
 	/** VK_NV_low_latency2 is supported and active presentation scheduler allows low latency. */
 	public boolean isSupported() {
 		VulkanSession session = VulkanSession.current();
-		return session != null && session.lowLatency2() && !FsrSwapchain.active();
+		return (streamline && StreamlineSupport.reflexAvailable())
+				|| (session != null && session.lowLatency2() && !FsrSwapchain.active());
 	}
 
-	/** VK_NV_low_latency2 is enabled on the device and a swapchain exists. */
+	/** The driver integration is enabled and a swapchain exists. */
 	public boolean isAvailable() {
+		if (streamline) return StreamlineSupport.reflexAvailable() && swapchain != 0;
 		return device != null && swapchain != 0;
 	}
 
 	/** The driver is currently permitted to pace this frame. */
 	public boolean isSleeping() {
+		if (streamline) return isAvailable() && pacing.canSleep();
 		return isAvailable() && pacing.canSleep() && sleepSemaphore != 0;
 	}
 
@@ -223,6 +242,7 @@ public final class ReflexController {
 	// Frame hooks
 
 	public void beginFrame() {
+		if (StreamlineSupport.initialized()) StreamlineSupport.beginFrame(false);
 		if (!isAvailable()) {
 			return;
 		}
@@ -233,6 +253,27 @@ public final class ReflexController {
 		lastMarkerFrameId = frameId;
 		applySleepMode();
 		pollPendingSleep();
+		if (streamline) {
+			if (pacing.canSleep()) {
+				long timing = FrameProfiler.start(FrameProfiler.REFLEX_SLEEP, null);
+				sleepsIssued++;
+				int result = StreamlineSupport.reflexSleep();
+				FrameProfiler.end(FrameProfiler.REFLEX_SLEEP, timing, null);
+				if (result == 0) { pacing.sleepResult(0); sleepsCompleted++; }
+				else failSleep("slReflexSleep", result);
+			} else {
+				unpacedFrames++;
+				if (pacing.suspended) suspendedFrames++;
+			}
+			if (LOG_LATENCY && System.nanoTime() - lastLatencyLog > LATENCY_LOG_INTERVAL_NS) {
+				lastLatencyLog = System.nanoTime();
+				ReflexiumClient.LOGGER.info("{} | {}", statusLine(), latencyLine());
+			}
+			marker(VK_LATENCY_MARKER_INPUT_SAMPLE_NV);
+			marker(VK_LATENCY_MARKER_SIMULATION_START_NV);
+			simulationOpen = true;
+			return;
+		}
 		// Streamline calls sleep in every mode: with lowLatencyMode false and a zero interval the call
 		// still services the driver's own frame limiter, and the control panel can enable features that
 		// depend on it.
@@ -309,14 +350,17 @@ public final class ReflexController {
 	}
 
 	/**
-	 * Presented-frame ceiling while NVIDIA frame generation is requested. This feeds the multiplier
-	 * policy and caps output frames only; it is not a general Reflex refresh cap.
+	 * Presented-frame ceiling for frame generation. Only Auto targets the refresh rate: its multiplier is
+	 * chosen from the measured real rate against that budget. A fixed multiplier is an explicit request to
+	 * present real x N, so throttling real frames to refresh / N would reduce the real rate the user asked
+	 * to keep; the driver still caps just under refresh itself when VSync or VRR asks for it.
 	 */
 	private int frameGenerationCap(Window window) {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		boolean requested = fg.wantsMotion() && fg.requestedGeneratedCount() > 0;
-		fg.refreshPolicy().cap(requested ? refreshHeadroom(window) : NO_CAP);
-		return requested && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
+		boolean auto = requested && FrameGenerationRefreshPolicy.targetsRefresh(ReflexiumConfig.get().frameGenerationMultiplier());
+		fg.refreshPolicy().cap(auto ? refreshHeadroom(window) : NO_CAP);
+		return auto && !fg.refreshPolicy().bypass() ? fg.refreshPolicy().cap() : NO_CAP;
 	}
 
 	/** Frame generation output budget: the refresh rate minus headroom for presentation jitter. */
@@ -363,6 +407,11 @@ public final class ReflexController {
 		if (FsrSwapchain.active()) return "Reflex: unavailable (FSR presentation scheduler)";
 		StringBuilder line = new StringBuilder("Reflex: ").append(pacing.configured ? pacing.applied.displayName() : "markers only")
 				.append(" (requested ").append(ReflexiumConfig.get().reflexMode().displayName()).append(")");
+		if (streamline) {
+			line.append(" (Streamline)");
+			boolean[] flags = StreamlineSupport.reflexFlags();
+			if (flags != null) line.append(", latency report ").append(flags[1] ? "ready" : "unavailable");
+		}
 		if (pacing.failed) {
 			line.append(" (pacing failed: ").append(pacing.lastResult).append(", native limiter)");
 		} else if (pacing.suspended) {
@@ -371,7 +420,7 @@ public final class ReflexController {
 			line.append(", cap ").append(Math.floor(1_000_000.0 / pacing.interval)).append(" FPS");
 			if (requestedCapIsFrameGeneration) line.append(" (frame generation budget)");
 		}
-		if (!presentIdEnabled) {
+		if (!streamline && !presentIdEnabled) {
 			line.append(", no present id");
 		}
 		if (pacing.timeouts > 0) line.append(", sleep timeouts ").append(pacing.timeouts).append(" recovered ").append(pacing.recoveries);
@@ -387,7 +436,24 @@ public final class ReflexController {
 	// Vulkan
 
 	private void applySleepMode() {
-		if (!isAvailable()) {
+		if (!isAvailable() && !(streamline && device != null)) {
+			return;
+		}
+		if (streamline) {
+			ReflexMode mode = mode();
+			int multiplier = FrameGenerationRenderer.get().refreshPolicy().multiplier();
+			int baseInterval = DebugSettings.reflexIntervalUs;
+			int interval = mode.enabled() ? Math.max(requestedIntervalUs, baseInterval > 0 ? (baseInterval + multiplier - 1) / multiplier : 0) : 0;
+			if (!pacing.shouldApply(mode, interval)) return;
+			int result = StreamlineSupport.setReflexMode(streamlineMode(mode), interval);
+			pacing.configuration(mode, interval, result);
+			resetTiming();
+			if (result != 0) {
+				ReflexiumClient.LOGGER.warn("slReflexSetOptions failed ({})", result);
+			} else if (mode != loggedMode) {
+				loggedMode = mode;
+				ReflexiumClient.LOGGER.info("Reflex mode: {} (Streamline)", mode.displayName());
+			}
 			return;
 		}
 		ReflexMode mode = mode();
@@ -520,6 +586,14 @@ public final class ReflexController {
 			lastMarker = marker;
 			lastMarkerFrameId = frameId;
 		}
+		if (streamline) {
+			int pcl = pclMarker(marker);
+			if (pcl >= 0) {
+				if (FrameTrace.enabled(frameId)) FrameTrace.event(frameId, "marker=" + markerName(marker));
+				StreamlineSupport.pclMarker(pcl);
+			}
+			return;
+		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			if (FrameTrace.enabled(frameId)) FrameTrace.event(frameId, "marker=" + markerName(marker));
 			vkSetLatencyMarkerNV(device, swapchain, VkSetLatencyMarkerInfoNV.calloc(stack)
@@ -527,6 +601,35 @@ public final class ReflexController {
 					.presentID(frameId)
 					.marker(marker));
 		}
+	}
+
+	private static int streamlineMode(ReflexMode mode) {
+		return switch (mode) {
+			case OFF -> 0;
+			case ON -> 1;
+			case ON_BOOST -> 2;
+		};
+	}
+
+	/** VK_NV_low_latency2 marker to Streamline PCL marker. -1 means PCL has no equivalent. */
+	private static int pclMarker(int marker) {
+		return switch (marker) {
+			// PCL eInputSample (6) is marked deprecated in the header but still maps to the Vulkan
+			// low_latency2 input marker. eControllerInputSample (13) has no Vulkan equivalent and is skipped.
+			case VK_LATENCY_MARKER_INPUT_SAMPLE_NV -> 6;
+			case VK_LATENCY_MARKER_SIMULATION_START_NV -> 0;
+			case VK_LATENCY_MARKER_SIMULATION_END_NV -> 1;
+			case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV -> 2;
+			case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV -> 3;
+			case VK_LATENCY_MARKER_PRESENT_START_NV -> 4;
+			case VK_LATENCY_MARKER_PRESENT_END_NV -> 5;
+			case VK_LATENCY_MARKER_TRIGGER_FLASH_NV -> 7;
+			case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV -> 9;
+			case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV -> 10;
+			case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV -> 11;
+			case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV -> 12;
+			default -> -1;
+		};
 	}
 
 	public static String markerName(int marker) {
@@ -567,6 +670,20 @@ public final class ReflexController {
 		JsonArray frames = new JsonArray();
 		result.add("frames", frames);
 		if (!isAvailable()) return result;
+		if (streamline) {
+			StreamlineBridge.ReflexReport report = StreamlineSupport.reflexReport();
+			if (report == null) return result;
+			String[] names = {"input", "sim_start", "sim_end", "submit_start", "submit_end", "present_start",
+					"present_end", "driver_start", "driver_end", "os_queue_start", "os_queue_end", "gpu_start", "gpu_end"};
+			long origin = report.times()[1] > 0 ? report.times()[1] : report.times()[0];
+			JsonObject f = new JsonObject();
+			f.addProperty("id", report.presentId());
+			for (int i = 0; i < names.length && i < report.times().length; i++) {
+				f.addProperty(names[i], report.times()[i] - origin);
+			}
+			frames.add(f);
+			return result;
+		}
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkLatencyTimingsFrameReportNV.Buffer reports = queryTimings(stack);
 			long origin = 0;
@@ -626,6 +743,15 @@ public final class ReflexController {
 	}
 
 	private LatencyReport readLatency() {
+		if (streamline) {
+			StreamlineBridge.ReflexReport report = StreamlineSupport.reflexReport();
+			return report == null ? LatencyReport.unavailable("waiting for Streamline data")
+					: LatencyReport.fromStreamline(report.times());
+		}
+		return rawLatency();
+	}
+
+	private LatencyReport rawLatency() {
 		try (MemoryStack stack = MemoryStack.stackPush()) {
 			VkLatencyTimingsFrameReportNV.Buffer reports = queryTimings(stack);
 			VkLatencyTimingsFrameReportNV latest = null;

@@ -5,10 +5,10 @@ NVIDIA Reflex, DLSS, AMD FSR 3.1 and frame generation for Minecraft Java's Vulka
 ## What it does
 
 - **Reflex low latency** through `VK_NV_low_latency2`: the driver sleeps the game just before input is read, so each frame starts as late as the GPU allows. Modes: Off, On, On + Boost.
-- **Frame pacing**: while Reflex is on, Minecraft's Max Framerate (including the 60 FPS menu cap) is enforced by the Reflex sleep instead of vanilla's post-present sleep. No Reflex cap is inferred from the refresh rate; frame generation keeps its own output budget.
+- **Frame pacing**: while Reflex is on, Minecraft's Max Framerate (including the 60 FPS menu cap) is enforced by the Reflex sleep instead of vanilla's post-present sleep. No Reflex cap is inferred from the refresh rate. A fixed frame-generation multiplier never throttles real rendering to refresh / N: output is real x N unless VSync, a user FPS limit or a lower refresh target applies. Only Auto targets the display refresh rate.
 - **Latency readout** in F3: input-to-present time plus simulation, render submit and GPU time, straight from the driver. Works with Reflex off too, for A/B comparisons.
 - **DLSS and FSR 3.1 upscaling**: renders the world below display resolution, reconstructs camera motion from depth, and applies NVIDIA DLSS or AMD FSR 3.1 before drawing the full-resolution HUD. Presets include DLAA (Native AA for FSR), Quality, Balanced, Performance, and Ultra Performance. See [setup, limitations and validation](docs/DLSS.md).
-- **Frame generation (experimental)**: standard DLSS FG (2x), DLSS Multi Frame Generation (runtime-limited, up to 6x on the tested RTX 5070), and FSR FG (2x). Select Auto or the matching upscaler; turning upscaling off disables FG. Minecraft's prepared GUI is drawn onto every output frame, preserving sharp HUD text and background-dependent crosshair blending. See [implementation and validation](docs/FRAME_GENERATION.md).
+- **Frame generation**: standard DLSS FG (2x), DLSS Multi Frame Generation (runtime-limited, up to 6x on the tested RTX 5070), and FSR FG (2x). FG also runs at native resolution when the upscaler is Off. Generation stops while a menu, loading screen or other GUI screen is open. DLSS-G runs through Streamline's present proxy and tags hudless colour and UI alpha so generated frames recompose the HUD and keep invert blends such as the crosshair correct. The raw NGX path remains the fallback for launches without Streamline. See [implementation and validation](docs/FRAME_GENERATION.md).
 
 ## Requirements
 
@@ -21,13 +21,13 @@ Fabric API is not required.
 
 ## Upscaling
 
-- DLSS: requires an NVIDIA RTX GPU. A missing `nvngx_dlss.dll` is downloaded from NVIDIA, hash-checked and enabled in the same session. Existing DLLs are preserved. The native NGX bridge is bundled.
+- DLSS: requires an NVIDIA RTX GPU. A missing `nvngx_dlss.dll` is downloaded from NVIDIA, hash-checked and enabled in the same session. Existing DLLs are preserved. The native NGX and Streamline bridges are bundled. DLSS Super Resolution, Reflex/PCL and fixed 2x/3x/4x frame generation use Streamline 2.14.16 by default; `-Dreflexium.streamline=false` selects the raw NGX fallback. Vulkan Dynamic MFG is D3D12-only in Streamline 2.14.16, so Auto stays the application policy.
 - FSR 3.1: works on any Vulkan GPU (AMD, Intel, NVIDIA).
-- Auto renders natively without a shader pack. With one, it picks DLSS when available, otherwise FSR 3.1, and returns to native when a measured comparison shows DLSS is not faster.
+- Auto picks DLSS when available, otherwise FSR 3.1. It never switches to native on its own. Without a shader pack, keep the upscaler Off (or Auto): vanilla Minecraft at 1080p and a low render distance is limited by the CPU and block geometry, so upscaling usually costs a few FPS there. Use upscaling when a shader pack, a high resolution or another GPU-heavy scene makes rendering the limit.
 - Vitrail 0.12.x shader upscaling is supported, with Complementary Reimagined r5.9.3 tested. Reflexium owns render scale and jitter while active.
 - Opaque moving entities and animated block entities receive per-vertex motion vectors. Shader-only deformation and translucent objects still have limitations; see [validation](docs/DLSS.md).
 
-Upscaling has a fixed reconstruction cost. Without shaders, native rendering can be faster even at lower upscaling qualities; DLAA also pays the full-resolution network cost. DLSS uses transient motion uniforms and retained scene depth; both upscalers skip depth reconstruction for an invisible outline. See [per-pass timings, paired results and remaining limits](docs/PERFORMANCE.md). DLSS output gets the same RCAS sharpening as FSR, at the `fsr_sharpness` strength (0 disables it).
+Measured on 23 October 2026, RTX 5070 at 1920x1080 with BSL 10.1.8: native 389 FPS, DLSS Quality 447, Balanced 462, Performance 508, Ultra Performance 539, FSR Performance 496. At 4K with the same pack: native 175 FPS, DLSS Quality 218, Balanced 240, Performance 274. DLAA is the one mode that can cost frame rate at 1080p because it evaluates at full resolution. Without shaders this scene is CPU bound, so native stays faster even though the world renders below output resolution. The 24 October clean-load round measured BSL 4K range at native 159.2 versus Quality 200.8 (+26.2%), Balanced 216.1 (+35.8%) and Performance 233.0 (+46.4%), with Quality still losing 14.6% in the 1440p forest and shaderless Quality losing 30.8% to 51.2% from 1080p to 4K. See [measured tables, per-pass timings and remaining limits](docs/PERFORMANCE.md) and the [round 6 report](docs/validation/round6-2026-10-24.md). FSR sharpening runs inside FSR's dispatch at the `fsr_sharpness` strength; DLSS output is not post-sharpened.
 
 ## Settings
 
@@ -43,13 +43,10 @@ Settings appear in:
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | `auto` |
 | `upscale_quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | `quality` |
 | `dlss_model` | `auto`, `transformer`, `cnn` | `cnn` |
-| `fsr_sharpness` | `0` to `100`; also the DLSS sharpening strength | `20` |
+| `fsr_sharpness` | `0` to `100`; FSR 3.1 only | `0` |
 | `post_upscale_particles` | `true`, `false`: draw vanilla particles at display resolution after upscaling | `true` |
 | `frame_generation` | `off`, `dlss`, `dlss_multi`, `fsr` | `dlss` (only runs on supported GPUs with VSync off) |
 | `frame_generation_multiplier` | `0` (Auto) or `2` to `8`, capped by runtime support | `0` |
-| `fg_force_multiplier` | `true`, `false`: keep a fixed multiplier even when it exceeds the refresh budget | `false` |
-| `pack_shadow_resolution_cap` | `0` (pack value) to `8192` | `0` |
-| `pack_shadow_distance_cap` | `0` (pack value) to `1024` | `0` |
 | `betterf3_module_placed` | `true`, `false` (set after Reflexium adds its BetterF3 module once) | `false` |
 
 Settings from the old `nvidia-reflex-mod.properties` are migrated automatically.
@@ -61,7 +58,7 @@ For bug reports, launch with `-Dreflexium.logLatency=true` to log the Reflex sta
 ## Shaders
 
 - **[Vitrail Shaders](https://github.com/avpbynf/Vitrail-Shaders)**: verified with Vitrail `0.12.0-beta+mc26.3`, Sodium `0.9.2+mc26.3` and Complementary Reimagined `r5.9.3` on Windows/NVIDIA. Reflex sleep, frame limiting and driver latency readings work through the shared Vulkan backend. Install Vitrail's Minecraft 26.3 jar and its Sodium/Fabric API dependencies. See [the compatibility check](docs/VITRAIL.md) for evidence and repeat steps.
-- DLSS and FSR run after Vitrail's final world pass and before the full-resolution GUI. Known Complementary packs have their own TAA disabled in memory while upscaling. Unsupported Vitrail versions pause shader upscaling.
+- DLSS and FSR run after the pack's final world pass and before the full-resolution GUI. Under Iris, depth comes from the loader's pre-translucent target, hand coverage comes from the hand draw, and the pack's own post-AA/sharpening options are switched off generically by option name (`TAA`, `TAA_DEFINE`, `TAA_MODE`, `TAA_JITTER`, `FXAA`, `SMAA`, `IMAGE_SHARPENING`). BSL and Complementary Reimagined additionally keep exact-source reviewed edits. Packs with fixed jitter/TAA in their source and no option to disable it are not certifiable. Unsupported Vitrail versions pause shader upscaling.
 - **Aperture** (the Iris team's Vulkan shader loader): shared Vulkan hooks are the intended integration point; runtime compatibility and DLSS integration remain unverified.
 - **Iris**: the experimental Iris Vulkan build `1.12.0-snapshot+mc26.3-local` is supported, including Distant Horizons (see [Distant Horizons](docs/DISTANT_HORIZONS.md) and [shader loaders](docs/SHADER_LOADER.md)). Other Iris versions pause shader upscaling; stable OpenGL Iris never reaches the Vulkan path.
 

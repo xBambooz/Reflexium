@@ -49,13 +49,15 @@ public abstract class GameRendererMixin {
 	@ModifyVariable(method = "render3dHud", at = @At("HEAD"), argsOnly = true)
 	private boolean reflexium$preserveWorldDepth(boolean consistentDepthRequired) {
 		reflexium$originalConsistentDepth = consistentDepthRequired;
-		return consistentDepthRequired || UpscalingRenderer.get().isUpscalingThisFrame() && UpscalingRenderer.get().usesDirectDepth();
+		UpscalingRenderer upscaling = UpscalingRenderer.get();
+		return consistentDepthRequired || (upscaling.isUpscalingThisFrame() || upscaling.isFrameGenerationOnly()) && upscaling.usesDirectDepth();
 	}
 
 	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;integrate3DHudDepth()V"))
 	private void reflexium$integrateOnlyForPostEffects(GameRenderer renderer, Operation<Void> original) {
-		// The motion pass already combines world and hand depth for SR and FG.
-		if (reflexium$originalConsistentDepth) original.call(renderer);
+		// The motion pass combines world and hand depth for SR. Native FG still presents the vanilla image, so it
+		// keeps the normal merged depth for post effects and later passes.
+		if (reflexium$originalConsistentDepth || UpscalingRenderer.get().isFrameGenerationOnly()) original.call(renderer);
 	}
 
 	@WrapMethod(method = "render")
@@ -107,6 +109,8 @@ public abstract class GameRendererMixin {
 		if (FrameGenerationRenderer.get().wantsMotion()
 				&& DebugSettings.replayFgParticles)
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+		if (FrameGenerationRenderer.get().streamlineActive())
+			FrameGenerationRenderer.get().streamlineHudless(mainRenderTarget, UpscalingRenderer.get().commandBuffer());
 		reflexium$drawDeferredCrosshair();
 	}
 
@@ -166,7 +170,7 @@ public abstract class GameRendererMixin {
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lnet/minecraft/client/renderer/Projection;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private GpuBufferSlice reflexium$jitterHud(ProjectionMatrixBuffer buffer, Projection projection, Operation<GpuBufferSlice> original) {
 		UpscalingRenderer dlss = UpscalingRenderer.get();
-		if (!dlss.isUpscalingThisFrame()) {
+		if (!dlss.isUpscalingThisFrame() && !dlss.isFrameGenerationOnly()) {
 			return original.call(buffer, projection);
 		}
 		Matrix4f unjittered = projection.getMatrix(new Matrix4f());

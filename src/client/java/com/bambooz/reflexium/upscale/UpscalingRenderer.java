@@ -28,6 +28,7 @@ import com.bambooz.reflexium.motion.PackHandMaskPass;
 import com.bambooz.reflexium.motion.PackSurfaceMotionPass;
 import com.bambooz.reflexium.motion.VanillaCloudMotion;
 import com.bambooz.reflexium.upscale.dlss.DlssModel;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.vulkan.ImageRef;
 import com.bambooz.reflexium.vulkan.VulkanInterop;
 import com.bambooz.reflexium.vulkan.VulkanSession;
@@ -91,7 +92,6 @@ public final class UpscalingRenderer {
 	private final HistoryResets resets = new HistoryResets();
 	private final MaterialBindStats bindStats = new MaterialBindStats();
 	private final MipBiasSamplers materialSamplers = new MipBiasSamplers();
-	private final UpscalerPerformanceGuard performanceGuard = new UpscalerPerformanceGuard();
 	private boolean failed;
 	private volatile String lastError = "";
 
@@ -101,6 +101,7 @@ public final class UpscalingRenderer {
 	private DlssModel builtModel;
 	private int builtPreset;
 	private boolean builtHdr;
+	private boolean builtFgOwnsConstants;
 	private long builtPackEpoch;
 	private int displayWidth;
 	private int displayHeight;
@@ -113,25 +114,14 @@ public final class UpscalingRenderer {
 	private float mipBias;
 	private long irisEpoch;
 
-	// The configuration the performance guard's native/DLSS comparison belongs to.
-	private long guardPackEpoch = -1;
-	private int guardWidth, guardHeight;
-	private UpscaleQuality guardQuality;
-	private DlssModel guardModel;
-	private Upscaler guardRequested;
-
 	// Targets, created per configuration.
 	private TextureTarget renderTarget;
 	private TextureTarget worldDepth;
 	private TextureTarget motionTarget;
 	private TextureTarget hdrInput, hdrOutput;
-	/** Display-size DLSS output that SharpenPass reads; the sharpened image lands in the display target. */
-	private TextureTarget sharpenSource;
 	private TextureTarget packMotionBase, packComposition;
 	private TextureTarget packHandBefore;
 	private TextureTarget packHandMask;
-	private TextureTarget opaqueTarget;
-	private OutputImage reactive;
 
 	// Passes, created on first use.
 	private MotionVectorPass motionPass;
@@ -142,20 +132,18 @@ public final class UpscalingRenderer {
 	private PackHandMaskPass packHandMaskPass;
 	private MotionDebugPass motionDebugPass;
 	private DepthResolvePass depthResolvePass;
-	private SharpenPass sharpenPass;
 	private CaptureEncodePass captureEncodePass;
 
 	// Per-frame state.
 	private boolean activeThisFrame;
 	private boolean swapped;
+	/** Native rendering with frame generation: motion vectors are needed, but no upscaler or render-size swap runs. */
+	private boolean motionOnly;
 	private long worldTiming;
 	private boolean worldDepthCaptured;
 	/** Iris's pre-translucent depth or vanilla's own depth, when it is used without a copy. */
 	private GpuTextureView directWorldDepth;
 	private boolean irisOpaqueDepthApplied;
-	private boolean opaqueCaptured;
-	private boolean reactiveGenerated;
-	private boolean reactiveMaskFailed;
 	private boolean packHandCaptured;
 	private boolean hdrEvaluated;
 	private boolean packSurfaceApplied;
@@ -219,6 +207,7 @@ public final class UpscalingRenderer {
 		try { FrameProfiler.close(); } catch (RuntimeException e) { failure = keep(failure, e); }
 		try { FrameGenerationRenderer.get().onDeviceClosing(); } catch (RuntimeException e) { failure = keep(failure, e); }
 		try { runtimes.shutdown(); } catch (RuntimeException e) { failure = keep(failure, e); }
+		try { StreamlineSupport.shutdown(); } catch (RuntimeException e) { failure = keep(failure, e); }
 		if (failure != null) ReflexiumClient.LOGGER.warn("Upscaler teardown was incomplete (device lost?)", failure);
 		device = null;
 		session = null;
@@ -244,10 +233,10 @@ public final class UpscalingRenderer {
 		windowWidth = window.width;
 		windowHeight = window.height;
 		ReflexiumConfig config = ReflexiumConfig.get();
-		updatePerformanceGuard(gameRenderer, window, config);
 		UpscaleQuality mode = config.upscaleQuality();
 		Upscaler selected = effectiveUpscaler();
 		if (selected == Upscaler.OFF) mode = UpscaleQuality.NATIVE_AA;
+		motionOnly = selected == Upscaler.OFF && FrameGenerationRenderer.get().wantsMotion();
 		if (!Boolean.getBoolean("reflexium.disableDhTemporal")) ShaderPacks.configureUpscaling(available(selected) && !failed && DistantHorizonsCompat.canUpscale());
 		boolean wanted = (available(selected) || FrameGenerationRenderer.get().wantsMotion()) && !failed && gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized
 				&& window.width > 0 && window.height > 0 && ShaderPacks.canUpscale() && DistantHorizonsCompat.canUpscale();
@@ -255,17 +244,22 @@ public final class UpscalingRenderer {
 		wanted &= DistantHorizonsCompat.canUpscale();
 		if (Boolean.getBoolean("reflexium.disableDhTargets")) wanted = false;
 		if (!wanted) {
+			motionOnly = false;
 			ObjectMotion.get().beginFrame(false, false);
 			if (renderSizeApplied) {
 				restoreDisplaySize(gameRenderer, window);
 			}
 			return;
 		}
+		if (motionOnly && renderSizeApplied) {
+			// A previous upscaled frame swapped the window-sized targets; put them back before rendering natively.
+			restoreDisplaySize(gameRenderer, window);
+		}
 		try {
 			if (needsRebuild(mode, selected, window)) {
 				build(mode, window.width, window.height);
 			}
-			if (!renderSizeApplied) {
+			if (!motionOnly && !renderSizeApplied) {
 				applyRenderSize(gameRenderer);
 			}
 			refreshMipBias();
@@ -285,6 +279,7 @@ public final class UpscalingRenderer {
 
 	private void resetFrameState() {
 		activeThisFrame = false;
+		motionOnly = false;
 		guiBlurCalls = 0;
 		hdrEvaluated = false;
 		packSurfaceApplied = false;
@@ -297,8 +292,6 @@ public final class UpscalingRenderer {
 		DistantHorizonsCompat.beginFrame();
 		worldDepthCaptured = false;
 		directWorldDepth = null;
-		opaqueCaptured = false;
-		reactiveGenerated = false;
 		packHandCaptured = false;
 		history.haveHandProjection = false;
 		reconstructed = false;
@@ -306,29 +299,12 @@ public final class UpscalingRenderer {
 		sceneCompleted = false;
 	}
 
-	/** One native/DLSS comparison per configuration; any change of pack, size, quality, model or request starts a new one. */
-	private void updatePerformanceGuard(GameRenderer gameRenderer, WindowRenderState window, ReflexiumConfig config) {
-		Upscaler resolved = runtimes.resolve(config.upscaler(), ShaderPacks.isDrawingPack());
-		long packEpoch = IrisCompat.configurationEpoch();
-		if (guardPackEpoch != packEpoch || guardWidth != window.width || guardHeight != window.height
-				|| guardQuality != config.upscaleQuality() || guardModel != config.dlssModel() || guardRequested != config.upscaler()) {
-			performanceGuard.reset(); guardPackEpoch = packEpoch; guardWidth = window.width; guardHeight = window.height;
-			guardQuality = config.upscaleQuality(); guardModel = config.dlssModel(); guardRequested = config.upscaler();
-		}
-		Minecraft mc = Minecraft.getInstance();
-		long now = System.nanoTime();
-		boolean comparing = resolved == Upscaler.DLSS && !failed;
-		if (comparing) performanceGuard.update(now, mc.level != null && mc.gui.screen() == null && !mc.isPaused()
-				&& gameRenderer.gameRenderState().shouldRenderLevel && !window.isMinimized,
-				FrameProfiler.worldProbeSamples(), FrameProfiler.worldProbeMs());
-		FrameProfiler.worldProbe(comparing ? performanceGuard.sampleTag(now) : 0);
-		FrameProfiler.automatic(comparing && performanceGuard.probing() || config.frameGeneration().nvidia());
-	}
-
 	private boolean needsRebuild(UpscaleQuality mode, Upscaler selected, WindowRenderState window) {
+		boolean missingTargets = selected == Upscaler.OFF ? motionTarget == null : renderTarget == null;
 		return mode != builtMode || selected != builtUpscaler || ReflexiumConfig.get().dlssModel() != builtModel || requestedPreset(mode) != builtPreset
-				|| window.width != displayWidth || window.height != displayHeight || renderTarget == null
-				|| builtHdr != wantsPackHdr(selected) || builtHdr && builtPackEpoch != ComplementaryHdr.epoch();
+				|| window.width != displayWidth || window.height != displayHeight || missingTargets
+				|| builtHdr != wantsPackHdr(selected) || builtHdr && builtPackEpoch != ComplementaryHdr.epoch()
+				|| builtFgOwnsConstants != FrameGenerationRenderer.get().streamlineFrameGenerationActive();
 	}
 
 	/** GameRenderer.resize TAIL: vanilla just sized the world targets to the window, put them back to render size. */
@@ -360,11 +336,13 @@ public final class UpscalingRenderer {
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
-		swap(main, renderTarget);
-		swapped = true;
-		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
-				gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
-		updateGlobals(renderWidth, renderHeight);
+		if (!motionOnly) {
+			swap(main, renderTarget);
+			swapped = true;
+			RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
+					gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
+			updateGlobals(renderWidth, renderHeight);
+		}
 		if (packHandMask != null && ShaderPacks.isDrawingPack()) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
 		history.currentViewIdentity = viewIdentity(gameRenderer);
 		ObjectMotion.get().beginFrame(DebugSettings.objectMotion(), DebugSettings.drawStaticObjects());
@@ -379,7 +357,12 @@ public final class UpscalingRenderer {
 
 	/** Jitters the level projection and records the matrices motion vectors need. */
 	public Matrix4f jitterLevelProjection(Matrix4f projection, CameraRenderState camera) {
-		if (!swapped) {
+		if (!swapped && !motionOnly) {
+			return projection;
+		}
+		if (motionOnly) {
+			// Frame generation needs the camera history, but a native image must not be jittered.
+			history.recordLevel(projection, projection, camera);
 			return projection;
 		}
 		Matrix4f jittered = jitter.apply(projection);
@@ -389,18 +372,20 @@ public final class UpscalingRenderer {
 
 	/** Jitters the first-person hand projection the same way, so DLSS sees consistent sampling. */
 	public Matrix4f jitterHudProjection(Matrix4f projection) {
-		return swapped ? jitter.apply(projection) : projection;
+		if (!swapped && !motionOnly) return projection;
+		return motionOnly ? projection : jitter.apply(projection);
 	}
 
 	/** Shader pack gbuffer projections get the same jitter as the level. */
 	public Matrix4f jitterShaderProjection(Matrix4fc projection) {
-		return swapped ? jitter.apply(new Matrix4f(projection)) : new Matrix4f(projection);
+		if (!swapped) return new Matrix4f(projection);
+		return jitter.apply(new Matrix4f(projection));
 	}
 
 	/** Records the projection the hand is drawn with: vanilla's hud projection and its jittered copy. */
 	public void noteHandProjection(Matrix4fc unjittered, Matrix4fc jittered) {
 		// A shader pack draws its own hand into the pack chain, and its projection was noted when it drew.
-		if (!swapped || packHandCaptured) return;
+		if ((!swapped && !motionOnly) || packHandCaptured) return;
 		history.handProjection.set(unjittered);
 		history.handProjectionJittered.set(jittered);
 		history.haveHandProjection = true;
@@ -408,7 +393,7 @@ public final class UpscalingRenderer {
 
 	/** Vitrail multiplies its hand volume (jittered) and bob into one matrix: remove the left-multiplied jitter again. */
 	public void noteHandProjectionDrawn(Matrix4fc drawnJittered) {
-		if (!swapped) return;
+		if (!swapped && !motionOnly) return;
 		history.handProjectionJittered.set(drawnJittered);
 		history.handProjection.translation(-jitter.ndcX(), -jitter.ndcY(), 0.0f).mul(drawnJittered);
 		history.haveHandProjection = true;
@@ -427,11 +412,25 @@ public final class UpscalingRenderer {
 		return result;
 	}
 
+	/**
+	 * Distant Horizons binds its LOD block atlas through its own Blaze render pass instead of the
+	 * shared material binding boundary. Apply the same render/display mip bias so far LOD keeps the
+	 * detail of the near terrain under upscaling.
+	 */
+	public GpuSampler distantHorizonsSampler(GpuSampler sampler) {
+		if (!swapped) return sampler;
+		GpuSampler result = materialSamplers.get(sampler, mipBias);
+		float applied = result instanceof AppliedLodBias bias ? bias.reflexium$appliedLodBias() : Float.NaN;
+		float expected = MipBiasSamplers.appliedBias(sampler) + mipBias;
+		bindStats.record(MaterialBinding.DH_ATLAS, applied, mipBias != 0 && (materialSamplers.owns(sampler) || Math.abs(applied - expected) < 1.0e-4f));
+		return result;
+	}
+
 	public static Float creatingSamplerBias() { return MipBiasSamplers.creatingBias(); }
 
 	/** Vitrail draws the hand inside its level chain, before vanilla's HUD depth target exists. */
 	public void capturePackHandBefore() {
-		if (!swapped || packHandBefore == null) return;
+		if ((!swapped && !motionOnly) || packHandBefore == null) return;
 		VkCommandBuffer commands = commandBuffer();
 		long timing = FrameProfiler.start(FrameProfiler.PACK_HAND, commands);
 		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
@@ -441,7 +440,7 @@ public final class UpscalingRenderer {
 	}
 
 	public void capturePackHandAfter() {
-		if (!swapped || packHandBefore == null) return;
+		if ((!swapped && !motionOnly) || packHandBefore == null) return;
 		VkCommandBuffer commands = commandBuffer();
 		long timing = FrameProfiler.start(FrameProfiler.PACK_HAND, commands);
 		packHandMaskPass.render(packHandMask, packHandBefore.getDepthTextureView(),
@@ -450,36 +449,17 @@ public final class UpscalingRenderer {
 		FrameProfiler.end(FrameProfiler.PACK_HAND, timing, commands);
 	}
 
-	public boolean supportsReactiveMask() {
-		return swapped && builtUpscaler == Upscaler.FSR && opaqueTarget != null && !ShaderPacks.isDrawingPack();
-	}
-
-	/** Called after opaque rendering ends, before any transparency writes to the scene. */
-	public void captureOpaqueColor() {
-		if (!supportsReactiveMask()) return;
-		RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
-		VkCommandBuffer commands = commandBuffer();
-		long timing = FrameProfiler.start(FrameProfiler.OPAQUE_COPY, commands);
-		RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(main.getColorTexture(), opaqueTarget.getColorTexture(),
-				0, 0, 0, 0, 0, renderWidth, renderHeight);
-		FrameProfiler.end(FrameProfiler.OPAQUE_COPY, timing, commands);
-		opaqueCaptured = true;
-	}
-
 	/** render3dHud HEAD: keep the world depth, which vanilla clears before drawing the hand. */
 	public void captureWorldDepth(GameRenderer gameRenderer) {
-		if (!swapped || worldDepthCaptured) {
+		if ((!swapped && !motionOnly) || worldDepthCaptured) {
 			return;
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
-		if (opaqueCaptured && reactive != null && !reactiveMaskFailed) {
-			generateReactiveMask(main);
-		}
 		GpuTextureView opaqueDepth = IrisCompat.opaqueDepth(renderWidth, renderHeight);
 		if (opaqueDepth != null) {
 			directWorldDepth = opaqueDepth;
 			irisOpaqueDepthApplied = true;
-		} else if (usesDirectDepth()) {
+		} else if (motionOnly || usesDirectDepth()) {
 			// Vanilla uses its separate hand depth while active.
 			directWorldDepth = main.getDepthTextureView();
 		} else {
@@ -492,28 +472,9 @@ public final class UpscalingRenderer {
 		worldDepthCaptured = true;
 	}
 
-	/** FSR's reactive mask from the opaque and final scene colors. A failure only disables the mask. */
-	private void generateReactiveMask(RenderTarget main) {
-		try {
-			VkCommandBuffer commands = commandBuffer();
-			long timing = FrameProfiler.start(FrameProfiler.REACTIVE, commands);
-			VulkanInterop.barrier(commands);
-			int result = runtimes.fsr().generateReactive(commands.address(), VulkanInterop.image(opaqueTarget.getColorTexture(), opaqueTarget.getColorTextureView()),
-					VulkanInterop.image(main.getColorTexture(), main.getColorTextureView()), reactive.asNgx());
-			VulkanInterop.barrier(commands);
-			if (result != 0) throw new IllegalStateException("FSR reactive mask returned " + result);
-			FrameProfiler.end(FrameProfiler.REACTIVE, timing, commands);
-			reactiveGenerated = true;
-		} catch (RuntimeException e) {
-			reactiveMaskFailed = true;
-			lastError = "reactive mask disabled: " + e;
-			ReflexiumClient.LOGGER.warn("FSR reactive mask failed; continuing with FSR shading-change detection", e);
-		}
-	}
-
 	/** Shader packs draw their hand inside renderLevel and suppress vanilla's render3dHud. */
 	public void afterLevel(GameRenderer gameRenderer) {
-		if (swapped && !worldDepthCaptured) {
+		if ((swapped || motionOnly) && !worldDepthCaptured) {
 			captureWorldDepth(gameRenderer);
 			renderMotionVectors(gameRenderer, false);
 		}
@@ -521,15 +482,27 @@ public final class UpscalingRenderer {
 
 	/** render3dHud RETURN: motion vectors, with the hand (now in {@code handDepth}) given its own animation vectors. */
 	public void renderMotionVectors(GameRenderer gameRenderer, boolean handInHud3dTarget) {
-		if (!swapped || !worldDepthCaptured) {
+		if ((!swapped && !motionOnly) || !worldDepthCaptured) {
 			return;
 		}
 		RenderTarget handTarget = handInHud3dTarget
 				? ((GameRendererAccessor) gameRenderer).reflexium$hud3DTarget()
 				: gameRenderer.mainRenderTarget();
 		// A pack that skips the hand still needs the cleared mask, never its world depth as hand coverage.
-		GpuTextureView handDepth = packHandMask != null && ShaderPacks.isDrawingPack()
-				? packHandMask.getDepthTextureView() : handTarget.getDepthTextureView();
+		// The pack hand depth is a depth difference, not a hand-only buffer. Using it to classify the
+		// world leaves camera-only pixels misclassified as hand under view bob (26.3), which zeroes their
+		// motion and smears static terrain. The world passes use a cleared coverage buffer and the hand
+		// velocity pass keeps the real mask, so hand pixels still get their own motion.
+		GpuTextureView handCoverage = packHandMask != null && ShaderPacks.isDrawingPack() && DebugSettings.packHandMask()
+				? packHandMask.getDepthTextureView() : null;
+		GpuTextureView clearedHand = null;
+		if (packHandBefore != null && ShaderPacks.isDrawingPack()) {
+			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandBefore.getDepthTexture(), 0.0);
+			clearedHand = packHandBefore.getDepthTextureView();
+		}
+		GpuTextureView worldHandDepth = clearedHand != null ? clearedHand
+				: handCoverage != null ? handCoverage : handTarget.getDepthTextureView();
+		GpuTextureView handPassDepth = handCoverage != null ? handCoverage : worldHandDepth;
 		var dh = DistantHorizonsCompat.depthFrame(renderWidth, renderHeight);
 		if (DistantHorizonsCompat.rejectedFrame()) {
 			worldDepthCaptured = false;
@@ -566,24 +539,24 @@ public final class UpscalingRenderer {
 			vanillaCloudMotionApplied = clouds != null;
 			Matrix4f cloudToPrevious = DlssMath.reprojection(history.previousUnjittered, history.currentJittered,
 					(float) delta.x + vanillaCloudMotion.displacement(), (float) delta.y, (float) delta.z);
-			motionPass.render(motionTarget, sceneDepth, handDepth,
+			motionPass.render(motionTarget, sceneDepth, worldHandDepth,
 					currentToPrevious, jitter.ndcX(), jitter.ndcY(), dh, history.currentJittered, history.depthTransform,
 					(float) delta.x, (float) delta.y, (float) delta.z, reset, clouds, cloudToPrevious);
 			FrameProfiler.end(FrameProfiler.MOTION, timing, commands);
 			timing = FrameProfiler.start(FrameProfiler.OBJECTS, commands);
 			// Match the merged depth, so a hidden object cannot overwrite a closer LOD's camera vector.
-			objectVelocityPass.render(ObjectMotion.get(), motionTarget, motionTarget.getDepthTextureView(), handDepth,
+			objectVelocityPass.render(ObjectMotion.get(), motionTarget, motionTarget.getDepthTextureView(), worldHandDepth,
 					new Matrix4f(history.depthTransform).mul(history.currentJittered), history.currentUnjittered, history.previousUnjittered,
 					(float) delta.x, (float) delta.y, (float) delta.z, reset);
 			handVerticesDrawn = 0;
 			if (history.haveHandProjection && DebugSettings.handMotion()) {
-				handVerticesDrawn = objectVelocityPass.renderHand(ObjectMotion.get(), motionTarget, sceneDepth, handDepth,
+				handVerticesDrawn = objectVelocityPass.renderHand(ObjectMotion.get(), motionTarget, sceneDepth, handPassDepth,
 						history.handProjectionJittered, history.handProjection, history.handProjectionPrevious, reset);
 			}
 			FrameProfiler.end(FrameProfiler.OBJECTS, timing, commands);
 			GpuTextureView foliage = BslFoliageMotion.surface();
-			if (foliage != null && DebugSettings.objectMotion()) {
-				foliageMotionPass.render(motionTarget, foliage, sceneDepth, handDepth);
+			if (foliage != null && DebugSettings.objectMotion() && DebugSettings.foliageMotion()) {
+				foliageMotionPass.render(motionTarget, foliage, sceneDepth, handPassDepth);
 				foliageMotionApplied = true;
 			}
 		} catch (RuntimeException e) {
@@ -639,6 +612,8 @@ public final class UpscalingRenderer {
 	 */
 	public void reconstructScene(GameRenderer gameRenderer) {
 		if (!swapped) {
+			// Native frame generation still completes a scene so FG can consume the rendered image and vectors.
+			if (motionOnly) reconstructed = true;
 			if (worldTiming != 0) FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 			return;
 		}
@@ -685,13 +660,24 @@ public final class UpscalingRenderer {
 		}
 		if (worldDepthCaptured && !failed && FrameGenerationRenderer.get().wantsMotion()) {
 			Vec3 delta = history.delta();
-			// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
-			FrameGenerationRenderer.get().sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.depthTransform).mul(history.currentProjection),
-					DlssMath.reprojection(new Matrix4f(history.previousDepthTransform).mul(history.previousUnjittered),
-							new Matrix4f(history.depthTransform).mul(history.currentUnjittered), (float) delta.x, (float) delta.y, (float) delta.z),
-					history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
-					DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
-					history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset);
+			FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
+			if (frameGeneration.streamlineFrameGeneration()) {
+				// Streamline shares the super-resolution constants and inputs: unjittered camera projection,
+				// jitter in render pixels, and the same reprojection produced for DLSS SR.
+				frameGeneration.streamlineSceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.currentProjection),
+						DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+						history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+						DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
+						history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset);
+			} else {
+				// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
+				frameGeneration.sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.depthTransform).mul(history.currentProjection),
+						DlssMath.reprojection(new Matrix4f(history.previousDepthTransform).mul(history.previousUnjittered),
+								new Matrix4f(history.depthTransform).mul(history.currentUnjittered), (float) delta.x, (float) delta.y, (float) delta.z),
+						history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+						DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
+						history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset);
+			}
 		}
 		BslFoliageMotion.endFrame();
 		history.promote(worldDepthCaptured);
@@ -723,6 +709,11 @@ public final class UpscalingRenderer {
 
 	public boolean isUpscalingThisFrame() {
 		return swapped;
+	}
+
+	/** Frame generation is running on the native image: camera and hand history are recorded without an upscaler. */
+	public boolean isFrameGenerationOnly() {
+		return motionOnly;
 	}
 
 	public boolean isUpscalingRequestedThisFrame() { return activeThisFrame; }
@@ -775,12 +766,9 @@ public final class UpscalingRenderer {
 
 	public boolean dlssReady() { return runtimes.dlssReady(); }
 
-	/** The configured upscaler after availability, shader pack state and the automatic native/DLSS comparison. */
+	/** The configured upscaler after runtime availability. Auto selects DLSS, then FSR, then native. */
 	public Upscaler effectiveUpscaler() {
-		Upscaler requested = ReflexiumConfig.get().upscaler();
-		Upscaler resolved = runtimes.resolve(requested, ShaderPacks.isDrawingPack());
-		return resolved == Upscaler.DLSS && (performanceGuard.probing() && performanceGuard.nativePhase()
-				|| requested == Upscaler.AUTO && performanceGuard.nativeWins()) ? Upscaler.OFF : resolved;
+		return runtimes.resolve(ReflexiumConfig.get().upscaler());
 	}
 
 	public boolean available(Upscaler value) {
@@ -851,9 +839,6 @@ public final class UpscalingRenderer {
 		Upscaler selected = effectiveUpscaler();
 		if (ReflexiumConfig.get().upscaler() == Upscaler.OFF) return "Upscaling: off";
 		if (DistantHorizonsCompat.waitingForFrame()) return "Upscaling: waiting for Distant Horizons";
-		if (performanceGuard.nativeWins() && ReflexiumConfig.get().upscaler() == Upscaler.AUTO) return String.format(Locale.ROOT,
-				"Upscaling: native (DLSS not faster here: %.2f vs %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs());
-		if (performanceGuard.probing() && runtimes.resolve(ReflexiumConfig.get().upscaler(), ShaderPacks.isDrawingPack()) == Upscaler.DLSS) return "Upscaling: " + (performanceGuard.nativePhase() ? "native" : "DLSS") + " (measuring native vs DLSS)";
 		if (!available(selected)) return "Upscaling: " + runtimes.unavailableReason(selected);
 		String name = selected == Upscaler.FSR ? "FSR 3.1" : "DLSS";
 		if (failed) {
@@ -866,15 +851,14 @@ public final class UpscalingRenderer {
 		if (renderTarget == null) {
 			return name + ": " + mode.displayName() + " (waiting for a world)";
 		}
-		return String.format(Locale.ROOT, "%s: %s %dx%d -> %dx%d", name, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight)
-				+ (!performanceGuard.probing() ? String.format(Locale.ROOT, performanceGuard.nativeWins() ? " (DLSS not faster here: %.2f vs %.2f ms)" : " (DLSS %.2f vs native %.2f ms)", performanceGuard.dlssMs(), performanceGuard.nativeMs()) : "");
+		return String.format(Locale.ROOT, "%s: %s %dx%d -> %dx%d", name, mode.displayName(), renderWidth, renderHeight, displayWidth, displayHeight);
 	}
 
 	/** Debug harness snapshot (see DebugServer). Values describe the most recent frame. */
 	public record DebugInfo(boolean active, String builtUpscaler, int jitterIndex, float jitterX, float jitterY,
 			float jitterSignX, float jitterSignY, int renderWidth, int renderHeight, int displayWidth, int displayHeight,
 			String lastError, int capturedVertices, int drawnVertices, int entities, int blockEntities, float mipBias, boolean reactiveMask,
-			long evaluatedFrames, boolean packHandMask) {
+			long evaluatedFrames, boolean packHandMask, boolean projectionHasViewEffects, int sceneDepthIndex) {
 	}
 
 	public DebugInfo debugInfo() {
@@ -884,7 +868,8 @@ public final class UpscalingRenderer {
 				DebugSettings.jitterSignX(JITTER_SIGN), DebugSettings.jitterSignY(JITTER_SIGN),
 				upscaling ? renderWidth : windowWidth, upscaling ? renderHeight : windowHeight, windowWidth, windowHeight, lastError,
 				ObjectMotion.get().capturedVertices(), ObjectMotion.get().drawnVertices(), ObjectMotion.get().trackedEntities(),
-				ObjectMotion.get().trackedBlockEntities(), mipBias, reactiveGenerated, evaluatedFrames, packHandCaptured);
+				ObjectMotion.get().trackedBlockEntities(), mipBias, false, evaluatedFrames, packHandCaptured,
+				history.currentProjectionHasViewEffects, IrisCompat.lastDepthIndex());
 	}
 
 	/**
@@ -908,7 +893,9 @@ public final class UpscalingRenderer {
 		o.addProperty("post_upscale_particles", DeferredEffects.applied);
 		o.addProperty("particle_generated_copies", DeferredEffects.generatedCopies);
 		o.addProperty("vanilla_cloud_previous_displacement_x", vanillaCloudMotion.displacement());
-		o.addProperty("primary_depth_source", irisOpaqueDepthApplied ? "iris_pre_translucent" : worldDepthCaptured ? "vanilla_world" : "not_captured");
+		o.addProperty("primary_depth_source", irisOpaqueDepthApplied
+				? "iris_target_" + IrisCompat.lastDepthIndex() : worldDepthCaptured ? "vanilla_world" : "not_captured");
+		o.addProperty("drawn_projection_has_view_effects", history.currentProjectionHasViewEffects);
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", BslFoliageMotion.previousTime());
 			o.addProperty("bsl_current_time", BslFoliageMotion.currentTime());
@@ -1051,7 +1038,10 @@ public final class UpscalingRenderer {
 	private void build(UpscaleQuality mode, int width, int height) {
 		Upscaler selected = effectiveUpscaler();
 		int[] size = selected == Upscaler.OFF ? new int[] {width, height}
-				: selected == Upscaler.FSR ? mode.fsrSize(width, height) : runtimes.ngx().optimalSettings(width, height, mode);
+				: selected == Upscaler.FSR ? mode.fsrSize(width, height)
+				: selected == Upscaler.DLSS && StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()
+						? StreamlineSupport.optimalSettings(width, height, mode, wantsPackHdr(selected))
+						: runtimes.ngx().optimalSettings(width, height, mode);
 		if (size == null) {
 			throw new IllegalStateException("no DLSS render size for " + width + "x" + height + " " + mode.displayName());
 		}
@@ -1060,10 +1050,43 @@ public final class UpscalingRenderer {
 
 		renderWidth = size[0];
 		renderHeight = size[1];
+		if (selected == Upscaler.OFF) {
+			// Native frame generation: only the motion/depth inputs are needed. No render-size swap or colour copy runs.
+			displayWidth = width;
+			displayHeight = height;
+			jitter.resize(renderWidth, renderHeight);
+			builtHdr = false;
+			builtPackEpoch = ComplementaryHdr.epoch();
+			motionTarget = new TextureTarget("Reflexium native motion", renderWidth, renderHeight, MotionVectorPass.FORMAT, GpuFormat.D32_FLOAT);
+			if (motionPass == null) {
+				motionPass = new MotionVectorPass();
+				objectVelocityPass = new ObjectVelocityPass();
+			}
+			if (ShaderPacks.anyLoaded()) {
+				packHandBefore = new TextureTarget("Reflexium pack before hand", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
+				packHandMask = new TextureTarget("Reflexium pack hand mask", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
+				if (packHandMaskPass == null) packHandMaskPass = new PackHandMaskPass();
+			}
+			builtMode = mode;
+			builtUpscaler = selected;
+			builtModel = ReflexiumConfig.get().dlssModel();
+			builtPreset = requestedPreset(mode);
+			renderSizeApplied = false;
+			mipBias = 0.0f;
+			resets.request(ResetReason.REBUILD);
+			history.havePrevious = false;
+			jitter.restart();
+			lastEvaluateNs = 0;
+			evaluatedFrames = 0;
+			resets.clearCounters();
+			ReflexiumClient.LOGGER.info("Native frame generation motion vectors: {}x{}", renderWidth, renderHeight);
+			return;
+		}
 		jitter.resize(renderWidth, renderHeight);
 		displayWidth = width;
 		displayHeight = height;
 		builtHdr = wantsPackHdr(selected);
+		builtFgOwnsConstants = FrameGenerationRenderer.get().streamlineFrameGenerationActive();
 		builtPackEpoch = ComplementaryHdr.epoch();
 		if (builtHdr) {
 			hdrInput = new TextureTarget("Reflexium linear HDR input", renderWidth, renderHeight, GpuFormat.RGBA16_FLOAT, GpuFormat.D32_FLOAT);
@@ -1086,19 +1109,18 @@ public final class UpscalingRenderer {
 			packHandMask = new TextureTarget("Reflexium pack hand mask", renderWidth, renderHeight, null, GpuFormat.D32_FLOAT);
 			if (packHandMaskPass == null) packHandMaskPass = new PackHandMaskPass();
 		}
-		if (selected == Upscaler.DLSS && !builtHdr) {
-			sharpenSource = new TextureTarget("Reflexium DLSS sharpen source", displayWidth, displayHeight, GpuFormat.RGBA8_UNORM, null);
-			if (sharpenPass == null) sharpenPass = new SharpenPass();
+		int result;
+		if (selected == Upscaler.OFF) {
+			result = 0;
+		} else if (selected == Upscaler.FSR) {
+			result = runtimes.fsr().create(session.device().address(), session.physicalDevice().address(),
+					VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight, builtHdr);
+		} else if (StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()) {
+			result = StreamlineSupport.setDlssOptions(displayWidth, displayHeight, mode, builtHdr, requestedPreset(mode));
+		} else {
+			result = runtimes.ngx().create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS | (builtHdr ? 1 | (1 << 6) : 0),
+					requestedPreset(mode));
 		}
-		if (selected == Upscaler.FSR) {
-			opaqueTarget = new TextureTarget("Reflexium opaque scene", renderWidth, renderHeight, GpuFormat.RGBA8_UNORM, null);
-			reactive = new OutputImage(device, commandBuffer, renderWidth, renderHeight, VK10.VK_FORMAT_R8_UNORM);
-		}
-		int result = selected == Upscaler.OFF ? 0 : selected == Upscaler.FSR
-				? runtimes.fsr().create(session.device().address(), session.physicalDevice().address(),
-						VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight, builtHdr)
-				: runtimes.ngx().create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS | (builtHdr ? 1 | (1 << 6) : 0),
-						requestedPreset(mode));
 		runtimes.drainLog();
 		if (result != 0) {
 			throw new IllegalStateException(selected + " feature creation failed (0x" + Integer.toHexString(result) + ")");
@@ -1110,7 +1132,6 @@ public final class UpscalingRenderer {
 		builtPreset = requestedPreset(mode);
 		renderSizeApplied = false;
 		resets.request(ResetReason.REBUILD);
-		reactiveMaskFailed = false;
 		history.havePrevious = false;
 		jitter.restart();
 		lastEvaluateNs = 0;
@@ -1209,8 +1230,7 @@ public final class UpscalingRenderer {
 			return;
 		}
 		float sharpness = ReflexiumConfig.get().fsrSharpness() / 100f;
-		boolean sharpen = builtUpscaler == Upscaler.DLSS && sharpenSource != null && sharpness > 0;
-		RenderTarget outputTarget = builtHdr ? hdrOutput : sharpen ? sharpenSource : renderTarget;
+		RenderTarget outputTarget = builtHdr ? hdrOutput : renderTarget;
 		ImageRef outputImage = VulkanInterop.image(outputTarget.getColorTexture(), outputTarget.getColorTextureView());
 		if (resetting) {
 			resets.count();
@@ -1225,9 +1245,18 @@ public final class UpscalingRenderer {
 		int result;
 		if (builtUpscaler == Upscaler.FSR) {
 			ImageRef composition = packSurfaceApplied ? VulkanInterop.image(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null;
-			ImageRef reactiveMask = packSurfaceApplied ? composition : reactiveGenerated ? reactive.asNgx() : null;
-			result = runtimes.fsr().evaluate(commandBuffer.address(), color, depth, motion, outputImage, reactiveMask, composition,
+			result = runtimes.fsr().evaluate(commandBuffer.address(), color, depth, motion, outputImage, composition, composition,
 					signedJitterX, signedJitterY, resetting, frameTimeMs, history.cameraNear, history.motionFar, history.cameraFov, sharpness);
+		} else if (StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()) {
+			Vec3 delta = history.delta();
+			StreamlineSupport.setConstants(history.currentProjection,
+					DlssMath.reprojection(history.previousUnjittered, history.currentJittered,
+							(float) delta.x, (float) delta.y, (float) delta.z),
+					history.currentOrientation,
+					(float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+					signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov,
+					(float) displayWidth / displayHeight, resetting, renderWidth, renderHeight, false);
+			result = StreamlineSupport.evaluateDlss(commandBuffer.address(), color, depth, motion, outputImage);
 		} else {
 			result = runtimes.ngx().evaluate(commandBuffer.address(), color, depth, motion, outputImage,
 					signedJitterX, signedJitterY, 1.0f, 1.0f, resetting, frameTimeMs);
@@ -1236,12 +1265,6 @@ public final class UpscalingRenderer {
 		if (result != 0) {
 			runtimes.drainLog();
 			throw new IllegalStateException(builtUpscaler + " evaluate returned 0x" + Integer.toHexString(result));
-		}
-		if (sharpen) {
-			timing = FrameProfiler.start(FrameProfiler.SHARPEN, commandBuffer);
-			VulkanInterop.barrier(commandBuffer);
-			sharpenPass.render(sharpenSource.getColorTextureView(), renderTarget, sharpness);
-			FrameProfiler.end(FrameProfiler.SHARPEN, timing, commandBuffer);
 		}
 		resets.consume();
 		if (++evaluatedFrames == 1) {
@@ -1332,20 +1355,15 @@ public final class UpscalingRenderer {
 		ComplementaryHdr.release();
 		hdrInput = destroy(hdrInput);
 		hdrOutput = destroy(hdrOutput);
-		sharpenSource = destroy(sharpenSource);
 		packMotionBase = destroy(packMotionBase);
 		packComposition = destroy(packComposition);
 		packSurfacePass = null;
 		builtHdr = false;
+		StreamlineSupport.freeDlss();
 		FrameGenerationRenderer.get().release();
 		materialSamplers.close();
 		packHandBefore = destroy(packHandBefore);
 		packHandMask = destroy(packHandMask);
-		if (reactive != null) {
-			reactive.destroy();
-			reactive = null;
-		}
-		opaqueTarget = destroy(opaqueTarget);
 		runtimes.releaseFeatures();
 		renderTarget = destroy(renderTarget);
 		worldDepth = destroy(worldDepth);
@@ -1379,10 +1397,6 @@ public final class UpscalingRenderer {
 		if (depthResolvePass != null) {
 			depthResolvePass.close();
 			depthResolvePass = null;
-		}
-		if (sharpenPass != null) {
-			sharpenPass.close();
-			sharpenPass = null;
 		}
 		motionDebugPass = null;
 		packHandMaskPass = null;

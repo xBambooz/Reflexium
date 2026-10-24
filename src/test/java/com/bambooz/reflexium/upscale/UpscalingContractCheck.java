@@ -293,14 +293,14 @@ public final class UpscalingContractCheck {
 		}
 	}
 
-	// 5. Explicit model presets and the shader-aware Auto backend policy.
+	// 5. Explicit model presets and the Auto backend policy.
 	private static void modelPresets() {
-		check(Upscaler.AUTO.resolve(true, true, false) == Upscaler.OFF, "Shaderless Auto keeps native rendering");
-		check(Upscaler.AUTO.resolve(true, true, true) == Upscaler.DLSS, "Shader-pack Auto prefers DLSS");
-		check(Upscaler.AUTO.resolve(false, true, true) == Upscaler.FSR, "Shader-pack Auto falls back to FSR");
-		check(Upscaler.AUTO.resolve(false, false, true) == Upscaler.OFF, "No runtime keeps native rendering");
-		check(Upscaler.DLSS.resolve(true, true, false) == Upscaler.DLSS, "Explicit shaderless DLSS remains available");
-		check(Upscaler.OFF.resolve(true, true, true) == Upscaler.OFF, "Explicit Off stays off with shaders");
+		check(Upscaler.AUTO.resolve(true, true) == Upscaler.DLSS, "Auto prefers DLSS without shaders");
+		check(Upscaler.AUTO.resolve(true, true) == Upscaler.DLSS, "Auto prefers DLSS with shaders");
+		check(Upscaler.AUTO.resolve(false, true) == Upscaler.FSR, "Auto falls back to FSR");
+		check(Upscaler.AUTO.resolve(false, false) == Upscaler.OFF, "No runtime keeps native rendering");
+		check(Upscaler.DLSS.resolve(true, true) == Upscaler.DLSS, "Explicit DLSS remains available");
+		check(Upscaler.OFF.resolve(true, true) == Upscaler.OFF, "Explicit Off stays off");
 		for (UpscaleQuality quality : UpscaleQuality.values()) {
 			check(DlssModel.AUTO.preset(quality) == 0, "Auto passes zero for the runtime default");
 			check(DlssModel.CNN.preset(quality) == 5, "CNN stays preset E");

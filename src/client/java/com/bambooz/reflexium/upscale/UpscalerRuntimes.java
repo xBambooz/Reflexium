@@ -149,8 +149,8 @@ final class UpscalerRuntimes {
 		}
 	}
 
-	Upscaler resolve(Upscaler requested, boolean drawingPack) {
-		return requested.resolve(ngxReady, fsr != null, drawingPack);
+	Upscaler resolve(Upscaler requested) {
+		return requested.resolve(ngxReady, fsr != null);
 	}
 
 	boolean available(Upscaler value) {

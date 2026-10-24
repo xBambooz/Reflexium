@@ -24,6 +24,8 @@ final class CameraHistory {
 	/** The projection drawn this frame, including view effects, before jitter. */
 	final Matrix4f currentProjection = new Matrix4f();
 	final Matrix4f physicalProjection = new Matrix4f();
+	/** View bob, damage tilt or nausea changed the drawn projection this frame. */
+	boolean currentProjectionHasViewEffects;
 	/** View-projection with and without this frame's jitter, and last frame's unjittered one. */
 	final Matrix4f currentJittered = new Matrix4f();
 	final Matrix4f currentUnjittered = new Matrix4f();
@@ -50,6 +52,7 @@ final class CameraHistory {
 		// View bob, damage tilt and nausea were multiplied into the drawn projection. The physical camera
 		// planes and field of view come from the matrix Minecraft built before those effects.
 		physicalProjection.set(camera.projectionMatrix);
+		currentProjectionHasViewEffects = !projection.equals(physicalProjection, 1.0e-6f);
 		DlssMath.CameraMetadata physical = DlssMath.cameraMetadata(physicalProjection);
 		if (physical.valid()) {
 			cameraNear = physical.near();
@@ -112,6 +115,7 @@ final class CameraHistory {
 		matrices.add("current_to_previous", floats(currentToPrevious));
 		matrices.add("physical_projection", floats(physicalProjection));
 		matrices.add("drawn_projection", floats(currentProjection));
+		matrices.addProperty("drawn_projection_has_view_effects", currentProjectionHasViewEffects);
 		matrices.add("upscaler_depth_transform", floats(depthTransform));
 		matrices.addProperty("hand_projection_present", haveHandProjection);
 		matrices.add("hand_projection_jittered", floats(handProjectionJittered));

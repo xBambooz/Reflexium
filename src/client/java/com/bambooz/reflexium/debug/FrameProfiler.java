@@ -9,21 +9,20 @@ import java.util.Arrays;
 
 /** Opt-in render-thread timings. Query results are read only after availability, never with WAIT. */
 public final class FrameProfiler {
-	public static final int DEPTH = 0, MOTION = 1, OBJECTS = 2, EVALUATE = 3, OUTLINE_DEPTH = 4,
-			OUTLINE = 5, BARRIER_BEFORE = 6, BARRIER_AFTER = 7, REACTIVE = 8, OPAQUE_COPY = 9,
-			PACK_HAND = 10, REFLEX_SLEEP = 11, SUBMIT = 12, FENCE = 13, ACQUIRE = 14, PRESENT = 15, WORLD = 16, QUEUE = 17,
-			REFLEX_DRIVER = 18, REFLEX_WAIT = 19, FENCE_POLL = 20, POOL_RESET = 21,
-			FG_EVALUATE = 22, FG_GUI = 23, ACQUIRE_REUSE_WAIT = 24, SHARPEN = 25, DISPLAY_DEPTH = 26, HDR_COPY = 27, FINAL_BLIT = 28,
-			IRIS_SHADOWS = 29, IRIS_BEGIN = 30, IRIS_DEFERRED = 31, IRIS_COMPOSITE = 32, IRIS_FINAL = 33,
-			PHASE_SKY = 34, PHASE_TERRAIN_SOLID = 35, PHASE_TERRAIN_CUTOUT = 36, PHASE_ENTITIES = 37, PHASE_TRANSLUCENT = 38,
-			PHASE_CLOUDS_WEATHER = 39, PHASE_HAND = 40, PHASE_OTHER = 41;
+	public static final int DEPTH = 0, MOTION = 1, OBJECTS = 2, EVALUATE = 3, BARRIER_BEFORE = 4, BARRIER_AFTER = 5,
+			PACK_HAND = 6, REFLEX_SLEEP = 7, SUBMIT = 8, FENCE = 9, ACQUIRE = 10, PRESENT = 11, WORLD = 12, QUEUE = 13,
+			REFLEX_DRIVER = 14, REFLEX_WAIT = 15, FENCE_POLL = 16, POOL_RESET = 17,
+			FG_EVALUATE = 18, FG_GUI = 19, ACQUIRE_REUSE_WAIT = 20, DISPLAY_DEPTH = 21, HDR_COPY = 22, FINAL_BLIT = 23,
+			IRIS_SHADOWS = 24, IRIS_BEGIN = 25, IRIS_DEFERRED = 26, IRIS_COMPOSITE = 27, IRIS_FINAL = 28,
+			PHASE_SKY = 29, PHASE_TERRAIN_SOLID = 30, PHASE_TERRAIN_CUTOUT = 31, PHASE_ENTITIES = 32, PHASE_TRANSLUCENT = 33,
+			PHASE_CLOUDS_WEATHER = 34, PHASE_HAND = 35, PHASE_OTHER = 36, FG_HUDLESS = 37, FG_UI = 38;
 	private static final String[] NAMES = {"depth_copy", "camera_motion", "object_motion", "evaluate",
-			"outline_depth", "outline", "barrier_before", "barrier_after", "reactive", "opaque_copy",
+			"barrier_before", "barrier_after",
 			"pack_hand", "reflex_sleep", "submit_including_wait", "submit_fence_wait", "acquire", "present", "world_including_upscaling", "queue_submit",
-			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "sharpen", "display_depth", "hdr_copy", "final_blit",
+			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "display_depth", "hdr_copy", "final_blit",
 			"iris_shadows_and_prepare", "iris_begin", "iris_deferred", "iris_composite", "iris_final",
 			"phase_sky", "phase_terrain_solid", "phase_terrain_cutout", "phase_entities", "phase_translucent_particles",
-			"phase_clouds_weather", "phase_hand", "phase_other"};
+			"phase_clouds_weather", "phase_hand", "phase_other", "fg_hudless_copy", "fg_ui_capture"};
 	private static final int SLOTS = 16, QUERIES = 128;
 	private static final long[] cpu = new long[NAMES.length], counts = new long[NAMES.length],
 			gpu = new long[NAMES.length], gpuCounts = new long[NAMES.length];
@@ -35,19 +34,12 @@ public final class FrameProfiler {
 	private static long pool;
 	private static float period;
 	private static int slot = -1, next;
-	private static boolean enabled, automatic;
-	private static long worldTag, probeSamples;
-	private static double probeNs;
-	private static final long[][] worldTags = new long[SLOTS][QUERIES / 2];
-	public static void automatic(boolean value) { automatic = value; }
-	public static void worldProbe(long tag) { if (worldTag != tag) { worldTag = tag; probeSamples = 0; probeNs = 0; } }
-	public static long worldProbeSamples() { return probeSamples; }
-	public static double worldProbeMs() { return probeSamples == 0 ? 0 : probeNs / (probeSamples * 1_000_000.0); }
+	private static boolean enabled;
 	private static long skipped;
 
 	private FrameProfiler() {}
 	public static double gpuMeanMs(int label) { return gpuCounts[label] == 0 ? 0 : gpu[label] / (gpuCounts[label] * 1_000_000.0); }
-	public static boolean enabled() { return enabled || automatic; }
+	public static boolean enabled() { return enabled; }
 
 	public static void init(VkDevice value, VkPhysicalDevice physical) {
 		device = value;
@@ -99,9 +91,6 @@ public final class FrameProfiler {
 				int label = labels[s][i / 2];
 				gpu[label] += (long) ((data.get(i * 2 + 2) - data.get(i * 2)) * (double) period);
 				gpuCounts[label]++;
-				if (label == WORLD && worldTag != 0 && worldTags[s][i / 2] == worldTag) {
-					probeNs += (data.get(i * 2 + 2) - data.get(i * 2)) * (double) period; probeSamples++;
-				}
 			}
 			used[s] = 0;
 			return true;
@@ -113,7 +102,6 @@ public final class FrameProfiler {
 		if (commands != null && slot >= 0 && used[slot] + 2 <= QUERIES) {
 			int query = used[slot];
 			labels[slot][query / 2] = label;
-			worldTags[slot][query / 2] = worldTag;
 			VK10.vkCmdWriteTimestamp(commands, VK10.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, pool, slot * QUERIES + query);
 			used[slot] += 2;
 			// High bits retain the query pair so nested CPU scopes cannot corrupt its end index.

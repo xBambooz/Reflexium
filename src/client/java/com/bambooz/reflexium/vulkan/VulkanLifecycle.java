@@ -3,6 +3,7 @@ package com.bambooz.reflexium.vulkan;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.upscale.dlss.DlssSupport;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.upscale.UpscalingRenderer;
@@ -34,9 +35,9 @@ public final class VulkanLifecycle {
 	private static boolean queueTagged;
 	static final int PREFERRED_IMAGE_COUNT = 8;
 	/** Last native swapchain: requested count is not proof, so the created count is read back from the driver. */
-	public record SwapchainState(int requested, int created, int presentMode, int surfaceMin, int surfaceMax, int width, int height) { }
+	public record SwapchainState(int requested, int created, int presentMode, int surfaceMin, int surfaceMax, int width, int height, int format) { }
 	private static volatile SwapchainState swapchainState;
-	private static int pendingRequested = -1, pendingPresentMode = -1, pendingMin = -1, pendingMax = -1, pendingWidth, pendingHeight;
+	private static int pendingRequested = -1, pendingPresentMode = -1, pendingMin = -1, pendingMax = -1, pendingWidth, pendingHeight, pendingFormat;
 	public static SwapchainState swapchainState() { return swapchainState; }
 	private VulkanLifecycle() {
 	}
@@ -54,6 +55,7 @@ public final class VulkanLifecycle {
 				extensions.lowLatencyRevision(),
 				extensions.presentId(),
 				extensions.presentMetering(),
+				StreamlineSupport.initialized(),
 				extensions.ngxExtensions());
 		VulkanSession.publish(session);
 		graphicsQueue = vulkanDevice.graphicsQueue().vkQueue();
@@ -61,6 +63,9 @@ public final class VulkanLifecycle {
 		ReflexiumClient.LOGGER.info("Vulkan device {} ({}): low_latency2={}, present_id={}, present_metering={}",
 				session.deviceName(), session.driverInfo(), session.lowLatency2(), session.presentId(), session.presentMetering());
 
+		if (StreamlineSupport.initialized()) {
+			StreamlineSupport.onDeviceCreated(session, vulkanDevice.graphicsQueue().queueFamilyIndex(), 0);
+		}
 		ReflexController.get().onDeviceCreated(session);
 		if (ReflexiumClient.isSupportedPlatform()) {
 			DlssSupport.probe(session);
@@ -82,11 +87,12 @@ public final class VulkanLifecycle {
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				var count = stack.mallocInt(1);
 				int created = KHRSwapchain.vkGetSwapchainImagesKHR(session.device(), swapchain, count, null) == 0 ? count.get(0) : -1;
-				swapchainState = new SwapchainState(pendingRequested, created, pendingPresentMode, pendingMin, pendingMax, pendingWidth, pendingHeight);
+				swapchainState = new SwapchainState(pendingRequested, created, pendingPresentMode, pendingMin, pendingMax, pendingWidth, pendingHeight, pendingFormat);
 				ReflexiumClient.LOGGER.info("Swapchain created: {} images (requested {}, surface {}..{}), present mode {}, {}x{}", created, pendingRequested,
 						pendingMin, pendingMax == 0 ? "unbounded" : pendingMax, presentModeName(pendingPresentMode), pendingWidth, pendingHeight);
 			}
 		}
+		FrameGenerationRenderer.get().onSwapchainCreated();
 		ReflexController.get().onSwapchainCreated(swapchain);
 	}
 
@@ -117,8 +123,9 @@ public final class VulkanLifecycle {
 			}
 			pendingRequested = info.minImageCount(); pendingPresentMode = info.presentMode();
 			pendingWidth = info.imageExtent().width(); pendingHeight = info.imageExtent().height();
+			pendingFormat = info.imageFormat();
 		}
-		if (session == null || !session.lowLatency2() || FsrSwapchain.canCreate(info)) {
+		if (session == null || !session.lowLatency2() || session.streamline() || FsrSwapchain.canCreate(info)) {
 			return info;
 		}
 		VkSwapchainLatencyCreateInfoNV latency = VkSwapchainLatencyCreateInfoNV.calloc(MemoryStack.stackGet())
@@ -129,6 +136,10 @@ public final class VulkanLifecycle {
 	}
 
 	public static VkPresentInfoKHR chainPresentId(VkPresentInfoKHR info) {
+		VulkanSession session = VulkanSession.current();
+		if (session != null && session.streamline()) {
+			return info;
+		}
 		long id = ReflexController.get().takePresentId();
 		if (id == 0 || info.swapchainCount() != 1) {
 			return info;
@@ -150,7 +161,7 @@ public final class VulkanLifecycle {
 	public static VkSubmitInfo2.Buffer chainSubmissionIds(VkQueue queue, VkSubmitInfo2.Buffer submits) {
 		long id = ReflexController.get().currentFrameId();
 		VulkanSession session = VulkanSession.current();
-		if (session == null || !session.explicitAttributionSupported() || graphicsQueue == null || queue.address() != graphicsQueue.address()) {
+		if (session == null || session.streamline() || !session.explicitAttributionSupported() || graphicsQueue == null || queue.address() != graphicsQueue.address()) {
 			return submits;
 		}
 		// Only this queue is ever explicitly tagged. Clearing it returns the entire device to implicit

@@ -62,6 +62,13 @@ dependencies {
 	if (rxBenchJar != null) clientRuntimeOnly files(rxBenchJar)
 }
 
+
+// Signed NVIDIA Streamline runtime (SDK 2.14.16), extracted to <game>/reflexium/streamline.
+processClientResources {
+	from("native/streamline/bin/x64") { into "streamline" }
+	from("native/streamline/licenses") { into "streamline/licenses" }
+}
+
 processResources {
 	inputs.property "version", project.version
 	inputs.property "minecraft_version", project.minecraft_version

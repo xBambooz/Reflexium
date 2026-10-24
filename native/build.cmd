@@ -28,6 +28,17 @@ cl /nologo /O2 /MT /EHsc /std:c++17 /W3 /DNDEBUG /DVK_USE_PLATFORM_WIN32_KHR ^
 	/IMPLIB:"%HERE%build\reflexium_ngx.lib" || exit /b 1
 echo Built %OUT%\reflexium_ngx.dll
 
+rem Streamline bridge: headers are vendored in native\streamline (SDK 2.14.16). The runtime DLLs are
+rem loaded by name at runtime, so no import library is linked.
+if not exist "%HERE%streamline\include\sl.h" (echo Streamline SDK headers missing in native\streamline & exit /b 1)
+cl /nologo /O2 /MT /EHsc /std:c++17 /W3 /DNDEBUG /DVK_USE_PLATFORM_WIN32_KHR ^
+	/I"%HERE%deps\Vulkan-Headers\include" /I"%HERE%streamline\include" ^
+	/Fo"%HERE%build\\" "%HERE%reflexium_sl.cpp" ^
+	/LD /Fe"%OUT%\reflexium_sl.dll" ^
+	/link /NOLOGO wintrust.lib crypt32.lib advapi32.lib user32.lib ^
+	/IMPLIB:"%HERE%build\reflexium_sl.lib" || exit /b 1
+echo Built %OUT%\reflexium_sl.dll
+
 set FFX=%HERE%deps\FidelityFX-SDK-v1.1.4
 if not exist "%FFX%\ffx-api\include\ffx_api\ffx_upscale.h" (echo Extract FidelityFX SDK v1.1.4 into %FFX% first & exit /b 1)
 cl /nologo /O2 /MT /EHsc /std:c++17 /W3 /DNDEBUG ^

@@ -22,6 +22,15 @@ record LatencyReport(boolean available, String reason, double totalMs, double si
 		return new LatencyReport(false, reason, 0, -1, -1, -1);
 	}
 
+	/** Streamline ReflexReport timestamps: input, simStart, simEnd, submitStart, submitEnd, presentStart,
+	 * presentEnd, driverStart, driverEnd, osQueueStart, osQueueEnd, gpuStart, gpuEnd. */
+	static LatencyReport fromStreamline(long[] t) {
+		if (t.length < 13) return unavailable("incomplete Streamline report");
+		long start = t[0] > 0 ? t[0] : t[1];
+		if (start <= 0 || t[12] <= start || t[11] <= 0 || t[12] < t[11]) return unavailable("incomplete Streamline report");
+		return new LatencyReport(true, "", (t[12] - start) / 1000.0, span(t[1], t[2]), span(t[3], t[4]), span(t[11], t[12]));
+	}
+
 	String format() {
 		if (!available) {
 			return "Reflex latency: " + reason;

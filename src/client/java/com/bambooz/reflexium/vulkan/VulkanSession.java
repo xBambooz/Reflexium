@@ -21,6 +21,7 @@ public record VulkanSession(
 		int lowLatencyRevision,
 		boolean presentId,
 		boolean presentMetering,
+		boolean streamline,
 		Set<String> ngxExtensions
 ) {
 	public static final int VENDOR_NVIDIA = 0x10DE;

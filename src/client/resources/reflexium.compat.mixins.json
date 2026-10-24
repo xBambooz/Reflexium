@@ -6,6 +6,7 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"dh.BlazeDhTerrainMixin",
+		"dh.BlazeDhRenderPassMixin",
 		"dh.IrisDhTerrainMixin",
 		"dh.IrisDhRenderGuardMixin",
 		"BetterF3ConfigMixin",

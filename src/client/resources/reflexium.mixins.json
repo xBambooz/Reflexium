@@ -29,6 +29,7 @@
 		"VulkanBackendMixin",
 		"VulkanConstMixin",
 		"VulkanDeviceMixin",
+		"VulkanInstanceMixin",
 		"VulkanGpuSurfaceMixin",
 		"VulkanQueueSubmissionMixin"
 	],

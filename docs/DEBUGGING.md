@@ -63,18 +63,23 @@ The table covers the common keys. `/` (help) and an unknown-key error list every
 | Key | Values | Notes |
 | --- | --- | --- |
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | Same as the config value |
+| `streamline` | `0`, `1` | Selects Streamline (`1`, the default) or the raw NGX fallback (`0`) for the next launch; instance and device extensions cannot be added to a running device |
 | `quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | |
 | `dlss_model` | `auto`, `transformer`, `cnn` | |
-| `fsr_sharpness` | `0` to `100` | |
+| `fsr_sharpness` | `0` to `100` | FSR 3.1 only; DLSS output is not post-sharpened |
 | `jitter_sign_x`, `jitter_sign_y` | `1`, `-1`, `default` | Runtime override of the sign UpscalingRenderer applies to the jitter handed to the upscaler. `default` restores the built-in value (`1`, measured in build/jitter-tuning, or `-Dreflexium.dlss.jitterSign`). `jitter_sign` sets both |
 | `jitter` | `0`, `1` | `0` zeroes the projection jitter and the jitter given to the upscaler, for A/B |
 | `mv_debug` | `0`, `1` | Draws the motion vector texture over the upscaled world (see below) |
 | `object_motion` | `0`, `1` | Enables the opaque entity/block-entity velocity pass; `0` gives a camera-only A/B |
 | `object_static` | `0`, `1` | Also redraws static tracked objects for depth-match debugging |
 | `hand_motion` | `0`, `1` | `0` returns the first-person hand to zero motion, for matched hand A/B captures |
+| `pack_hand_mask` | `0`, `1` | `0` also clears hand coverage for the hand velocity pass; `1` (default) uses the pack hand mask for the hand pass only |
+| `foliage_motion` | `0`, `1` | `0` skips exact-source pack deformation vectors (BSL leaves/vines), for a camera-only A/B |
+| `bob_view` | `0`, `1` | Runtime view-bob option, for walking A/B captures. `camera_bob` and `camera_walk_distance` in status show the render-state inputs independently |
 | `mip_bias_offset` | `-4` to `4` | Dev-only offset added to the vendor texture LOD baseline `log2(render/display) - 1` while upscaling. `1` reproduces the pre-2026-10-14 `log2(render/display)` bias. Replacement samplers are rebuilt after a device idle. Never applied at native size |
 | `dlss_preset` | `-1`, `5`, `6`, `10`, `11`, `12`, `13` | `-1` is the quality-aware mapping (Transformer: K for DLAA/Quality/Balanced, M Performance, L Ultra Performance). The value is a hint passed to NGX, not the model NGX reports |
-| `shaders` | `0`, `1` | Vitrail only: flips `vitrail/pack.txt` `enabled=` in the active game directory and reloads the pack |
+| `shaders` | `0`, `1` | Toggles the active pack: Iris through its pack manager, or Vitrail by flipping `vitrail/pack.txt` `enabled=` in the active game directory. Reloads the pack |
+| `shader_pack` | pack file name | Iris only: switches to that zip in the shaderpacks directory, enables shaders and reloads. Used by the validation matrix |
 | `pack_taa` | `retain`, `off` | Known Complementary packs only: keep or drop the pack's own full-scene TAA (in memory) while upscaling, for A/B |
 
 ### Frame timing (`/reflexium` with `frame_mark` or `frame_stats_from`)
@@ -162,6 +167,10 @@ Status includes `evaluated_frames` (must advance to prove the upscaler ran), `pa
 `object_vertices_captured`, `object_vertices_drawn`, tracked entity counts, `mip_bias` and
 `reactive_mask`. Vertex counts report geometry submitted to the velocity pass, not the number of
 fragments that passed its depth test. A nonzero count alone does not prove correct velocities.
+`drawn_projection_has_view_effects`, `scene_depth_index`, `camera_bob`, `camera_walk_distance` and
+`bob_view_state` show whether the drawn projection contains view effects and which Iris depth target
+was used. The 2026-10-23 walking smear was a hand coverage mask problem, not a missing bob in the
+camera matrices; see [the report](validation/pack-fg-bob-2026-10-23.md).
 
 The `observed` object holds what the last frame actually did, separate from the requested settings:
 
@@ -259,8 +268,10 @@ The dev-only settings endpoint also accepts `vsync`, `fullscreen` and `pause` bo
 Frame generation adds `frame_generation=off|dlss|dlss_multi|fsr` and `fg_multiplier=3..8` to `/set`.
 Status includes the runtime MFG maximum, FG evaluations, successful generated present submissions,
 metering feedback and AMD scheduler present counts. These counters do not measure physical scanout.
-`/screenshot?fg_index=0&gui=1` reads the first generated target. See
-[frame-generation checks](FRAME_GENERATION.md) for the authenticated harness test script.
+Generation stops while any GUI screen is open; `fg_status` and the generation ledger record the menu
+reason, and evaluations resume after the screen closes. `/screenshot?fg_index=0&gui=1` reads the
+first generated target. See [frame-generation checks](FRAME_GENERATION.md) for the authenticated
+harness test script.
 
 - The harness forces `pauseOnLostFocus` off while the debug server runs, so a background window keeps
   ticking and scripted motion is not frozen by the pause menu.

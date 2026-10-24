@@ -32,18 +32,21 @@ import static com.bambooz.reflexium.debug.server.RenderThread.call;
 final class SetCommand {
 	static final List<String> KEYS = List.of(
 			// Player settings
-			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier", "fg_force_multiplier",
-			"reflex_mode", "pack_shadow_cap",
+			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier",
+			"reflex_mode",
 			// Vanilla options
 			"vsync", "fullscreen", "pause", "improved_transparency", "crosshair_3d",
 			// Upscaling dev overrides
 			"jitter", "jitter_sign", "jitter_sign_x", "jitter_sign_y", "mv_debug", "object_motion", "object_static", "hand_motion",
+			"foliage_motion", "bob_view", "pack_hand_mask",
 			"dlss_preset", "mip_bias_offset", "perf_uniforms", "perf_depth", "cloud_motion", "crosshair_defer",
 			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug",
 			// Shader pack dev overrides
-			"shaders", "pack_taa", "pack_resolve", "pack_filters",
+			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters",
 			// Reflex diagnostics
-			"reflex_trace", "reflex_submission", "reflex_interval_us");
+			"reflex_trace", "reflex_submission", "reflex_interval_us",
+			// Streamline switch (applies to the next launch; instance/device extensions are fixed)
+			"streamline");
 
 	private SetCommand() {
 	}
@@ -73,6 +76,10 @@ final class SetCommand {
 			case "cloud_motion" -> {
 				boolean on = flag(value, true);
 				yield () -> DebugSettings.cloudMotion = on;
+			}
+			case "streamline" -> {
+				boolean on = flag(value, true);
+				yield () -> com.bambooz.reflexium.upscale.dlss.StreamlineSupport.setEnabled(on);
 			}
 			case "particles_fg_replay" -> {
 				boolean on = flag(value, true);
@@ -109,22 +116,21 @@ final class SetCommand {
 				if (!Float.isFinite(offset) || offset < -4.0f || offset > 4.0f) throw new DebugHttp.BadRequest("mip_bias_offset must be finite within -4..4 (+1 reproduces the pre-baseline bias)");
 				yield () -> DebugSettings.setMipBiasOffset(offset);
 			}
-			case "pack_shadow_cap" -> {
-				// "<resolution>,<distance>"; 0 keeps the pack's value. Recompiles the pack so the options apply.
-				String[] parts = value.trim().split(",");
-				if (parts.length != 2) throw new DebugHttp.BadRequest("pack_shadow_cap must be <resolution>,<distance> (0 = pack value)");
-				int resolution, distance;
-				try { resolution = Integer.parseInt(parts[0].trim()); distance = Integer.parseInt(parts[1].trim()); }
-				catch (NumberFormatException e) { throw new DebugHttp.BadRequest("pack_shadow_cap values must be whole numbers"); }
-				if (resolution < 0 || resolution > 8192 || distance < 0 || distance > 1024) throw new DebugHttp.BadRequest("pack_shadow_cap range is 0..8192,0..1024");
-				yield () -> {
-					ReflexiumConfig.get().setPackShadowCaps(resolution, distance);
-					IrisCompat.reloadForOptionChange();
-				};
-			}
 			case "hand_motion" -> {
 				boolean on = flag(value, true);
 				yield () -> DebugSettings.setHandMotion(on);
+			}
+			case "foliage_motion" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.setFoliageMotion(on);
+			}
+			case "pack_hand_mask" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.setPackHandMask(on);
+			}
+			case "bob_view" -> {
+				boolean on = flag(value, true);
+				yield () -> Minecraft.getInstance().options.bobView().set(on);
 			}
 			case "pack_taa" -> {
 				boolean retained = value.trim().equalsIgnoreCase("retain") || flag(value.equals("retain") ? "1" : value.equals("off") ? "0" : value, true);
@@ -144,6 +150,10 @@ final class SetCommand {
 					if (IrisCompat.isLoaded()) IrisCompat.debugSetPackEnabled(on);
 					else VitrailCompat.debugSetPackEnabled(on);
 				};
+			}
+			case "shader_pack" -> {
+				String pack = value.trim();
+				yield () -> IrisCompat.debugSetShaderPack(pack);
 			}
 			case "reflex_trace" -> {
 				int frames = Integer.parseInt(value);
@@ -166,10 +176,6 @@ final class SetCommand {
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
 				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
-			}
-			case "fg_force_multiplier" -> {
-				boolean enabled = flag(value, false);
-				yield () -> { ReflexiumConfig.get().setFgForceMultiplier(enabled); FrameGenerationRenderer.get().retry(); };
 			}
 			case "fg_multiplier" -> {
 				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);

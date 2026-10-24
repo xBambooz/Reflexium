@@ -42,12 +42,25 @@ final class StatusCommands {
 		o.addProperty("upscaler", config.upscaler().serializedName());
 		o.addProperty("upscaler_effective", upscaling.effectiveUpscaler().serializedName());
 		o.addProperty("upscaler_built", info.builtUpscaler());
+		o.addProperty("render_distance", mc.options.renderDistance().get());
+		o.addProperty("simulation_distance", mc.options.simulationDistance().get());
 		o.addProperty("quality", config.upscaleQuality().serializedName());
 		o.addProperty("dlss_model", config.dlssModel().serializedName());
 		o.addProperty("dlss_preset_hint", upscaling.presetHint());
 		o.addProperty("history_reset_frames", upscaling.historyResetFrames());
 		o.addProperty("transient_motion_uniforms", upscaling.usesTransientUniforms());
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
+		o.addProperty("drawn_projection_has_view_effects", info.projectionHasViewEffects());
+		o.addProperty("scene_depth_index", info.sceneDepthIndex());
+		if (mc.level != null) {
+			var camera = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
+			o.addProperty("camera_bob", camera.entityRenderState.bob);
+			o.addProperty("camera_walk_distance", camera.entityRenderState.backwardsInterpolatedWalkDistance);
+			o.addProperty("bob_view_option", mc.options.bobView().get());
+			o.addProperty("bob_view_state", mc.gameRenderer.gameRenderState().optionsRenderState.bobView);
+			o.addProperty("camera_is_player", camera.entityRenderState.isPlayer);
+		}
+		o.addProperty("foliage_motion", DebugSettings.foliageMotion());
 		o.addProperty("reflex_mode", config.reflexMode().name());
 		o.addProperty("reflex_status", reflex.statusLine());
 		o.addProperty("reflex_sleeping", reflex.isSleeping());
@@ -57,9 +70,20 @@ final class StatusCommands {
 		o.addProperty("reflex_extension_revision", session == null ? 0 : session.lowLatencyRevision());
 		o.addProperty("reflex_attribution", DebugSettings.reflexSubmission && session != null && session.explicitAttributionSupported() ? "explicit (graphics queue only)" : "implicit");
 		o.addProperty("reflex_interval_us", DebugSettings.reflexIntervalUs);
+		o.addProperty("streamline", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.status());
+		o.addProperty("streamline_dlss", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.dlssAvailable());
+		o.addProperty("streamline_dlssg", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.dlssgAvailable());
+		o.addProperty("streamline_dlssg_max_generated", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.maximumGeneratedFrames());
+		o.addProperty("streamline_dlssg_dynamic", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.dynamicMfgSupported());
+		o.addProperty("streamline_dlssg_status", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.frameGenerationStatus());
+		o.addProperty("streamline_reflex_flags", java.util.Arrays.toString(com.bambooz.reflexium.upscale.dlss.StreamlineSupport.reflexFlags()));
+		o.addProperty("fg_streamline", fg.streamlineFrameGeneration());
+		o.addProperty("fg_streamline_active", fg.streamlineActive());
+		o.addProperty("fg_streamline_generated_presents", fg.streamlineGeneratedPresents());
+		o.addProperty("fg_streamline_present_result", fg.lastStreamlinePresentResult());
+		o.addProperty("fg_streamline_problem", fg.streamlineProblem());
 		o.addProperty("fsr_sharpness", config.fsrSharpness());
 		o.addProperty("frame_generation", config.frameGeneration().serializedName());
-		o.addProperty("fg_force_multiplier", config.fgForceMultiplier());
 		o.addProperty("fg_multiplier", config.frameGenerationMultiplier());
 		o.addProperty("fg_requested_generated", fg.requestedGeneratedCount());
 		o.addProperty("fg_effective_multiplier", fg.refreshPolicy().multiplier());
@@ -80,6 +104,7 @@ final class StatusCommands {
 			o.addProperty("swapchain_surface_min_images", swapchain.surfaceMin());
 			o.addProperty("swapchain_surface_max_images", swapchain.surfaceMax());
 			o.addProperty("swapchain_extent", swapchain.width() + "x" + swapchain.height());
+			o.addProperty("swapchain_format", swapchain.format());
 		}
 		long[] counters = new long[MeasurementCounters.NAMES.length];
 		MeasurementCounters.read(counters);

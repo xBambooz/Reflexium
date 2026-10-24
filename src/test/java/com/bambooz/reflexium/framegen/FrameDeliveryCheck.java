@@ -1,6 +1,5 @@
 package com.bambooz.reflexium.framegen;
 
-import com.bambooz.reflexium.upscale.UpscalerPerformanceGuard;
 import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import org.lwjgl.system.MemoryStack;
@@ -26,18 +25,6 @@ public final class FrameDeliveryCheck {
 		check(FrameGeneration.DLSS.withMultiplier(3) == FrameGeneration.DLSS_MULTI, "3x selects MFG");
 		check(FrameGeneration.DLSS_MULTI.withMultiplier(2) == FrameGeneration.DLSS, "2x selects standard FG");
 		check(FrameGeneration.OFF.withMultiplier(3) == FrameGeneration.OFF && FrameGeneration.FSR.withMultiplier(3) == FrameGeneration.FSR, "multiplier does not enable or replace other providers");
-		var guard = new UpscalerPerformanceGuard();
-		guard.reset();
-		guard.update(1, true, 0, 0);
-		check(guard.nativePhase() && guard.sampleTag(500_000_001L) == 0, "probe warmup excluded");
-		guard.update(3_000_000_001L, true, 20, 2);
-		check(!guard.nativePhase() && guard.probing(), "native probe proceeds to DLSS");
-		guard.update(3_000_000_002L, true, 0, 0);
-		guard.update(6_000_000_002L, true, 20, 2.1);
-		check(guard.nativeWins() && !guard.probing(), "slower DLSS falls back to native");
-		check(UpscalerPerformanceGuard.faster(2, 1.8) && !UpscalerPerformanceGuard.faster(2, 1.95), "five percent guard threshold");
-		guard.reset(); guard.update(1, false, 0, 0);
-		check(guard.probing() && guard.sampleTag(10_000_000_000L) == 0, "menus do not collect probe samples");
 		var refresh = new FrameGenerationRefreshPolicy();
 		refresh.cap(223); refresh.configure(0, 6);
 		refresh.present(1, true, 100, 9, 1);
@@ -59,6 +46,9 @@ public final class FrameDeliveryCheck {
 		check(refresh.multiplier() == 4, "force restores old fixed behavior");
 		refresh.cap(120);
 		check(refresh.multiplier() == 4, "force ignores output budget");
+		check(FrameGenerationRefreshPolicy.targetsRefresh(0), "Auto targets the refresh rate");
+		check(!FrameGenerationRefreshPolicy.targetsRefresh(2) && !FrameGenerationRefreshPolicy.targetsRefresh(4),
+				"fixed multipliers never target the refresh rate");
 		check(FrameGenerationRefreshPolicy.choose(100, 416, 6, 4) == 4, "stable within budget");
 		check(FrameGenerationRefreshPolicy.choose(105, 416, 6, 4) == 4, "five percent downshift hysteresis");
 		check(FrameGenerationRefreshPolicy.choose(111, 416, 6, 4) == 3, "downshift beyond five percent");
@@ -69,7 +59,7 @@ public final class FrameDeliveryCheck {
 		if (VulkanLifecycle.validImageCount(8, 2, 3) != 3 || VulkanLifecycle.validImageCount(3, 2, 0) != 3
 				|| VulkanLifecycle.validImageCount(1, 2, 0) != 2) throw new AssertionError("surface bounds");
 		for (int revision = 0; revision <= 3; revision++) {
-			var session = new VulkanSession(null, null, null, 0, "", "", revision > 0, revision, false, false, Set.of());
+			var session = new VulkanSession(null, null, null, 0, "", "", revision > 0, revision, false, false, false, Set.of());
 			if (session.explicitAttributionSupported() != (revision >= 3)) throw new AssertionError("extension revision");
 		}
 		var stats = new PresentationStats();

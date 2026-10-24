@@ -3,6 +3,7 @@ package com.bambooz.reflexium.vulkan;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.upscale.dlss.DlssSupport;
 import com.bambooz.reflexium.upscale.dlss.NgxBridge;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.mojang.renderpearl.backend.vulkan.VulkanFeatureSets;
 import com.mojang.renderpearl.backend.vulkan.VulkanPhysicalDevice;
 import com.mojang.renderpearl.backend.vulkan.init.FeatureSet;
@@ -17,6 +18,7 @@ import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkPhysicalDevicePresentIdFeaturesKHR;
 import org.lwjgl.vulkan.VkPhysicalDevicePresentMeteringFeaturesNV;
 import org.lwjgl.vulkan.VkPhysicalDeviceSubgroupSizeControlFeatures;
+import org.lwjgl.vulkan.VkPhysicalDeviceVulkan13Features;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -96,6 +98,32 @@ public final class DeviceExtensions {
 			}
 		}
 		extensions.addAll(ngx);
+
+		if (StreamlineSupport.initialized()) {
+			Set<String> sl = new LinkedHashSet<>();
+			for (String name : StreamlineSupport.deviceExtensions()) {
+				if (!physicalDevice.hasDeviceExtension(name)) continue;
+				// SL lists the legacy buffer address extension; the core Vulkan 1.2 feature is preferred.
+				if (name.equals("VK_EXT_buffer_device_address")) continue;
+				sl.add(name);
+			}
+			Set<VulkanFeature> slFeatures = new LinkedHashSet<>();
+			for (String name : StreamlineSupport.features12()) {
+				slFeatures.add(new VulkanFeature(VulkanFeatureSets.VK12_FEATURES_STRUCT, name));
+			}
+			VulkanPNextStruct sl13 = new VulkanPNextStruct(VkPhysicalDeviceVulkan13Features.class);
+			for (String name : StreamlineSupport.features13()) {
+				slFeatures.add(new VulkanFeature(sl13, name));
+			}
+			slFeatures.add(new VulkanFeature(VulkanFeatureSets.VK12_FEATURES_STRUCT, "bufferDeviceAddress"));
+			FeatureSet requested = new FeatureSet("Streamline", sl, slFeatures);
+			if (requested.allFeaturesSupported(physicalDevice.vkPhysicalDevice())) {
+				extensions.addAll(sl);
+				features.addAll(slFeatures);
+			} else {
+				ReflexiumClient.LOGGER.warn("Streamline device requirements are not all supported; Streamline will fall back");
+			}
+		}
 
 		VulkanSession.setPending(new VulkanSession.PendingExtensions(lowLatency2, extensionRevision(physicalDevice), presentId, presentMetering, Set.copyOf(ngx)));
 		extensions.removeAll(vanilla.extensions());

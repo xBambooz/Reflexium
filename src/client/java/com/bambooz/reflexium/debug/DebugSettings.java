@@ -29,6 +29,10 @@ public final class DebugSettings {
 	public static int reflexIntervalUs = -1;
 	private static volatile float mipBiasOffset;
 	private static volatile boolean handMotion = true;
+	/** Exact-source pack foliage vectors (BSL today); off leaves camera-only vectors on waving geometry. */
+	private static volatile boolean foliageMotion = true;
+	/** Use the pack hand coverage mask to zero world motion. False leaves a cleared mask for A/B diagnosis. */
+	private static volatile boolean packHandMask = true;
 	private static volatile boolean packTaaRetained = true;
 	private static volatile boolean packResolveBypass = true;
 	private static volatile boolean packPreFilters = false;
@@ -45,6 +49,11 @@ public final class DebugSettings {
 	/** False restores zero motion for the first-person hand, for matched A/B captures. */
 	public static boolean handMotion() { return handMotion; }
 	public static void setHandMotion(boolean enabled) { handMotion = enabled; }
+	/** False disables pack deformation vectors (BSL foliage) for an A/B against camera-only reprojection. */
+	public static boolean packHandMask() { return packHandMask; }
+	public static void setPackHandMask(boolean enabled) { packHandMask = enabled; }
+	public static boolean foliageMotion() { return foliageMotion; }
+	public static void setFoliageMotion(boolean enabled) { foliageMotion = enabled; }
 	/** Dev A/B for known shader packs: keep (default) or drop the pack's own full-scene TAA while upscaling. */
 	public static boolean packTaaRetained() { return packTaaRetained; }
 	public static void setPackTaaRetained(boolean retained) { packTaaRetained = retained; }
