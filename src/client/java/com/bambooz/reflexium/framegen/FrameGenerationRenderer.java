@@ -40,6 +40,8 @@ import java.lang.foreign.MemorySegment;
 public final class FrameGenerationRenderer {
 	private static final FrameGenerationRenderer INSTANCE = new FrameGenerationRenderer();
 	private static final Logger LOG = LoggerFactory.getLogger("Reflexium");
+	/** -Dreflexium.fg.ui=false disables DLSS-G UI recomposition for A/B diagnosis. */
+	private static final boolean UI_RECOMPOSITION = !"false".equalsIgnoreCase(System.getProperty("reflexium.fg.ui"));
 	/** Seeded into presentConfigFeedback. Surviving unchanged means the driver did not report, not success or rejection. */
 	public static final int FEEDBACK_UNREPORTED = Integer.MAX_VALUE;
 	private enum MeteringConfig { NONE, RESET, BATCH }
@@ -52,10 +54,15 @@ public final class FrameGenerationRenderer {
 	private FrameGeneration built = FrameGeneration.OFF;
 	private TextureTarget[] generated = new TextureTarget[0];
 	private TextureTarget hudlessTarget, uiColorAlphaTarget, uiAlphaFlippedTarget;
+	private TextureTarget srColorTarget, srOutputTarget;
+	private boolean streamlineInputsPrepared;
 	private TextureTarget fgDepthTarget, fgMotionTarget;
 	private com.bambooz.reflexium.upscale.DepthResolvePass fgDepthFlip;
 	private RenderTarget streamlineMotion;
 	private boolean streamlineActive;
+	private Boolean dlssgFeatureWanted;
+	private boolean dlssgLoadFailed;
+	private int[] streamlineStateBeforePresent;
 	private int lastStreamlinePresentResult;
 	private long streamlineGeneratedPresents;
 	private int streamlineNoGenerateLogs;
@@ -98,8 +105,8 @@ public final class FrameGenerationRenderer {
 		this.device = device; this.session = session; this.fsr = fsr;
 		resetMetering = false; presentBatch = 0; generatedPresent = false;
 		streamlineActive = false;
+		dlssgFeatureWanted = null;
 		if (session != null && session.streamline()) {
-			StreamlineSupport.refreshFrameGenerationState();
 			StreamlineSupport.invalidateFrameGenerationOptions();
 			ReflexiumConfig.get().limitFrameGenerationMultiplier(maximumMultiplier());
 			ReflexiumClient.LOGGER.info("Streamline frame generation: {}", StreamlineSupport.status());
@@ -156,7 +163,6 @@ public final class FrameGenerationRenderer {
 	private boolean streamlinePath() { return session != null && session.streamline() && StreamlineSupport.dlssgAvailable(); }
 	public void onSwapchainCreated() {
 		if (session != null && session.streamline()) {
-			StreamlineSupport.refreshFrameGenerationState();
 			StreamlineSupport.invalidateFrameGenerationOptions();
 			resetNext = true;
 		}
@@ -180,6 +186,10 @@ public final class FrameGenerationRenderer {
 			// Streamline owns the presenter; raw VK_NV_present_metering and present IDs are not required.
 			if (!StreamlineSupport.dlssgAvailable()) return "Streamline DLSS Frame Generation unavailable";
 			if (!StreamlineSupport.reflexAvailable()) return "DLSS Frame Generation needs Streamline Reflex";
+			int minimum = StreamlineSupport.minimumFrameGenerationDimension();
+			if (minimum > 0 && width > 0 && height > 0 && (width < minimum || height < minimum)) {
+				return "DLSS Frame Generation needs at least " + minimum + "x" + minimum + " pixels";
+			}
 			if (mode == FrameGeneration.DLSS_MULTI && maximumMultiplier() < 3) return "Multi Frame Generation requires a supported RTX 50 series GPU/runtime";
 			int status = StreamlineSupport.frameGenerationStatus();
 			if (status != 0) return "DLSS Frame Generation runtime status " + status;
@@ -193,10 +203,38 @@ public final class FrameGenerationRenderer {
 		return "";
 	}
 
+	/**
+	 * DLSS-G guide 18.0. Loading or unloading the plugin is a swapchain-lifetime change, so it is done
+	 * with the swapchain torn down: queue the state, ask the game to reconfigure its surface, and apply
+	 * the state from the destroy hook before the replacement swapchain exists.
+	 */
+	private void syncDlssgFeatureState() {
+		if (session == null || !session.streamline() || !StreamlineSupport.dlssgAvailable()) return;
+		boolean want = ReflexiumConfig.get().frameGeneration().nvidia();
+		if (!want) {
+			// Leave the plugin loaded while frame generation is off. The unload path is the guide's
+			// overhead optimization, but this SDK crashes in the next interposer swapchain creation
+			// after an unload, so the safe fallback is an options-off feature.
+			dlssgFeatureWanted = null;
+			return;
+		}
+		if (StreamlineSupport.dlssgFeatureLoaded()) {
+			dlssgFeatureWanted = true;
+			return;
+		}
+		if (Boolean.TRUE.equals(dlssgFeatureWanted)) return;
+		dlssgFeatureWanted = true;
+		StreamlineSupport.requestFrameGenerationFeature(true);
+		Minecraft mc = Minecraft.getInstance();
+		if (mc != null) mc.invalidateSurfaceConfiguration();
+		ReflexiumClient.LOGGER.info("DLSS-G feature load requested; recreating the swapchain");
+	}
+
 	public void beginFrame() {
 		// Completion of SDK presentation consumers precedes overwriting the generated target.
 		FsrSwapchain.waitForPresents();
 		streamlineActive = false;
+		syncDlssgFeatureState();
 		frameId++;
 		Minecraft mc = Minecraft.getInstance();
 		boolean worldFrame = mc.level != null && mc.gui.screen() == null && !mc.isPaused();
@@ -304,11 +342,15 @@ public final class FrameGenerationRenderer {
 	 */
 	public void streamlineSceneReady(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands,
 			Matrix4fc projection, Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z,
-			float jitterX, float jitterY, float near, float far, float fov, float frameMs, boolean reset) {
+			float jitterX, float jitterY, float near, float far, float fov, float frameMs, boolean reset,
+			boolean srOwnsConstants, int displayWidth, int displayHeight) {
 		if (!streamlinePath()) return;
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.gui.screen() != null || mc.isPaused()) {
 			ledger.reason(GenerationLedger.Shortfall.MENU);
+			// Guide 17.0: null every DLSS-G tag on menus and loading screens so the plugin never
+			// consumes stale depth/motion from a paused world.
+			if (streamlineActive) StreamlineSupport.clearFrameGenerationTags(commands.address());
 			disableStreamlineFrameGeneration();
 			return;
 		}
@@ -329,18 +371,21 @@ public final class FrameGenerationRenderer {
 		}
 		FrameGeneration mode = count == 1 ? FrameGeneration.DLSS : FrameGeneration.DLSS_MULTI;
 		if (built != mode || hudlessTarget == null || uiColorAlphaTarget == null || uiAlphaFlippedTarget == null
-				|| fgDepthTarget == null || fgMotionTarget == null || width != scene.width || height != scene.height
+				|| srColorTarget == null || srOutputTarget == null
+				|| fgDepthTarget == null || fgMotionTarget == null || width != displayWidth || height != displayHeight
 				|| fgMotionTarget.width != motion.width || fgMotionTarget.height != motion.height) {
 			UpscalingRenderer.get().waitForGpu();
 			releaseStreamlineTargets();
-			width = scene.width;
-			height = scene.height;
+			width = displayWidth;
+			height = displayHeight;
 			hudlessTarget = new TextureTarget("Reflexium FG hudless", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 			uiColorAlphaTarget = new TextureTarget("Reflexium FG UI", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 			uiAlphaFlippedTarget = new TextureTarget("Reflexium FG UI flipped", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 			fgDepthTarget = new TextureTarget("Reflexium FG depth flipped", motion.width, motion.height, null, GpuFormat.D32_FLOAT);
 			fgMotionTarget = new TextureTarget("Reflexium FG motion flipped", motion.width, motion.height,
 					motion.getColorTexture().getFormat(), GpuFormat.D32_FLOAT);
+			srColorTarget = new TextureTarget("Reflexium SR color flipped", motion.width, motion.height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+			srOutputTarget = new TextureTarget("Reflexium SR output flipped", displayWidth, displayHeight, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 			built = mode;
 			resetNext = true;
 		}
@@ -349,9 +394,13 @@ public final class FrameGenerationRenderer {
 		rollResetWindow(System.nanoTime());
 		if (resetting) resetsInWindow++;
 		try {
-			StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
-					near, far, fov, (float) width / height, resetting, motion.width, motion.height, true);
-			int optionResult = StreamlineSupport.setFrameGeneration(1, count, true);
+			if (!srOwnsConstants) {
+				StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
+						near, far, fov, (float) displayWidth / displayHeight, resetting, motion.width, motion.height, true);
+			}
+			VulkanLifecycle.SwapchainState swapchain = VulkanLifecycle.swapchainState();
+			int optionResult = StreamlineSupport.setFrameGeneration(1, count, UI_RECOMPOSITION,
+					swapchain == null ? 0 : swapchain.created(), motion.width, motion.height, displayWidth, displayHeight);
 			if (optionResult != 0) {
 				streamlineProblem = "DLSS-G options failed " + Integer.toHexString(optionResult);
 				ledger.reason(GenerationLedger.Shortfall.UNAVAILABLE);
@@ -359,6 +408,7 @@ public final class FrameGenerationRenderer {
 				return;
 			}
 			streamlineActive = true;
+			streamlineInputsPrepared = false;
 			streamlineProblem = "";
 			evaluated++;
 			resetNext = false;
@@ -377,24 +427,71 @@ public final class FrameGenerationRenderer {
 	}
 
 	/**
+	 * Mirrors the render-size color, depth and motion vectors into DLSS-G's presented orientation.
+	 * The same flipped depth and motion are the inputs for Streamline DLSS SR, so one constants block
+	 * (flipY) serves both features.
+	 */
+	public void prepareStreamlineInputs(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands) {
+		if (!streamlineActive || srColorTarget == null || fgDepthTarget == null || fgMotionTarget == null
+				|| motion == null || failed || streamlineInputsPrepared) return;
+		long timing = FrameProfiler.start(FrameProfiler.FG_HUDLESS, commands);
+		VulkanInterop.barrier(commands);
+		if (scene.width == srColorTarget.width && scene.height == srColorTarget.height) {
+			VulkanInterop.blitFlip(VulkanInterop.image(scene.getColorTexture(), scene.getColorTextureView()),
+					VulkanInterop.image(srColorTarget.getColorTexture(), srColorTarget.getColorTextureView()), commands);
+		}
+		if (fgDepthFlip == null) fgDepthFlip = new com.bambooz.reflexium.upscale.DepthResolvePass();
+		fgDepthFlip.render(motion.getDepthTextureView(), fgDepthTarget.getDepthTextureView(),
+				motion.width, motion.height, 1.0f, 0.0f, 0.0f, 0.0f, true);
+		VulkanInterop.barrier(commands);
+		VulkanInterop.blitFlip(VulkanInterop.image(motion.getColorTexture(), motion.getColorTextureView()),
+				VulkanInterop.image(fgMotionTarget.getColorTexture(), fgMotionTarget.getColorTextureView()), commands);
+		VulkanInterop.barrier(commands);
+		streamlineInputsPrepared = true;
+		FrameProfiler.end(FrameProfiler.FG_HUDLESS, timing, commands);
+	}
+
+	/**
+	 * Runs Streamline DLSS SR in the same presented orientation as DLSS-G, using the constants block
+	 * that streamlineSceneReady already supplied, then mirrors the display-size result back into the
+	 * game's target. Returns 0 on success.
+	 */
+	public int evaluateStreamlineDlss(VkCommandBuffer commands, RenderTarget output, Matrix4fc projection,
+			Matrix4fc clipToPrevious, Quaternionfc orientation, float x, float y, float z, float jitterX, float jitterY,
+			float near, float far, float fov, boolean reset) {
+		if (!streamlineActive) return -2;
+		if (srColorTarget == null) return -3;
+		if (srOutputTarget == null) return -4;
+		if (output == null) return -5;
+		StreamlineSupport.setConstants(projection, clipToPrevious, orientation, x, y, z, jitterX, jitterY,
+				near, far, fov, (float) width / height, reset, srColorTarget.width, srColorTarget.height, true);
+		int result = StreamlineSupport.evaluateDlss(commands.address(),
+				VulkanInterop.image(srColorTarget.getColorTexture(), srColorTarget.getColorTextureView()),
+				VulkanInterop.image(fgDepthTarget.getDepthTexture(), fgDepthTarget.getDepthTextureView()),
+				VulkanInterop.image(fgMotionTarget.getColorTexture(), fgMotionTarget.getColorTextureView()),
+				VulkanInterop.image(srOutputTarget.getColorTexture(), srOutputTarget.getColorTextureView()));
+		if (result != 0) return result;
+		VulkanInterop.barrier(commands);
+		VulkanInterop.blitFlip(VulkanInterop.image(srOutputTarget.getColorTexture(), srOutputTarget.getColorTextureView()),
+				VulkanInterop.image(output.getColorTexture(), output.getColorTextureView()), commands);
+		VulkanInterop.barrier(commands);
+		return 0;
+	}
+
+	/**
 	 * Copies the finished scene (post effects and scene particles, before the GUI) into the hudless
 	 * target and tags depth, motion vectors and hudless for this frame's present.
 	 */
 	public void streamlineHudless(RenderTarget scene, VkCommandBuffer commands) {
 		if (!streamlineActive || hudlessTarget == null || fgDepthTarget == null || fgMotionTarget == null
 				|| streamlineMotion == null || failed) return;
+		if (!streamlineInputsPrepared) prepareStreamlineInputs(scene, streamlineMotion, commands);
 		long timing = FrameProfiler.start(FrameProfiler.FG_HUDLESS, commands);
 		VulkanInterop.barrier(commands);
 		// Minecraft's final swapchain blit mirrors Y. DLSS-G composes straight into that backbuffer, so
-		// hudless, depth and motion must be mirrored into the same orientation before they are tagged.
+		// hudless must be mirrored into the same orientation before it is tagged.
 		VulkanInterop.blitFlip(VulkanInterop.image(scene.getColorTexture(), scene.getColorTextureView()),
 				VulkanInterop.image(hudlessTarget.getColorTexture(), hudlessTarget.getColorTextureView()), commands);
-		if (fgDepthFlip == null) fgDepthFlip = new com.bambooz.reflexium.upscale.DepthResolvePass();
-		fgDepthFlip.render(streamlineMotion.getDepthTextureView(), fgDepthTarget.getDepthTextureView(),
-				streamlineMotion.width, streamlineMotion.height, 1.0f, 0.0f, 0.0f, 0.0f, true);
-		VulkanInterop.barrier(commands);
-		VulkanInterop.blitFlip(VulkanInterop.image(streamlineMotion.getColorTexture(), streamlineMotion.getColorTextureView()),
-				VulkanInterop.image(fgMotionTarget.getColorTexture(), fgMotionTarget.getColorTextureView()), commands);
 		VulkanInterop.barrier(commands);
 		FrameProfiler.end(FrameProfiler.FG_HUDLESS, timing, commands);
 		int result = StreamlineSupport.tagFrameGeneration(commands.address(),
@@ -410,6 +507,7 @@ public final class FrameGenerationRenderer {
 
 	/** Draws the GUI into a cleared UI alpha target so DLSS-G can recompose HUD pixels separately. */
 	public void captureUiAlpha(GameRenderer renderer, Runnable draw) {
+		if (!UI_RECOMPOSITION) return;
 		if (!streamlineActive || uiColorAlphaTarget == null || uiAlphaFlippedTarget == null || failed) return;
 		VkCommandBuffer commands = UpscalingRenderer.get().commandBuffer();
 		long timing = FrameProfiler.start(FrameProfiler.FG_UI, commands);
@@ -432,6 +530,8 @@ public final class FrameGenerationRenderer {
 	}
 
 	private void releaseStreamlineTargets() {
+		if (srColorTarget != null) { srColorTarget.destroyBuffers(); srColorTarget = null; }
+		if (srOutputTarget != null) { srOutputTarget.destroyBuffers(); srOutputTarget = null; }
 		if (hudlessTarget != null) { hudlessTarget.destroyBuffers(); hudlessTarget = null; }
 		if (uiColorAlphaTarget != null) { uiColorAlphaTarget.destroyBuffers(); uiColorAlphaTarget = null; }
 		if (uiAlphaFlippedTarget != null) { uiAlphaFlippedTarget.destroyBuffers(); uiAlphaFlippedTarget = null; }
@@ -444,7 +544,7 @@ public final class FrameGenerationRenderer {
 	private void disableStreamlineFrameGeneration() {
 		streamlineActive = false;
 		if (session != null && session.streamline() && StreamlineSupport.dlssgAvailable()) {
-			StreamlineSupport.setFrameGeneration(0, 1, false);
+			StreamlineSupport.setFrameGeneration(0, 1, false, 0, 0, 0, 0, 0);
 		}
 	}
 
@@ -632,11 +732,19 @@ public final class FrameGenerationRenderer {
 		if (reset) resetMetering = false;
 		else { rejectionStreak = 0; meteringProblem = ""; }
 	}
+	/**
+	 * The one DLSS-G state read per frame, on the present thread immediately before
+	 * vkQueuePresentKHR. The count it returns covers the previous present cycle.
+	 */
+	public void beforeStreamlinePresent() {
+		streamlineStateBeforePresent = streamlineActive ? StreamlineSupport.refreshFrameGenerationState() : null;
+	}
+
 	/** One host present; Streamline has already presented the real frame plus N interpolated frames. */
 	private void onStreamlinePresentResult(int result) {
 		boolean delivered = result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR;
 		lastStreamlinePresentResult = result;
-		int[] state = StreamlineSupport.refreshFrameGenerationState();
+		int[] state = streamlineStateBeforePresent;
 		int actual = state == null ? 0 : state[3];
 		int generated = Math.max(0, actual - 1);
 		if (generated > 0) {
@@ -676,11 +784,16 @@ public final class FrameGenerationRenderer {
 					Math.max(0, actual), ReflexiumConfig.get().frameGenerationMultiplier());
 		}
 		for (int i = 0; i < generated; i++) ledger.generatedPresent(delivered);
-		if (state != null && state[2] != 0) {
+		if (state != null && (state[2] & ~2) != 0) {
+			// Bit 1 (Reflex not detected) can be reported for the first frames after enabling DLSS-G
+			// while the sleep loop is still starting; Reflex availability is already gated per frame.
 			streamlineProblem = "DLSS-G runtime status " + state[2];
 			ReflexiumClient.LOGGER.warn("DLSS-G runtime status {}; turning frame generation off", state[2]);
 			failed = true;
 			problem = streamlineProblem;
+		} else if (state != null && state[2] == 2 && streamlineNoGenerateLogs < 3) {
+			streamlineNoGenerateLogs++;
+			ReflexiumClient.LOGGER.info("DLSS-G reported the transient Reflex-not-detected status while Reflex is active");
 		}
 		ledger.closeFrame();
 		streamlineActive = false;

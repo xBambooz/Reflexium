@@ -119,7 +119,9 @@ public final class ReflexController {
 		streamline = session.streamline() && StreamlineSupport.reflexAvailable();
 		if (streamline) {
 			device = session.device();
-			presentIdEnabled = false;
+			// VK_NV_low_latency2 pairs markers with presented frames through VkPresentIdKHR. Without
+			// a present id the driver publishes no Reflex frame reports on the Streamline path either.
+			presentIdEnabled = session.presentId();
 			// Configure Reflex before the first swapchain: sl.reflex decides at vkCreateSwapchainKHR whether
 			// the presentation path carries VK_NV_low_latency2 latency mode, and that decides whether the
 			// driver publishes frame reports for the latency readout.
@@ -614,9 +616,10 @@ public final class ReflexController {
 	/** VK_NV_low_latency2 marker to Streamline PCL marker. -1 means PCL has no equivalent. */
 	private static int pclMarker(int marker) {
 		return switch (marker) {
-			// PCL eInputSample (6) is marked deprecated in the header but still maps to the Vulkan
-			// low_latency2 input marker. eControllerInputSample (13) has no Vulkan equivalent and is skipped.
-			case VK_LATENCY_MARKER_INPUT_SAMPLE_NV -> 6;
+			// PCL eInputSample (6) is deprecated in 2.14.16 and the Vulkan LL2 backend rejects it
+			// ("marker 6 is unknown"), so it is not emitted. eControllerInputSample (13) has no
+			// Vulkan equivalent either.
+			case VK_LATENCY_MARKER_INPUT_SAMPLE_NV -> -1;
 			case VK_LATENCY_MARKER_SIMULATION_START_NV -> 0;
 			case VK_LATENCY_MARKER_SIMULATION_END_NV -> 1;
 			case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV -> 2;

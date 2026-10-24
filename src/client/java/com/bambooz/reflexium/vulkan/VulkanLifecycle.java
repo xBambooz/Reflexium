@@ -136,10 +136,6 @@ public final class VulkanLifecycle {
 	}
 
 	public static VkPresentInfoKHR chainPresentId(VkPresentInfoKHR info) {
-		VulkanSession session = VulkanSession.current();
-		if (session != null && session.streamline()) {
-			return info;
-		}
 		long id = ReflexController.get().takePresentId();
 		if (id == 0 || info.swapchainCount() != 1) {
 			return info;

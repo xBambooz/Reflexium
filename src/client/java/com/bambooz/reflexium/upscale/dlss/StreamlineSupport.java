@@ -16,10 +16,19 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkDeviceCreateInfo;
+import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
+import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 /**
  * Streamline integration state. The SDK is NVIDIA Streamline 2.14.16, loaded from
@@ -53,6 +62,9 @@ public final class StreamlineSupport {
 	private static int appliedFgGenerated = -1;
 	private static int optionsLogs;
 	private static boolean appliedUiRecomposition;
+	private static boolean dlssgFeatureLoaded = true;
+	private static Boolean pendingFeatureLoaded;
+	private static int featureLoadLogs;
 	private static String problem = "";
 	private static Set<String> instanceExtensions = Set.of();
 	private static Set<String> deviceExtensions = Set.of();
@@ -81,6 +93,8 @@ public final class StreamlineSupport {
 	public static int frameGenerationStatus() { return dlssgStatus; }
 	public static int presentedFrameCount() { return dlssgFramesPresented; }
 	public static int minimumFrameGenerationDimension() { return dlssgMinDimension; }
+	public static boolean dlssgFeatureLoaded() { return dlssgFeatureLoaded; }
+	public static boolean frameGenerationFeaturePending() { return pendingFeatureLoaded != null; }
 	public static int appliedMode() { return appliedFgMode; }
 	public static int appliedGenerated() { return appliedFgGenerated; }
 	public static String problem() { return problem; }
@@ -100,6 +114,58 @@ public final class StreamlineSupport {
 	public static Set<String> deviceExtensions() { return deviceExtensions; }
 	public static Set<String> features12() { return features12; }
 	public static Set<String> features13() { return features13; }
+
+	private static int slGraphicsFamily = -1, slGraphicsIndex, slComputeFamily = -1, slComputeIndex,
+			slOpticalFlowFamily = -1, slOpticalFlowIndex;
+
+	/**
+	 * Adds the extra graphics and compute queues DLSS-G requires. slSetVulkanInfo must then point at
+	 * the first Streamline queue, which starts after the host's queues in the same family.
+	 */
+	public static VkDeviceCreateInfo reserveQueues(VkPhysicalDevice physical, VkDeviceCreateInfo info) {
+		slGraphicsFamily = -1;
+		slComputeFamily = -1;
+		slOpticalFlowFamily = -1;
+		if (!initialized || bridge == null) return info;
+		int[] requirement = bridge.queueRequirements();
+		if (requirement.length < 3) return info;
+		int extraGraphics = Math.max(1, requirement[0]);
+		int extraCompute = Math.max(2, requirement[1]);
+		try (MemoryStack query = MemoryStack.stackPush()) {
+			IntBuffer size = query.callocInt(1);
+			VK10.vkGetPhysicalDeviceQueueFamilyProperties(physical, size, null);
+			VkQueueFamilyProperties.Buffer properties = VkQueueFamilyProperties.calloc(size.get(0), query);
+			VK10.vkGetPhysicalDeviceQueueFamilyProperties(physical, size, properties);
+			VkDeviceQueueCreateInfo.Buffer queues = info.pQueueCreateInfos();
+			for (int i = 0; i < queues.remaining(); i++) {
+				VkDeviceQueueCreateInfo entry = queues.get(i);
+				VkQueueFamilyProperties available = properties.get(entry.queueFamilyIndex());
+				int needed = VK10.VK_QUEUE_GRAPHICS_BIT | VK10.VK_QUEUE_COMPUTE_BIT;
+				if ((available.queueFlags() & needed) != needed) continue;
+				if (available.queueCount() - entry.queueCount() < extraGraphics + extraCompute) continue;
+				int host = entry.queueCount();
+				var priorities = MemoryStack.stackGet().callocFloat(host + extraGraphics + extraCompute);
+				for (int q = 0; q < host; q++) priorities.put(q, entry.pQueuePriorities().get(q));
+				for (int q = host; q < host + extraGraphics + extraCompute; q++) priorities.put(q, 1);
+				entry.pQueuePriorities(priorities);
+				VkDeviceQueueCreateInfo.nqueueCount(entry.address(), host + extraGraphics + extraCompute);
+				slGraphicsFamily = entry.queueFamilyIndex();
+				slGraphicsIndex = host;
+				slComputeFamily = entry.queueFamilyIndex();
+				slComputeIndex = host + extraGraphics;
+				slOpticalFlowFamily = slComputeFamily;
+				slOpticalFlowIndex = slComputeIndex;
+				ReflexiumClient.LOGGER.info("Reserved Streamline queues {}..{} in Vulkan family {}", host,
+						host + extraGraphics + extraCompute - 1, entry.queueFamilyIndex());
+				break;
+			}
+		}
+		if (slGraphicsFamily < 0) {
+			problem = "Vulkan family has no room for DLSS-G queues";
+			ReflexiumClient.LOGGER.warn("Streamline: {}", problem);
+		}
+		return info;
+	}
 
 	public static Path runtimeFolder() { return DlssSupport.featureFolder().resolve("streamline"); }
 
@@ -178,23 +244,28 @@ public final class StreamlineSupport {
 		if (!initialized || session == null || !session.isNvidia()) return;
 		if (bridge == null) return;
 		int result = bridge.setDevice(session.instance().address(), session.physicalDevice().address(),
-				session.device().address(), graphicsFamily, graphicsIndex, graphicsFamily, graphicsIndex,
-				graphicsFamily, graphicsIndex);
+				session.device().address(),
+				slGraphicsFamily >= 0 ? slGraphicsFamily : graphicsFamily,
+				slGraphicsFamily >= 0 ? slGraphicsIndex : graphicsIndex,
+				slComputeFamily >= 0 ? slComputeFamily : graphicsFamily,
+				slComputeFamily >= 0 ? slComputeIndex : graphicsIndex,
+				slOpticalFlowFamily >= 0 ? slOpticalFlowFamily : graphicsFamily,
+				slOpticalFlowFamily >= 0 ? slOpticalFlowIndex : graphicsIndex);
 		deviceReady = result == 0;
 		dlssAvailable = bridge.dlssAvailable();
 		dlssgAvailable = bridge.dlssgAvailable();
 		reflexAvailable = bridge.reflexAvailable();
 		pclAvailable = bridge.pclAvailable();
-		refreshFrameGenerationState();
+		dlssgFeatureLoaded = bridge.dlssgFeatureLoaded();
 		problem = deviceReady ? "" : "device setup failed " + result;
 		String log = bridge.takeLog();
 		if (!log.isEmpty()) ReflexiumClient.LOGGER.info("[Streamline] {}", log.trim());
 		ReflexiumClient.LOGGER.info("Streamline device: {} ({}), version {}", status(), session.deviceName(), bridge.dlssVersion());
 	}
 
-	/** Refreshes the DLSS-G multiplier, support and runtime status. Render thread only. */
+	/** Refreshes the DLSS-G multiplier, support and runtime status. Present thread only. */
 	public static int[] refreshFrameGenerationState() {
-		if (!deviceReady || bridge == null || !dlssgAvailable) return null;
+		if (!deviceReady || bridge == null || !dlssgAvailable || !dlssgFeatureLoaded) return null;
 		int[] state = bridge.dlssgState();
 		if (state == null) return null;
 		dlssgMaxGenerated = Math.max(0, state[0]);
@@ -219,11 +290,14 @@ public final class StreamlineSupport {
 	 * Enables or disables Streamline frame generation. Options only take effect at the next present and the
 	 * SDK warns about redundant per-frame calls, so identical configurations are suppressed.
 	 */
-	public static int setFrameGeneration(int mode, int generatedFrames, boolean uiRecomposition) {
+	public static int setFrameGeneration(int mode, int generatedFrames, boolean uiRecomposition,
+			int backBuffers, int mvecWidth, int mvecHeight, int colorWidth, int colorHeight) {
 		if (!dlssgAvailable || bridge == null) return 1;
+		if (!dlssgFeatureLoaded) return mode == 0 ? 0 : 1;
 		int generated = Math.max(1, generatedFrames);
 		if (mode == appliedFgMode && generated == appliedFgGenerated && uiRecomposition == appliedUiRecomposition) return 0;
-		int result = bridge.dlssgSetOptions(mode, generated, uiRecomposition, true);
+		int result = bridge.dlssgSetOptions(mode, generated, uiRecomposition, true, backBuffers, mvecWidth, mvecHeight,
+				colorWidth, colorHeight);
 		if (result != 0) {
 			problem = "DLSS-G options failed " + result;
 			logProblem();
@@ -244,6 +318,34 @@ public final class StreamlineSupport {
 	public static void invalidateFrameGenerationOptions() {
 		appliedFgMode = -1;
 		appliedFgGenerated = -1;
+	}
+
+	/**
+	 * Queues a DLSS-G load/unload for the next swapchain teardown. The guide (18.0) requires the
+	 * plugin state change to happen after the old swapchain is destroyed and before the new one is
+	 * created, so the caller also invalidates the surface configuration.
+	 */
+	public static void requestFrameGenerationFeature(boolean loaded) {
+		if (!dlssgAvailable || bridge == null) return;
+		pendingFeatureLoaded = loaded;
+	}
+
+	/** Applies a queued load/unload while no swapchain exists. Called from the destroy hook. */
+	public static void onSwapchainDestroyed() {
+		if (bridge == null || pendingFeatureLoaded == null) return;
+		boolean want = pendingFeatureLoaded;
+		pendingFeatureLoaded = null;
+		int result = bridge.dlssgSetLoaded(want);
+		dlssgFeatureLoaded = bridge.dlssgFeatureLoaded();
+		appliedFgMode = -1;
+		appliedFgGenerated = -1;
+		if (result != 0) {
+			problem = "DLSS-G load " + want + " failed " + result;
+			logProblem();
+		} else if (featureLoadLogs < 12) {
+			featureLoadLogs++;
+			ReflexiumClient.LOGGER.info("DLSS-G feature loaded={} between swapchains", want);
+		}
 	}
 
 	public static final int TAG_DEPTH = 1, TAG_MOTION = 2, TAG_HUDLESS = 4, TAG_UI_ALPHA = 8;
@@ -339,6 +441,11 @@ public final class StreamlineSupport {
 		return bridge.pclMarker(marker);
 	}
 
+	public static int pclStatsMessage() {
+		if (!pclAvailable || bridge == null) return -1;
+		return bridge.pclStatsMessage();
+	}
+
 	public static String takeLog() {
 		if (bridge == null) return "";
 		return bridge.takeLog();
@@ -360,7 +467,12 @@ public final class StreamlineSupport {
 	}
 
 	public static int createSwapchain(long device, long createInfo, long allocator, long out) {
-		return bridge == null ? -1 : bridge.createSwapchain(device, createInfo, allocator, out);
+		int result = bridge == null ? -1 : bridge.createSwapchain(device, createInfo, allocator, out);
+		if (result != 0) {
+			String log = takeLog();
+			if (!log.isBlank()) ReflexiumClient.LOGGER.warn("[Streamline] {}", log.trim());
+		}
+		return result;
 	}
 	public static void destroySwapchain(long device, long swapchain, long allocator) {
 		if (bridge != null) bridge.destroySwapchain(device, swapchain, allocator);
@@ -373,6 +485,15 @@ public final class StreamlineSupport {
 	}
 	public static int present(long queue, long presentInfo) {
 		return bridge == null ? -1 : bridge.present(queue, presentInfo);
+	}
+
+	/** Creates the window surface through Streamline so its present hook knows the surface's HWND. */
+	public static int createWin32Surface(long instance, long hwnd, long out) {
+		return bridge == null ? -1 : bridge.createWin32Surface(instance, hwnd, out);
+	}
+	public static boolean ownsSurface(long surface) { return bridge != null && bridge.ownsSurface(surface); }
+	public static void destroySurface(long instance, long surface, long allocator) {
+		if (bridge != null) bridge.destroySurface(instance, surface, allocator);
 	}
 
 	public static void shutdown() {

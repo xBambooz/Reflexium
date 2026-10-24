@@ -20,14 +20,18 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface;
+import org.lwjgl.sdl.SDLProperties;
+import org.lwjgl.sdl.SDLVideo;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VK12;
 import org.lwjgl.vulkan.VkAllocationCallbacks;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkImageBlit;
+import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
@@ -78,6 +82,40 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Unique private GpuFence[] reflexium$acquireCompletion;
 	@Unique private GpuTextureView reflexium$realView;
 	@Unique private boolean reflexium$presenting;
+	@Unique private boolean reflexium$streamlineSwapchain;
+
+	/**
+	 * Streamline's manual Vulkan path requires the window surface to be created through its proxy so
+	 * the present hook can map the surface to the HWND and evaluate focus. SDL creates the surface via
+	 * the loader, so substitute the interposer call while leaving everything else to SDL.
+	 */
+	@WrapOperation(method = "<init>", at = @At(value = "INVOKE",
+			target = "Lorg/lwjgl/sdl/SDLVulkan;SDL_Vulkan_CreateSurface(JLorg/lwjgl/vulkan/VkInstance;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)Z"))
+	private boolean reflexium$createStreamlineSurface(long window, VkInstance instance, VkAllocationCallbacks allocator,
+			LongBuffer surface, Operation<Boolean> original) {
+		if (StreamlineSupport.initialized()) {
+			int properties = SDLVideo.SDL_GetWindowProperties(window);
+			long hwnd = properties == 0 ? 0
+					: SDLProperties.SDL_GetPointerProperty(properties, "SDL.window.win32.hwnd", 0L);
+			if (hwnd != 0) {
+				int result = StreamlineSupport.createWin32Surface(instance.address(), hwnd, MemoryUtil.memAddress(surface));
+				if (result == VK10.VK_SUCCESS) return true;
+				ReflexiumClient.LOGGER.warn("Streamline surface creation failed ({}); using the SDL surface", result);
+			}
+		}
+		return original.call(window, instance, allocator, surface);
+	}
+
+	@WrapOperation(method = "close", at = @At(value = "INVOKE",
+			target = "Lorg/lwjgl/vulkan/KHRSurface;vkDestroySurfaceKHR(Lorg/lwjgl/vulkan/VkInstance;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
+	private void reflexium$destroyStreamlineSurface(VkInstance instance, long surface, VkAllocationCallbacks allocator,
+			Operation<Void> original) {
+		if (StreamlineSupport.ownsSurface(surface)) {
+			StreamlineSupport.destroySurface(instance.address(), surface, allocator == null ? 0 : allocator.address());
+			return;
+		}
+		original.call(instance, surface, allocator);
+	}
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
@@ -209,7 +247,10 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Inject(method = "destroySwapchain", at = @At("HEAD"))
 	private void reflexium$swapchainDestroyed(CallbackInfo ci) {
 		reflexium$realView = null;
+		reflexium$streamlineSwapchain = false;
 		VulkanLifecycle.onSwapchainDestroyed();
+		// Guide 18.0: the DLSS-G load/unload transition happens while no swapchain exists.
+		StreamlineSupport.onSwapchainDestroyed();
 	}
 
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",
@@ -223,11 +264,13 @@ public abstract class VulkanGpuSurfaceMixin {
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
 		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
+		// slDLSSGGetState belongs on the present thread, immediately before the present it reports on.
+		fg.beforeStreamlinePresent();
 		ReflexController reflex = ReflexController.get();
 		if (fg.inPresentBatch()) reflex.beforeBatchPresent();
 		int result;
 		long timing = FrameProfiler.start(FrameProfiler.PRESENT, null);
-		try { result = StreamlineSupport.swapchainReady()
+		try { result = reflexium$streamlineSwapchain
 				? StreamlineSupport.present(queue.address(), info.address())
 				: original.call(queue, info); }
 		finally {
@@ -247,10 +290,12 @@ public abstract class VulkanGpuSurfaceMixin {
 		if (StreamlineSupport.swapchainReady()) {
 			int result = StreamlineSupport.createSwapchain(device.address(), info.address(),
 					allocator == null ? 0 : allocator.address(), MemoryUtil.memAddress(out));
-			if (result == VK10.VK_SUCCESS) return result;
+			if (result == VK10.VK_SUCCESS) { reflexium$streamlineSwapchain = true; return result; }
+			reflexium$streamlineSwapchain = false;
 			ReflexiumClient.LOGGER.warn("Streamline swapchain creation failed ({}); using the native swapchain", result);
 			return original.call(device, info, allocator, out);
 		}
+		reflexium$streamlineSwapchain = false;
 		if (FsrSwapchain.canCreate(info)) {
 			int result = FsrSwapchain.create(info, allocator, out);
 			if (result == VK10.VK_SUCCESS) return result;
@@ -262,14 +307,14 @@ public abstract class VulkanGpuSurfaceMixin {
 	@WrapOperation(method = "acquireNextTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkAcquireNextImageKHR(Lorg/lwjgl/vulkan/VkDevice;JJJJLjava/nio/IntBuffer;)I"))
 	private int reflexium$fsrAcquire(VkDevice device, long swapchain, long timeout, long semaphore, long fence,
 			IntBuffer index, Operation<Integer> original) {
-		if (StreamlineSupport.swapchainReady()) {
+		if (reflexium$streamlineSwapchain) {
 			return StreamlineSupport.acquireNextImage(device.address(), swapchain, timeout, semaphore, fence, MemoryUtil.memAddress(index));
 		}
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.acquire(timeout, semaphore, fence, index) : original.call(device, swapchain, timeout, semaphore, fence, index);
 	}
 	@WrapOperation(method = "destroySwapchain", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkDestroySwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
 	private void reflexium$fsrDestroy(VkDevice device, long swapchain, VkAllocationCallbacks allocator, Operation<Void> original) {
-		if (StreamlineSupport.swapchainReady()) {
+		if (reflexium$streamlineSwapchain) {
 			StreamlineSupport.destroySwapchain(device.address(), swapchain, allocator == null ? 0 : allocator.address());
 		} else if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
 		else original.call(device, swapchain, allocator);
@@ -277,7 +322,7 @@ public abstract class VulkanGpuSurfaceMixin {
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkGetSwapchainImagesKHR(Lorg/lwjgl/vulkan/VkDevice;JLjava/nio/IntBuffer;Ljava/nio/LongBuffer;)I"))
 	private int reflexium$fsrImages(VkDevice device, long swapchain, IntBuffer count,
 			LongBuffer images, Operation<Integer> original) {
-		if (StreamlineSupport.swapchainReady()) {
+		if (reflexium$streamlineSwapchain) {
 			return StreamlineSupport.getSwapchainImages(device.address(), swapchain, MemoryUtil.memAddress(count),
 					images == null ? 0 : MemoryUtil.memAddress(images));
 		}

@@ -44,7 +44,7 @@ final class SetCommand {
 			// Shader pack dev overrides
 			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters",
 			// Reflex diagnostics
-			"reflex_trace", "reflex_submission", "reflex_interval_us",
+			"reflex_trace", "reflex_submission", "reflex_interval_us", "pcl_flash",
 			// Streamline switch (applies to the next launch; instance/device extensions are fixed)
 			"streamline");
 
@@ -168,6 +168,10 @@ final class SetCommand {
 				int interval = Integer.parseInt(value);
 				if (interval < -1 || interval > 1_000_000) throw new DebugHttp.BadRequest("Reflex interval must be -1..1000000 us");
 				yield () -> DebugSettings.reflexIntervalUs = interval;
+			}
+			case "pcl_flash" -> {
+				flag(value, true);
+				yield () -> ReflexController.get().triggerFlash();
 			}
 			case "reflex_mode" -> {
 				ReflexMode mode = parseEnum(ReflexMode.class, value);

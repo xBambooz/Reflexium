@@ -1,0 +1,6 @@
+"mode","fps","eff","line","render"
+"native","1520.6","off","Upscaling: off","1920x1080"
+"dlaa","959.2","dlss","DLSS: DLAA 1920x1080 -> 1920x1080","1920x1080"
+"quality","1022.4","dlss","DLSS: Quality 1280x720 -> 1920x1080","1280x720"
+"balanced","1029.6","dlss","DLSS: Balanced 1114x626 -> 1920x1080","1114x626"
+"performance","1040","dlss","DLSS: Performance 960x540 -> 1920x1080","960x540"

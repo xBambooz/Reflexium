@@ -77,6 +77,7 @@ final class StatusCommands {
 		o.addProperty("streamline_dlssg_dynamic", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.dynamicMfgSupported());
 		o.addProperty("streamline_dlssg_status", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.frameGenerationStatus());
 		o.addProperty("streamline_reflex_flags", java.util.Arrays.toString(com.bambooz.reflexium.upscale.dlss.StreamlineSupport.reflexFlags()));
+			o.addProperty("pcl_stats_message", com.bambooz.reflexium.upscale.dlss.StreamlineSupport.pclStatsMessage());
 		o.addProperty("fg_streamline", fg.streamlineFrameGeneration());
 		o.addProperty("fg_streamline_active", fg.streamlineActive());
 		o.addProperty("fg_streamline_generated_presents", fg.streamlineGeneratedPresents());

@@ -622,6 +622,18 @@ public final class UpscalingRenderer {
 			if (hdrEvaluated) {
 				// Pack final already wrote the display target, after the HDR evaluation and tone mapping.
 			} else if (worldDepthCaptured && !builtHdr) {
+				FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
+				if (Boolean.getBoolean("reflexium.sr.fgStreamline") && frameGeneration.streamlineFrameGeneration() && frameGeneration.wantsMotion()) {
+					// Set the one shared constants block before SR so both features use it this frame.
+					Vec3 delta = history.delta();
+					frameGeneration.streamlineSceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.currentProjection),
+							DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+							history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+							DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
+							history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, resets.pending(),
+							Boolean.getBoolean("reflexium.sr.fgStreamline") && builtUpscaler != Upscaler.OFF && !builtHdr,
+							displayWidth, displayHeight);
+				}
 				evaluate(main);
 			} else {
 				// Pack warmup can replace the level call while still presenting a loading frame.
@@ -661,14 +673,14 @@ public final class UpscalingRenderer {
 		if (worldDepthCaptured && !failed && FrameGenerationRenderer.get().wantsMotion()) {
 			Vec3 delta = history.delta();
 			FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
-			if (frameGeneration.streamlineFrameGeneration()) {
+			if (frameGeneration.streamlineFrameGeneration() && !frameGeneration.streamlineActive()) {
 				// Streamline shares the super-resolution constants and inputs: unjittered camera projection,
 				// jitter in render pixels, and the same reprojection produced for DLSS SR.
 				frameGeneration.streamlineSceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.currentProjection),
 						DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
 						history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
 						DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
-						history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset);
+						history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset, false, displayWidth, displayHeight);
 			} else {
 				// Clip transforms describe the drawn volume, including view effects. Lens scalars stay physical.
 				frameGeneration.sceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.depthTransform).mul(history.currentProjection),
@@ -1115,7 +1127,8 @@ public final class UpscalingRenderer {
 		} else if (selected == Upscaler.FSR) {
 			result = runtimes.fsr().create(session.device().address(), session.physicalDevice().address(),
 					VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight, builtHdr);
-		} else if (StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()) {
+		} else if (StreamlineSupport.dlssAvailable() && (!FrameGenerationRenderer.get().streamlineFrameGenerationActive()
+				|| Boolean.getBoolean("reflexium.sr.fgStreamline"))) {
 			result = StreamlineSupport.setDlssOptions(displayWidth, displayHeight, mode, builtHdr, requestedPreset(mode));
 		} else {
 			result = runtimes.ngx().create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS | (builtHdr ? 1 | (1 << 6) : 0),
@@ -1247,6 +1260,16 @@ public final class UpscalingRenderer {
 			ImageRef composition = packSurfaceApplied ? VulkanInterop.image(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null;
 			result = runtimes.fsr().evaluate(commandBuffer.address(), color, depth, motion, outputImage, composition, composition,
 					signedJitterX, signedJitterY, resetting, frameTimeMs, history.cameraNear, history.motionFar, history.cameraFov, sharpness);
+		} else if (!builtHdr && Boolean.getBoolean("reflexium.sr.fgStreamline") && FrameGenerationRenderer.get().streamlineActive() && StreamlineSupport.dlssAvailable()) {
+			// DLSS-G owns this frame's constants (presented orientation). SR runs on mirrored inputs with
+			// those same constants and mirrors its display-size result back, so both features agree.
+			FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
+			frameGeneration.prepareStreamlineInputs(main, motionTarget, commandBuffer);
+			Vec3 delta = history.delta();
+			result = frameGeneration.evaluateStreamlineDlss(commandBuffer, outputTarget, history.currentProjection,
+					DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+					history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+					signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov, resetting);
 		} else if (StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()) {
 			Vec3 delta = history.delta();
 			StreamlineSupport.setConstants(history.currentProjection,

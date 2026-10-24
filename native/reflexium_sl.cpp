@@ -85,6 +85,7 @@ using PFun_slReflexSetOptions = sl::Result(const sl::ReflexOptions&);
 using PFun_slReflexSleep = sl::Result(const sl::FrameToken&);
 using PFun_slReflexGetState = sl::Result(sl::ReflexState&);
 using PFun_slPCLSetMarker = sl::Result(sl::PCLMarker, const sl::FrameToken&);
+using PFun_slPCLGetState = sl::Result(sl::PCLState&);
 
 PFun_slDLSSSetOptions* g_slDLSSSetOptions = nullptr;
 PFun_slDLSSGetOptimalSettings* g_slDLSSGetOptimalSettings = nullptr;
@@ -94,9 +95,11 @@ PFun_slReflexSetOptions* g_slReflexSetOptions = nullptr;
 PFun_slReflexSleep* g_slReflexSleep = nullptr;
 PFun_slReflexGetState* g_slReflexGetState = nullptr;
 PFun_slPCLSetMarker* g_slPCLSetMarker = nullptr;
+PFun_slPCLGetState* g_slPCLGetState = nullptr;
 
 bool g_initialized = false;
 bool g_deviceSet = false;
+bool g_proxiesReady = false;
 bool g_dlssSupported = false;
 bool g_dlssgSupported = false;
 bool g_reflexSupported = false;
@@ -114,6 +117,8 @@ sl::FeatureRequirements g_reflexReqs{};
 sl::FeatureRequirements g_pclReqs{};
 int g_dlssgMaxGenerated = 0;
 bool g_dlssgDynamicSupported = false;
+bool g_dlssgFeatureLoaded = true;
+uint64_t g_constantsFrame = 0;
 int g_dlssgStatus = 0;
 
 std::mutex g_logMutex;
@@ -251,6 +256,8 @@ void fillConstants(const RxFrameConstants* camera, uint32_t renderWidth, uint32_
 }
 
 } // namespace
+
+bool resolveVulkanProxies();
 
 // Image layout is RenderPearl's stable GENERAL layout for every render target and texture.
 static constexpr uint32_t kImageLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -429,6 +436,10 @@ RX_EXPORT int rx_sl_set_device(VkInstance instance, VkPhysicalDevice physicalDev
 	g_physicalDevice = physicalDevice;
 	g_device = device;
 	g_deviceSet = true;
+	// Resolve the intercepted swapchain/present entry points now: the game asks whether Streamline
+	// can own the swapchain before it creates the first one, and that answer must not depend on a
+	// proxy call that has never happened.
+	g_proxiesReady = resolveVulkanProxies();
 
 	sl::AdapterInfo adapter{};
 	adapter.vkPhysicalDevice = physicalDevice;
@@ -467,6 +478,7 @@ RX_EXPORT int rx_sl_set_device(VkInstance instance, VkPhysicalDevice physicalDev
 	}
 	if (g_pclSupported) {
 		featureFunction(sl::kFeaturePCL, "slPCLSetMarker", g_slPCLSetMarker);
+		featureFunction(sl::kFeaturePCL, "slPCLGetState", g_slPCLGetState);
 	}
 	appendLog("device set: dlss=" + std::to_string(g_dlssSupported) + " dlssg=" + std::to_string(g_dlssgSupported)
 			+ " maxGenerated=" + std::to_string(g_dlssgMaxGenerated) + " reflex=" + std::to_string(g_reflexSupported)
@@ -482,6 +494,8 @@ using PFN_vkGetSwapchainImagesKHR = VkResult(VKAPI_CALL*)(VkDevice, VkSwapchainK
 using PFN_vkAcquireNextImageKHR = VkResult(VKAPI_CALL*)(VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore, VkFence, uint32_t*);
 using PFN_vkQueuePresentKHR = VkResult(VKAPI_CALL*)(VkQueue, const VkPresentInfoKHR*);
 using PFN_vkDeviceWaitIdle = VkResult(VKAPI_CALL*)(VkDevice);
+using PFN_vkCreateWin32SurfaceKHR = VkResult(VKAPI_CALL*)(VkInstance, const VkWin32SurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*);
+using PFN_vkDestroySurfaceKHR = void(VKAPI_CALL*)(VkInstance, VkSurfaceKHR, const VkAllocationCallbacks*);
 using PFN_vkGetDeviceProcAddr = PFN_vkVoidFunction(VKAPI_CALL*)(VkDevice, const char*);
 
 PFN_vkCreateSwapchainKHR g_createSwapchain = nullptr;
@@ -490,6 +504,9 @@ PFN_vkGetSwapchainImagesKHR g_getSwapchainImages = nullptr;
 PFN_vkAcquireNextImageKHR g_acquireNextImage = nullptr;
 PFN_vkQueuePresentKHR g_queuePresent = nullptr;
 PFN_vkDeviceWaitIdle g_deviceWaitIdle = nullptr;
+PFN_vkCreateWin32SurfaceKHR g_createWin32Surface = nullptr;
+PFN_vkDestroySurfaceKHR g_destroySurface = nullptr;
+VkSurfaceKHR g_slSurface = VK_NULL_HANDLE;
 
 bool resolveVulkanProxies() {
 	auto gdpa = reinterpret_cast<PFN_vkGetDeviceProcAddr>(GetProcAddress(g_interposer, "vkGetDeviceProcAddr"));
@@ -497,17 +514,25 @@ bool resolveVulkanProxies() {
 		appendLog("sl.interposer has no vkGetDeviceProcAddr");
 		return false;
 	}
-	// Manual hooking: the interposer's own exports are the proxies. Asking the interposer's
-	// vkGetDeviceProcAddr can hand back the unwrapped driver entry point, which silently bypasses the
-	// present interception DLSS-G needs. Prefer the exported symbol and fall back to the device query.
+	// Manual hooking guide (4.2): the proxies come from the interposer's vkGetDeviceProcAddr. Its
+	// direct Vulkan exports forward to the loader and are not the intercepted entry points.
 	auto proxy = [gdpa](const char* name) -> void* {
-		void* found = reinterpret_cast<void*>(GetProcAddress(g_interposer, name));
-		return found != nullptr ? found : reinterpret_cast<void*>(gdpa(g_device, name));
+		void* found = reinterpret_cast<void*>(gdpa(g_device, name));
+		return found != nullptr ? found : reinterpret_cast<void*>(GetProcAddress(g_interposer, name));
 	};
 	void* presentExport = reinterpret_cast<void*>(GetProcAddress(g_interposer, "vkQueuePresentKHR"));
 	void* presentDevice = reinterpret_cast<void*>(gdpa(g_device, "vkQueuePresentKHR"));
-	if (presentExport != nullptr && presentDevice != nullptr && presentExport != presentDevice) {
-		appendLog("vkQueuePresentKHR: using the interposer export, not the device query");
+	HMODULE vulkan = GetModuleHandleW(L"vulkan-1.dll");
+	if (vulkan == nullptr) vulkan = LoadLibraryW(L"vulkan-1.dll");
+	auto rawGdpa = vulkan == nullptr ? nullptr
+			: reinterpret_cast<PFN_vkGetDeviceProcAddr>(GetProcAddress(vulkan, "vkGetDeviceProcAddr"));
+	void* presentDriver = rawGdpa == nullptr ? nullptr : reinterpret_cast<void*>(rawGdpa(g_device, "vkQueuePresentKHR"));
+	char pointers[256];
+	std::snprintf(pointers, sizeof(pointers), "present pointers: interposerExport=%p deviceQuery=%p driver=%p",
+			presentExport, presentDevice, presentDriver);
+	appendLog(pointers);
+	if (presentDevice != nullptr && presentDevice == presentDriver) {
+		appendLog("vkQueuePresentKHR: device-query proxy equals the raw driver entry point");
 	}
 	g_createSwapchain = reinterpret_cast<PFN_vkCreateSwapchainKHR>(proxy("vkCreateSwapchainKHR"));
 	g_destroySwapchain = reinterpret_cast<PFN_vkDestroySwapchainKHR>(proxy("vkDestroySwapchainKHR"));
@@ -515,17 +540,23 @@ bool resolveVulkanProxies() {
 	g_acquireNextImage = reinterpret_cast<PFN_vkAcquireNextImageKHR>(proxy("vkAcquireNextImageKHR"));
 	g_queuePresent = reinterpret_cast<PFN_vkQueuePresentKHR>(proxy("vkQueuePresentKHR"));
 	g_deviceWaitIdle = reinterpret_cast<PFN_vkDeviceWaitIdle>(proxy("vkDeviceWaitIdle"));
+	g_createWin32Surface = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(proxy("vkCreateWin32SurfaceKHR"));
+	g_destroySurface = reinterpret_cast<PFN_vkDestroySurfaceKHR>(proxy("vkDestroySurfaceKHR"));
 	return g_createSwapchain != nullptr && g_destroySwapchain != nullptr && g_getSwapchainImages != nullptr
 			&& g_acquireNextImage != nullptr && g_queuePresent != nullptr;
 }
 
 RX_EXPORT int rx_sl_swapchain_ready() {
-	return g_createSwapchain != nullptr && g_queuePresent != nullptr ? 1 : 0;
+	return g_proxiesReady && g_createSwapchain != nullptr && g_queuePresent != nullptr ? 1 : 0;
 }
 
 RX_EXPORT int rx_sl_create_swapchain(VkDevice device, VkSwapchainCreateInfoKHR* info, const VkAllocationCallbacks* allocator, VkSwapchainKHR* out) {
-	if (!resolveVulkanProxies()) return VK_ERROR_INITIALIZATION_FAILED;
-	return g_createSwapchain(device, info, allocator, out);
+	if (!g_proxiesReady && !resolveVulkanProxies()) return VK_ERROR_INITIALIZATION_FAILED;
+	VkResult result = g_createSwapchain(device, info, allocator, out);
+	if (result != VK_SUCCESS) {
+		appendLog("interposer vkCreateSwapchainKHR failed " + std::to_string(static_cast<int>(result)));
+	}
+	return result;
 }
 
 RX_EXPORT void rx_sl_destroy_swapchain(VkDevice device, VkSwapchainKHR swapchain, const VkAllocationCallbacks* allocator) {
@@ -548,13 +579,70 @@ RX_EXPORT int rx_sl_present(VkQueue queue, const VkPresentInfoKHR* info) {
 	return g_queuePresent(queue, info);
 }
 
+// The interposer records surface-to-HWND for its present/focus checks when the surface is created
+// through this proxy. SDL creates it through the loader, so the game calls this instead.
+RX_EXPORT int rx_sl_create_win32_surface(VkInstance instance, void* hwnd, VkSurfaceKHR* out) {
+	if (out == nullptr || hwnd == nullptr) return VK_ERROR_INITIALIZATION_FAILED;
+	if (g_createWin32Surface == nullptr && !resolveVulkanProxies()) return VK_ERROR_INITIALIZATION_FAILED;
+	if (g_createWin32Surface == nullptr) return VK_ERROR_INITIALIZATION_FAILED;
+	VkWin32SurfaceCreateInfoKHR info{};
+	info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	info.hinstance = GetModuleHandleW(nullptr);
+	info.hwnd = reinterpret_cast<HWND>(hwnd);
+	VkSurfaceKHR surface = VK_NULL_HANDLE;
+	VkResult result = g_createWin32Surface(instance, &info, nullptr, &surface);
+	if (result != VK_SUCCESS) {
+		appendLog("interposer vkCreateWin32SurfaceKHR failed " + std::to_string(static_cast<int>(result)));
+		return result;
+	}
+	g_slSurface = surface;
+	appendLog("interposer surface created");
+	*out = surface;
+	return VK_SUCCESS;
+}
+
+RX_EXPORT int rx_sl_owns_surface(VkSurfaceKHR surface) {
+	return surface != VK_NULL_HANDLE && surface == g_slSurface ? 1 : 0;
+}
+
+RX_EXPORT void rx_sl_destroy_surface(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* allocator) {
+	if (surface == VK_NULL_HANDLE) return;
+	if (surface == g_slSurface && g_destroySurface != nullptr) {
+		g_destroySurface(instance, surface, allocator);
+		g_slSurface = VK_NULL_HANDLE;
+	}
+}
+
 RX_EXPORT int rx_sl_device_wait_idle(VkDevice device) {
 	if (g_deviceWaitIdle == nullptr) return VK_ERROR_INITIALIZATION_FAILED;
 	return g_deviceWaitIdle(device);
 }
 
 RX_EXPORT int rx_sl_dlss_available() { return g_deviceSet && g_dlssSupported ? 1 : 0; }
-RX_EXPORT int rx_sl_dlssg_available() { return g_deviceSet && g_dlssgSupported && g_slDLSSGSetOptions != nullptr && g_slDLSSGGetState != nullptr ? 1 : 0; }
+RX_EXPORT int rx_sl_dlssg_available() { return g_deviceSet && g_dlssgSupported ? 1 : 0; }
+
+// DLSS-G guide 18.0: unload the plugin while the swapchain is torn down, then recreate it
+// with the feature loaded or unloaded. Feature functions are re-resolved on every load.
+RX_EXPORT int rx_sl_dlssg_set_loaded(int loaded) {
+	if (g_slSetFeatureLoaded == nullptr || !g_deviceSet || !g_dlssgSupported) return 1;
+	bool want = loaded != 0;
+	sl::Result result = g_slSetFeatureLoaded(sl::kFeatureDLSS_G, want);
+	if (result != sl::Result::eOk) {
+		appendLog("slSetFeatureLoaded(DLSS-G," + std::to_string(want ? 1 : 0) + ") failed " + std::to_string(static_cast<int>(result)));
+		return static_cast<int>(100 + static_cast<int>(result));
+	}
+	g_dlssgFeatureLoaded = want;
+	g_slDLSSGSetOptions = nullptr;
+	g_slDLSSGGetState = nullptr;
+	if (want) {
+		featureFunction(sl::kFeatureDLSS_G, "slDLSSGSetOptions", g_slDLSSGSetOptions);
+		featureFunction(sl::kFeatureDLSS_G, "slDLSSGGetState", g_slDLSSGGetState);
+	}
+	appendLog(std::string("DLSS-G feature loaded=") + (want ? "true" : "false"));
+	return g_slDLSSGSetOptions != nullptr && g_slDLSSGGetState != nullptr ? 0 : (want ? 2 : 0);
+}
+
+RX_EXPORT int rx_sl_dlssg_loaded() { return g_dlssgFeatureLoaded ? 1 : 0; }
 RX_EXPORT int rx_sl_reflex_available() { return g_deviceSet && g_reflexSupported ? 1 : 0; }
 RX_EXPORT int rx_sl_pcl_available() { return g_deviceSet && g_pclSupported ? 1 : 0; }
 
@@ -577,7 +665,8 @@ RX_EXPORT int rx_sl_dlssg_state(int* out, int outCount) {
 }
 
 // mode: 0 off, 1 on (fixed multiplier). numFramesToGenerate is multiplier - 1.
-RX_EXPORT int rx_sl_dlssg_set_options(int mode, int numFramesToGenerate, int uiRecomposition, int retainResources) {
+RX_EXPORT int rx_sl_dlssg_set_options(int mode, int numFramesToGenerate, int uiRecomposition, int retainResources,
+		int backBuffers, int mvecWidth, int mvecHeight, int colorWidth, int colorHeight) {
 	if (g_slDLSSGSetOptions == nullptr || !g_dlssgSupported) return 1;
 	sl::DLSSGOptions options{};
 	options.mode = static_cast<sl::DLSSGMode>(mode);
@@ -586,6 +675,12 @@ RX_EXPORT int rx_sl_dlssg_set_options(int mode, int numFramesToGenerate, int uiR
 	// buffer) is not requested. Menus and loading screens are handled by the application per frame.
 	options.flags = retainResources ? sl::DLSSGFlags::eRetainResourcesWhenOff : static_cast<sl::DLSSGFlags>(0);
 	options.enableUserInterfaceRecomposition = uiRecomposition ? sl::Boolean::eTrue : sl::Boolean::eFalse;
+	// Manual hooking gives Streamline no swapchain description of its own; supply the expected layout.
+	options.numBackBuffers = static_cast<uint32_t>(backBuffers < 0 ? 0 : backBuffers);
+	options.mvecDepthWidth = static_cast<uint32_t>(mvecWidth < 0 ? 0 : mvecWidth);
+	options.mvecDepthHeight = static_cast<uint32_t>(mvecHeight < 0 ? 0 : mvecHeight);
+	options.colorWidth = static_cast<uint32_t>(colorWidth < 0 ? 0 : colorWidth);
+	options.colorHeight = static_cast<uint32_t>(colorHeight < 0 ? 0 : colorHeight);
 	sl::Result result = g_slDLSSGSetOptions(sl::ViewportHandle(0), options);
 	if (result != sl::Result::eOk) {
 		appendLog("slDLSSGSetOptions failed " + std::to_string(static_cast<int>(result)));
@@ -720,6 +815,7 @@ RX_EXPORT int rx_sl_set_constants(const RxFrameConstants* camera, int reset, int
 		appendLog("slSetConstants failed " + std::to_string(static_cast<int>(result)));
 		return static_cast<int>(100 + static_cast<int>(result));
 	}
+	g_constantsFrame = g_tokenIndex;
 	return 0;
 }
 
@@ -754,7 +850,8 @@ RX_EXPORT int rx_sl_dlss_evaluate(void* commandBuffer, const RxImage* color, con
 	result = g_slEvaluateFeature(sl::kFeatureDLSS, *g_token, evaluateInputs, 1,
 			reinterpret_cast<sl::CommandBuffer*>(commandBuffer));
 	if (result != sl::Result::eOk) {
-		appendLog("slEvaluateFeature(DLSS) failed " + std::to_string(static_cast<int>(result)));
+		appendLog("slEvaluateFeature(DLSS) failed " + std::to_string(static_cast<int>(result))
+			+ " at frame " + std::to_string(g_tokenIndex) + " constants frame " + std::to_string(g_constantsFrame));
 		return static_cast<int>(100 + static_cast<int>(result));
 	}
 	return 0;
@@ -806,6 +903,15 @@ RX_EXPORT int rx_sl_pcl_marker(int marker) {
 		appendLog("slPCLSetMarker failed " + std::to_string(static_cast<int>(result)));
 		return static_cast<int>(100 + static_cast<int>(result));
 	}
+	return 0;
+}
+
+RX_EXPORT int rx_sl_pcl_stats_message(unsigned int* message) {
+	if (g_slPCLGetState == nullptr) return 1;
+	sl::PCLState state{};
+	sl::Result result = g_slPCLGetState(state);
+	if (result != sl::Result::eOk) return static_cast<int>(100 + static_cast<int>(result));
+	if (message) *message = state.statsWindowMessage;
 	return 0;
 }
 
@@ -862,6 +968,7 @@ RX_EXPORT void rx_sl_shutdown() {
 	}
 	g_initialized = false;
 	g_deviceSet = false;
+	g_proxiesReady = false;
 	g_token = nullptr;
 }
 

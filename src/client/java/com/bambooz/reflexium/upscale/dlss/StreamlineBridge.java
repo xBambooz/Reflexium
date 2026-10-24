@@ -40,6 +40,8 @@ public final class StreamlineBridge {
 	private final MethodHandle dlssSetOptions;
 	private final MethodHandle dlssgState;
 	private final MethodHandle dlssgSetOptions;
+	private final MethodHandle dlssgSetLoaded;
+	private final MethodHandle dlssgLoaded;
 	private final MethodHandle dlssgTags;
 	private final MethodHandle dlssgClearTags;
 	private final MethodHandle beginFrame;
@@ -50,6 +52,7 @@ public final class StreamlineBridge {
 	private final MethodHandle reflexOptions;
 	private final MethodHandle reflexSleep;
 	private final MethodHandle pclMarker;
+	private final MethodHandle pclStatsMessage;
 	private final MethodHandle reflexReport;
 	private final MethodHandle reflexFlags;
 	private final MethodHandle swapchainReady;
@@ -58,6 +61,9 @@ public final class StreamlineBridge {
 	private final MethodHandle getSwapchainImages;
 	private final MethodHandle acquireNextImage;
 	private final MethodHandle present;
+	private final MethodHandle createWin32Surface;
+	private final MethodHandle ownsSurface;
+	private final MethodHandle destroySurface;
 	private final MethodHandle deviceWaitIdle;
 	private final MethodHandle shutdown;
 	private final MethodHandle takeLog;
@@ -85,7 +91,9 @@ public final class StreamlineBridge {
 				JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
 		dlssgState = handle(linker, lookup, "rx_sl_dlssg_state", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
 		dlssgSetOptions = handle(linker, lookup, "rx_sl_dlssg_set_options", FunctionDescriptor.of(JAVA_INT,
-				JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+				JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+		dlssgSetLoaded = handle(linker, lookup, "rx_sl_dlssg_set_loaded", FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+		dlssgLoaded = handle(linker, lookup, "rx_sl_dlssg_loaded", FunctionDescriptor.of(JAVA_INT));
 		dlssgTags = handle(linker, lookup, "rx_sl_dlssg_tags", FunctionDescriptor.of(JAVA_INT,
 				ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
 		dlssgClearTags = handle(linker, lookup, "rx_sl_dlssg_clear_tags", FunctionDescriptor.of(JAVA_INT, ADDRESS));
@@ -99,6 +107,7 @@ public final class StreamlineBridge {
 		reflexOptions = handle(linker, lookup, "rx_sl_reflex_options", FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT));
 		reflexSleep = handle(linker, lookup, "rx_sl_reflex_sleep", FunctionDescriptor.of(JAVA_INT));
 		pclMarker = handle(linker, lookup, "rx_sl_pcl_marker", FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+		pclStatsMessage = handle(linker, lookup, "rx_sl_pcl_stats_message", FunctionDescriptor.of(JAVA_INT, ADDRESS));
 		reflexReport = handle(linker, lookup, "rx_sl_reflex_report", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
 		reflexFlags = handle(linker, lookup, "rx_sl_reflex_flags", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
 		swapchainReady = handle(linker, lookup, "rx_sl_swapchain_ready", FunctionDescriptor.of(JAVA_INT));
@@ -110,6 +119,9 @@ public final class StreamlineBridge {
 		acquireNextImage = handle(linker, lookup, "rx_sl_acquire_next_image", FunctionDescriptor.of(JAVA_INT,
 				ADDRESS, JAVA_LONG, JAVA_LONG, JAVA_LONG, JAVA_LONG, ADDRESS));
 		present = handle(linker, lookup, "rx_sl_present", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
+		createWin32Surface = handle(linker, lookup, "rx_sl_create_win32_surface", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
+		ownsSurface = handle(linker, lookup, "rx_sl_owns_surface", FunctionDescriptor.of(JAVA_INT, JAVA_LONG));
+		destroySurface = handle(linker, lookup, "rx_sl_destroy_surface", FunctionDescriptor.ofVoid(ADDRESS, JAVA_LONG, ADDRESS));
 		deviceWaitIdle = handle(linker, lookup, "rx_sl_device_wait_idle", FunctionDescriptor.of(JAVA_INT, ADDRESS));
 		shutdown = handle(linker, lookup, "rx_sl_shutdown", FunctionDescriptor.ofVoid());
 		takeLog = handle(linker, lookup, "rx_sl_take_log", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
@@ -198,9 +210,17 @@ public final class StreamlineBridge {
 		} catch (Throwable t) { throw rethrow(t); }
 	}
 
-	public int dlssgSetOptions(int mode, int generatedFrames, boolean uiRecomposition, boolean retainResources) {
-		return invokeInt(dlssgSetOptions, mode, generatedFrames, uiRecomposition ? 1 : 0, retainResources ? 1 : 0);
+	public int dlssgSetOptions(int mode, int generatedFrames, boolean uiRecomposition, boolean retainResources,
+			int backBuffers, int mvecWidth, int mvecHeight, int colorWidth, int colorHeight) {
+		try {
+			return (int) dlssgSetOptions.invokeExact(mode, generatedFrames, uiRecomposition ? 1 : 0,
+					retainResources ? 1 : 0, backBuffers, mvecWidth, mvecHeight, colorWidth, colorHeight);
+		} catch (Throwable t) { throw rethrow(t); }
 	}
+
+	/** Loads or unloads the sl.dlss_g plugin. The swapchain must be torn down around this call. */
+	public int dlssgSetLoaded(boolean loaded) { return invokeInt(dlssgSetLoaded, loaded ? 1 : 0); }
+	public boolean dlssgFeatureLoaded() { return invokeInt(dlssgLoaded) != 0; }
 
 	/** Tags DLSS-G inputs selected by mask (1 depth, 2 motion, 4 hudless, 8 UI alpha); an image may be null. */
 	public int dlssgTags(long commandBuffer, ImageRef depth, ImageRef motion, ImageRef hudless, ImageRef uiAlpha, int mask) {
@@ -246,6 +266,13 @@ public final class StreamlineBridge {
 	public int reflexOptions(int mode, int frameLimitUs) { return invokeInt(reflexOptions, mode, frameLimitUs); }
 	public int reflexSleep() { return invokeInt(reflexSleep); }
 	public int pclMarker(int marker) { return invokeInt(pclMarker, marker); }
+	public int pclStatsMessage() {
+		try (Arena arena = Arena.ofConfined()) {
+			MemorySegment out = arena.allocate(JAVA_INT);
+			int result = (int) pclStatsMessage.invokeExact(out);
+			return result == 0 ? out.get(JAVA_INT, 0) : -1;
+		} catch (Throwable t) { throw rethrow(t); }
+	}
 
 	/** Present id plus 13 timestamps in microseconds, or null. */
 	public ReflexReport reflexReport() {
@@ -292,6 +319,17 @@ public final class StreamlineBridge {
 	}
 	public int present(long queue, long presentInfo) {
 		return invokeInt(present, MemorySegment.ofAddress(queue), MemorySegment.ofAddress(presentInfo));
+	}
+	public int createWin32Surface(long instance, long hwnd, long out) {
+		try {
+			return (int) createWin32Surface.invokeExact(MemorySegment.ofAddress(instance),
+					MemorySegment.ofAddress(hwnd), MemorySegment.ofAddress(out));
+		} catch (Throwable t) { throw rethrow(t); }
+	}
+	public boolean ownsSurface(long surface) { return invokeInt(ownsSurface, surface) != 0; }
+	public void destroySurface(long instance, long surface, long allocator) {
+		try { destroySurface.invokeExact(MemorySegment.ofAddress(instance), surface, MemorySegment.ofAddress(allocator)); }
+		catch (Throwable t) { throw rethrow(t); }
 	}
 	public int deviceWaitIdle(long device) { return invokeInt(deviceWaitIdle, MemorySegment.ofAddress(device)); }
 	public void shutdown() { invokeVoid(shutdown); }
