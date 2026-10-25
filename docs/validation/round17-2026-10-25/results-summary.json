@@ -1,0 +1,860 @@
+[
+  {
+    "key": "full-dh-Mellow-native",
+    "file": "2026-10-25_18-03-09_benchmark-route_5yzfuv.bmresult.json.gz",
+    "mode": "native",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": true,
+    "avg_pair": [
+      421.97212422345086,
+      415.21927917009793
+    ],
+    "low1_pair": [
+      186.39374439969112,
+      112.72105755405947
+    ],
+    "avg_mean": 418.5957016967744,
+    "avg_repeat_pct": 1.6263322519247891,
+    "low1_repeat_pct": 65.35840635659333,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-Mellow-native",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 114.56115931596914,
+        "variance": 1403.6108619981642,
+        "edges": 12934,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 114.56559082985846,
+        "variance": 1403.9778068645155,
+        "edges": 12931,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9995389258753538,
+        "aligned": 0.9995389258753538,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 0
+  },
+  {
+    "key": "full-dh-Mellow-quality",
+    "file": "2026-10-25_18-06-49_benchmark-route_2mf31f.bmresult.json.gz",
+    "mode": "quality",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": true,
+    "avg_pair": [
+      343.8707138221678,
+      336.23885279697663
+    ],
+    "low1_pair": [
+      172.28838512591977,
+      181.15361715970548
+    ],
+    "avg_mean": 340.0547833095722,
+    "avg_repeat_pct": 2.2697736926313272,
+    "low1_repeat_pct": 5.145577298960924,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-Mellow-quality",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 113.5372206319466,
+        "variance": 1158.0517132976565,
+        "edges": 11303,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 113.51765485069356,
+        "variance": 1154.577588933118,
+        "edges": 11376,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.9723311456198659,
+        "aligned": 0.9723311456198659,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.9727116632446989,
+        "aligned": 0.9727116632446989,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9985483800539439,
+        "aligned": 0.9985483800539439,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": -18.76295386427458
+  },
+  {
+    "key": "full-dh-Mellow-performance",
+    "file": "2026-10-25_18-11-03_benchmark-route_tvsauj.bmresult.json.gz",
+    "mode": "performance",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": true,
+    "avg_pair": [
+      349.83715330008744,
+      341.46435537085273
+    ],
+    "low1_pair": [
+      181.94078034125175,
+      185.53416535726328
+    ],
+    "avg_mean": 345.6507543354701,
+    "avg_repeat_pct": 2.4520269239058035,
+    "low1_repeat_pct": 1.9750300121125663,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": true,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-Mellow-performance",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 113.28146366667073,
+        "variance": 1202.899205129801,
+        "edges": 11662,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 113.32687071875237,
+        "variance": 1204.8274011425601,
+        "edges": 11691,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.9638660157624171,
+        "aligned": 0.9638660157624171,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.9611208781341305,
+        "aligned": 0.9611208781341305,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9974732695316997,
+        "aligned": 0.9974732695316997,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": -17.42610998288385
+  },
+  {
+    "key": "full-dh-BSL-native",
+    "file": "2026-10-25_18-14-55_benchmark-route_pln8oz.bmresult.json.gz",
+    "mode": "native",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": true,
+    "avg_pair": [
+      187.54147015293367,
+      189.40726663741566
+    ],
+    "low1_pair": [
+      105.56099779171022,
+      97.41569368742819
+    ],
+    "avg_mean": 188.47436839517468,
+    "avg_repeat_pct": 0.9948714185510577,
+    "low1_repeat_pct": 8.361387981712042,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-BSL-native",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 124.87715880903232,
+        "variance": 1169.4211620799524,
+        "edges": 9884,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 125.0224442951376,
+        "variance": 1164.7964431312612,
+        "edges": 9710,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9880028418312027,
+        "aligned": 0.9880028418312027,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 0
+  },
+  {
+    "key": "full-dh-BSL-quality",
+    "file": "2026-10-25_18-18-16_benchmark-route_m1duft.bmresult.json.gz",
+    "mode": "quality",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": true,
+    "avg_pair": [
+      194.25911204463148,
+      189.31195327619315
+    ],
+    "low1_pair": [
+      113.78500995635365,
+      105.24794753461441
+    ],
+    "avg_mean": 191.78553266041231,
+    "avg_repeat_pct": 2.6132310627109634,
+    "low1_repeat_pct": 8.111381382455484,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-BSL-quality",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 125.09071607291054,
+        "variance": 1137.2962648578614,
+        "edges": 10418,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 125.16171115624391,
+        "variance": 1134.5278227115614,
+        "edges": 10420,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.9912310826897288,
+        "aligned": 0.9912310826897288,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.991598327782325,
+        "aligned": 0.991598327782325,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.991070808112659,
+        "aligned": 0.991070808112659,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 1.7568247042988316
+  },
+  {
+    "key": "full-dh-BSL-performance",
+    "file": "2026-10-25_18-21-58_benchmark-route_vlp15l.bmresult.json.gz",
+    "mode": "performance",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": true,
+    "avg_pair": [
+      212.57851302162663,
+      212.98215906491615
+    ],
+    "low1_pair": [
+      124.02900191387722,
+      134.03040829665218
+    ],
+    "avg_mean": 212.7803360432714,
+    "avg_repeat_pct": 0.18988092331253537,
+    "low1_repeat_pct": 8.06376430386797,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-dh-BSL-performance",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 125.83397795141046,
+        "variance": 1186.121151963891,
+        "edges": 11246,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 125.68637395487647,
+        "variance": 1198.5127073856202,
+        "edges": 11122,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.9820067916349894,
+        "aligned": 0.9820067916349894,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.9811320027969849,
+        "aligned": 0.9811320027969849,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.991693130901171,
+        "aligned": 0.991693130901171,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 12.89616612330773
+  },
+  {
+    "key": "full-no-dh-Mellow-native",
+    "file": "2026-10-25_18-39-05_benchmark-route_cx7dwj.bmresult.json.gz",
+    "mode": "native",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": false,
+    "avg_pair": [
+      885.3125026109581,
+      884.9864834704475
+    ],
+    "low1_pair": [
+      352.6861162891997,
+      404.65302371523137
+    ],
+    "avg_mean": 885.1494930407027,
+    "avg_repeat_pct": 0.03683888359877763,
+    "low1_repeat_pct": 14.734605368876853,
+    "proof_valid": false,
+    "average_valid": false,
+    "low1_valid": false,
+    "reasons": [
+      "content/correlation"
+    ],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-Mellow-native",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 175.91762463879263,
+        "variance": 0.9455845374868659,
+        "edges": 0,
+        "content_valid": false
+      },
+      "right": {
+        "mean_luma": 175.91796167351495,
+        "variance": 0.9454724781353434,
+        "edges": 0,
+        "content_valid": false
+      },
+      "left_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9998299384966844,
+        "aligned": 0.9998299384966844,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": null
+  },
+  {
+    "key": "full-no-dh-Mellow-quality",
+    "file": "2026-10-25_18-42-19_benchmark-route_cba8un.bmresult.json.gz",
+    "mode": "quality",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": false,
+    "avg_pair": [
+      561.1927444012828,
+      563.0464597300274
+    ],
+    "low1_pair": [
+      303.3097294927179,
+      301.3274801725647
+    ],
+    "avg_mean": 562.119602065655,
+    "avg_repeat_pct": 0.33031705189316973,
+    "low1_repeat_pct": 0.6578388798187174,
+    "proof_valid": false,
+    "average_valid": false,
+    "low1_valid": false,
+    "reasons": [
+      "content/correlation"
+    ],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-Mellow-quality",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 175.92707788530947,
+        "variance": 0.482770265549334,
+        "edges": 0,
+        "content_valid": false
+      },
+      "right": {
+        "mean_luma": 175.92742986100384,
+        "variance": 0.5463436110403563,
+        "edges": 0,
+        "content_valid": false
+      },
+      "left_native": {
+        "direct": 0.3255882879402034,
+        "aligned": 0.33582576826296295,
+        "shift_x": -2,
+        "shift_y": 2,
+        "valid": false
+      },
+      "right_native": {
+        "direct": 0.30467372243866453,
+        "aligned": 0.31182026518011524,
+        "shift_x": -2,
+        "shift_y": 0,
+        "valid": false
+      },
+      "repeat": {
+        "direct": 0.9271137499125924,
+        "aligned": 0.9271137499125924,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": null
+  },
+  {
+    "key": "full-no-dh-Mellow-performance",
+    "file": "2026-10-25_18-45-31_benchmark-route_vbqgge.bmresult.json.gz",
+    "mode": "performance",
+    "pack": "Mellow v3.4.1a.zip",
+    "dh": false,
+    "avg_pair": [
+      556.1063796844375,
+      557.1949580475213
+    ],
+    "low1_pair": [
+      286.2014303984892,
+      325.77592369777807
+    ],
+    "avg_mean": 556.6506688659794,
+    "avg_repeat_pct": 0.19575002245100226,
+    "low1_repeat_pct": 13.8274966844812,
+    "proof_valid": false,
+    "average_valid": false,
+    "low1_valid": false,
+    "reasons": [
+      "content/correlation"
+    ],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-Mellow-performance",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 175.55866515266294,
+        "variance": 0.4926679500822502,
+        "edges": 0,
+        "content_valid": false
+      },
+      "right": {
+        "mean_luma": 175.5993898575193,
+        "variance": 0.5326914431752812,
+        "edges": 0,
+        "content_valid": false
+      },
+      "left_native": {
+        "direct": 0.08586531384596001,
+        "aligned": 0.6061504816075011,
+        "shift_x": 4,
+        "shift_y": 2,
+        "valid": false
+      },
+      "right_native": {
+        "direct": 0.11174558663215367,
+        "aligned": 0.5899377336053659,
+        "shift_x": 4,
+        "shift_y": 2,
+        "valid": false
+      },
+      "repeat": {
+        "direct": 0.9375570098671037,
+        "aligned": 0.9375570098671037,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": null
+  },
+  {
+    "key": "full-no-dh-BSL-native",
+    "file": "2026-10-25_18-48-44_benchmark-route_gmv4oq.bmresult.json.gz",
+    "mode": "native",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": false,
+    "avg_pair": [
+      309.52116750011805,
+      308.51338079589175
+    ],
+    "low1_pair": [
+      173.78017788357374,
+      182.5803395859993
+    ],
+    "avg_mean": 309.0172741480049,
+    "avg_repeat_pct": 0.3266589934045827,
+    "low1_repeat_pct": 5.06396173004342,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": false,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-BSL-native",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 147.42841334027028,
+        "variance": 855.2910142357614,
+        "edges": 382,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 147.57874383332933,
+        "variance": 843.4828628560572,
+        "edges": 365,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 1,
+        "aligned": 1,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9980467108546835,
+        "aligned": 0.9980467108546835,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 0
+  },
+  {
+    "key": "full-no-dh-BSL-quality",
+    "file": "2026-10-25_18-51-52_benchmark-route_l2jnmx.bmresult.json.gz",
+    "mode": "quality",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": false,
+    "avg_pair": [
+      289.776159916136,
+      290.98291136036266
+    ],
+    "low1_pair": [
+      174.07702317875354,
+      178.39999009853466
+    ],
+    "avg_mean": 290.3795356382493,
+    "avg_repeat_pct": 0.41644262405020616,
+    "low1_repeat_pct": 2.48336445605577,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": true,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-BSL-quality",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 147.49164354165643,
+        "variance": 853.6504547928562,
+        "edges": 270,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 147.58260314929174,
+        "variance": 845.5242523987035,
+        "edges": 287,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.998307292328711,
+        "aligned": 0.998307292328711,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.9982197381169005,
+        "aligned": 0.9982197381169005,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9982520846956517,
+        "aligned": 0.9982520846956517,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": -6.031293415923722
+  },
+  {
+    "key": "full-no-dh-BSL-performance",
+    "file": "2026-10-25_18-55-03_benchmark-route_8n3iec.bmresult.json.gz",
+    "mode": "performance",
+    "pack": "BSL_v10.1.8.zip",
+    "dh": false,
+    "avg_pair": [
+      310.0617050489206,
+      310.4123277179904
+    ],
+    "low1_pair": [
+      185.52957557187722,
+      185.19122647984568
+    ],
+    "avg_mean": 310.2370163834555,
+    "avg_repeat_pct": 0.11308157807314867,
+    "low1_repeat_pct": 0.1827025493933654,
+    "proof_valid": true,
+    "average_valid": true,
+    "low1_valid": true,
+    "reasons": [],
+    "pose": [
+      {
+        "distance": 0,
+        "angle": 0
+      },
+      {
+        "distance": 0,
+        "angle": 0
+      }
+    ],
+    "image": {
+      "key": "full-no-dh-BSL-performance",
+      "width": 640,
+      "height": 180,
+      "left": {
+        "mean_luma": 147.55679387501797,
+        "variance": 834.3693819180626,
+        "edges": 377,
+        "content_valid": true
+      },
+      "right": {
+        "mean_luma": 147.68426770140744,
+        "variance": 823.6603474059448,
+        "edges": 390,
+        "content_valid": true
+      },
+      "left_native": {
+        "direct": 0.9995249970310904,
+        "aligned": 0.9995249970310904,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "right_native": {
+        "direct": 0.9995373236493911,
+        "aligned": 0.9995373236493911,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      },
+      "repeat": {
+        "direct": 0.9981072859245822,
+        "aligned": 0.9981072859245822,
+        "shift_x": 0,
+        "shift_y": 0,
+        "valid": true
+      }
+    },
+    "average_delta_pct": 0.39471652153220127
+  }
+]
