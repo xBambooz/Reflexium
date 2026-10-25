@@ -132,7 +132,7 @@ final class CaptureCommands {
 		boolean gui = flag(q, "gui", false);
 		boolean hiddenByUs = hideHud(gui);
 		try {
-			return capture(file, integer(q, "fg_index", -1));
+			return capture(file, integer(q, "fg_index", -1), q);
 		} finally {
 			restoreHud(hiddenByUs);
 		}
@@ -192,6 +192,10 @@ final class CaptureCommands {
 
 	/** Reads back the main render target (display resolution, after upscaling), or a generated frame, and writes a PNG. */
 	private static JsonObject capture(Path file, int generatedIndex) throws Exception {
+		return capture(file, generatedIndex, Map.of());
+	}
+
+	private static JsonObject capture(Path file, int generatedIndex, Map<String, String> params) throws Exception {
 		CompletableFuture<NativeImage> image = new CompletableFuture<>();
 		JsonObject meta = call(() -> {
 			Minecraft mc = Minecraft.getInstance();
@@ -215,9 +219,26 @@ final class CaptureCommands {
 			if (parent != null) {
 				Files.createDirectories(parent);
 			}
-			img.writeToFile(file);
-			meta.addProperty("width", img.getWidth());
-			meta.addProperty("height", img.getHeight());
+			int w = integer(params, "crop_width", img.getWidth()), h = integer(params, "crop_height", img.getHeight());
+			int x = integer(params, "crop_x", (img.getWidth() - w) / 2), y = integer(params, "crop_y", (img.getHeight() - h) / 2);
+			if (w <= 0 || h <= 0 || x < 0 || y < 0 || w > img.getWidth() - x || h > img.getHeight() - y)
+				throw new DebugHttp.BadRequest("Crop must fit inside the rendered image");
+			int pairSlot = integer(params, "crop_pair_slot", -1);
+			if (pairSlot < -1 || pairSlot > 1) throw new DebugHttp.BadRequest("crop_pair_slot must be 0 or 1");
+			try (NativeImage crop = new NativeImage(pairSlot < 0 ? w : w * 2, h, true)) {
+				if (pairSlot == 1) {
+					try (var input = Files.newInputStream(file); NativeImage first = NativeImage.read(input)) {
+						if (first.getWidth() != w * 2 || first.getHeight() != h) throw new DebugHttp.BadRequest("Crop pair dimensions changed");
+						first.copyRect(crop, 0, 0, 0, 0, w, h, false, false);
+					}
+				}
+				img.copyRect(crop, x, y, pairSlot < 0 ? 0 : pairSlot * w, 0, w, h, false, false);
+				crop.writeToFile(file);
+			}
+			meta.addProperty("width", w);
+			meta.addProperty("height", h);
+			meta.addProperty("crop_x", x);
+			meta.addProperty("crop_y", y);
 		}
 		meta.addProperty("path", file.toAbsolutePath().toString());
 		return meta;

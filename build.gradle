@@ -58,6 +58,7 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	clientCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+	testRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
 	clientCompileOnly "maven.modrinth:betterf3:${project.betterf3_version}"
 	if (rxBenchJar != null) clientRuntimeOnly files(rxBenchJar)
 }

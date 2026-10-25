@@ -23,12 +23,14 @@ public abstract class VulkanSubmitTimingMixin {
 	private boolean reflexium$wait(long index, long timeout, Operation<Boolean> original) {
 		int label = timeout == 0 ? FrameProfiler.FENCE_POLL : FrameProfiler.FENCE;
 		long timing = FrameProfiler.start(label, null);
+		long worldTiming = timeout != 0 && FrameProfiler.inWorld() ? FrameProfiler.start(FrameProfiler.WORLD_FENCE, null) : 0;
 		boolean traced = timeout != 0 && reflexium$traced();
 		if (traced) reflexium$trace("completion wait index=" + index + " completed=" + completedSubmitIndex);
 		boolean done = false;
 		try { return done = original.call(index, timeout); }
 		finally {
 			FrameProfiler.end(label, timing, null);
+			FrameProfiler.end(FrameProfiler.WORLD_FENCE, worldTiming, null);
 			if (traced) reflexium$trace("completion wait exit index=" + index + " done=" + done);
 		}
 	}

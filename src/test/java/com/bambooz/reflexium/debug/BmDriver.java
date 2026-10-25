@@ -74,6 +74,9 @@ public final class BmDriver implements ClientModInitializer {
 						response.addProperty("pass_schema", SCHEMA);
 						response.addProperty("pass_telemetry", telemetry);
 						response.addProperty("pass_boundaries", boundaries);
+						Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+						for (String key : List.of("phase", "runIndex", "serverTick", "startedNanos"))
+							response.addProperty(key, String.valueOf(state.getClass().getMethod(key).invoke(state)));
 						result.complete(response);
 					} catch (Exception e) { result.completeExceptionally(e); }
 				});

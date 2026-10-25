@@ -2,6 +2,11 @@ package com.bambooz.reflexium.motion;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
+import net.fabricmc.loader.api.FabricLoader;
+import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.renderer.feature.FlameFeatureRenderer;
@@ -279,7 +284,9 @@ public final class ObjectMotion {
 			return capture;
 		}
 		slot.signature = 31 * slot.signature + System.identityHashCode(renderType);
-		capture = new Capture(consumer, slot, this, renderType.pipeline().isCull());
+		capture = FabricLoader.getInstance().isModLoaded("sodium")
+				? new SodiumCapture(consumer, slot, this, renderType.pipeline().isCull())
+				: new Capture(consumer, slot, this, renderType.pipeline().isCull());
 		lastCapture = capture;
 		return capture;
 	}
@@ -591,7 +598,7 @@ public final class ObjectMotion {
 	}
 
 	/** Forwards everything to the real buffer builder and copies each vertex position into a slot. */
-	static final class Capture implements VertexConsumer {
+	static class Capture implements VertexConsumer {
 		final VertexConsumer out;
 		final Slot slot;
 		final ObjectMotion owner;
@@ -611,7 +618,7 @@ public final class ObjectMotion {
 			return this;
 		}
 
-		private void remember(float x, float y, float z) {
+		final void remember(float x, float y, float z) {
 			if (owner.capturedVertices < MAX_VERTICES) {
 				slot.add(x, y, z, cull);
 				owner.capturedVertices++;
@@ -646,7 +653,7 @@ public final class ObjectMotion {
 			return this;
 		}
 
-		private void rememberUv(float u, float v) {
+		final void rememberUv(float u, float v) {
 			slot.signature = 31 * (31 * slot.signature + Float.floatToIntBits(u)) + Float.floatToIntBits(v);
 		}
 
@@ -678,6 +685,31 @@ public final class ObjectMotion {
 		public VertexConsumer setLineWidth(float width) {
 			out.setLineWidth(width);
 			return this;
+		}
+	}
+
+	/** Loaded only with Sodium present. Inspect the packed stream before forwarding: a writer may mutate it. */
+	static final class SodiumCapture extends Capture implements VertexBufferWriter {
+		private final VertexBufferWriter writer;
+
+		SodiumCapture(VertexConsumer out, Slot slot, ObjectMotion owner, boolean cull) {
+			super(out, slot, owner, cull);
+			writer = VertexBufferWriter.tryOf(out);
+		}
+
+		@Override public boolean canUseIntrinsics() { return writer != null; }
+
+		@Override public void push(MemoryStack stack, long pointer, int count, VertexFormat format) {
+			long start = pointer;
+			int stride = format.getVertexSize();
+			int position = format.getElement("Position").offset();
+			var uv = format.getElement("UV0");
+			for (int i = 0; i < count; i++, pointer += stride) {
+				remember(MemoryUtil.memGetFloat(pointer + position), MemoryUtil.memGetFloat(pointer + position + 4),
+						MemoryUtil.memGetFloat(pointer + position + 8));
+				if (uv != null) rememberUv(MemoryUtil.memGetFloat(pointer + uv.offset()), MemoryUtil.memGetFloat(pointer + uv.offset() + 4));
+			}
+			writer.push(stack, start, count, format);
 		}
 	}
 

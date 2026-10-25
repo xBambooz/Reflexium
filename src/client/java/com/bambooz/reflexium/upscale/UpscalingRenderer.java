@@ -340,11 +340,13 @@ public final class UpscalingRenderer {
 		}
 		RenderTarget main = gameRenderer.mainRenderTarget();
 		if (!motionOnly) {
+			long timing = FrameProfiler.start(FrameProfiler.WORLD_SETUP, null);
 			swap(main, renderTarget);
 			swapped = true;
 			RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(main.getColorTexture(),
 					gameRenderer.gameRenderState().guiRenderState.clearColorOverride, main.getDepthTexture(), 0.0);
 			updateGlobals(renderWidth, renderHeight);
+			FrameProfiler.end(FrameProfiler.WORLD_SETUP, timing, null);
 		}
 		if (packHandMask != null && ShaderPacks.isDrawingPack()) RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(packHandMask.getDepthTexture(), 0.0);
 		history.currentViewIdentity = viewIdentity(gameRenderer);
@@ -654,9 +656,11 @@ public final class UpscalingRenderer {
 			fail("evaluate failed", e);
 			main.blitAndBlendToTexture(renderTarget.getColorTextureView(), renderTarget.getDepthTextureView());
 		} finally {
+			long timing = FrameProfiler.start(FrameProfiler.WORLD_RESTORE, null);
 			swap(main, renderTarget);
 			swapped = false;
 			updateGlobals(displayWidth, displayHeight);
+			FrameProfiler.end(FrameProfiler.WORLD_RESTORE, timing, null);
 		}
 		FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 		reconstructed = true;
@@ -1217,7 +1221,9 @@ public final class UpscalingRenderer {
 	private void updateGlobals(int width, int height) {
 		if (usesTransientUniforms() && renderWidth == displayWidth && renderHeight == displayHeight) return;
 		if (globals != null) {
+			long timing = FrameProfiler.start(FrameProfiler.GLOBALS, null);
 			globals.update(width, height, glintAlpha, gameTime, worldPartialTicks, menuBlurRadius, cameraPos, useRgss);
+			FrameProfiler.end(FrameProfiler.GLOBALS, timing, null);
 		}
 	}
 

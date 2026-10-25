@@ -1,6 +1,12 @@
 package com.bambooz.reflexium.motion;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
+import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import net.minecraft.client.renderer.feature.FeatureRendererType;
 import net.minecraft.client.renderer.feature.submit.SubmitNode;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -86,7 +92,52 @@ public final class ObjectMotionCheck {
 		check(motion.trackedEntities() == 0 && motion.drawnVertices() == 0, "disable clears history and stats");
 		check(forwarded > ObjectMotion.MAX_VERTICES, "capture cap never suppresses actual rendering");
 		handAnimation();
+		packedCapture();
 		System.out.println("ObjectMotionCheck passed: identity, geometry history, camera/object displacement, GPU layout, nesting, budget and hand animation");
+	}
+
+	private static void packedCapture() {
+		class PackedSink extends ObjectMotion.Capture implements VertexBufferWriter {
+			int pushes;
+			PackedSink() { super(SINK, new ObjectMotion.Slot(), new ObjectMotion(), true); }
+			@Override public void push(MemoryStack stack, long pointer, int count, VertexFormat format) {
+				check(count == 4, "packed stream forwarded as one batch");
+				check(MemoryUtil.memGetFloat(pointer + format.getElement("Position").offset()) == .25f, "original stream forwarded");
+				pushes++;
+				MemoryUtil.memSet(pointer, 0, (long) count * format.getVertexSize());
+			}
+		}
+		VertexFormat shuffled = VertexFormat.builder(0).addAttribute("UV0", GpuFormat.RG32_FLOAT)
+				.addAttribute("Position", GpuFormat.RGB32_FLOAT).build();
+		for (VertexFormat format : List.of(DefaultVertexFormat.ENTITY, DefaultVertexFormat.BLOCK, DefaultVertexFormat.POSITION, shuffled)) {
+			ObjectMotion motion = new ObjectMotion();
+			ObjectMotion.Slot slot = new ObjectMotion.Slot(), scalar = new ObjectMotion.Slot();
+			PackedSink sink = new PackedSink();
+			var capture = new ObjectMotion.SodiumCapture(sink, slot, motion, true);
+			var fallback = new ObjectMotion.Capture(SINK, scalar, new ObjectMotion(), true);
+			check(VertexBufferWriter.tryOf(capture) == capture, "Sodium fast path remains available");
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				long buffer = stack.ncalloc(4, 4, format.getVertexSize());
+				var uv = format.getElement("UV0");
+				for (int i = 0; i < 4; i++) {
+					long p = buffer + (long) i * format.getVertexSize() + format.getElement("Position").offset();
+					MemoryUtil.memPutFloat(p, .25f + i); MemoryUtil.memPutFloat(p + 4, i); MemoryUtil.memPutFloat(p + 8, -5);
+					fallback.addVertex(.25f + i, i, -5);
+					if (uv != null) {
+						long t = buffer + (long) i * format.getVertexSize() + uv.offset();
+						MemoryUtil.memPutFloat(t, i * .25f); MemoryUtil.memPutFloat(t + 4, .75f);
+						fallback.setUv(i * .25f, .75f);
+					}
+				}
+				capture.push(stack, buffer, 4, format);
+			}
+			check(sink.pushes == 1 && slot.count == 4 && motion.capturedVertices() == 4, "packed positions counted before mutating delegate");
+			check(java.util.Arrays.equals(slot.positions, scalar.positions) && slot.signature == scalar.signature,
+					"packed positions and topology guard match scalar capture for every layout");
+			check(slot.culling[3] == 1, "packed culling retained");
+		}
+		check(!new ObjectMotion.SodiumCapture(SINK, new ObjectMotion.Slot(), new ObjectMotion(), true).canUseIntrinsics(),
+				"an unsupported delegate keeps the scalar path");
 	}
 
 	private static ObjectMotion.Slot current(ObjectMotion motion) throws Exception {

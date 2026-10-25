@@ -58,6 +58,12 @@ game runs on the render thread.
 
 ### `set` keys
 
+`/screenshot` also accepts `crop_width`, `crop_height`, and optional `crop_x`, `crop_y`.
+The crop defaults to the image center. `crop_pair_slot=0` starts a two-crop horizontal PNG;
+`crop_pair_slot=1` keeps its left crop and writes the second capture on the right. Both crops
+must have the same dimensions. Returned width/height describe each crop. This lets repeated
+benchmark passes share one image while keeping each captured view small.
+
 The table covers the common keys. `/` (help) and an unknown-key error list every key (`SetCommand.KEYS`).
 
 | Key | Values | Notes |
