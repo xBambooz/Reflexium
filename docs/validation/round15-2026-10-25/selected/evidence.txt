@@ -52,7 +52,7 @@ Forest
 
 Observation
 - The relative Laplacian loss is uniform across cutout leaves, stone, wood and grass (about 35 percent at
-  Quality K; about 60 to 65 percent of native Laplacian retained). Foliage is not an outlier.
+  Quality K; about 57 to 66 percent of native Laplacian retained). Foliage is not an outlier.
 - There is no whole-frame or subpixel misalignment: an integer shift search found 0,0 best, and a bilinear
   search at 0.1 px steps from -1.0 to +1.0 px also found 0,0 on leafA and solid.
 - Consecutive DLSS DLAA frames are stable (crop PSNR 46.6 and 46.2 between three captures), so the loss is
