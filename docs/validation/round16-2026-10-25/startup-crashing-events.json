@@ -1,0 +1,92 @@
+﻿[
+    {
+        "TimeCreated":  "\/Date(1792921504568)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88649",
+        "ProcessId":  "0x599C"
+    },
+    {
+        "TimeCreated":  "\/Date(1792921001239)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x3B30"
+    },
+    {
+        "TimeCreated":  "\/Date(1792920933915)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x00000000008ca77c",
+        "ProcessId":  "0x46AC"
+    },
+    {
+        "TimeCreated":  "\/Date(1792920394096)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x94E0"
+    },
+    {
+        "TimeCreated":  "\/Date(1792920303654)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x000000000000bac0",
+        "ProcessId":  "0x96E8"
+    },
+    {
+        "TimeCreated":  "\/Date(1792920241236)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x4B8C"
+    },
+    {
+        "TimeCreated":  "\/Date(1792919878029)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000448333",
+        "ProcessId":  "0x2424"
+    },
+    {
+        "TimeCreated":  "\/Date(1792919805474)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0xA730"
+    },
+    {
+        "TimeCreated":  "\/Date(1792919599296)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x5764"
+    },
+    {
+        "TimeCreated":  "\/Date(1792919052750)\/",
+        "FaultModule":  "unknown",
+        "Offset":  "0x000002138d23bf4c",
+        "ProcessId":  "0x8E20"
+    },
+    {
+        "TimeCreated":  "\/Date(1792918978960)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x9EC4"
+    },
+    {
+        "TimeCreated":  "\/Date(1792917404469)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0x8484"
+    },
+    {
+        "TimeCreated":  "\/Date(1792917170906)\/",
+        "FaultModule":  "unknown",
+        "Offset":  "0x000001cfe0c9b190",
+        "ProcessId":  "0xA424"
+    },
+    {
+        "TimeCreated":  "\/Date(1792917121228)\/",
+        "FaultModule":  "jvm.dll",
+        "Offset":  "0x0000000000a88377",
+        "ProcessId":  "0xA2E0"
+    },
+    {
+        "TimeCreated":  "\/Date(1792917061607)\/",
+        "FaultModule":  "unknown",
+        "Offset":  "0x000001f4c78bc117",
+        "ProcessId":  "0x42B8"
+    }
+]
