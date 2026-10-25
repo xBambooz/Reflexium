@@ -109,6 +109,7 @@ def assertionChecks = [
 	dlssFeatureGateCheck         : "com.bambooz.reflexium.upscale.dlss.DlssFeatureGateCheck",
 	dlssRuntimeInstallerCheck    : "com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstallerCheck",
 	objectMotionCheck            : "com.bambooz.reflexium.motion.ObjectMotionCheck",
+	objectMotionWithoutSodiumCheck: "com.bambooz.reflexium.motion.ObjectMotionCheck",
 	frameDeliveryCheck           : "com.bambooz.reflexium.framegen.FrameDeliveryCheck",
 	frameGenerationConstantsCheck: "com.bambooz.reflexium.framegen.FrameGenerationConstantsCheck",
 	frameProfilerCheck           : "com.bambooz.reflexium.debug.FrameProfilerCheck",
@@ -121,6 +122,10 @@ assertionChecks.each { name, main ->
 		group = "verification"
 		dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
 		classpath = sourceSets.test.runtimeClasspath
+		if (name == "objectMotionWithoutSodiumCheck") {
+			classpath = classpath.filter { !it.name.startsWith("sodium-") }
+			args "--without-sodium"
+		}
 		mainClass = main
 		workingDir = projectDir
 		for (property in ["reflexium.irisJar", "reflexium.dhJar"]) {

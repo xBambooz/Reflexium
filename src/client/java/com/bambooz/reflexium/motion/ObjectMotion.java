@@ -285,7 +285,7 @@ public final class ObjectMotion {
 		}
 		slot.signature = 31 * slot.signature + System.identityHashCode(renderType);
 		capture = FabricLoader.getInstance().isModLoaded("sodium")
-				? new SodiumCapture(consumer, slot, this, renderType.pipeline().isCull())
+				? SodiumCapture.create(consumer, slot, this, renderType.pipeline().isCull())
 				: new Capture(consumer, slot, this, renderType.pipeline().isCull());
 		lastCapture = capture;
 		return capture;
@@ -691,6 +691,11 @@ public final class ObjectMotion {
 	/** Loaded only with Sodium present. Inspect the packed stream before forwarding: a writer may mutate it. */
 	static final class SodiumCapture extends Capture implements VertexBufferWriter {
 		private final VertexBufferWriter writer;
+
+		// The base return type keeps Sodium out of the outer class's verifier dependencies.
+		static Capture create(VertexConsumer out, Slot slot, ObjectMotion owner, boolean cull) {
+			return new SodiumCapture(out, slot, owner, cull);
+		}
 
 		SodiumCapture(VertexConsumer out, Slot slot, ObjectMotion owner, boolean cull) {
 			super(out, slot, owner, cull);

@@ -92,7 +92,12 @@ public final class ObjectMotionCheck {
 		check(motion.trackedEntities() == 0 && motion.drawnVertices() == 0, "disable clears history and stats");
 		check(forwarded > ObjectMotion.MAX_VERTICES, "capture cap never suppresses actual rendering");
 		handAnimation();
-		packedCapture();
+		if (args.length == 0) packedCapture();
+		else {
+			try { Class.forName("net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter");
+				throw new AssertionError("Sodium-free check must exclude Sodium from the runtime classpath");
+			} catch (ClassNotFoundException expected) { }
+		}
 		System.out.println("ObjectMotionCheck passed: identity, geometry history, camera/object displacement, GPU layout, nesting, budget and hand animation");
 	}
 
