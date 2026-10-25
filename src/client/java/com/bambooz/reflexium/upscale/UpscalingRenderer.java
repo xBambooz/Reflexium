@@ -14,6 +14,7 @@ import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.diagnostics.FailureNotice;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
 import com.bambooz.reflexium.mixin.PostChainAccessor;
@@ -226,10 +227,12 @@ public final class UpscalingRenderer {
 	public void beginFrame(GameRenderer gameRenderer) {
 		DebugSettings.onFrame();
 		FrameProfiler.beginFrame();
+		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
+		// DLSS-G must be off before a minimize, not after the surface stops being recreated.
+		FrameGenerationRenderer.get().onWindowState(window.isMinimized);
 		FrameGenerationRenderer.get().beginFrame();
 		if (device != null) runtimes.pollRuntimeDownload();
 		resetFrameState();
-		WindowRenderState window = gameRenderer.gameRenderState().windowRenderState;
 		windowWidth = window.width;
 		windowHeight = window.height;
 		ReflexiumConfig config = ReflexiumConfig.get();
@@ -1222,6 +1225,10 @@ public final class UpscalingRenderer {
 	// Evaluation
 
 	private void evaluate(RenderTarget main) {
+		if (DebugSettings.takeSimulatedDeviceLost()) {
+			StreamlineSupport.markDeviceLost();
+			throw new IllegalStateException("VK_ERROR_DEVICE_LOST (simulated)");
+		}
 		VkCommandBuffer commandBuffer = commandBuffer();
 		long timing = FrameProfiler.start(FrameProfiler.BARRIER_BEFORE, commandBuffer);
 		VulkanInterop.barrier(commandBuffer);
@@ -1377,6 +1384,16 @@ public final class UpscalingRenderer {
 		activeThisFrame = false;
 		lastError = what + ": " + e;
 		ReflexiumClient.LOGGER.error("DLSS {}, falling back to native resolution", what, e);
+		String text = e.getMessage() == null ? e.toString() : e.getMessage();
+		boolean lost = e instanceof com.mojang.renderpearl.api.device.GpuDeviceLossException
+				|| text.contains("VK_ERROR_DEVICE_LOST");
+		if (lost) {
+			StreamlineSupport.markDeviceLost();
+			FrameGenerationRenderer.get().failForDeviceLoss("VK_ERROR_DEVICE_LOST");
+			FailureNotice.report("DLSS stopped: VK_ERROR_DEVICE_LOST. Rendering natively.", true);
+		} else {
+			FailureNotice.report("DLSS stopped (" + what + "); rendering natively.");
+		}
 		runtimes.drainLog();
 	}
 

@@ -93,7 +93,7 @@ public final class ReflexiumOptions {
 	public static OptionInstance<FrameGeneration> frameGeneration() {
 		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, ReflexiumConfig.DEFAULT_FRAME_GENERATION), FrameGeneration::serializedName);
 		return new OptionInstance<>("reflexium.option.frame_generation",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.frame_generation.tooltip")),
+				OptionInstance.cachedConstantTooltip(gateTooltip("reflexium.option.frame_generation.tooltip")),
 				(caption, value) -> value.label(), new OptionInstance.Enum<>(List.of(FrameGeneration.values()), codec),
 				ReflexiumConfig.get().frameGeneration(), ReflexiumOptions::setFrameGeneration);
 	}
@@ -104,10 +104,18 @@ public final class ReflexiumOptions {
 	public static OptionInstance<Integer> frameGenerationMultiplier() {
 		int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 		return new OptionInstance<>("reflexium.option.fg_multiplier",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
+				OptionInstance.cachedConstantTooltip(gateTooltip("reflexium.option.fg_multiplier.tooltip")),
 				(caption, value) -> Component.literal(value == 0 ? "Auto" : value + "x"),
 				new OptionInstance.Enum<>(IntStream.concat(IntStream.of(0), IntStream.rangeClosed(2, maximum)).boxed().toList(), Codec.INT),
 				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
+	}
+
+	/** The tooltip plus the hardware/runtime reason when this adapter cannot offer the option. */
+	public static Component gateTooltip(String key) {
+		Component tooltip = Component.translatable(key);
+		var gate = FrameGenerationRenderer.get().gate();
+		if (gate.reasonKey().isEmpty()) return tooltip;
+		return tooltip.copy().append("\n\n").append(Component.translatable(gate.reasonKey()));
 	}
 	public static void addFrameGeneration(OptionsList list) {
 		list.addBig(frameGeneration());

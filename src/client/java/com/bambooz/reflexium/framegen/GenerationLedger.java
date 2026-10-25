@@ -10,7 +10,7 @@ public final class GenerationLedger {
 	 * Why a real frame delivered fewer generated presents than configured. Only HISTORY_RESET is a legitimate cut;
 	 * UNPRESENTED means images were ready but never presented, for example when the real image skipped the batch.
 	 */
-	public enum Shortfall { NOT_EVALUATED, UNAVAILABLE, REFLEX_NOT_SLEEPING, HISTORY_RESET, GUI_BLUR, MENU, BATCH_ABANDONED, SURFACE_LOST, PRESENT_FAILED, UNPRESENTED }
+	public enum Shortfall { NOT_EVALUATED, UNAVAILABLE, REFLEX_NOT_SLEEPING, HISTORY_RESET, GUI_BLUR, MENU, WINDOW_PAUSED, BATCH_ABANDONED, SURFACE_LOST, PRESENT_FAILED, UNPRESENTED }
 
 	private Shortfall reason = Shortfall.NOT_EVALUATED;
 	private int expected, delivered;
@@ -37,6 +37,7 @@ public final class GenerationLedger {
 	case HISTORY_RESET -> "history reset";
 	case GUI_BLUR -> "GUI blur";
 	case MENU -> "menu open";
+	case WINDOW_PAUSED -> "window minimized";
 	case SURFACE_LOST -> "surface lost";
 	case PRESENT_FAILED -> "present failed";
 	case BATCH_ABANDONED -> "present batch abandoned";

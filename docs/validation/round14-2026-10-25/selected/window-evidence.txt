@@ -1,0 +1,41 @@
+Round 14 window handling evidence
+Dev client, secondary XF250Q at 2560,0, 1920x1080, DLSS Quality + DLSS MFG 3x + Reflex On,
+NVIDIA 617.42, RTX 5070.
+
+Baseline (windowed, focused test window from the earlier -Activate launch):
+  real presents 83672 -> 84543 (+871 in 3 s)
+  generated     6402 -> 8144 (+1742 in 3 s), 2 generated per real frame (3x)
+
+Minimize (ShowWindow SW_MINIMIZE):
+  iconic=True, window_minimized=True
+  fg_status = Frame generation: DLSS MFG 3x (Streamline) (paused: window minimized)
+  log: [01:38:59] (Reflexium) DLSS-G paused: window minimized
+  real presents 96710 -> 96722, generated 32418 -> 32442, then both frozen over the next 2 s
+  last_error empty, fg_streamline_problem empty
+
+Restore (ShowWindow SW_RESTORE):
+  iconic=False, window_minimized=False
+  log: [01:39:10] (Reflexium) DLSS-G resumed: window restored, frame history reset
+  real presents 97338 -> 97915 (+577 in 2 s), generated 33502 -> 34656 (+1154 in 2 s)
+  error fields empty; swapchain recreated at 1920x1080 twice during the restore
+
+Alt-tab (windowed, before focus was revoked):
+  away: real presents 114126 -> 115366 while generated stayed 58116
+  status while unfocused: Frame generation: DLSS MFG 3x (Streamline)
+          (DLSS-G inserted no generated frames; see the SDK log)
+  back: generated 59254 -> 60398, real 115996 -> 116568 over 2 s, error fields empty
+  The SDK focus pause stopped interpolation and it resumed without an app-side reset.
+
+Resize storm (SetWindowPos, 48 events over 3012 ms):
+  sizes cycled 1920x1080, 1600x900, 1280x720, 1792x1008, 1472x828
+  final swapchain 1904x1041, render 1269x694 -> display 1904x1041
+  after the storm: real +586, generated +1172 over 2 s; fg 3x; last_error and
+  fg_streamline_problem empty; no new crash report
+  screenshot mean luma 161.5, variance 1818 (selected/storm-640.png)
+
+Pending under the final environment restriction:
+  - borderless/windowed fullscreen transitions: the harness WindowMixin cancels Window.setFullscreen
+    by design, and focus permission was revoked, so fullscreen could not be entered on the secondary.
+  - exclusive fullscreen: explicitly excluded by the final instruction.
+  - alt-tab while fullscreen: depends on the pending fullscreen transition.
+These are marked NOT RUN in the report rather than inferred from the windowed tests.

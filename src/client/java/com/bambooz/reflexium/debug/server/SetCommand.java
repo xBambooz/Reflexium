@@ -35,10 +35,10 @@ final class SetCommand {
 			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier",
 			"reflex_mode",
 			// Vanilla options
-			"vsync", "fullscreen", "pause", "improved_transparency", "crosshair_3d",
+			"vsync", "fullscreen", "exclusive_fullscreen", "pause", "improved_transparency", "crosshair_3d",
 			// Upscaling dev overrides
 			"jitter", "jitter_sign", "jitter_sign_x", "jitter_sign_y", "mv_debug", "object_motion", "object_static", "hand_motion",
-			"foliage_motion", "bob_view", "pack_hand_mask",
+			"foliage_motion", "bob_view", "pack_hand_mask", "jitter_phases", "device_loss", "dlssg_fail",
 			"dlss_preset", "mip_bias_offset", "perf_uniforms", "perf_depth", "cloud_motion", "crosshair_defer",
 			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug",
 			// Shader pack dev overrides
@@ -70,6 +70,25 @@ final class SetCommand {
 						case "pause" -> { if (on) mc.pauseGame(false); else mc.setScreenAndShow(null); }
 					}
 				};
+			}
+			case "exclusive_fullscreen" -> {
+				boolean on = flag(value, true);
+				yield () -> Minecraft.getInstance().options.exclusiveFullscreen().set(on);
+			}
+			case "jitter_phases" -> {
+				int phases = Integer.parseInt(value);
+				if (phases != 0 && (phases < 1 || phases > 256)) throw new DebugHttp.BadRequest("jitter_phases must be 0 (ratio policy) or 1..256");
+				yield () -> DebugSettings.setJitterPhases(phases);
+			}
+			case "device_loss" -> {
+				boolean on = flag(value, true);
+				DebugSettings.setSimulatedDeviceLost(on);
+				yield () -> { };
+			}
+			case "dlssg_fail" -> {
+				boolean on = flag(value, true);
+				DebugSettings.setFailDlssgLoad(on);
+				yield () -> { };
 			}
 			case "cloud_motion" -> {
 				boolean on = flag(value, true);

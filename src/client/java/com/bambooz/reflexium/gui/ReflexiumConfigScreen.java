@@ -101,6 +101,10 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 					ReflexiumOptions.setFrameGeneration(fg);
 					rebuild();
 				}));
+		if (isNvidia) {
+			var gate = FrameGenerationRenderer.get().gate();
+			if (!gate.reasonKey().isEmpty()) list.addHeader(Component.translatable(gate.reasonKey()));
+		}
 
 		if (config.frameGeneration().nvidia() && FrameGenerationRenderer.get().isDlssFgSupported()) {
 			list.addBig(ReflexiumOptions.frameGenerationMultiplier());

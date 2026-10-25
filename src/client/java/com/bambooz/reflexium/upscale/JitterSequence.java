@@ -26,7 +26,8 @@ final class JitterSequence {
 	}
 
 	void advance(Upscaler upscaler, int displayWidth, boolean enabled) {
-		phases = DlssMath.jitterPhases(renderWidth, displayWidth, upscaler);
+		int override = com.bambooz.reflexium.debug.DebugSettings.jitterPhases();
+		phases = override > 0 ? override : DlssMath.jitterPhases(renderWidth, displayWidth, upscaler);
 		index = index % phases + 1;
 		if (upscaler == Upscaler.OFF || !enabled) {
 			x = 0.0f;

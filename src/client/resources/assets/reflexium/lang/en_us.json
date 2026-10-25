@@ -52,6 +52,10 @@
   "reflexium.frame_generation.dlss": "DLSS FG",
   "reflexium.frame_generation.dlss_multi": "DLSS MFG",
   "reflexium.frame_generation.fsr": "FSR FG",
+  "reflexium.gate.dlss_requires_rtx": "DLSS and Frame Generation require an NVIDIA RTX GPU.",
+  "reflexium.gate.fg_requires_rtx40": "Frame Generation requires an RTX 40 series or newer GPU with hardware GPU scheduling.",
+  "reflexium.gate.mfg_requires_rtx50": "Multi Frame Generation requires an RTX 50 series GPU.",
+  "reflexium.gate.fg_needs_streamline": "Frame Generation requires the Streamline runtime.",
   "text.betterf3.line.reflexium_fg": "Frame Generation",
   "modmenu.descriptionTranslation.reflexium": "NVIDIA Reflex, DLSS, AMD FSR 3.1 and frame generation for Minecraft's Vulkan renderer."
 }

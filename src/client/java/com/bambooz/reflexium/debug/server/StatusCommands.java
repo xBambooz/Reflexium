@@ -95,6 +95,13 @@ final class StatusCommands {
 		o.addProperty("fg_resets_per_s", fg.resetsPerSecond());
 		o.addProperty("fg_status", fg.statusLine());
 		o.addProperty("fg_max_multiplier", fg.maximumMultiplier());
+		var gate = fg.gate();
+		o.addProperty("fg_gate_fg_allowed", gate.frameGenerationAllowed());
+		o.addProperty("fg_gate_mfg_allowed", gate.multiFrameGenerationAllowed());
+		o.addProperty("fg_gate_reason", gate.reason());
+		o.addProperty("fg_gate_reason_key", gate.reasonKey());
+		o.addProperty("window_minimized", fg.windowMinimized());
+		o.addProperty("failure_notice", com.bambooz.reflexium.diagnostics.FailureNotice.last());
 		var swapchain = VulkanLifecycle.swapchainState();
 		if (swapchain != null) {
 			o.addProperty("swapchain_images_requested", swapchain.requested());

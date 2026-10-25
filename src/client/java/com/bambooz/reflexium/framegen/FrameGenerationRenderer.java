@@ -5,8 +5,10 @@ import com.bambooz.reflexium.vulkan.ImageRef;
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.FrameProfiler;
+import com.bambooz.reflexium.diagnostics.FailureNotice;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.upscale.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.dlss.DlssFeatureGate;
 import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.upscale.fsr.FsrBridge;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
@@ -72,6 +74,7 @@ public final class FrameGenerationRenderer {
 	private final VulkanCommandEncoder[] presentEncoders = new VulkanCommandEncoder[7];
 	private final GpuFence[] presentCompletions = new GpuFence[7];
 	private boolean failed, resetNext = true;
+	private boolean windowMinimized;
 	private int pendingWorldFrames, resetsInWindow, resetsPerSecond;
 	private long resetWindow;
 	public int resetsPerSecond() { rollResetWindow(System.nanoTime()); return resetsPerSecond; }
@@ -130,10 +133,38 @@ public final class FrameGenerationRenderer {
 		return 1;
 	}
 	public boolean isDlssFgSupported() {
-		if (session == null || !session.isNvidia()) return false;
-		return session.streamline() && StreamlineSupport.dlssgAvailable();
+		return StreamlineSupport.dlssgFeatureLoaded() && gate().frameGenerationAllowed();
 	}
-	public boolean isDlssMfgSupported() { return isDlssFgSupported() && maximumMultiplier() >= 3; }
+	public boolean isDlssMfgSupported() {
+		return StreamlineSupport.dlssgFeatureLoaded() && gate().multiFrameGenerationAllowed();
+	}
+
+	/** What slIsFeatureSupported and slDLSSGGetState allow on this adapter and runtime. */
+	public DlssFeatureGate.Decision gate() {
+		boolean nvidia = session != null && session.isNvidia();
+		boolean streamline = nvidia && session.streamline() && StreamlineSupport.initialized() && StreamlineSupport.deviceReady();
+		return DlssFeatureGate.evaluate(new DlssFeatureGate.Support(nvidia, streamline,
+				StreamlineSupport.dlssgAvailable(), StreamlineSupport.maximumGeneratedFrames()));
+	}
+
+	/**
+	 * DLSS-G guide 18.0: turn generation off before any window manipulation, including minimize.
+	 * The restore resets history so the first visible frame is not interpolated from the iconified pause.
+	 */
+	public void onWindowState(boolean minimized) {
+		if (minimized == windowMinimized) return;
+		windowMinimized = minimized;
+		if (minimized) {
+			disableStreamlineFrameGeneration();
+			resetNext = true;
+			ledger.reason(GenerationLedger.Shortfall.WINDOW_PAUSED);
+			ReflexiumClient.LOGGER.info("DLSS-G paused: window minimized");
+		} else {
+			resetNext = true;
+			ReflexiumClient.LOGGER.info("DLSS-G resumed: window restored, frame history reset");
+		}
+	}
+	public boolean windowMinimized() { return windowMinimized; }
 	public boolean wantsMotion() { return ReflexiumConfig.get().frameGeneration() != FrameGeneration.OFF && !failed && unavailableReason().isEmpty(); }
 	public boolean needsReflex() {
 		FrameGeneration mode = ReflexiumConfig.get().frameGeneration();
@@ -167,7 +198,18 @@ public final class FrameGenerationRenderer {
 	public void retry() {
 		failed = false; problem = ""; streamlineProblem = ""; resetNext = true;
 		streamlineUnfocused = false; streamlineNoGenerateFrames = 0;
+		dlssgFeatureWanted = null; dlssgLoadFailed = false;
 		delivery.reset(); refreshPolicy.reset();
+	}
+
+	/** A device loss ends frame generation for this device; changing settings cannot revive it. */
+	public void failForDeviceLoss(String reason) {
+		failed = true;
+		problem = reason;
+		streamlineProblem = reason;
+		streamlineActive = false;
+		ready = 0;
+		delivery.reset();
 	}
 	public void invalidate() { ready = 0; resetNext = true; delivery.reset(); disableStreamlineFrameGeneration(); }
 
@@ -181,13 +223,15 @@ public final class FrameGenerationRenderer {
 		if (Minecraft.getInstance().options.enableVsync().get()) return "disable VSync to enable Vulkan frame generation";
 		if (session.streamline()) {
 			// Streamline owns the presenter; raw VK_NV_present_metering and present IDs are not required.
-			if (!StreamlineSupport.dlssgAvailable()) return "Streamline DLSS Frame Generation unavailable";
+			DlssFeatureGate.Decision gate = gate();
+			if (!gate.frameGenerationAllowed()) return gate.reason();
+			if (!StreamlineSupport.dlssgFeatureLoaded()) return "DLSS Frame Generation failed to load (see log)";
 			if (!StreamlineSupport.reflexAvailable()) return "DLSS Frame Generation needs Streamline Reflex";
 			int minimum = StreamlineSupport.minimumFrameGenerationDimension();
 			if (minimum > 0 && width > 0 && height > 0 && (width < minimum || height < minimum)) {
 				return "DLSS Frame Generation needs at least " + minimum + "x" + minimum + " pixels";
 			}
-			if (mode == FrameGeneration.DLSS_MULTI && maximumMultiplier() < 3) return "Multi Frame Generation requires a supported RTX 50 series GPU/runtime";
+			if (mode == FrameGeneration.DLSS_MULTI && !gate.multiFrameGenerationAllowed()) return gate.reason();
 			int status = StreamlineSupport.frameGenerationStatus();
 			if (status != 0) return "DLSS Frame Generation runtime status " + status;
 			return "";
@@ -210,7 +254,7 @@ public final class FrameGenerationRenderer {
 			dlssgFeatureWanted = null;
 			return;
 		}
-		if (StreamlineSupport.dlssgFeatureLoaded()) {
+		if (StreamlineSupport.dlssgFeatureLoaded() && !com.bambooz.reflexium.debug.DebugSettings.failDlssgLoad()) {
 			dlssgFeatureWanted = true;
 			return;
 		}
@@ -225,11 +269,12 @@ public final class FrameGenerationRenderer {
 	public void beginFrame() {
 		// Completion of SDK presentation consumers precedes overwriting the generated target.
 		FsrSwapchain.waitForPresents();
+		FailureNotice.flush();
 		streamlineActive = false;
 		syncDlssgFeatureState();
 		frameId++;
 		Minecraft mc = Minecraft.getInstance();
-		boolean worldFrame = mc.level != null && mc.gui.screen() == null && !mc.isPaused();
+		boolean worldFrame = mc.level != null && mc.gui.screen() == null && !mc.isPaused() && !windowMinimized;
 		pendingWorldFrames = resetNext && worldFrame ? pendingWorldFrames + 1 : 0;
 		ready = 0;
 		if (streamlinePath() && (!worldFrame || !wantsMotion())) disableStreamlineFrameGeneration();
@@ -429,6 +474,7 @@ public final class FrameGenerationRenderer {
 		} catch (RuntimeException e) {
 			failed = true; problem = e.getMessage(); ledger.reason(GenerationLedger.Shortfall.UNAVAILABLE);
 			ReflexiumClient.LOGGER.error("Streamline frame generation stopped; continuing with rendered frames", e);
+			FailureNotice.report("DLSS Frame Generation stopped after an error; using rendered frames.");
 			disableStreamlineFrameGeneration();
 			if (StreamlineSupport.initialized()) {
 				String log = StreamlineSupport.problem();
@@ -637,6 +683,7 @@ public final class FrameGenerationRenderer {
 		String engine = mode.nvidia() && streamlinePath() ? " (Streamline)" : "";
 		String issue = !streamlineProblem.isEmpty() ? " (" + streamlineProblem + ")"
 				: streamlineUnfocused ? " (DLSS-G inserted no generated frames; see the SDK log)" : "";
+		if (windowMinimized) issue += " (paused: window minimized)";
 		return "Frame generation: " + (reason.isEmpty() ? (mode.nvidia() && !resetNext ? built : mode).label().getString()
 				+ (pendingWorldFrames > 30 ? " (waiting for consecutive world frames: " + ledger.reasonText() + ")" : mode.nvidia() ? " " + refreshPolicy.multiplier() + "x" : "")
 				+ engine + issue : reason) + resets;
@@ -689,6 +736,20 @@ public final class FrameGenerationRenderer {
 	}
 	/** One host present; Streamline has already presented the real frame plus N interpolated frames. */
 	private void onStreamlinePresentResult(int result) {
+		if (FailureNotice.deviceLost(result)) {
+			// Do not touch the SDK or the swapchain again: the engine already lost the device.
+			streamlineProblem = "VK_ERROR_DEVICE_LOST";
+			problem = streamlineProblem;
+			failed = true;
+			streamlineActive = false;
+			ready = 0;
+			StreamlineSupport.markDeviceLost();
+			FailureNotice.report("DLSS Frame Generation stopped: VK_ERROR_DEVICE_LOST. Rendering natively.", true);
+			ledger.reason(GenerationLedger.Shortfall.SURFACE_LOST);
+			ledger.closeFrame();
+			invalidate();
+			return;
+		}
 		boolean delivered = result == VK10.VK_SUCCESS || result == KHRSwapchain.VK_SUBOPTIMAL_KHR;
 		lastStreamlinePresentResult = result;
 		int[] state = streamlineActive ? StreamlineSupport.refreshFrameGenerationState() : null;

@@ -23,6 +23,12 @@ public final class DebugSettings {
 	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
 	public static boolean clearFoliageSurface = true;
 	public static int dlssPreset = -1;
+	/** 0 follows the ratio policy; a positive value forces this many Halton phases for an A/B. */
+	private static volatile int jitterPhases;
+	/** Reports a queued DLSS-G feature load failure instead of loading the plugin, for the fallback path. */
+	private static volatile boolean failDlssgLoad;
+	/** Makes the next evaluated DLSS frame report VK_ERROR_DEVICE_LOST, for the fallback path. */
+	private static volatile boolean simulateDeviceLost;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
 	private static volatile float mipBiasOffset;
@@ -44,6 +50,17 @@ public final class DebugSettings {
 	/** Dev-only offset added to the vendor texture LOD baseline while upscaling (+1 reproduces the pre-2026-10-14 bias). */
 	public static float mipBiasOffset() { return mipBiasOffset; }
 	public static void setMipBiasOffset(float offset) { mipBiasOffset = offset; }
+	public static int jitterPhases() { return jitterPhases; }
+	public static void setJitterPhases(int phases) { jitterPhases = phases; }
+	public static boolean failDlssgLoad() { return failDlssgLoad; }
+	public static void setFailDlssgLoad(boolean fail) { failDlssgLoad = fail; }
+	/** True once; the simulated device loss is consumed by the next DLSS evaluation. */
+	public static boolean takeSimulatedDeviceLost() {
+		if (!simulateDeviceLost) return false;
+		simulateDeviceLost = false;
+		return true;
+	}
+	public static void setSimulatedDeviceLost(boolean lost) { simulateDeviceLost = lost; }
 	/** False restores zero motion for the first-person hand, for matched A/B captures. */
 	public static boolean handMotion() { return handMotion; }
 	public static void setHandMotion(boolean enabled) { handMotion = enabled; }

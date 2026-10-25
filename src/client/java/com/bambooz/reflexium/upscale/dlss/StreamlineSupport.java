@@ -2,6 +2,8 @@ package com.bambooz.reflexium.upscale.dlss;
 
 import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.config.ReflexiumConfig;
+import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.diagnostics.FailureNotice;
 import com.bambooz.reflexium.framegen.FrameGenerationConstants;
 import com.bambooz.reflexium.upscale.UpscaleQuality;
 import com.bambooz.reflexium.vulkan.ImageRef;
@@ -92,6 +94,20 @@ public final class StreamlineSupport {
 	public static int appliedMode() { return appliedFgMode; }
 	public static int appliedGenerated() { return appliedFgGenerated; }
 	public static String problem() { return problem; }
+
+	/**
+	 * Stops every Streamline feature after a device/runtime failure without calling into the SDK again.
+	 * The caller owns the user-facing message so each subsystem reports its own fallback once.
+	 */
+	public static void markDeviceLost() {
+		deviceReady = false;
+		dlssAvailable = false;
+		dlssgAvailable = false;
+		reflexAvailable = false;
+		pclAvailable = false;
+		dlssgFeatureLoaded = false;
+		invalidateFrameGenerationOptions();
+	}
 	public static String status() {
 		if (initialized) {
 			if (!deviceReady) return "Streamline: " + problem;
@@ -256,6 +272,13 @@ public final class StreamlineSupport {
 		String log = bridge.takeLog();
 		if (!log.isEmpty()) ReflexiumClient.LOGGER.info("[Streamline] {}", log.trim());
 		ReflexiumClient.LOGGER.info("Streamline device: {} ({}), version {}", status(), session.deviceName(), bridge.dlssVersion());
+		if (deviceReady && ReflexiumConfig.get().frameGeneration().nvidia()) {
+			if (!dlssgAvailable) {
+				FailureNotice.report("DLSS Frame Generation is unavailable on this GPU or driver; using rendered frames.");
+			} else if (!dlssgFeatureLoaded) {
+				FailureNotice.report("DLSS Frame Generation failed to load; using rendered frames.");
+			}
+		}
 	}
 
 	/** Refreshes the DLSS-G multiplier, support and runtime status. Present thread only. */
@@ -296,6 +319,8 @@ public final class StreamlineSupport {
 		if (result != 0) {
 			problem = "DLSS-G options failed " + result;
 			logProblem();
+			FailureNotice.report("DLSS Frame Generation could not start (slDLSSGSetOptions "
+					+ Integer.toHexString(result) + "); using rendered frames.");
 			return result;
 		}
 		if (optionsLogs < 12) {
@@ -330,13 +355,15 @@ public final class StreamlineSupport {
 		if (bridge == null || pendingFeatureLoaded == null) return;
 		boolean want = pendingFeatureLoaded;
 		pendingFeatureLoaded = null;
-		int result = bridge.dlssgSetLoaded(want);
-		dlssgFeatureLoaded = bridge.dlssgFeatureLoaded();
+		boolean forcedFailure = want && DebugSettings.failDlssgLoad();
+		int result = forcedFailure ? 0x39 : bridge.dlssgSetLoaded(want);
+		dlssgFeatureLoaded = forcedFailure ? false : bridge.dlssgFeatureLoaded();
 		appliedFgMode = -1;
 		appliedFgGenerated = -1;
-		if (result != 0) {
+		if (result != 0 || (want && !dlssgFeatureLoaded)) {
 			problem = "DLSS-G load " + want + " failed " + result;
 			logProblem();
+			FailureNotice.report("DLSS Frame Generation failed to load; using rendered frames.");
 		} else if (featureLoadLogs < 12) {
 			featureLoadLogs++;
 			ReflexiumClient.LOGGER.info("DLSS-G feature loaded={} between swapchains", want);
@@ -373,6 +400,7 @@ public final class StreamlineSupport {
 			problem = "frame token failed " + result;
 			deviceReady = false;
 			logProblem();
+			FailureNotice.report("DLSS stopped after a Streamline frame error; using native rendering.");
 		}
 	}
 
@@ -403,6 +431,7 @@ public final class StreamlineSupport {
 			problem = "DLSS options failed " + result;
 			deviceReady = false;
 			logProblem();
+			FailureNotice.report("DLSS stopped after a Streamline options error; using native rendering.");
 		}
 		return result;
 	}
@@ -410,7 +439,16 @@ public final class StreamlineSupport {
 	public static int evaluateDlss(long commandBuffer, ImageRef color, ImageRef depth, ImageRef motion, ImageRef output) {
 		if (!deviceReady || bridge == null) return 1;
 		int result = bridge.evaluateDlss(commandBuffer, color, depth, motion, output);
-		if (result != 0) logProblem();
+		if (result != 0) {
+			logProblem();
+			if (FailureNotice.deviceLost(result)) {
+				markDeviceLost();
+				FailureNotice.report("DLSS stopped: VK_ERROR_DEVICE_LOST. Rendering natively.", true);
+			} else {
+				FailureNotice.report("DLSS evaluation failed (" + Integer.toHexString(result)
+						+ "); rendering natively.");
+			}
+		}
 		return result;
 	}
 
@@ -470,6 +508,7 @@ public final class StreamlineSupport {
 		if (result != 0) {
 			String log = takeLog();
 			if (!log.isBlank()) ReflexiumClient.LOGGER.warn("[Streamline] {}", log.trim());
+			onDeviceLostResult(result, "swapchain creation");
 		}
 		return result;
 	}
@@ -480,10 +519,20 @@ public final class StreamlineSupport {
 		return bridge == null ? -1 : bridge.getSwapchainImages(device, swapchain, count, images);
 	}
 	public static int acquireNextImage(long device, long swapchain, long timeout, long semaphore, long fence, long index) {
-		return bridge == null ? -1 : bridge.acquireNextImage(device, swapchain, timeout, semaphore, fence, index);
+		int result = bridge == null ? -1 : bridge.acquireNextImage(device, swapchain, timeout, semaphore, fence, index);
+		onDeviceLostResult(result, "image acquire");
+		return result;
 	}
 	public static int present(long queue, long presentInfo) {
-		return bridge == null ? -1 : bridge.present(queue, presentInfo);
+		int result = bridge == null ? -1 : bridge.present(queue, presentInfo);
+		onDeviceLostResult(result, "present");
+		return result;
+	}
+
+	private static void onDeviceLostResult(int result, String operation) {
+		if (!FailureNotice.deviceLost(result)) return;
+		markDeviceLost();
+		FailureNotice.report("Streamline " + operation + " reported VK_ERROR_DEVICE_LOST; rendering natively.", true);
 	}
 
 	/** Creates the window surface through Streamline so its present hook knows the surface's HWND. */
