@@ -24,7 +24,7 @@ public final class MeasurementCounters {
 	private static String[] names() {
 		String[] fixed = {"app_frame_id", "fg_evaluated_frames", "fg_generated_presents", "fg_real_presents",
 				"fg_real_frames_closed", "fg_expected_generated", "fg_batches_started", "fg_batches_completed",
-				"fg_metering_rejected", "reflex_sleeps_issued", "reflex_sleeps_completed", "reflex_unpaced_frames",
+				"fg_streamline_generated_presents", "reflex_sleeps_issued", "reflex_sleeps_completed", "reflex_unpaced_frames",
 				"reflex_suspended_frames", "reflex_timeouts", "reflex_recoveries", "reflex_failures", "reflex_mode_configurations"};
 		String[] state = {"fg_failed", "fg_configured_generated", "reflex_effective_mode", "reflex_applied_mode"};
 		String[] all = new String[fixed.length + SHORTFALLS.length + state.length];
@@ -46,7 +46,7 @@ public final class MeasurementCounters {
 		out[i++] = fg.ledger().expectedTotal();
 		out[i++] = fg.batchesStarted();
 		out[i++] = fg.batchesCompleted();
-		out[i++] = fg.meteringRejected();
+		out[i++] = fg.streamlineGeneratedPresents();
 		out[i++] = reflex.sleepsIssued();
 		out[i++] = reflex.sleepsCompleted();
 		out[i++] = reflex.unpacedFrames();

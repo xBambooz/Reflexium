@@ -1,37 +1,28 @@
 package com.bambooz.reflexium.upscale;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.config.ReflexiumConfig;
-import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstaller;
 import com.bambooz.reflexium.upscale.dlss.DlssStatus;
 import com.bambooz.reflexium.upscale.dlss.DlssSupport;
-import com.bambooz.reflexium.upscale.dlss.NgxBridge;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.upscale.fsr.FsrBridge;
 import com.bambooz.reflexium.vulkan.VulkanSession;
-import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.vulkan.VK;
-import org.lwjgl.vulkan.VK10;
 
 import java.nio.file.Files;
 
 /**
- * The DLSS (NGX) and FSR runtimes on Minecraft's device: loading, NGX initialization, the first-use DLSS download,
- * and why either is unavailable. Render thread only.
+ * The FSR runtime and Streamline's DLSS capability on Minecraft's device: loading, the first-use
+ * DLSS runtime download, and why either is unavailable. Render thread only.
  */
 final class UpscalerRuntimes {
-	private static final boolean NGX_VERBOSE = Boolean.getBoolean("reflexium.dlss.verboseLog");
-
 	private VulkanSession session;
-	private NgxBridge ngx;
 	private FsrBridge fsr;
 	private String fsrUnavailable = "needs Windows x64 and Vulkan";
 	private String dlssUnavailable = "needs the Vulkan renderer";
-	private boolean ngxReady;
-	private boolean ngxInitialized;
+	private boolean dlssReady;
 	private boolean awaitingRuntime;
 
-	/** Loads FSR for a new device. NGX follows in {@link #initializeNgx()}, after frame generation saw the FSR runtime. */
+	/** Loads FSR for a new device. Streamline's device state follows in {@link #initializeDlss()}. */
 	void loadFsr(VulkanSession session) {
 		this.session = session;
 		if (ReflexiumClient.isSupportedPlatform()) {
@@ -44,122 +35,99 @@ final class UpscalerRuntimes {
 				ReflexiumClient.LOGGER.warn(fsrUnavailable, e);
 			}
 		}
-		ngxReady = false;
+		dlssReady = false;
 	}
 
-	/** Also runs once when a first-use download finishes. */
-	void initializeNgx() {
+	/** Reads Streamline's DLSS capability and starts the first-use runtime download when it is missing. */
+	void initializeDlss() {
 		awaitingRuntime = false;
-		if (DlssRuntimeInstaller.hasPendingWork()) {
-			awaitingRuntime = true;
-			dlssUnavailable = DlssRuntimeInstaller.state().message();
+		dlssReady = false;
+		if (session == null) {
+			dlssUnavailable = "needs the Vulkan renderer";
+			return;
+		}
+		if (!session.isNvidia()) {
+			dlssUnavailable = "not an NVIDIA GPU";
+			return;
+		}
+		if (!StreamlineSupport.initialized()) {
+			dlssUnavailable = "Streamline unavailable (" + StreamlineSupport.problem() + ")";
 			return;
 		}
 		DlssStatus prerequisites = DlssSupport.status();
-		if (!prerequisites.prerequisitesMet()) {
-			dlssUnavailable = prerequisites.summary();
-			awaitingRuntime = DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.DOWNLOADING
-					|| DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.INSTALLED;
-			return;
-		}
-		if (prerequisites.featureDlls().stream().noneMatch(dll -> dll.equals("nvngx_dlss.dll"))) {
-			dlssUnavailable = "nvngx_dlss.dll missing from " + DlssSupport.featureFolder();
-			return;
-		}
-		ngx = NgxBridge.get().orElse(null);
-		if (ngx == null) {
-			dlssUnavailable = "native bridge failed to load";
-			return;
-		}
-		try {
-			long gipa = VK.getFunctionProvider().getFunctionAddress("vkGetInstanceProcAddr");
-			long gdpa = VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr");
-			String version = FabricLoader.getInstance().getModContainer(ReflexiumClient.MOD_ID)
-					.map(m -> m.getMetadata().getVersion().getFriendlyString()).orElse("dev");
-			int result = ngx.init(session.instance().address(), session.physicalDevice().address(), session.device().address(),
-					gipa, gdpa, DlssSupport.featureFolder(), DlssSupport.featureFolder(), version, NGX_VERBOSE);
-			drainLog();
-			if (result != 0) {
-				dlssUnavailable = "NGX init failed (0x" + Integer.toHexString(result) + ")";
-				ReflexiumClient.LOGGER.warn("DLSS: {}", dlssUnavailable);
-				return;
+		if (prerequisites.prerequisitesMet() && !prerequisites.featureDlls().isEmpty()) {
+			dlssReady = StreamlineSupport.dlssAvailable();
+			if (!dlssReady) {
+				dlssUnavailable = "Streamline DLSS unavailable" + (StreamlineSupport.problem().isEmpty() ? "" : " (" + StreamlineSupport.problem() + ")");
+				if (DlssRuntimeInstaller.hasPendingWork()) {
+					awaitingRuntime = true;
+					dlssUnavailable = DlssRuntimeInstaller.state().message();
+				}
 			}
-			ngxInitialized = true;
-			FrameGenerationRenderer.get().onNgxReady(ngx);
-			int[] available = ngx.dlssAvailable();
-			if (available[0] == 0) {
-				dlssUnavailable = available[1] != 0
-						? "driver too old, DLSS needs " + available[2] + "." + available[3]
-						: "DLSS not available on this GPU (0x" + Integer.toHexString(available[4]) + ")";
-				ReflexiumClient.LOGGER.warn("DLSS: {}", dlssUnavailable);
-				return;
-			}
-			ngxReady = true;
-			ReflexiumClient.LOGGER.info("DLSS Super Resolution ready (mode {})", ReflexiumConfig.get().upscaleQuality().displayName());
-		} catch (RuntimeException e) {
-			dlssUnavailable = "NGX init threw " + e.getClass().getSimpleName();
-			ReflexiumClient.LOGGER.warn("DLSS: NGX init failed", e);
+			return;
 		}
+		awaitingRuntime = DlssRuntimeInstaller.hasPendingWork()
+				|| DlssRuntimeInstaller.state().phase() == DlssRuntimeInstaller.Phase.DOWNLOADING;
+		dlssUnavailable = awaitingRuntime && DlssRuntimeInstaller.state().message().isEmpty()
+				? "preparing the DLSS runtime"
+				: DlssRuntimeInstaller.hasPendingWork() ? DlssRuntimeInstaller.state().message() : prerequisites.summary();
 	}
 
-	/** Once per frame: a first-use download that finished makes DLSS available in the same session. */
+	/** Once per frame: a first-use download that finished makes DLSS available after a restart. */
 	void pollRuntimeDownload() {
 		if (!awaitingRuntime || session == null) return;
 		DlssRuntimeInstaller.Phase phase = DlssRuntimeInstaller.state().phase();
-		// The returned future is super resolution's alone; an optional FG download may still be running.
 		if (DlssRuntimeInstaller.ensureInstalledAsync().isDone()) {
 			awaitingRuntime = false;
 			if (phase == DlssRuntimeInstaller.Phase.INSTALLED || phase == DlssRuntimeInstaller.Phase.READY
 					|| Files.isRegularFile(DlssSupport.featureFolder().resolve(DlssRuntimeInstaller.FILE_NAME))) {
 				DlssSupport.probe(session);
-				initializeNgx();
-			} else {
-				dlssUnavailable = DlssSupport.status().summary();
+				try {
+					// Streamline loads its NGX runtimes from its own folder at slInit; a file that
+					// arrives after device setup cannot be picked up without a relaunch.
+					StreamlineSupport.installRuntime();
+				} catch (java.io.IOException e) {
+					ReflexiumClient.LOGGER.warn("Could not copy the DLSS runtime into the Streamline folder", e);
+				}
+				dlssUnavailable = "DLSS runtime installed; restart the game to enable it";
+				awaitingRuntime = false;
 			}
 		}
 	}
 
-	/** A settings change is the player's retry: restart a failed runtime download or find a hand-placed DLL. */
+	/** A settings change is the player's retry: restart a failed runtime download. */
 	void retry() {
-		if (!ngxReady && !awaitingRuntime && session != null && session.isNvidia() && DlssRuntimeInstaller.retryFailed()) {
+		if (!dlssReady && !awaitingRuntime && session != null && session.isNvidia() && DlssRuntimeInstaller.retryFailed()) {
 			DlssSupport.probe(session);
-			awaitingRuntime = true;
+			initializeDlss();
 		}
 	}
 
 	/** Releases the per-configuration upscaler features. The runtimes stay loaded. */
 	void releaseFeatures() {
 		if (fsr != null) fsr.release();
-		if (ngx != null && ngxReady) {
-			ngx.release();
-		}
+		if (StreamlineSupport.initialized()) StreamlineSupport.freeDlss();
 	}
 
-	/** Device teardown. The NGX bridge itself stays loaded for the next device. */
+	/** Device teardown. Streamline itself is shut down by the upscaling renderer. */
 	void shutdown() {
-		try {
-			if (ngx != null && ngxInitialized) ngx.shutdown();
-		} finally {
-			ngxInitialized = false;
-			ngxReady = false;
-			awaitingRuntime = false;
-			fsr = null;
-			session = null;
-			dlssUnavailable = "needs the Vulkan renderer";
-		}
+		dlssReady = false;
+		awaitingRuntime = false;
+		fsr = null;
+		session = null;
+		dlssUnavailable = "needs the Vulkan renderer";
 	}
 
 	Upscaler resolve(Upscaler requested) {
-		return requested.resolve(ngxReady, fsr != null);
+		return requested.resolve(dlssReady, fsr != null);
 	}
 
 	boolean available(Upscaler value) {
-		return switch (value) { case DLSS -> ngxReady; case FSR -> fsr != null; default -> false; };
+		return switch (value) { case DLSS -> dlssReady; case FSR -> fsr != null; default -> false; };
 	}
 
-	boolean anyReady() { return ngxReady || fsr != null; }
-	boolean dlssReady() { return ngxReady; }
-	NgxBridge ngx() { return ngx; }
+	boolean anyReady() { return dlssReady || fsr != null; }
+	boolean dlssReady() { return dlssReady; }
 	FsrBridge fsr() { return fsr; }
 
 	/** Why {@code selected} cannot run. Anything but DLSS reports the FSR reason, as the status line always has. */
@@ -167,16 +135,16 @@ final class UpscalerRuntimes {
 		return selected == Upscaler.DLSS ? dlssUnavailable : fsrUnavailable;
 	}
 
-	/** Copies NGX's own log lines into Reflexium's log. */
+	/** Copies Streamline's own log lines into Reflexium's log. */
 	void drainLog() {
-		if (ngx == null) {
+		if (!StreamlineSupport.initialized()) {
 			return;
 		}
-		String log = ngx.takeLog();
+		String log = StreamlineSupport.takeLog();
 		if (!log.isBlank()) {
 			for (String line : log.split("\n")) {
 				if (!line.isBlank()) {
-					ReflexiumClient.LOGGER.info("[NGX] {}", line.strip());
+					ReflexiumClient.LOGGER.info("[Streamline] {}", line.strip());
 				}
 			}
 		}

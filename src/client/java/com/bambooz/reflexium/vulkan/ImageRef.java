@@ -6,7 +6,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 /**
- * A Vulkan image as the native bridges receive it. Mirrors RxImage in native/reflexium_ngx.cpp and
+ * A Vulkan image as the native bridges receive it. Mirrors RxImage in native/reflexium_sl.cpp and
  * native/reflexium_fsr.cpp. {@code aspect} is a VkImageAspectFlags value.
  */
 public record ImageRef(long image, long view, int vkFormat, int width, int height, int aspect) {

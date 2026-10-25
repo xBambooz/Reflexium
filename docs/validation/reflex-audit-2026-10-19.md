@@ -1,6 +1,16 @@
-# Reflex and PCL Integration Audit (2026-10-19)
+# Reflex and PCL Integration Audit
 
-Audit of Reflexium (Fabric Minecraft 26.3) NVIDIA Reflex implementation via direct `VK_NV_low_latency2` Vulkan extension against NVIDIA Reflex and PCL integration and validation checklists.
+Status: the 2026-10-19 checklist below is historical. Since round 10, Reflex, PCL markers and
+DLSS-G run only through NVIDIA Streamline 2.14.16; the raw `VK_NV_low_latency2` path and the raw
+NGX bridge are deleted. The current Streamline re-audit and its evidence are in
+[round10-2026-10-24.md](round10-2026-10-24.md), section 5. References to `NgxBridge`, raw
+`vkSetLatencySleepModeNV`, `vkLatencySleepNV`, `vkSetLatencyMarkerNV`, explicit submission IDs and
+`VK_NV_present_metering` below describe the removed code and must not be used to review the current
+tree.
+
+Historical audit of Reflexium (Fabric Minecraft 26.3) NVIDIA Reflex implementation via direct
+`VK_NV_low_latency2` Vulkan extension against NVIDIA Reflex and PCL integration and validation
+checklists.
 
 Base commit: `92c928c`
 

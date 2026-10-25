@@ -84,3 +84,7 @@ A number only counts if the same sample also proves the scene was really renderi
   [specs/STREAMLINE_MIGRATION_SPEC.md](specs/STREAMLINE_MIGRATION_SPEC.md)) because objective 2 requires
   NVIDIA's officially supported integration path. Keep the working raw NGX path as the fallback until
   the Streamline path matches or beats it on every objective, then delete the old path. FSR stays separate.
+- 2026-10-24 (round 10): Streamline SR, DLSS-G and Reflex/PCL are the only NVIDIA paths. The raw NGX
+  bridge, the raw `VK_NV_low_latency2` integration, the `-Dreflexium.streamline` switch and the
+  present-metering path are deleted. FSR remains separate. The DLSS-G bit-1 transition allowance is
+  removed; Reflex sleeps for two completed frames before DLSS-G options are enabled.

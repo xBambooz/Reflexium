@@ -23,7 +23,7 @@ public final class ReflexiumConfig {
 	private static final Path DIR = FabricLoader.getInstance().getConfigDir();
 	private static final Path PATH = DIR.resolve("reflexium.properties");
 	private static final Path LEGACY_PATH = DIR.resolve("nvidia-reflex-mod.properties");
-	public static final DlssModel DEFAULT_DLSS_MODEL = DlssModel.CNN;
+	public static final DlssModel DEFAULT_DLSS_MODEL = DlssModel.AUTO;
 	public static final FrameGeneration DEFAULT_FRAME_GENERATION = FrameGeneration.DLSS;
 	private static final ReflexiumConfig INSTANCE = load();
 

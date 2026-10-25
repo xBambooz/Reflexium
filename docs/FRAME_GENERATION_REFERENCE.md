@@ -36,39 +36,39 @@ static raw-NGX MFG and requires VSync off on the NVIDIA metering route.
 Newer AMD ML frame-generation offerings are distinct from the pinned FSR 3.1.4 Vulkan provider.
 Do not label the latter FSR 4/Redstone or infer unimplemented ML features from a product name.
 
-## NVIDIA raw NGX API, local SDK inspection
+## NVIDIA Streamline DLSS-G, local SDK inspection
 
-Pinned SDK: NVIDIA/DLSS commit `374959484e79a640feaba44c93ac8cfb0a03f5b5`, version 310.9.1.
-Relevant files: `nvsdk_ngx_defs_dlssg.h`, `nvsdk_ngx_helpers_dlssg_vk.h`, `nvsdk_ngx_defs.h`.
+Pinned SDK: NVIDIA Streamline 2.14.16, headers in `native/streamline/include` and the pinned
+DLSS-G programming guide in `native/streamline/ProgrammingGuideDLSS_G.md`. The raw NGX bridge was
+deleted in round 10; `sl.dlss` and `sl.dlss_g` load NVIDIA NGX internally.
 
-- `NGX_VK_CREATE_DLSSG` creates `NVSDK_NGX_Feature_FrameGeneration` on a Vulkan command buffer.
-  `NGX_VK_EVALUATE_DLSSG` accepts input color, depth, motion and interpolated-output resources.
-- `MultiFrameCountMax` counts generated frames, excluding the real frame. A value of five permits
-  a total 6x output. Older runtimes lacking MFG support can still expose standard 2x FG.
-- `MultiFrameCount` is the number of generated frames for the real-frame pair;
-  `MultiFrameIndex` is one-based within that count. Evaluate each requested output index.
-- `BackbufferFrameID` advances once per rendered backbuffer, including menus and frames with FG off.
-- Camera matrices exclude temporal jitter. The optional constants include view/clip transforms,
-  clip-to-previous-clip and inverse, camera position/basis, near/far planes, vertical FOV and aspect.
-  NGX's FG jitter constants are in clip space. Its motion scale normalizes supplied vector units.
-  These differ from the SR helper's pixel-jitter arguments.
-- HUDless/UI/alpha inputs support vendor UI recomposition. An application can instead interpolate
-  the scene and draw its current GUI on every output using the game's own GUI pipeline.
-- Separate SR and FG contexts/parameter maps prevent per-feature state from being overwritten.
-  Keep image resources valid until their recorded GPU work completes.
-- NGX success is `0x00000001`; Reflexium's C ABI maps successful operations to zero.
-  `FAIL_Denied` is `0xBAD00011`; `0xBAD00004` is FeatureNotFound.
+- `slDLSSGSetOptions` receives `mode`, `numFramesToGenerate` (1 for 2x, 2 for 3x, 3 for 4x) and
+  the Vk formats, backbuffer count, MVec extent and colour extent. A fixed multiplier is applied
+  with `eOn`; `eDynamic` is D3D12-only at this pin.
+- `DLSSGState::numFramesToGenerateMax` is the number of generated frames, excluding the real
+  frame. The RTX 5070 reports five, so the maximum total is 6x. Query it with
+  `slDLSSGGetState`; do not assume the SDK ceiling.
+- The five generated-frame maximum is a hardware/runtime property, not a per-mode default.
+  Standard 2x remains available on an RTX 40 series runtime that reports one generated frame.
+- Tag display-resolution hudless colour, render-resolution depth and motion, and UI alpha for each
+  real present. Tagged resources must stay valid until the present completes.
+- Reflex is required and must be active before DLSS-G consumes its frame. The guide requires the
+  PCL present markers and the common-constants frame index to match.
+- Streamline status is `DLSSGStatus`: any nonzero value, including bit 1
+  `eFailReflexNotDetectedAtRuntime`, turns generation off in Reflexium.
 
-Primary headers: [Vulkan FG helpers](https://github.com/NVIDIA/DLSS/blob/374959484e79a640feaba44c93ac8cfb0a03f5b5/include/nvsdk_ngx_helpers_dlssg_vk.h),
-[FG parameters](https://github.com/NVIDIA/DLSS/blob/374959484e79a640feaba44c93ac8cfb0a03f5b5/include/nvsdk_ngx_defs_dlssg.h).
+Primary sources: [DLSS-G guide](https://github.com/NVIDIA-RTX/Streamline/blob/main/docs/ProgrammingGuideDLSS_G.md),
+[DLSS-G header](https://github.com/NVIDIA-RTX/Streamline/blob/main/include/sl_dlss_g.h).
 
-**Measured:** production NGX, Reflexium's unchanged project GUID, RTX 5070 and driver 617.42 report
-FG available, no driver update needed, and a maximum of five generated frames on the actual Java
-Minecraft device. Standard FG and all static multipliers through 6x evaluate and present in the
-local debug integration. No application-ID spoofing or DRS profile edit was used. This is evidence
-for this configuration; it does not promise availability on every application/driver combination.
+**Measured:** the RTX 5070 / 617.42 runtime reports DLSS-G ready and five generated frames on the
+actual Java Vulkan device. Fixed 2x/3x/4x evaluate and present through Streamline; the generated
+count comes from `numFramesActuallyPresented - 1`.
 
 ## Presentation pacing, documented API
+
+Historical note: round 10 deleted Reflexium's raw `VK_NV_present_metering` and raw
+`VK_NV_low_latency2` integration. NVIDIA-generated frames and their pacing are owned by Streamline;
+only `VkPresentIdKHR` remains on the real present. FSR keeps its own scheduler.
 
 [NVIDIA present metering](https://docs.vulkan.org/refpages/latest/refpages/source/VkSetPresentConfigNV.html)
 spaces a batch of up to eight presents in the driver. Enable the supported device feature and

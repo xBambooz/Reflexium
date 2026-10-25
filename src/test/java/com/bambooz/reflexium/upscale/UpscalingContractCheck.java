@@ -308,7 +308,7 @@ public final class UpscalingContractCheck {
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.NATIVE_AA) == 11, "DLAA K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.QUALITY) == 11, "Quality K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.BALANCED) == 11, "Balanced K");
-		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 11, "Performance K retains detail at lower cost than M");
+		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 13, "Performance uses the guide's M default");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.ULTRA_PERFORMANCE) == 12, "Ultra Performance L");
 	}
 

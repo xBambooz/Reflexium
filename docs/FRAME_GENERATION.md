@@ -16,9 +16,9 @@ measurements are in [the performance report](PERFORMANCE.md).
 The multiplier counts the real frame. The current RTX 5070 / driver 617.42 / NGX 310.9.1 reports
 five generated frames, hence 6x maximum. A runtime reporting one generated frame exposes standard
 2x FG; it does not enable MFG. Unsupported selections show their reason in status and render normally.
-This is static MFG. Streamline's fixed DLSS-G path supports 2x/3x/4x and is the default on Vulkan;
-Streamline Dynamic MFG is D3D12-only at 2.14.16, so Auto remains the application policy. The raw NGX
-path stays available with `-Dreflexium.streamline=false`.
+This is static MFG. Streamline's fixed DLSS-G path supports 2x/3x/4x and is the only NVIDIA path on
+Vulkan; Streamline Dynamic MFG is D3D12-only at 2.14.16, so Auto remains the application policy.
+The raw NGX path was deleted in round 10.
 
 Selecting a multiplier above 2x selects MFG for NVIDIA modes. Selecting standard DLSS FG resets
 the multiplier to 2x. Saved NVIDIA settings are normalized on load, so stored 3x cannot silently
@@ -52,9 +52,8 @@ for quality and latency, rather than enforced as an initialization requirement.
 
 ## Streamline DLSS-G path
 
-Streamline is the default path for DLSS Super Resolution, Reflex/PCL and frame generation; it runs
-NVIDIA Streamline 2.14.16. The raw NGX FG path above remains the fallback with
-`-Dreflexium.streamline=false`.
+Streamline is the only path for DLSS Super Resolution, Reflex/PCL and NVIDIA frame generation; it
+runs NVIDIA Streamline 2.14.16. The raw NGX FG path above was deleted in round 10.
 
 On this path the application renders one real frame and presents it through Streamline's Vulkan
 swapchain proxy. Streamline owns the generated presents, so no application-side generated colour
@@ -86,20 +85,18 @@ foreground window; generated presents cannot be measured there. Round 6 confirme
 presents with effective multipliers 2, 3 and 4 in that window, so generated-frame counts and
 banding still need a normally launched client.
 
-Streamline allows one common-constants block per frame. DLSS-G needs the mirrored backbuffer
-orientation while DLSS SR needs the unmirrored scene, so when Streamline FG is active the SR feature
-stays on the raw NGX path; with FG off SR uses Streamline. The presented swapchain selects
+Streamline allows one common-constants block per frame. DLSS-G and DLSS SR share that block and
+mirrored inputs, so SR no longer falls back to raw NGX while FG is active. The presented swapchain selects
 `VK_FORMAT_A2B10G10R10_UNORM_PACK32` when Streamline is initialized and an NVIDIA FG mode is
 selected, so the pack dither survives an 8-bit to 10-bit presentation. DLSS-G still does not accept
 FP16 output.
 
 ## Presentation and GUI
 
-On supported NVIDIA devices, `VK_NV_present_metering` paces a batch of generated frames followed
-by the real frame. The extension and feature are queried before device creation. Only the first
-present in each batch carries `VkSetPresentConfigNV`. The driver feedback is checked on return;
-if feedback is rejected or present fails, the batch is abandoned cleanly and normal real delivery
-is restored. Swapchain recreation queries physical surface capabilities and bounds image counts
+On NVIDIA, Streamline owns the swapchain proxy, presentation and generated-frame pacing. The
+application supplies one real present per frame; the SDK pacer adds the generated presents. The
+old raw `VK_NV_present_metering` batch and feedback path was deleted in round 10. Swapchain
+recreation queries physical surface capabilities and bounds image counts
 between `minImageCount` and `maxImageCount` (allowing unbounded when max is 0).
 VSync must be off for this route. DLSS FG enables Reflex while requested, preserving the saved
 Reflex preference. Real presents retain simulation-frame IDs; generated presents use out-of-band

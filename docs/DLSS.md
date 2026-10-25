@@ -1,9 +1,9 @@
 # DLSS and FSR in Reflexium
 
 Status: DLSS and AMD FSR 3.1 upscaling run on vanilla Vulkan, the supported Vitrail shader path and
-the experimental Iris Vulkan build. On 2026-10-24 Streamline 2.14.16 became the default path for DLSS
-Super Resolution, Reflex/PCL and fixed 2x/3x/4x frame generation on the same Vulkan device;
-`-Dreflexium.streamline=false` selects the raw NGX fallback. The 2026-10-23 pass measured clear gains
+the experimental Iris Vulkan build. Streamline 2.14.16 owns DLSS Super Resolution, Reflex/PCL and
+fixed 2x/3x/4x frame generation on the same Vulkan device; the raw NGX and raw low-latency2 paths
+were deleted in round 10. The 2026-10-23 pass measured clear gains
 with Iris/BSL at 1080p and 4K; vanilla 1080p is CPU bound on the test machine and remains faster
 without upscaling. The 2026-10-13 smoke checks below describe the tested scope. They do not establish
 zero smearing for all content or NVIDIA/AMD certification. Round 6 results are in
@@ -22,20 +22,17 @@ Streamline is loaded from its own directory (`<game>/reflexium/streamline`). The
   `slEvaluateFeature`. The same render size, jitter, depth, motion vectors and reprojection feed it
   as the NGX path.
 - Reflex uses `slReflexSetOptions`, one `slReflexSleep` per real frame and Streamline PCL markers.
-  The raw `VK_NV_low_latency2` sleep, present IDs and swapchain latency mode are skipped while the
-  flag is on.
+  `VkPresentIdKHR` remains the only present tag; Streamline configures the swapchain latency mode
+  itself.
 - The swapchain, image acquisition and present calls are routed through Streamline's Vulkan
   proxies. The game still owns instance, device, queue and command recording. FSR keeps its own
   scheduler and cannot share the Streamline present path.
-- Frame generation also moved to Streamline this round for fixed 2x/3x/4x on Vulkan, with hudless
-  colour and UI-alpha tagging. Streamline Dynamic MFG is D3D12-only at 2.14.16, so Auto keeps the
-  application's refresh-headroom policy. One limitation remains: while Streamline FG is active, SR
-  still evaluates on raw NGX, because Minecraft's presented backbuffer is mirrored and Streamline
-  accepts one per-frame constants block for both features. With FG off, SR uses Streamline.
-- On the tested scenes Streamline SR matched the raw NGX deltas at 1440p forest Quality and was
-  clearly faster at 4K range Quality (200.8 vs 156.0 FPS), while native was 8.6% lower on the
-  Streamline launch at 4K range (159.2 vs 174.2 FPS). The raw path therefore stays as the fallback.
-  The unresolved defects are the BSL 1440p forest Quality loss and the shaderless DLSS deficit.
+- Frame generation uses Streamline for fixed 2x/3x/4x on Vulkan, with hudless colour and UI-alpha
+  tagging. Streamline Dynamic MFG is D3D12-only at 2.14.16, so Auto keeps the application's
+  refresh-headroom policy. DLSS-G and DLSS SR share one constants block and mirrored inputs; the
+  previous raw-NGX SR exception is gone.
+- The unresolved defects are the BSL 1440p forest Quality loss, the 1080p evaluate cost and the
+  shaderless DLSS deficit.
 
 Full gate results, tables, per-pass timings and the not-run matrix rows are in the
 [Streamline report](validation/streamline-2026-10-24.md).
@@ -170,7 +167,7 @@ Radiance (Java mod) + MCVR (its C++ renderer, GPLv3) ship DLSS Super Resolution,
 - **Native NGX.** MCVR links NVIDIA's static `nvsdk_ngx` library and calls NGX from C++ through JNI (`dlss_wrapper.cpp`, based on NVIDIA's Apache-2.0 `vk_denoise_dlssrr` sample). Feature DLLs (`nvngx_dlss*.dll`) are not shipped; players drop them into `<instance>/radiance/`.
 - **Motion vectors from its own renderer.** MCVR replaces Minecraft's world rendering with a ray tracer. Every hit keeps the previous frame's vertex positions (per-geometry previous index/vertex buffers) and previous object-to-world matrices (`shader/world/ray_tracing/internal/advanced/scene/motion.glsl`). Motion = current clip position minus previous clip position with the full previous view-projection, so camera translation, camera rotation and moving entities are all exact.
 - **Inputs.** Render-resolution color, linear depth converted to device depth, motion vectors, `MVLowRes`, jitter passed negated, `InReset` on camera cuts (more than 1 block or 30 degrees between frames).
-- **Frame generation** uses raw NGX DLSS-G (`NGX_VK_CREATE_DLSSG` / `EVALUATE_DLSSG`) with camera matrices, HUD-less color and UI alpha, and paces generated frames itself. It does not use Reflex.
+- **Frame generation** in Radiance uses raw NGX DLSS-G with camera matrices, HUD-less color and UI alpha, and paces generated frames itself. It does not use Reflex. This is the approach Reflexium replaced with Streamline in round 10.
 
 ## Why the old Reflexium DLSS had broken motion
 
@@ -183,7 +180,7 @@ Calling the driver's `_nvngx.dll` exports directly from Java (FFM), to avoid a n
 - `NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements` before init: access violation (null read) inside `_nvngx.dll`.
 - `NVSDK_NGX_VULKAN_Init_ProjectID` after device creation: access violation (`0xFFFFFFFFFFFFFFFF`) inside `_nvngx.dll`.
 
-The export signatures match the public SDK (confirmed against OptiScaler's proxy), so the static library must pass state the exports rely on (most likely `FeatureCommonInfo.InternalData`). Reflexium now uses a native bridge linked against `nvsdk_ngx_s.lib`, like MCVR. MSVC Build Tools were installed and the bridge is bundled; ordinary Java builds need no native compiler.
+The export signatures match the public SDK (confirmed against OptiScaler's proxy), so the static library must pass state the exports rely on (most likely `FeatureCommonInfo.InternalData`). Reflexium now uses Streamline, which links NGX internally, so Reflexium itself no longer links `nvsdk_ngx_s.lib`. MSVC Build Tools build the Streamline and FSR bridges; ordinary Java builds need no native compiler.
 
 ## What 1.1.0 already does
 
@@ -200,7 +197,7 @@ Facts from the 26.3 jar:
 
 Steps:
 
-1. **Native bridge** (`reflexium_ngx.dll`, MSVC + `nvsdk_ngx_s.lib`, JNI or FFM): init on Minecraft's device, create/evaluate/release SR, shutdown. Start from NVIDIA's Apache-2.0 `vk_denoise_dlssrr` wrapper, not MCVR's GPL changes.
+1. **Streamline bridge** (`reflexium_sl.dll`, MSVC, FFM): `slInit` before the Vulkan instance, `slSetVulkanInfo` after the device, then Streamline tokens, tags and `slEvaluateFeature`. The earlier raw `reflexium_ngx.dll` bridge was removed in round 10.
 2. **Render resolution split**: world into a render-resolution target, DLSS output into the display-resolution `mainRenderTarget`, GUI drawn after at full resolution.
 3. **Jitter**: Halton(2,3) sub-pixel offsets in the level projection matrix, negative texture LOD bias of `log2(render/display)`.
 4. **Motion vectors**, the part that broke last time:

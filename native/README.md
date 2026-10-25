@@ -1,18 +1,17 @@
-# NGX and Streamline bridge build
+# Streamline and FSR bridge build
 
-`reflexium_ngx.cpp` exposes DLSS SR and FG operations to Java 25 FFM and links NVIDIA's static NGX library. `reflexium_fsr.cpp` exposes independent FSR upscaling/FG contexts; `fsr_swapchain.h` uses AMD's signed presentation scheduler. Bridge DLLs are bundled. Missing NVIDIA feature DLLs are installed automatically in the game directory's `reflexium/` folder.
+`reflexium_sl.cpp` exposes DLSS SR, DLSS-G, Reflex and PCL through NVIDIA Streamline. `reflexium_fsr.cpp` exposes independent FSR upscaling/FG contexts; `fsr_swapchain.h` uses AMD's signed presentation scheduler. Bridge DLLs are bundled. Missing NVIDIA feature DLLs are installed automatically in the game directory's `reflexium/` folder. The raw `reflexium_ngx.cpp` bridge was deleted in round 10.
 
-`reflexium_sl.cpp` exposes DLSS Super Resolution, Reflex and PCL through NVIDIA Streamline 2.14.16 with manual Vulkan hooking. It loads the signed `sl.interposer.dll` from `<game>/reflexium/streamline`, calls `slInit` before the Vulkan instance exists, reports the SDK's instance/device requirements, calls `slSetVulkanInfo` after device creation, and drives frame tokens, constants, resource tags, `slEvaluateFeature`, `slReflexSleep` and `slPCLSetMarker`. Headers, production DLLs, the SDK version and the NVIDIA license texts are vendored under `native/streamline/`; `SDK_VERSION.txt` records the pin. The Java runtime extracts those DLLs from the jar and never replaces a user file silently. Raw NGX remains the fallback and the FSR path is independent.
+`reflexium_sl.cpp` exposes DLSS Super Resolution, Reflex and PCL through NVIDIA Streamline 2.14.16 with manual Vulkan hooking. It loads the signed `sl.interposer.dll` from `<game>/reflexium/streamline`, calls `slInit` before the Vulkan instance exists, reports the SDK's instance/device requirements, calls `slSetVulkanInfo` after device creation, and drives frame tokens, constants, resource tags, `slEvaluateFeature`, `slReflexSleep` and `slPCLSetMarker`. Headers, production DLLs, the SDK version and the NVIDIA license texts are vendored under `native/streamline/`; `SDK_VERSION.txt` records the pin. The Java runtime extracts those DLLs from the jar and never replaces a user file silently. The FSR path is independent. There is no raw NGX fallback.
 
 Build on Windows x64 with Visual Studio 2022 C++ Build Tools and the Windows SDK:
 
 ```powershell
-$env:NGX_SDK = 'C:\path\to\DLSS'
 .\native\build.cmd
 .\gradlew.bat build
 ```
 
-Without `NGX_SDK`, the script clones NVIDIA/DLSS into ignored `native/deps/DLSS`. It also clones Khronos Vulkan-Headers when missing. Java builds use the checked-in bridge DLLs and do not require MSVC. The Streamline headers are checked in, so `build.cmd` does not download the SDK.
+`build.cmd` clones Khronos Vulkan-Headers when missing. Java builds use the checked-in bridge DLLs and do not require MSVC. The Streamline headers are checked in, so `build.cmd` does not download the SDK.
 
 Validated SDK: DLSS 310.9.1, NVIDIA/DLSS commit `374959484e79a640feaba44c93ac8cfb0a03f5b5`. Vulkan-Headers commit `c46850864f4661461b0f6cb9922c058ffea4915e`. Compiler: MSVC 14.44, static release CRT. When updating the SDK, update the included NVIDIA license and retest create/evaluate/release, all modes and resizing.
 

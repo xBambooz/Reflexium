@@ -63,7 +63,6 @@ The table covers the common keys. `/` (help) and an unknown-key error list every
 | Key | Values | Notes |
 | --- | --- | --- |
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | Same as the config value |
-| `streamline` | `0`, `1` | Selects Streamline (`1`, the default) or the raw NGX fallback (`0`) for the next launch; instance and device extensions cannot be added to a running device |
 | `quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | |
 | `dlss_model` | `auto`, `transformer`, `cnn` | |
 | `fsr_sharpness` | `0` to `100` | FSR 3.1 only; DLSS output is not post-sharpened |

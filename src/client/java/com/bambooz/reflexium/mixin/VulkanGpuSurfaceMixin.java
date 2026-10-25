@@ -53,8 +53,8 @@ import java.nio.LongBuffer;
 import java.util.Arrays;
 
 /**
- * VK_NV_low_latency2 needs the swapchain created with VkSwapchainLatencyCreateInfoNV and each present
- * tagged with the frame's id; without both, the driver cannot pair markers with presented frames.
+ * Streamline owns the Vulkan swapchain and present path when it is loaded. Each real present is
+ * tagged with VkPresentIdKHR so Reflex can pair its markers with presented frames.
  */
 @Mixin(VulkanGpuSurface.class)
 public abstract class VulkanGpuSurfaceMixin {
@@ -120,7 +120,7 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
 		var session = VulkanSession.current();
-		if (session != null && session.presentMetering()) {
+		if (session != null && session.isNvidia()) {
 			// Two real frames in flight, each with at most eight physical presents. Completion tracking below,
 			// rather than ring size, proves binary semaphore reuse safe. Avoid waiting mid-batch on the world's submit.
 			long[] expanded = Arrays.copyOf(acquireSemaphores, 16);
@@ -204,8 +204,8 @@ public abstract class VulkanGpuSurfaceMixin {
 
 	@ModifyArg(method = "configure", index = 1, at = @At(value = "INVOKE",
 			target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkCreateSwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;Lorg/lwjgl/vulkan/VkSwapchainCreateInfoKHR;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)I"))
-	private VkSwapchainCreateInfoKHR reflexium$latencySwapchain(VkSwapchainCreateInfoKHR info) {
-		return VulkanLifecycle.chainSwapchainLatency(info);
+	private VkSwapchainCreateInfoKHR reflexium$prepareSwapchain(VkSwapchainCreateInfoKHR info) {
+		return VulkanLifecycle.prepareSwapchain(info);
 	}
 
 	@Unique private static boolean reflexium$loggedSurfaceFormats;
@@ -279,7 +279,6 @@ public abstract class VulkanGpuSurfaceMixin {
 			return result;
 		}
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
-		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
 		// slDLSSGGetState is read after this present, once its markers have been processed.
 		ReflexController reflex = ReflexController.get();
@@ -296,7 +295,7 @@ public abstract class VulkanGpuSurfaceMixin {
 		fg.onPresentResult(info, result);
 		long id = reflex.currentFrameId();
 		if (FrameTrace.enabled(id)) FrameTrace.event(id,
-				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedbackRaw());
+				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result);
 		return result;
 	}
 

@@ -80,8 +80,6 @@ import java.util.concurrent.CompletableFuture;
 public final class UpscalingRenderer {
 	private static final UpscalingRenderer INSTANCE = new UpscalingRenderer();
 
-	/** NVSDK_NGX_DLSS_Feature_Flags: MVLowRes | DepthInverted (Minecraft renders reverse-Z). */
-	private static final int FEATURE_FLAGS = (1 << 1) | (1 << 3);
 	/** Sign applied to the projection jitter before it is handed to DLSS and FSR (tunable for testing). +1 on both axes: lowest still-frame change in the 2026-10-13 static test (docs/DEBUGGING.md). */
 	private static final float JITTER_SIGN = Float.parseFloat(System.getProperty("reflexium.dlss.jitterSign", "1"));
 
@@ -197,7 +195,7 @@ public final class UpscalingRenderer {
 		runtimes.loadFsr(session);
 		failed = false;
 		FrameGenerationRenderer.get().onDeviceCreated(device, session, runtimes.fsr());
-		runtimes.initializeNgx();
+		runtimes.initializeDlss();
 	}
 
 	/** Best effort: a lost device fails the GPU wait, which must not skip the remaining native teardown. */
@@ -1060,9 +1058,7 @@ public final class UpscalingRenderer {
 		Upscaler selected = effectiveUpscaler();
 		int[] size = selected == Upscaler.OFF ? new int[] {width, height}
 				: selected == Upscaler.FSR ? mode.fsrSize(width, height)
-				: selected == Upscaler.DLSS && StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()
-						? StreamlineSupport.optimalSettings(width, height, mode, wantsPackHdr(selected))
-						: runtimes.ngx().optimalSettings(width, height, mode);
+				: StreamlineSupport.optimalSettings(width, height, mode, wantsPackHdr(selected));
 		if (size == null) {
 			throw new IllegalStateException("no DLSS render size for " + width + "x" + height + " " + mode.displayName());
 		}
@@ -1136,11 +1132,11 @@ public final class UpscalingRenderer {
 		} else if (selected == Upscaler.FSR) {
 			result = runtimes.fsr().create(session.device().address(), session.physicalDevice().address(),
 					VK10.vkGetInstanceProcAddr(session.instance(), "vkGetDeviceProcAddr"), renderWidth, renderHeight, displayWidth, displayHeight, builtHdr);
-		} else if (StreamlineSupport.dlssAvailable()) {
-			result = StreamlineSupport.setDlssOptions(displayWidth, displayHeight, mode, builtHdr, requestedPreset(mode));
 		} else {
-			result = runtimes.ngx().create(commandBuffer.address(), renderWidth, renderHeight, displayWidth, displayHeight, mode, FEATURE_FLAGS | (builtHdr ? 1 | (1 << 6) : 0),
-					requestedPreset(mode));
+			if (!StreamlineSupport.dlssAvailable()) {
+				throw new IllegalStateException("DLSS needs Streamline on this device");
+			}
+			result = StreamlineSupport.setDlssOptions(displayWidth, displayHeight, mode, builtHdr, requestedPreset(mode));
 		}
 		runtimes.drainLog();
 		if (result != 0) {
@@ -1170,7 +1166,9 @@ public final class UpscalingRenderer {
 	}
 
 	private boolean wantsPackHdr(Upscaler selected) {
-		return selected != Upscaler.OFF && VitrailCompat.isDrawingPack() && ComplementaryHdr.ready() && ComplementaryHdr.storageSupported();
+		// Streamline's DLSS-G rejects FP16 output, and the shared SR/FG constants path needs the same
+		// SDR display target. FSR keeps the experimental pack HDR path.
+		return selected == Upscaler.FSR && VitrailCompat.isDrawingPack() && ComplementaryHdr.ready() && ComplementaryHdr.storageSupported();
 	}
 
 	/** Vendor baseline plus the dev offset. Never nonzero when the world is not rendered below display resolution. */
@@ -1270,32 +1268,23 @@ public final class UpscalingRenderer {
 			ImageRef composition = packSurfaceApplied ? VulkanInterop.image(packComposition.getColorTexture(), packComposition.getColorTextureView()) : null;
 			result = runtimes.fsr().evaluate(commandBuffer.address(), color, depth, motion, outputImage, composition, composition,
 					signedJitterX, signedJitterY, resetting, frameTimeMs, history.cameraNear, history.motionFar, history.cameraFov, sharpness);
-		} else if (!builtHdr && FrameGenerationRenderer.get().streamlineFrameGenerationActive() && StreamlineSupport.dlssAvailable()) {
+		} else if (FrameGenerationRenderer.get().streamlineFrameGenerationActive() && StreamlineSupport.dlssAvailable()
+				&& FrameGenerationRenderer.get().streamlineActive()) {
+			// DLSS-G owns this frame's constants (presented orientation). SR runs on mirrored inputs
+			// with those same constants and mirrors its display-size result back, so both agree.
 			FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
-			if (frameGeneration.streamlineActive()) {
-				// DLSS-G owns this frame's constants (presented orientation). SR runs on mirrored inputs
-				// with those same constants and mirrors its display-size result back, so both agree.
-				if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info("DLSS SR: shared Streamline constants and tags with DLSS-G");
-				frameGeneration.prepareStreamlineInputs(main, motionTarget, commandBuffer);
-				Vec3 delta = history.delta();
-				result = frameGeneration.evaluateStreamlineDlss(commandBuffer, outputTarget, history.currentProjection,
-						DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
-						history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
-						signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov, resetting);
-			} else {
-				// Loading or menu frame: DLSS-G is off for this frame, so SR uses the scene orientation.
-				if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info("DLSS SR: Streamline SR alone while frame generation is deferred");
-				Vec3 delta = history.delta();
-				StreamlineSupport.setConstants(history.currentProjection,
-						DlssMath.reprojection(history.previousUnjittered, history.currentJittered,
-								(float) delta.x, (float) delta.y, (float) delta.z),
-						history.currentOrientation,
-						(float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
-						signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov,
-						(float) displayWidth / displayHeight, resetting, renderWidth, renderHeight, false);
-				result = StreamlineSupport.evaluateDlss(commandBuffer.address(), color, depth, motion, outputImage);
+			if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info("DLSS SR: shared Streamline constants and tags with DLSS-G");
+			frameGeneration.prepareStreamlineInputs(main, motionTarget, commandBuffer);
+			Vec3 delta = history.delta();
+			result = frameGeneration.evaluateStreamlineDlss(commandBuffer, outputTarget, history.currentProjection,
+					DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+					history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
+					signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov, resetting);
+		} else {
+			if (!StreamlineSupport.dlssAvailable()) {
+				throw new IllegalStateException("DLSS needs Streamline on this device");
 			}
-		} else if (StreamlineSupport.dlssAvailable() && !FrameGenerationRenderer.get().streamlineFrameGenerationActive()) {
+			if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info("DLSS SR: Streamline SR alone (frame generation deferred or off)");
 			Vec3 delta = history.delta();
 			StreamlineSupport.setConstants(history.currentProjection,
 					DlssMath.reprojection(history.previousUnjittered, history.currentJittered,
@@ -1305,13 +1294,6 @@ public final class UpscalingRenderer {
 					signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov,
 					(float) displayWidth / displayHeight, resetting, renderWidth, renderHeight, false);
 			result = StreamlineSupport.evaluateDlss(commandBuffer.address(), color, depth, motion, outputImage);
-		} else {
-			if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info(
-					"DLSS SR: NGX fallback (Streamline FG active={}, SR active={}, hdr={})",
-					FrameGenerationRenderer.get().streamlineFrameGenerationActive(),
-					FrameGenerationRenderer.get().streamlineActive(), builtHdr);
-			result = runtimes.ngx().evaluate(commandBuffer.address(), color, depth, motion, outputImage,
-					signedJitterX, signedJitterY, 1.0f, 1.0f, resetting, frameTimeMs);
 		}
 		FrameProfiler.end(FrameProfiler.EVALUATE, timing, commandBuffer);
 		if (result != 0) {

@@ -44,9 +44,7 @@ final class SetCommand {
 			// Shader pack dev overrides
 			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters",
 			// Reflex diagnostics
-			"reflex_trace", "reflex_submission", "reflex_interval_us", "pcl_flash",
-			// Streamline switch (applies to the next launch; instance/device extensions are fixed)
-			"streamline");
+			"reflex_trace", "reflex_interval_us", "pcl_flash");
 
 	private SetCommand() {
 	}
@@ -76,10 +74,6 @@ final class SetCommand {
 			case "cloud_motion" -> {
 				boolean on = flag(value, true);
 				yield () -> DebugSettings.cloudMotion = on;
-			}
-			case "streamline" -> {
-				boolean on = flag(value, true);
-				yield () -> com.bambooz.reflexium.upscale.dlss.StreamlineSupport.setEnabled(on);
 			}
 			case "particles_fg_replay" -> {
 				boolean on = flag(value, true);
@@ -159,10 +153,6 @@ final class SetCommand {
 				int frames = Integer.parseInt(value);
 				if (frames < 0 || frames > 32) throw new DebugHttp.BadRequest("Reflex trace must be 0..32 frames");
 				yield () -> FrameTrace.arm(frames);
-			}
-			case "reflex_submission" -> {
-				boolean enabled = flag(value, true);
-				yield () -> DebugSettings.reflexSubmission = enabled;
 			}
 			case "reflex_interval_us" -> {
 				int interval = Integer.parseInt(value);

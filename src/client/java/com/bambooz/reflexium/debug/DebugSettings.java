@@ -23,8 +23,6 @@ public final class DebugSettings {
 	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
 	public static boolean clearFoliageSurface = true;
 	public static int dlssPreset = -1;
-	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
-	public static boolean reflexSubmission = false;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
 	private static volatile float mipBiasOffset;

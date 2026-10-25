@@ -1,11 +1,11 @@
 # Streamline migration specification
 
-Status: stage 2 implemented and Streamline is the default path as of 2026-10-24. DLSS Super
-Resolution, Reflex/PCL and fixed 2x/3x/4x DLSS-G run through Streamline 2.14.16;
-`-Dreflexium.streamline=false` selects the raw NGX fallback. SR still evaluates on raw NGX while
-Streamline FG is active, because one per-frame common-constants block cannot carry the two required
-Y orientations. Gate evidence is in
-[../validation/round6-2026-10-24.md](../validation/round6-2026-10-24.md).
+Status: completed 2026-10-24. DLSS Super Resolution, Reflex/PCL and fixed 2x/3x/4x DLSS-G run only
+through Streamline 2.14.16. The raw NGX bridge, the raw `VK_NV_low_latency2` integration, the
+`-Dreflexium.streamline` switch and the `VK_NV_present_metering` path were deleted in round 10.
+Streamline SR and DLSS-G share one constants block and mirrored inputs. Gate evidence is in
+[../validation/round10-2026-10-24.md](../validation/round10-2026-10-24.md) and
+[../validation/round9-2026-10-24.md](../validation/round9-2026-10-24.md).
 
 Pinned SDK finding: DLSS-G is supported on Vulkan at 2.14.16 with fixed multipliers and hudless/UI
 alpha tagging, but Dynamic MFG is D3D12-only and DLSS-G does not accept FP16 output. Auto therefore
@@ -227,8 +227,8 @@ Replace the current application policy with Streamline's dynamic multiplier supp
 7. **Dynamic MFG gate.** Enable Auto dynamic selection. Gate: the selected multiplier changes only
    after the dwell window, real and total presents stay consistent, and the refresh target is honored
    only when Auto, VSync, VRR or a user cap asks for it.
-8. **Removal gate.** Only after all previous gates pass on two clean launches, remove the raw NGX
-   NVIDIA path from the default configuration. Keep it behind the flag for one release.
+8. **Removal gate.** Done in round 10: the raw NGX and raw low-latency2 paths are deleted, not just
+   disabled. FSR remains on its own bridge and swapchain. Keep it behind the flag for one release.
 9. **Pack and platform gate.** Re-run BSL, Complementary Reimagined, Mellow and Solas on the smoke
    platform and the range scene, plus AMD and Intel FSR smoke tests on non-NVIDIA hardware.
 

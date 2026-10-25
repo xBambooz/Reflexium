@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.upscale;
 
-import com.bambooz.reflexium.upscale.dlss.NgxBridge;
+import com.bambooz.reflexium.upscale.dlss.StreamlineBridge;
 import com.bambooz.reflexium.upscale.fsr.FsrBridge;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.vulkan.ImageRef;
@@ -24,7 +24,7 @@ public final class NativeBridgeCheck {
 	public static void main(String[] args) throws Exception {
 		// Signature-polymorphic calls can compile a conditional MemorySegment as Object.
 		// Check the actual bytecode ABI, since invokeExact rejects that only during native dispatch.
-		for (Class<?> bridge : new Class<?>[] {FsrBridge.class, NgxBridge.class, FsrSwapchain.class}) {
+		for (Class<?> bridge : new Class<?>[] {FsrBridge.class, StreamlineBridge.class, FsrSwapchain.class}) {
 			var bytecode = new ClassNode();
 			try (var in = bridge.getResourceAsStream(bridge.getSimpleName() + ".class")) {
 				new ClassReader(in).accept(bytecode, 0);

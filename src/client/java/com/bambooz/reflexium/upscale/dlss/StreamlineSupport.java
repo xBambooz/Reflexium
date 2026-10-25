@@ -34,10 +34,9 @@ import org.lwjgl.vulkan.VkQueueFamilyProperties;
  * Streamline integration state. The SDK is NVIDIA Streamline 2.14.16, loaded from
  * {@code <game>/reflexium/streamline}. Manual Vulkan hooking: the game owns the instance, device and
  * swapchain, and Streamline receives them through {@code slSetVulkanInfo} plus the swapchain/present
- * proxies. On by default; {@code -Dreflexium.streamline=false} selects the raw NGX fallback.
+ * proxies. DLSS SR, DLSS-G and Reflex always use this path; there is no raw fallback.
  */
 public final class StreamlineSupport {
-	private static final boolean REQUESTED = !"false".equalsIgnoreCase(System.getProperty("reflexium.streamline"));
 	private static final String[] RUNTIME_DLLS = {
 			"sl.interposer.dll", "sl.common.dll", "sl.dlss.dll", "sl.dlss_g.dll",
 			"sl.reflex.dll", "sl.pcl.dll", "NvLowLatencyVk.dll"
@@ -47,7 +46,6 @@ public final class StreamlineSupport {
 	private static StreamlineBridge bridge;
 	private static boolean attempted;
 	private static boolean initialized;
-	private static Boolean override;
 	private static boolean deviceReady;
 	private static boolean dlssAvailable;
 	private static boolean dlssgAvailable;
@@ -76,11 +74,6 @@ public final class StreamlineSupport {
 	private StreamlineSupport() {
 	}
 
-	/** True when Streamline is selected: the property default, or an explicit debug override. */
-	public static boolean requested() { return override != null ? override : REQUESTED; }
-
-	/** Overrides Streamline selection for the next launch only; instance/device extensions are fixed at creation. */
-	public static void setEnabled(boolean value) { override = value; }
 
 	public static boolean initialized() { return initialized; }
 	public static int currentFrame() { return frameIndex; }
@@ -100,7 +93,6 @@ public final class StreamlineSupport {
 	public static int appliedGenerated() { return appliedFgGenerated; }
 	public static String problem() { return problem; }
 	public static String status() {
-		if (!requested()) return "Streamline: off";
 		if (initialized) {
 			if (!deviceReady) return "Streamline: " + problem;
 			return "Streamline: DLSS " + (dlssAvailable ? "ready" : "unavailable")
@@ -198,7 +190,6 @@ public final class StreamlineSupport {
 
 	/** Called before the game creates its Vulkan instance. */
 	public static synchronized void beforeInstance() {
-		if (!requested()) return;
 		if (attempted) return;
 		attempted = true;
 		try {
@@ -259,6 +250,9 @@ public final class StreamlineSupport {
 		pclAvailable = bridge.pclAvailable();
 		dlssgFeatureLoaded = bridge.dlssgFeatureLoaded();
 		problem = deviceReady ? "" : "device setup failed " + result;
+		// The state query is the only source for the generated-frame ceiling. Without it the first
+		// options call would assume the SDK maximum and be rejected when the driver supports less.
+		if (deviceReady && dlssgAvailable && dlssgFeatureLoaded) refreshFrameGenerationState();
 		String log = bridge.takeLog();
 		if (!log.isEmpty()) ReflexiumClient.LOGGER.info("[Streamline] {}", log.trim());
 		ReflexiumClient.LOGGER.info("Streamline device: {} ({}), version {}", status(), session.deviceName(), bridge.dlssVersion());
@@ -279,12 +273,12 @@ public final class StreamlineSupport {
 
 	/**
 	 * Highest multiplier Streamline DLSS-G can generate (generated frames + 1), or 1 when unavailable.
-	 * Before the first DLSS-G query reports a count, assume the SDK ceiling instead of clamping fixed
-	 * multipliers down; the state is refreshed on every present.
+	 * Before the first DLSS-G query reports a count, allow only 2x rather than assuming the SDK
+	 * ceiling; an options request above the runtime maximum is rejected and would stop generation.
 	 */
 	public static int maximumMultiplier() {
 		if (!dlssgAvailable) return 1;
-		return dlssgMaxGenerated <= 0 ? 8 : Math.min(8, dlssgMaxGenerated + 1);
+		return dlssgMaxGenerated <= 0 ? 2 : Math.min(8, dlssgMaxGenerated + 1);
 	}
 
 	/**
