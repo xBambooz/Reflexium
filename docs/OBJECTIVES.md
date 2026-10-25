@@ -70,6 +70,9 @@ A number only counts if the same sample also proves the scene was really renderi
 - 2026-10-24 (Ryan): Objective 1 for shaderless scenes is met if, after all overhead is cut, DLSS
   Quality/Balanced/Performance cost no more than about 2 percent versus native (measured and shown, not
   hidden), the in-game tooltip recommends Off/Auto without shaders, and with shaders DLSS clearly wins.
+- 2026-10-25 (Ryan): DLSS losing to native at 1080p and in shaderless scenes is accepted as expected
+  (fixed evaluate cost at very high frame rates). Objective 1 no longer blocks on those rows; keep the
+  tooltip recommendation and keep measuring them honestly.
 - 2026-10-24 (Ryan): Agents may focus the test window on the secondary monitor overnight for frame
   generation tests while the PC is unattended. Restore the previous foreground window afterwards.
 - 2026-10-24 (Ryan): Final acceptance also runs in Ryan's real Modrinth profile
