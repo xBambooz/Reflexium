@@ -52,7 +52,11 @@ public final class SodiumConfigIntegration implements ConfigEntryPoint {
 										.setImpact(OptionImpact.LOW)
 										.setDefaultValue(ReflexMode.ON)
 										.setStorageHandler(SAVED_ON_SET)
-										.setEnabledProvider(state -> ReflexController.get().isSupported() && !FrameGenerationRenderer.get().needsReflex())
+										.setEnabledProvider(state -> {
+											FrameGeneration fg = state.readEnumOption(id("frame_generation"), FrameGeneration.class);
+											boolean requiresReflex = fg != FrameGeneration.OFF && fg.nvidia() && !FrameGenerationRenderer.get().failed();
+											return ReflexController.get().isSupported() && !requiresReflex;
+										}, id("frame_generation"))
 										.setBinding(ReflexController.get()::setMode, () -> ReflexController.get().mode())))
 						.addOptionGroup(builder.createOptionGroup()
 								.setName(Component.translatable("reflexium.group.upscaling"))

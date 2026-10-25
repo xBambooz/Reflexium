@@ -104,6 +104,7 @@ def assertionChecks = [
 	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
 	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
 	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",
+	streamlineBridgeCheck        : "com.bambooz.reflexium.upscale.dlss.StreamlineBridgeCheck",
 	dlssRuntimeInstallerCheck    : "com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstallerCheck",
 	objectMotionCheck            : "com.bambooz.reflexium.motion.ObjectMotionCheck",
 	frameDeliveryCheck           : "com.bambooz.reflexium.framegen.FrameDeliveryCheck",

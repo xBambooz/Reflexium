@@ -71,7 +71,7 @@ public final class StreamlineBridge {
 	private final MemorySegment images = Arena.global().allocate(ImageRef.SIZE * 4, 8);
 	private final MemorySegment outInts = Arena.global().allocate(JAVA_INT.byteSize() * 8, 4);
 
-	private StreamlineBridge(SymbolLookup lookup) {
+	StreamlineBridge(SymbolLookup lookup) {
 		Linker linker = Linker.nativeLinker();
 		init = handle(linker, lookup, "rx_sl_init", FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
 		instanceExtensions = handle(linker, lookup, "rx_sl_instance_extensions", FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT));
@@ -342,17 +342,19 @@ public final class StreamlineBridge {
 		} catch (Throwable t) { throw rethrow(t); }
 	}
 
-	private int invokeInt(MethodHandle handle, int... args) {
-		try {
-			return switch (args.length) {
-				case 0 -> (int) handle.invokeExact();
-				case 1 -> (int) handle.invokeExact(args[0]);
-				case 2 -> (int) handle.invokeExact(args[0], args[1]);
-				case 4 -> (int) handle.invokeExact(args[0], args[1], args[2], args[3]);
-				case 5 -> (int) handle.invokeExact(args[0], args[1], args[2], args[3], args[4]);
-				default -> throw new IllegalArgumentException("unsupported arity " + args.length);
-			};
-		} catch (Throwable t) { throw rethrow(t); }
+	private int invokeInt(MethodHandle handle) {
+		try { return (int) handle.invokeExact(); }
+		catch (Throwable t) { throw rethrow(t); }
+	}
+
+	private int invokeInt(MethodHandle handle, int a, int b) {
+		try { return (int) handle.invokeExact(a, b); }
+		catch (Throwable t) { throw rethrow(t); }
+	}
+
+	private int invokeInt(MethodHandle handle, int a, int b, int c, int d, int e) {
+		try { return (int) handle.invokeExact(a, b, c, d, e); }
+		catch (Throwable t) { throw rethrow(t); }
 	}
 
 	private int invokeInt(MethodHandle handle, MemorySegment first, int a, int b, int c) {
@@ -391,7 +393,7 @@ public final class StreamlineBridge {
 	}
 
 	private int invokeInt(MethodHandle handle, long a) {
-		try { return (int) handle.invokeExact(MemorySegment.ofAddress(a)); }
+		try { return (int) handle.invokeExact(a); }
 		catch (Throwable t) { throw rethrow(t); }
 	}
 
