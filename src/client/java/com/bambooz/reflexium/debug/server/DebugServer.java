@@ -28,6 +28,7 @@ import static com.bambooz.reflexium.debug.server.RenderThread.call;
 	*/
 public final class DebugServer {
 	private static volatile boolean active;
+	private static volatile HttpServer server;
 
 	private DebugServer() {
 	}
@@ -46,7 +47,8 @@ public final class DebugServer {
 			return;
 		}
 		try {
-			HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), port), 0);
+			HttpServer created = HttpServer.create(new InetSocketAddress(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), port), 0);
+			server = created;
 			server.setExecutor(Executors.newCachedThreadPool(runnable -> {
 				Thread thread = new Thread(runnable, "Reflexium debug HTTP");
 				thread.setDaemon(true);
@@ -66,8 +68,36 @@ public final class DebugServer {
 			active = true;
 			ReflexiumClient.LOGGER.warn("Reflexium debug server listening on http://127.0.0.1:{}/ (dev only)", port);
 		} catch (IOException e) {
+			server = null;
 			ReflexiumClient.LOGGER.error("Could not start the Reflexium debug server on port {}", port, e);
 		}
+	}
+
+	/**
+	 * Stops the non-daemon HTTP dispatcher on client shutdown so the JVM can exit without a watchdog report.
+	 * An external debug harness keeps its own non-daemon dispatcher, so a debug session also flushes the
+	 * response and then exits through the JVM shutdown hooks, which is the harness's documented stop path.
+	 * Release clients never start this server, so normal game shutdown is unchanged.
+	 */
+	public static void stop() {
+		HttpServer running = server;
+		server = null;
+		active = false;
+		if (running == null) {
+			return;
+		}
+		running.stop(0);
+		ReflexiumClient.LOGGER.info("Reflexium debug server stopped");
+		Thread shutdown = new Thread(() -> {
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException ignored) {
+				Thread.currentThread().interrupt();
+			}
+			System.exit(0);
+		}, "Reflexium debug exit");
+		shutdown.setDaemon(true);
+		shutdown.start();
 	}
 
 	/** Optional dev harness integration, loaded reflectively so release users need no test dependency. */

@@ -633,7 +633,7 @@ public final class UpscalingRenderer {
 					// supplied before SR so both features use the same frame data.
 					Vec3 delta = history.delta();
 					frameGeneration.streamlineSceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.currentProjection),
-							DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+							DlssMath.cameraReprojection(history.previousUnjittered, history.currentUnjittered, (float) delta.x, (float) delta.y, (float) delta.z),
 							history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
 							DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
 							history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, resets.pending(),
@@ -681,9 +681,9 @@ public final class UpscalingRenderer {
 			FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
 			if (frameGeneration.streamlineFrameGeneration() && !frameGeneration.streamlineActive()) {
 				// Streamline shares the super-resolution constants and inputs: unjittered camera projection,
-				// jitter in render pixels, and the same reprojection produced for DLSS SR.
+				// jitter in render pixels, and jitter-free camera reprojection for the vendor constants.
 				frameGeneration.streamlineSceneReady(main, motionTarget, commandBuffer(), new Matrix4f(history.currentProjection),
-						DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+						DlssMath.cameraReprojection(history.previousUnjittered, history.currentUnjittered, (float) delta.x, (float) delta.y, (float) delta.z),
 						history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
 						DebugSettings.jitterSignX(JITTER_SIGN) * jitter.x(), DebugSettings.jitterSignY(JITTER_SIGN) * jitter.y(),
 						history.cameraNear, history.motionFar, history.cameraFov, lastFrameMs, fgReset, false, displayWidth, displayHeight);
@@ -1277,7 +1277,7 @@ public final class UpscalingRenderer {
 			frameGeneration.prepareStreamlineInputs(main, motionTarget, commandBuffer);
 			Vec3 delta = history.delta();
 			result = frameGeneration.evaluateStreamlineDlss(commandBuffer, outputTarget, history.currentProjection,
-					DlssMath.reprojection(history.previousUnjittered, history.currentJittered, (float) delta.x, (float) delta.y, (float) delta.z),
+					DlssMath.cameraReprojection(history.previousUnjittered, history.currentUnjittered, (float) delta.x, (float) delta.y, (float) delta.z),
 					history.currentOrientation, (float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,
 					signedJitterX, signedJitterY, history.cameraNear, history.motionFar, history.cameraFov, resetting);
 		} else {
@@ -1287,7 +1287,7 @@ public final class UpscalingRenderer {
 			if (streamlineSrLogs++ == 0) ReflexiumClient.LOGGER.info("DLSS SR: Streamline SR alone (frame generation deferred or off)");
 			Vec3 delta = history.delta();
 			StreamlineSupport.setConstants(history.currentProjection,
-					DlssMath.reprojection(history.previousUnjittered, history.currentJittered,
+					DlssMath.cameraReprojection(history.previousUnjittered, history.currentUnjittered,
 							(float) delta.x, (float) delta.y, (float) delta.z),
 					history.currentOrientation,
 					(float) history.currentCamera.x, (float) history.currentCamera.y, (float) history.currentCamera.z,

@@ -34,6 +34,17 @@ public final class DlssMathCheck {
 				}
 			}
 		}
+		// Vendor camera constants: jitter-free clipToPrevClip. A still camera is exactly identity.
+		float[] still = DlssMath.cameraReprojection(projection, projection, 0, 0, 0).get(new float[16]);
+		for (int i = 0; i < 16; i++) near(still[i], i % 5 == 0 ? 1 : 0);
+		Matrix4f rotated = new Matrix4f(projection).rotateY(0.15f);
+		Matrix4f cameraRemap = DlssMath.cameraReprojection(projection, rotated, 0.3f, -0.1f, 0.4f);
+		Vector4f cameraWorld = new Vector4f(0.2f, 0.1f, -10, 1);
+		Vector4f cameraLocal = new Vector4f(cameraWorld).sub(0.3f, -0.1f, 0.4f, 0);
+		Vector4f cameraPrevious = ndc(cameraRemap.transform(ndc(rotated.transform(new Vector4f(cameraLocal)))));
+		Vector4f cameraExpected = ndc(projection.transform(new Vector4f(cameraWorld)));
+		near(cameraPrevious.x, cameraExpected.x);
+		near(cameraPrevious.y, cameraExpected.y);
 		near(DlssMath.halton(1, 2), 0.5f);
 		near(DlssMath.halton(2, 2), 0.25f);
 		near(DlssMath.jitterPhases(1920, 1920, Upscaler.FSR), 8);
@@ -44,7 +55,7 @@ public final class DlssMathCheck {
 		near(DlssMath.mipBias(960, 1920), -2);
 		near(DlssMath.mipBias(1280, 1920), -1.5849625f);
 		near(DlssMath.mipBias(1920, 1920), 0);
-		System.out.println("DLSS reprojection checks passed: translation, rotation, reverse depth and jitter.");
+		System.out.println("DLSS reprojection checks passed: translation, rotation, reverse depth, jitter and jitter-free camera constants.");
 	}
 
 	private static Vector4f ndc(Vector4f v) { return v.div(v.w); }

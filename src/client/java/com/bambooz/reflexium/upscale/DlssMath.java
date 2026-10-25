@@ -89,8 +89,20 @@ final class DlssMath {
 		if (isRotationCut(previousOrientation, currentOrientation)) return ResetReason.ROTATION;
 		return null;
 	}
+	/**
+	 * Motion-vector reprojection: maps a jittered current clip position to the unjittered previous clip
+	 * position, so the resulting vectors contain no camera jitter (motionVectorsJittered=false).
+	 */
 	static Matrix4f reprojection(Matrix4fc previous, Matrix4fc currentJittered, float dx, float dy, float dz) {
 		return new Matrix4f(previous).translate(dx, dy, dz).mul(new Matrix4f(currentJittered).invert());
+	}
+
+	/**
+	 * Vendor camera constant clipToPrevClip. Streamline requires constants to contain no temporal jitter
+	 * (sl::Constants), so both projections are unjittered. The jitter is supplied separately as jitterOffset.
+	 */
+	static Matrix4f cameraReprojection(Matrix4fc previous, Matrix4fc current, float dx, float dy, float dz) {
+		return new Matrix4f(previous).translate(dx, dy, dz).mul(new Matrix4f(current).invert());
 	}
 
 	static float halton(int index, int base) {
