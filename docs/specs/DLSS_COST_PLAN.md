@@ -22,15 +22,47 @@ This is a single task with three steps and fixed stop conditions. Do not add ste
 
 ## Fixed test setup (use for every number in this task)
 
-- Build under test, Testing harness (dev client) on the SECONDARY monitor only, 1920x1080 window.
-- Scene: smoke platform `(-24.5, 131, 10.5)`, yaw 0, pitch 0, frozen (no movement), render distance 12.
-- Mellow v3.4.1a, DH off, FG off, Reflex off, VSync off, uncapped, sound 0.
-- Settle 9 s after any pack reload or mode change, then 10 s capture with GPU pass timing on.
-- Record: average FPS, DLSS evaluate GPU us, total GPU frame us, and (step 2) tag/copy GPU us.
-- Each configuration twice, second pass in reverse order. Accept if the pair agrees within 3%;
-  if not, repeat once more; if it still disagrees, report it as noisy and move on. No further retries.
-- Mode proof per OBJECTIVES.md (render_size, evaluated counter rising, no last_error). One 640 px crop
-  per configuration at most.
+- Ryan's Benchmark Mod route (`benchmark-route`), NOT the dev test world. Use the existing copies
+  `%APPDATA%\ModrinthApp\profiles\Fabric 26.3 RxRound17` and `Documents\Benchmark Mod RxRound17` from
+  round 17 (install the build under test into that copy only). Never touch `Fabric 26.3` itself.
+- 1920x1080 window on the SECONDARY monitor only. Render distance 8, Mellow v3.4.1a, DH on (as Ryan
+  plays), FG off, Reflex off, VSync off, uncapped, sound 0.
+- Settle 9 s after any pack reload or mode change before starting the route.
+- Each configuration: two full route passes, second pass in reverse configuration order. Accept if the
+  average FPS pair agrees within 3%; if not, one more pass; if still off, report it as noisy and move on.
+  No further retries.
+- Mode proof per OBJECTIVES.md (render_size, evaluated counter rising, no last_error) and a content check
+  (one 640 px crop per configuration, not blank: round 17's DH-off Mellow crops were blank and invalid).
+- For Step 2 copy proof and per-pass GPU us, use a separate short frozen capture at a fixed route pose
+  with pass timing on. Profiling stays OFF during the route passes used for FPS.
+
+## DH must not generate during a measured pass (mandatory gate)
+
+Background LOD generation steals CPU/GPU and invalidates the data. Before measuring:
+1. Pre-generate: run the route once (unmeasured) so the corridor and its DH LODs exist, or confirm the
+   round 17 save already covers it.
+2. Set DH distant generation off in the copied profile's DH config (`generatorPlan=DISABLED`, or the
+   current DH option that disables world generation), keeping cached LOD rendering on.
+3. Prove it per pass: record DH's generation/queue state (DH debug/F3 task counts, its log lines, or the
+   DH API task count, whichever exists in this DH version) at the start and end of every measured pass.
+   It must report zero queued/running generation tasks and no new LOD files written under the save's
+   `data/DistantHorizons` folder during the pass (compare file count and total size before/after).
+4. Also check title-screen idle CPU/GPU is flat before each launch (OBJECTIVES.md load proof).
+Any pass where generation was active is invalid and is re-run, not reported as a result.
+
+## CapFrameX output (deliverable for Ryan)
+
+The Benchmark Mod writes CapFrameX-format captures to `Documents\CapFrameX\Captures\benchmark-*-capframex.csv`.
+- Keep every accepted pass's CSV; rename/copy them to
+  `docs/validation/dlss-cost-2026-10-26/capframex/<step>-<config>-pass<N>.csv` so they load directly in
+  CapFrameX (Ryan can open them there).
+- Produce one chart sheet image `docs/validation/dlss-cost-2026-10-26/capframex-sheet.png` in the
+  CapFrameX comparison style, generated from those CSVs: a bar chart per configuration with Average FPS,
+  1% low and 0.1% low (CapFrameX definitions: percentiles of frametimes), a frametime line graph overlay
+  per configuration, and a footer table with per-row validity (mode proof, content check, DH idle proof,
+  repeat agreement). Label it with build commit, resolution, pack, DH state, preset.
+- Compute the metrics with a small script committed under `tools/` so the sheet is reproducible.
+- Also write the same metrics into the validation report table. The sheet must match the table.
 
 ## Step 1: model cost on the current build (no code changes)
 
@@ -62,13 +94,14 @@ If the fix breaks DLSS or FG and one attempt to correct it fails, revert the cha
 
 Run only if, after Step 2, DLSS Quality CNN costs more than about 0.15 ms over native at this scene.
 Check out `03cd0a3` (last commit with the raw NGX path) into a separate worktree, build, and compare
-`-Dreflexium.streamline=false` vs `=true` with preset 5, same scene. Report the evaluate us of each.
+`-Dreflexium.streamline=false` vs `=true` with preset 5, same Benchmark Mod route and DH gate. Report the evaluate us of each.
 Do not port anything back in this task; just report the numbers.
 
 ## Deliverables
 
 - One commit for the Step 2 code change (if it works), one commit with
-  `docs/validation/dlss-cost-2026-10-26.md` holding the tables and a 5-line conclusion:
+  `docs/validation/dlss-cost-2026-10-26.md`, the CapFrameX CSVs, the chart sheet PNG and its script,
+  holding the tables and a 5-line conclusion:
   CNN cost, Transformer cost, copy saving, whether Streamline adds overhead vs raw NGX (if Step 3 ran),
   and a one-line recommendation for the default model (do not change the default in this task).
 - Push to `round6-validation`. Update the ai-brain only with new reusable facts.
@@ -76,7 +109,8 @@ Do not port anything back in this task; just report the numbers.
 ## Hard rules
 
 - Budget: this whole task, one session. No new "rounds", no broad pack/resolution matrices, no
-  Benchmark Mod route runs, no 1440p/4K runs, no Fabric 26.3 profile runs.
+  1440p/4K runs, no other packs. Only the configurations listed in Steps 1 to 3, on the Benchmark Mod
+  route in the RxRound17 copy. Never launch Ryan's real `Fabric 26.3` profile.
 - Do not change defaults, presets, fences, frames in flight, or anything outside `rx_sl_dlss_evaluate`
   and its Java caller (if the signature must change).
 - Launch Modrinth/harness clients detached only (`tools/launch-modrinth-profile.ps1` / the harness
