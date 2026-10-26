@@ -269,6 +269,10 @@ public final class StreamlineSupport {
 		// The state query is the only source for the generated-frame ceiling. Without it the first
 		// options call would assume the SDK maximum and be rejected when the driver supports less.
 		if (deviceReady && dlssgAvailable && dlssgFeatureLoaded) refreshFrameGenerationState();
+		// Keep capability data for the settings UI, but remove the FG proxy before the first
+		// swapchain is created when the saved setting is Off. configure() calls destroy even
+		// for an empty swapchain, so the same post-destruction transition handles startup.
+		if (deviceReady) requestFrameGenerationFeature(ReflexiumConfig.get().frameGeneration().nvidia());
 		String log = bridge.takeLog();
 		if (!log.isEmpty()) ReflexiumClient.LOGGER.info("[Streamline] {}", log.trim());
 		ReflexiumClient.LOGGER.info("Streamline device: {} ({}), version {}", status(), session.deviceName(), bridge.dlssVersion());
@@ -347,23 +351,32 @@ public final class StreamlineSupport {
 	 */
 	public static void requestFrameGenerationFeature(boolean loaded) {
 		if (!dlssgAvailable || bridge == null) return;
-		pendingFeatureLoaded = loaded;
+		pendingFeatureLoaded = loaded != dlssgFeatureLoaded || (loaded && DebugSettings.failDlssgLoad()) ? loaded : null;
 	}
 
 	/** Applies a queued load/unload while no swapchain exists. Called from the destroy hook. */
 	public static void onSwapchainDestroyed() {
-		if (bridge == null || pendingFeatureLoaded == null) return;
+		if (!deviceReady || bridge == null || pendingFeatureLoaded == null) return;
 		boolean want = pendingFeatureLoaded;
 		pendingFeatureLoaded = null;
+		// slSetFeatureLoaded requires a flushed pipeline. The engine waits its graphics
+		// queue during destruction; also drain the SDK's extra queues before changing hooks.
+		int idle = bridge.deviceWaitIdle(VulkanSession.current().device().address());
+		if (idle != VK10.VK_SUCCESS) throw new IllegalStateException("DLSS-G feature transition wait failed: " + idle);
 		boolean forcedFailure = want && DebugSettings.failDlssgLoad();
-		int result = forcedFailure ? 0x39 : bridge.dlssgSetLoaded(want);
-		dlssgFeatureLoaded = forcedFailure ? false : bridge.dlssgFeatureLoaded();
+		int result = bridge.dlssgSetLoaded(want && !forcedFailure);
+		dlssgFeatureLoaded = bridge.dlssgFeatureLoaded();
+		if (forcedFailure && result == 0) result = 0x39;
 		appliedFgMode = -1;
 		appliedFgGenerated = -1;
-		if (result != 0 || (want && !dlssgFeatureLoaded)) {
+		// Status/present counts describe the old swapchain; adapter capabilities remain cached.
+		dlssgStatus = 0;
+		dlssgFramesPresented = 0;
+		if (result != 0 || want != dlssgFeatureLoaded) {
 			problem = "DLSS-G load " + want + " failed " + result;
 			logProblem();
-			FailureNotice.report("DLSS Frame Generation failed to load; using rendered frames.");
+			FailureNotice.report(want ? "DLSS Frame Generation failed to load; using rendered frames."
+					: "DLSS Frame Generation could not unload; its presentation overhead remains (see log).");
 		} else if (featureLoadLogs < 12) {
 			featureLoadLogs++;
 			ReflexiumClient.LOGGER.info("DLSS-G feature loaded={} between swapchains", want);

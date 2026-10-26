@@ -61,7 +61,6 @@ public final class FrameGenerationRenderer {
 	private RenderTarget streamlineMotion;
 	private boolean streamlineActive;
 	private Boolean dlssgFeatureWanted;
-	private boolean dlssgLoadFailed;
 	
 	
 	private int lastStreamlinePresentResult;
@@ -135,10 +134,10 @@ public final class FrameGenerationRenderer {
 		return 1;
 	}
 	public boolean isDlssFgSupported() {
-		return StreamlineSupport.dlssgFeatureLoaded() && gate().frameGenerationAllowed();
+		return gate().frameGenerationAllowed();
 	}
 	public boolean isDlssMfgSupported() {
-		return StreamlineSupport.dlssgFeatureLoaded() && gate().multiFrameGenerationAllowed();
+		return gate().multiFrameGenerationAllowed();
 	}
 
 	/** What slIsFeatureSupported and slDLSSGGetState allow on this adapter and runtime. */
@@ -200,7 +199,7 @@ public final class FrameGenerationRenderer {
 	public void retry() {
 		failed = false; problem = ""; streamlineProblem = ""; resetNext = true;
 		streamlineUnfocused = false; streamlineNoGenerateFrames = 0;
-		dlssgFeatureWanted = null; dlssgLoadFailed = false;
+		dlssgFeatureWanted = null;
 		delivery.reset(); refreshPolicy.reset();
 	}
 
@@ -249,23 +248,15 @@ public final class FrameGenerationRenderer {
 	private void syncDlssgFeatureState() {
 		if (session == null || !session.streamline() || !StreamlineSupport.dlssgAvailable()) return;
 		boolean want = ReflexiumConfig.get().frameGeneration().nvidia();
-		if (!want) {
-			// Leave the plugin loaded while frame generation is off. The unload path is the guide's
-			// overhead optimization, but this SDK crashes in the next interposer swapchain creation
-			// after an unload, so the safe fallback is an options-off feature.
-			dlssgFeatureWanted = null;
-			return;
-		}
-		if (StreamlineSupport.dlssgFeatureLoaded() && !com.bambooz.reflexium.debug.DebugSettings.failDlssgLoad()) {
-			dlssgFeatureWanted = true;
-			return;
-		}
-		if (Boolean.TRUE.equals(dlssgFeatureWanted)) return;
-		dlssgFeatureWanted = true;
-		StreamlineSupport.requestFrameGenerationFeature(true);
+		if (Boolean.valueOf(want).equals(dlssgFeatureWanted)) return;
+		dlssgFeatureWanted = want;
+		// Also replaces/cancels a pending transition if the setting changes before recreation.
+		StreamlineSupport.requestFrameGenerationFeature(want);
+		if (StreamlineSupport.dlssgFeatureLoaded() == want
+				&& !(want && com.bambooz.reflexium.debug.DebugSettings.failDlssgLoad())) return;
 		Minecraft mc = Minecraft.getInstance();
 		if (mc != null) mc.invalidateSurfaceConfiguration();
-		ReflexiumClient.LOGGER.info("DLSS-G feature load requested; recreating the swapchain");
+		ReflexiumClient.LOGGER.info("DLSS-G feature loaded={} requested; recreating the swapchain", want);
 	}
 
 	public void beginFrame() {

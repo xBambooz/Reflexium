@@ -255,8 +255,6 @@ public abstract class VulkanGpuSurfaceMixin {
 	private void reflexium$swapchainDestroyed(CallbackInfo ci) {
 		reflexium$realView = null;
 		VulkanLifecycle.onSwapchainDestroyed();
-		// Guide 18.0: the DLSS-G load/unload transition happens while no swapchain exists.
-		StreamlineSupport.onSwapchainDestroyed();
 	}
 
 	/**
@@ -268,6 +266,9 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Inject(method = "destroySwapchain", at = @At("TAIL"))
 	private void reflexium$swapchainDestroyedTail(CallbackInfo ci) {
 		reflexium$streamlineSwapchain = false;
+		// Only now has the old proxy been destroyed and its handle cleared. Unloading at HEAD
+		// removes its hooks while the engine still owns the proxy swapchain.
+		StreamlineSupport.onSwapchainDestroyed();
 	}
 
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",

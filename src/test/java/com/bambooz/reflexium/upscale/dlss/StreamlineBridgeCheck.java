@@ -4,6 +4,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -86,10 +88,53 @@ public final class StreamlineBridgeCheck {
 	}
 
 	public static void main(String[] args) throws Exception {
+		swapchainUnloadOrder();
 		callSites();
 		handleTypes();
 		System.out.println("Streamline bridge checks passed: " + EXPECTED.size()
 				+ " handles match their native signatures and every call site");
+	}
+
+	/** Unloading at HEAD removes the SDK's destroy hook while the old proxy is still alive. */
+	private static void swapchainUnloadOrder() throws Exception {
+		ClassNode node = new ClassNode();
+		try (var in = StreamlineBridgeCheck.class.getResourceAsStream(
+				"/com/bambooz/reflexium/mixin/VulkanGpuSurfaceMixin.class")) {
+			new ClassReader(in).accept(node, 0);
+		}
+		int callbacks = 0;
+		for (var method : node.methods) {
+			for (var instruction : method.instructions) {
+				if (!(instruction instanceof MethodInsnNode call)
+						|| !call.owner.equals("com/bambooz/reflexium/upscale/dlss/StreamlineSupport")
+						|| !call.name.equals("onSwapchainDestroyed")) continue;
+				callbacks++;
+				boolean afterDestroy = false;
+				var annotations = new java.util.ArrayList<AnnotationNode>();
+				if (method.visibleAnnotations != null) annotations.addAll(method.visibleAnnotations);
+				if (method.invisibleAnnotations != null) annotations.addAll(method.invisibleAnnotations);
+				for (var annotation : annotations) {
+					if (!annotation.desc.equals("Lorg/spongepowered/asm/mixin/injection/Inject;")) continue;
+					if (!(annotationValue(annotation, "method") instanceof List<?> targets)
+							|| !targets.equals(List.of("destroySwapchain"))) continue;
+					if (annotationValue(annotation, "at") instanceof List<?> points && points.size() == 1
+							&& points.get(0) instanceof AnnotationNode at) {
+						afterDestroy = "TAIL".equals(annotationValue(at, "value"));
+					}
+				}
+				if (!afterDestroy) throw new AssertionError("DLSS-G unload must follow swapchain destruction: " + method.name);
+			}
+		}
+		if (callbacks != 1) throw new AssertionError("Expected exactly one post-destruction DLSS-G transition");
+	}
+
+	private static Object annotationValue(AnnotationNode annotation, String key) {
+		if (annotation.values != null) {
+			for (int i = 0; i < annotation.values.size(); i += 2) {
+				if (key.equals(annotation.values.get(i))) return annotation.values.get(i + 1);
+			}
+		}
+		return null;
 	}
 
 	/**
