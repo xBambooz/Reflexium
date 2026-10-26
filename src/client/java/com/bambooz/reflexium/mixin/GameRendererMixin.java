@@ -134,16 +134,23 @@ public abstract class GameRendererMixin {
 	@Unique
 	private void reflexium$drawDeferredCrosshair() {
 		CameraRenderState camera = reflexium$crosshairCamera;
-		if (camera == null) return;
+		FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
+		if (camera == null) {
+			frameGeneration.setDeferredUiDraw(null);
+			return;
+		}
 		reflexium$crosshairCamera = null;
-		RenderSystem.setProjectionMatrix(hud3dProjectionMatrixBuffer.getBuffer(hudProjection.getMatrix(new Matrix4f())), ProjectionType.PERSPECTIVE);
 		Runnable draw = () -> {
+			// The axes use the display-resolution HUD projection in every target, including the UI alpha
+			// replay, so the recomposed HUD matches the real frame instead of missing the crosshair.
+			RenderSystem.setProjectionMatrix(hud3dProjectionMatrixBuffer.getBuffer(hudProjection.getMatrix(new Matrix4f())), ProjectionType.PERSPECTIVE);
 			// Effects have finished using world depth. Lines belong on every output, like the GUI.
 			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(mainRenderTarget.getDepthTexture(), 0.0);
 			debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
 					mainRenderTarget.getDepthTextureView());
 		};
-		FrameGenerationRenderer.get().drawGuiCopies((GameRenderer) (Object) this, draw);
+		frameGeneration.setDeferredUiDraw(draw);
+		frameGeneration.drawGuiCopies((GameRenderer) (Object) this, draw);
 		draw.run();
 	}
 

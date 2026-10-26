@@ -575,7 +575,12 @@ public final class FrameGenerationRenderer {
 		}
 	}
 
-	/** Draws the GUI into a cleared UI alpha target so DLSS-G can recompose HUD pixels separately. */
+	/**
+	 * Draws display-fixed overlays that the GUI list cannot replay (the deferred F3 axis crosshair),
+	 * then the GUI, into a cleared UI alpha target so DLSS-G can recompose HUD pixels separately.
+	 */
+	public void setDeferredUiDraw(Runnable draw) { deferredUiDraw = draw; }
+
 	public void captureUiAlpha(GameRenderer renderer, Runnable draw) {
 		if (!UI_RECOMPOSITION) return;
 		if (!streamlineActive || uiColorAlphaTarget == null || uiAlphaFlippedTarget == null || failed) return;
@@ -584,7 +589,11 @@ public final class FrameGenerationRenderer {
 		RenderSystem.getDevice().createCommandEncoder().clearColorAndDepthTextures(uiColorAlphaTarget.getColorTexture(),
 				new org.joml.Vector4f(0.0f, 0.0f, 0.0f, 0.0f), uiColorAlphaTarget.getDepthTexture(), 0.0);
 		UpscalingRenderer.swap(renderer.mainRenderTarget(), uiColorAlphaTarget);
-		try { draw.run(); }
+		try {
+			// Same order as the real frame: crosshair first, then GUI.
+			if (deferredUiDraw != null) deferredUiDraw.run();
+			draw.run();
+		}
 		finally { UpscalingRenderer.swap(renderer.mainRenderTarget(), uiColorAlphaTarget); }
 		VulkanInterop.barrier(commands);
 		VulkanInterop.blitFlip(VulkanInterop.image(uiColorAlphaTarget.getColorTexture(), uiColorAlphaTarget.getColorTextureView()),
