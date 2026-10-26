@@ -53,7 +53,9 @@ public final class FrameGenerationRenderer {
 	private TextureTarget[] generated = new TextureTarget[0];
 	private TextureTarget hudlessTarget, uiColorAlphaTarget, uiAlphaFlippedTarget;
 	private TextureTarget srColorTarget, srOutputTarget;
+	private boolean srTargetsWanted;
 	private boolean streamlineInputsPrepared;
+	private Runnable deferredUiDraw;
 	private TextureTarget fgDepthTarget, fgMotionTarget;
 	private com.bambooz.reflexium.upscale.DepthResolvePass fgDepthFlip;
 	private RenderTarget streamlineMotion;
@@ -369,6 +371,13 @@ public final class FrameGenerationRenderer {
 			float jitterX, float jitterY, float near, float far, float fov, float frameMs, boolean reset,
 			boolean srOwnsConstants, int displayWidth, int displayHeight) {
 		if (!streamlinePath()) { noteStreamlineSkip("no streamline path"); return; }
+		// SR targets only exist for the shared SR/DLSS-G path. Native DLSS-G uses depth, motion and hudless
+		// only, so it must not allocate display-size SR inputs or copy scene color into them.
+		boolean srWanted = srOwnsConstants;
+		if (srWanted != srTargetsWanted) {
+			if (!srWanted) releaseSrTargets();
+			srTargetsWanted = srWanted;
+		}
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.gui.screen() != null || mc.isPaused()) {
 			ledger.reason(GenerationLedger.Shortfall.MENU);
@@ -420,7 +429,7 @@ public final class FrameGenerationRenderer {
 		}
 		FrameGeneration mode = count == 1 ? FrameGeneration.DLSS : FrameGeneration.DLSS_MULTI;
 		if (built != mode || hudlessTarget == null || uiColorAlphaTarget == null || uiAlphaFlippedTarget == null
-				|| srColorTarget == null || srOutputTarget == null
+				|| srTargetsWanted && (srColorTarget == null || srOutputTarget == null)
 				|| fgDepthTarget == null || fgMotionTarget == null || width != displayWidth || height != displayHeight
 				|| fgMotionTarget.width != motion.width || fgMotionTarget.height != motion.height) {
 			UpscalingRenderer.get().waitForGpu();
@@ -433,8 +442,10 @@ public final class FrameGenerationRenderer {
 			fgDepthTarget = new TextureTarget("Reflexium FG depth flipped", motion.width, motion.height, null, GpuFormat.D32_FLOAT);
 			fgMotionTarget = new TextureTarget("Reflexium FG motion flipped", motion.width, motion.height,
 					motion.getColorTexture().getFormat(), GpuFormat.D32_FLOAT);
-			srColorTarget = new TextureTarget("Reflexium SR color flipped", motion.width, motion.height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
-			srOutputTarget = new TextureTarget("Reflexium SR output flipped", displayWidth, displayHeight, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+			if (srTargetsWanted) {
+				srColorTarget = new TextureTarget("Reflexium SR color flipped", motion.width, motion.height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+				srOutputTarget = new TextureTarget("Reflexium SR output flipped", displayWidth, displayHeight, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+			}
 			built = mode;
 			resetNext = true;
 		}
@@ -489,13 +500,16 @@ public final class FrameGenerationRenderer {
 	 * (flipY) serves both features.
 	 */
 	public void prepareStreamlineInputs(RenderTarget scene, RenderTarget motion, VkCommandBuffer commands) {
-		if (!streamlineActive || srColorTarget == null || fgDepthTarget == null || fgMotionTarget == null
+		if (!streamlineActive || fgDepthTarget == null || fgMotionTarget == null
 				|| motion == null || failed || streamlineInputsPrepared) return;
 		long timing = FrameProfiler.start(FrameProfiler.FG_HUDLESS, commands);
-		VulkanInterop.barrier(commands);
-		if (scene.width == srColorTarget.width && scene.height == srColorTarget.height) {
-			VulkanInterop.blitFlip(VulkanInterop.image(scene.getColorTexture(), scene.getColorTextureView()),
-					VulkanInterop.image(srColorTarget.getColorTexture(), srColorTarget.getColorTextureView()), commands);
+		if (srTargetsWanted) {
+			if (srColorTarget == null || srOutputTarget == null) throw new IllegalStateException("SR targets missing for the shared DLSS path");
+			VulkanInterop.barrier(commands);
+			if (scene.width == srColorTarget.width && scene.height == srColorTarget.height) {
+				VulkanInterop.blitFlip(VulkanInterop.image(scene.getColorTexture(), scene.getColorTextureView()),
+						VulkanInterop.image(srColorTarget.getColorTexture(), srColorTarget.getColorTextureView()), commands);
+			}
 		}
 		if (fgDepthFlip == null) fgDepthFlip = new com.bambooz.reflexium.upscale.DepthResolvePass();
 		fgDepthFlip.render(motion.getDepthTextureView(), fgDepthTarget.getDepthTextureView(),
@@ -583,6 +597,14 @@ public final class FrameGenerationRenderer {
 			streamlineProblem = "DLSS-G UI tag failed " + Integer.toHexString(result);
 			ReflexiumClient.LOGGER.warn(streamlineProblem);
 		}
+	}
+
+	/** SR-only targets are dropped when the shared path ends; the GPU must finish the last read first. */
+	private void releaseSrTargets() {
+		if (srColorTarget == null && srOutputTarget == null) return;
+		UpscalingRenderer.get().waitForGpu();
+		if (srColorTarget != null) { srColorTarget.destroyBuffers(); srColorTarget = null; }
+		if (srOutputTarget != null) { srOutputTarget.destroyBuffers(); srOutputTarget = null; }
 	}
 
 	private void releaseStreamlineTargets() {
