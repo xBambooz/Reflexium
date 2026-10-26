@@ -1,0 +1,107 @@
+{
+  "native": {
+    "status": "accepted",
+    "accepted_passes": [
+      "lightpack-lightpack-native-pass1",
+      "lightpack-lightpack-native-pass2"
+    ],
+    "spread_pct": 0.6244466967270101,
+    "avg_fps": 446.6044024491556,
+    "low1_fps": 258.0964883526433,
+    "low01_fps": 160.34437605641278,
+    "all_passes": [
+      {
+        "key": "lightpack-lightpack-native-pass1",
+        "valid": true,
+        "review_valid": true,
+        "avg_fps": 445.2143393315003,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": false
+        }
+      },
+      {
+        "key": "lightpack-lightpack-native-pass2",
+        "valid": true,
+        "review_valid": true,
+        "avg_fps": 447.99446556681085,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": false
+        }
+      }
+    ]
+  },
+  "cnn-q": {
+    "status": "accepted",
+    "accepted_passes": [
+      "lightpack-lightpack-cnn-q-pass1",
+      "lightpack-lightpack-cnn-q-pass2"
+    ],
+    "spread_pct": 0.37929706165638066,
+    "avg_fps": 406.8466063541413,
+    "low1_fps": 242.911101340554,
+    "low01_fps": 158.1083940522733,
+    "all_passes": [
+      {
+        "key": "lightpack-lightpack-cnn-q-pass1",
+        "valid": true,
+        "review_valid": true,
+        "avg_fps": 407.61672444816526,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": false
+        }
+      },
+      {
+        "key": "lightpack-lightpack-cnn-q-pass2",
+        "valid": true,
+        "review_valid": true,
+        "avg_fps": 406.07648826011723,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": false
+        }
+      }
+    ]
+  },
+  "transformer-q": {
+    "status": "accepted",
+    "accepted_passes": [
+      "lightpack-lightpack-transformer-q-pass1",
+      "lightpack-lightpack-transformer-q-pass2"
+    ],
+    "spread_pct": 0.42072681890255037,
+    "avg_fps": 352.0824813348182,
+    "low1_fps": 216.84631641197598,
+    "low01_fps": 145.47816843691967,
+    "all_passes": [
+      {
+        "key": "lightpack-lightpack-transformer-q-pass1",
+        "valid": false,
+        "review_valid": true,
+        "avg_fps": 351.34338341458584,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": true
+        }
+      },
+      {
+        "key": "lightpack-lightpack-transformer-q-pass2",
+        "valid": false,
+        "review_valid": true,
+        "avg_fps": 352.8215792550506,
+        "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+        "dh_review": {
+          "durable_gate": true,
+          "transient_wal_changed": true
+        }
+      }
+    ]
+  }
+}
