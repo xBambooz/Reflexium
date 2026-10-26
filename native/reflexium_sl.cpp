@@ -825,22 +825,18 @@ RX_EXPORT int rx_sl_dlss_evaluate(void* commandBuffer, const RxImage* color, con
 	sl::Extent depthExtent = fullExtent(depth);
 	sl::Extent motionExtent = fullExtent(motion);
 	sl::Extent outputExtent = fullExtent(output);
+	// SR inputs are local tags on this evaluate, not global frame tags. Streamline 2.14.16 only
+	// clones a volatile tag when it is global and required at evaluate (resourceTaggingForFrame.cpp
+	// makeCopy checks !localTag), so local tags avoid the per-frame color and motion copies.
 	sl::ResourceTag tags[] = {
 		sl::ResourceTag(&colorRes, sl::kBufferTypeScalingInputColor, sl::ResourceLifecycle::eOnlyValidNow, &colorExtent),
 		sl::ResourceTag(&outputRes, sl::kBufferTypeScalingOutputColor, sl::ResourceLifecycle::eOnlyValidNow, &outputExtent),
 		sl::ResourceTag(&depthRes, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent, &depthExtent),
 		sl::ResourceTag(&motionRes, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eOnlyValidNow, &motionExtent),
 	};
-	uint32_t tagCount = 4;
-	sl::Result result = g_slSetTagForFrame(*g_token, sl::ViewportHandle(0), tags, tagCount,
-			reinterpret_cast<sl::CommandBuffer*>(commandBuffer));
-	if (result != sl::Result::eOk) {
-		appendLog("slSetTagForFrame(DLSS) failed " + std::to_string(static_cast<int>(result)));
-		return static_cast<int>(100 + static_cast<int>(result));
-	}
 	sl::ViewportHandle viewport(0);
-	const sl::BaseStructure* evaluateInputs[] = { &viewport };
-	result = g_slEvaluateFeature(sl::kFeatureDLSS, *g_token, evaluateInputs, 1,
+	const sl::BaseStructure* evaluateInputs[] = { &viewport, &tags[0], &tags[1], &tags[2], &tags[3] };
+	sl::Result result = g_slEvaluateFeature(sl::kFeatureDLSS, *g_token, evaluateInputs, 5,
 			reinterpret_cast<sl::CommandBuffer*>(commandBuffer));
 	if (result != sl::Result::eOk) {
 		appendLog("slEvaluateFeature(DLSS) failed " + std::to_string(static_cast<int>(result))

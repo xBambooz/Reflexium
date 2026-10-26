@@ -87,6 +87,33 @@ Verify:
 4. Quick sanity: FG on for 20 s (2x), confirm generated-present counter rises and no last_error.
    Image check: one crop native vs DLSS Q, no new artifacts.
 
+### Step 2 implementation note (2026-10-26)
+
+`rx_sl_dlss_evaluate` now builds the four SR `sl::ResourceTag` entries as stack locals and passes
+them beside `sl::ViewportHandle(0)` in the `slEvaluateFeature` inputs array. Its SR
+`slSetTagForFrame` call is removed. FG still tags depth, motion, HUD-less color and UI alpha globally
+in `rx_sl_dlssg_tags`; that path is unchanged. The Java caller did not need a signature change.
+
+How the tester proves the copies are gone:
+
+- Source proof: `native/reflexium_sl.cpp` has no SR `slSetTagForFrame`. The only remaining call is
+  the FG one, whose failure text is `slSetTagForFrame(DLSS-G) failed`.
+- Why local tags remove copies: Streamline 2.14.16
+  `source/plugins/sl.common/resourceTaggingForFrame.cpp` clones a non-write tag only when it is
+  required at evaluate, volatile, and not local (`makeCopy = ... && !localTag`). Local SR tags never
+  enter that branch. The SDK has no success log line for the clone, so absence must be observed, not
+  grepped.
+- Runtime observable: take a Vulkan API trace (RenderDoc or `VK_LAYER_LUNARG_api_dump`) of one frozen
+  route frame with DLSS Quality. Before the fix the DLSS command buffer contains resource copies
+  named `clone.tagVolatile.ScalingInputColor.<viewport>` and
+  `clone.tagVolatile.MotionVectors.<viewport>`; after the fix those copies are absent and only
+  `slEvaluateFeature` work remains.
+- Pass-timing observable: the profiler label is `evaluate` (`FrameProfiler.EVALUATE`). It wraps
+  `rx_sl_dlss_evaluate`, so its CPU and GPU microseconds included the two copies before this change.
+  Compare the `evaluate` span at the same frozen pose, pack and preset with the pre-fix build; the
+  expected saving is the negative delta. Do not claim a saving when the two captures use different
+  poses, packs or presets.
+
 Stop condition: Step 2 table filled and the copy question answered (gone / not gone / unproven).
 If the fix breaks DLSS or FG and one attempt to correct it fails, revert the change and report.
 
