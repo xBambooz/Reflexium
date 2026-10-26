@@ -1,0 +1,7 @@
+{
+  "classic": {"samples":10698,"expected_mean_px":2.901588,"actual_mean_px":2.899826,"p99_error_px":0.018604},
+  "oit": {"samples":1773,"expected_mean_px":0.086199,"actual_mean_px":0.087740,"p99_error_px":0.015553},
+  "units":"render pixels",
+  "selection":"independently reconstructed world Y within 191.98..196.02",
+  "check":"java tools/CaptureAnalysis.java cloud-check <capture.json> 192"
+}

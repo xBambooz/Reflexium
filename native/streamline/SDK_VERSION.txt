@@ -1,0 +1,8 @@
+Streamline SDK 2.14.16
+
+Source: https://github.com/NVIDIA-RTX/Streamline/releases/tag/v2.14.16
+Asset: streamline-sdk-v2.14.16.zip
+SHA-256: 32041e51db0cab709a271b72a352281b690c2abbd669a827809401a5dd23956b
+Vendored: include/*.h, bin/x64 production DLLs, license texts.
+All DLLs under bin/x64 verify with an NVIDIA Authenticode signature.
+The DLSS-G guide checked in beside this file is the pinned SDK copy.

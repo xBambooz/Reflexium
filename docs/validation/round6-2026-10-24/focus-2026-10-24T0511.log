@@ -1,0 +1,9 @@
+focus_start=2026-10-24T05:11:46.5508708-04:00 hwnd=937822880 original=6297458
+focused=True
+fg 2: fps=301.6 real=1814 gen=0 ratio=0 presented_fps=301.9 effective=2 status=0 [Frame generation: DLSS FG 2x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)]
+fg 3: fps=301.6 real=1812 gen=0 ratio=0 presented_fps=301.6 effective=3 status=0 [Frame generation: DLSS MFG 3x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)]
+fg 4: fps=301.7 real=1812 gen=0 ratio=0 presented_fps=301.7 effective=4 status=0 [Frame generation: DLSS MFG 4x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)]
+captured 16 desktop frames at 4x
+fg auto: fps=306.2 real=1840 gen=0 ratio=0 presented_fps=306.3 effective=1 status=0 [Frame generation: rendered only (frame target 223 FPS, Auto output budget)]
+fg auto-4k: fps=201.7 real=1211 gen=0 ratio=0 effective=1 [Frame generation: rendered only (frame target 223 FPS, Auto output budget)]
+focus_end=2026-10-24T05:12:55.4704753-04:00 restored=6297458 duration_s=68.9

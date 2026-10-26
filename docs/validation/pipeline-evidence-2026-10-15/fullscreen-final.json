@@ -1,0 +1,28 @@
+{
+    "windowed":  {
+                     "x":  3040,
+                     "y":  270,
+                     "width":  960,
+                     "height":  540,
+                     "placement":  "display 2 \u0027XF250Q\u0027 at 3040,270",
+                     "gui_width":  480,
+                     "gui_height":  270
+                 },
+    "fullscreen":  {
+                       "x":  3040,
+                       "y":  270,
+                       "width":  960,
+                       "height":  540,
+                       "placement":  "display 2 \u0027XF250Q\u0027 at 3040,270",
+                       "gui_width":  480,
+                       "gui_height":  270
+                   },
+    "full_rx":  {
+                    "w":  960,
+                    "h":  540
+                },
+    "window_rx":  {
+                      "w":  960,
+                      "h":  540
+                  }
+}

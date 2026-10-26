@@ -55,23 +55,27 @@ these files by `Benchmark Mod/tools/mctest/build_upscaling.py`.
 
 Benchmark Mod performs its own first-capture conditioning and world reload in each JVM. The script adds no conditioning capture. It checks the copied world's hashes and writes raw BM results, `protocol.json`, `runs.jsonl` and `summary.json` under `build/bm-bench/<label>-<set>/`. Both arms use a fixed 4 GiB heap and the selected jar is isolated from this worktree's compiled classes.
 
-Build the candidate and driver first, then run the shaderless reduced set:
+The pinned candidate and driver jars are already built. Run the shaderless reduced set:
 
 ```powershell
-$env:JAVA_HOME = 'C:\Program Files\GraalVM\graalvm-jdk-25.0.4+7.1'
-.\gradlew.bat build bmDriverJar
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\bm-quick-bench.ps1 -SelfCheck
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\bm-quick-bench.ps1 -OldJar C:\Users\Ryan\source\repos\Reflexium\build\perf-jars\ac1e339.jar -NewJar C:\Users\Ryan\source\repos\Reflexium\build\libs\Reflexium-1.2.0-alpha-fabric-26.3.jar -Label haiku-final-20261014 -Set A -IncludeFG
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\bm-quick-bench.ps1 -OldJar C:\Users\Ryan\source\repos\Reflexium\build\perf-jars\ac1e339.jar -NewJar C:\Users\Ryan\source\repos\Reflexium\build\perf-jars\d057dbf.jar -Label haiku-perf-d057-20261014 -Set A -IncludeFG
 ```
 
 The default modes are native, DLSS CNN Performance, DLSS Transformer Performance, DLSS Transformer DLAA, and FSR Performance. `-IncludeFG` adds DLSS FG 2x and MFG 4x when FG or present code changed. Use `-Set B` with a new label when shader or pass code changed; it enables Complementary Reimagined before the world loads. The normal capture uses three BM passes and a 10-second warmup. Jar paths may be absolute. The script requires an unused port (default 25601), the local harness and BM jar, and the frozen FPS Lab scene.
 
 `-Explore` compares runtime variants forward and reversed in one JVM. Overrides follow `@`, for example `-Modes 'tf-performance,tf-performance@reflex_mode=off'`; each touched override resets before the next mode that omits it. `-Diagnostics` records a five-second CPU/GPU profile and driver latency reports during each capture. Its FPS is instrumented diagnostic evidence and must not be treated as final acceptance. Do not repeat exploratory sweeps.
 
-`-Quick -Explore` captures each selected variant once in one JVM. It skips the reverse order and BM conditioning, so it is a rough check with a possible cold-first-capture bias. Reflex diagnostics accept `smart_reflex=0` and `reflex_interval_us=0|800` overrides. Keep Smart Reflex disabled when comparing real Reflex pacing. See [the interval and API-trace investigation](../PERFORMANCE.md#reflex-isolation-and-800-us-interval-check-14-october-2026).
+`-Quick -Explore` captures each selected variant once in one JVM. It skips the reverse order and BM conditioning, so it is a rough check with a possible cold-first-capture bias. Reflex diagnostics accept a `reflex_interval_us=0|800` override. See [the interval and API-trace investigation](../PERFORMANCE.md#reflex-isolation-and-800-us-interval-check-14-october-2026).
 
 The A/A noise bands recorded in `ai-brain/minecraft/fps-lab.md` are about 2.4% for average FPS and 16.8% for 1% low for one launch per arm; the summary scales these by the square root of two for its two launches per arm. The reported FG FPS is the rate of real frames, so multiply by the FG factor only when describing displayed frames. Keep both native controls and all raw BM files; no single 1% low pair is conclusive. Do not resume a partial ABBA block: run the entire command with a new label.
 
-The command above is the final-jar verification handoff for Haiku. Run from this repo after `build bmDriverJar`; it uses the full reduced set with BM conditioning and no profiling. `haiku-final-20261014` has not been run in this continuation. If that output exists, choose a new label and rerun the whole block. Check the build and installed jar hashes against `bm/build-verification.json` before capturing. `ac1e339.jar` SHA-256 is `BB0EE641F7250A75F4747675BFB81F4A6807665376D9D2CCE2E323F24DBD7781`.
+The command above is the performance-commit verification handoff for Haiku. Run it from this repo with the committed BM script and driver. `d057dbf.jar` was built from an isolated `d057dbf` worktree with `build bmDriverJar` and SHA-256 `36E7F13025848664376B9FF06FE1D129E574097BCAE85BDCB1F1F7A7FD587085`. The driver at `build/libs/reflexium-bm-driver.jar` matches that isolated build, SHA-256 `015FF203E63DF4453200AA9C62D91C48F0EAA505DF9ACE0A0C8A13E29EECC6C0`. The previously installed build is recorded in `bm/build-verification.json`; the isolated build deliberately did not replace the Modrinth jar while another client was running. `haiku-perf-d057-20261014` has not been run. If that output exists, choose a new label and rerun the whole block. `ac1e339.jar` SHA-256 is `BB0EE641F7250A75F4747675BFB81F4A6807665376D9D2CCE2E323F24DBD7781`.
 
 Continuation evidence is under `bm/`: the former custom-scene bisect and interrupted marker sweep are explicitly historical diagnostics; `standard-reflex-cost-*` is the inherited standard-scene On/Off pair; `reflex-attribution/` is the one completed instrumented attribution diagnostic. Full BM captures remain at the paths listed in its `protocol.json`, with SHA-256 hashes. All six new captures preserved the copied world and foreground focus. Current BM skips visible-section sampling when Sodium is installed, so those arrays are empty and do not establish scene coverage equality. No FPS or latency improvement is claimed for the final jar. The excessive Reflex sleep remains unresolved; see [the performance report](../PERFORMANCE.md#benchmark-mod-continuation).
+
+## Concurrent captures and status timeouts
+
+The runner refuses other Minecraft clients, BM/FPS Lab parent processes and the native Reflex reference before setup and each JVM launch. It allows its own shell ancestors and Gradle daemons, and never stops other processes. This is a check, not a GPU reservation against later launches. Before/after mode status reads retry once on TimeoutException; setting mutations are not retried. Keep failed directories and choose a fresh label for another pair. The SelfCheck covers the process classifier, scene and statistics.
+
+The rejected FG batching experiment is recorded in [PERFORMANCE.md](../PERFORMANCE.md#rejected-fg-submit-batching-experiment-14-october-2026). No batching change was retained.

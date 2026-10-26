@@ -1,5 +1,7 @@
 # Vitrail compatibility
 
+The 2026-10-15 pipeline candidate adds an **opt-in experimental** early HDR and pack-surface motion route for the exact pinned Vitrail/Complementary archive. Default behavior remains the late route described below. Enable with `-PrxPackHdr=true` for dev launch. HDR/temporal quality and pacing acceptance remain incomplete; see [pipeline validation](validation/pipeline-improvements-2026-10-15.md) for source guards, resource stages, tested transitions and explicit coverage limits.
+
 Reflex compatibility was checked in game on 2026-10-10. DLSS and FSR shader upscaling were checked
 on 2026-10-13 with the same Vitrail/Sodium/Complementary versions. The integration uses optional
 Vitrail implementation mixins. Vitrail remains an optional dependency.
@@ -28,7 +30,8 @@ While Reflexium upscales a frame:
   projection already contains the offset and is not jittered twice.
 - Vitrail's first-person hand gets the same subpixel offset in its published and drawn matrices.
   Raw world-depth copies around each hand submission identify the pixels it actually covered;
-  their motion is zeroed instead of reprojecting them through the world camera. The solid and
+  their camera-motion fallback is zeroed instead of reprojecting them through the world camera.
+  Captured opaque hand animation then writes its independent eye-space vectors. The solid and
   translucent halves accumulate into the same frame mask. This uses actual depth changes rather
   than a near-depth cutoff that would also select nearby world geometry.
 - Mipmapped material atlas samplers receive Reflexium's render-scale mip bias. Pack composite,
@@ -38,13 +41,20 @@ While Reflexium upscales a frame:
   before the later HUD clear. The interface stays at display
   resolution.
 
-Complementary Reimagined and Unbound packs whose names begin `ComplementaryReimagined_` or
-`ComplementaryUnbound_` and declare both `TAA_DEFINE` and `TAA_JITTER` are loaded with in-memory
-`TAA_DEFINE=1` and `TAA_JITTER=0` overrides. The pack's TAA resolves its dithered lighting, while
-Reflexium supplies the only projection jitter for DLSS/FSR.
+Complementary Reimagined r5.9.3 is loaded with in-memory `TAA_DEFINE=1` and `TAA_JITTER=0`
+overrides, preserving its TAA-dependent effect sampling while Reflexium supplies projection jitter.
+For the exact reviewed `program/composite6.glsl` source, a SHA-256 guard permits replacing only its
+final `DoTAA` call with a current-color history write. DLSS/FSR performs the full-scene reconstruction;
+the pack's lighting branches, attachment schedule and files stay intact. This avoids stacking a pack
+full-scene temporal resolve before SR. The adapter is not a separate general lighting denoiser.
+Unknown source hashes keep the full-scene TAA fallback; other pack versions keep their own options.
+Changing ownership or the diagnostic policy invalidates Vitrail's kept flattened units before reload,
+so disabling upscaling cannot retain an adapted program from an earlier load.
 No pack or settings file is changed. Enabling or disabling an available upscaler reloads the
 current pack once; disabling restores the user's own settings. Shader toggles and world changes
-read the same override through the pack's normal load path.
+read the same override through the pack's normal load path. The reconstruction input is still the
+pack's final LDR image, not an early HDR stage. Full stage separation and independent shader-deformation
+vectors remain unresolved. See [current validation](validation/upscaling-quality-2026-10-14.md).
 
 Vitrail's warmup wrapper skips the entire `renderLevel()` invocation while the pack compiles,
 and also on a frame where `PackChain.beforeLevel()` reloads it. The caller still reaches post

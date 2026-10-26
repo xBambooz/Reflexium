@@ -1,0 +1,13 @@
+mode,scene,motion,avg_fps,low1_fps,dir
+native,pen,static,319.6,171.0,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\native\pen-static
+native,pen,pan,318.3,195.3,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\native\pen-pan
+native,cage,static,394.6,212.2,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\native\cage-static
+native,cage,pan,395.6,230.2,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\native\cage-pan
+dlss_p,pen,static,362.1,155.8,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\dlss_p\pen-static
+dlss_p,pen,pan,359.9,159.3,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\dlss_p\pen-pan
+dlss_p,cage,static,501.8,193.1,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\dlss_p\cage-static
+dlss_p,cage,pan,469.5,255.5,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\dlss_p\cage-pan
+fg2,pen,static,240.6,163.8,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\fg2\pen-static
+fg2,pen,pan,241.8,158.8,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\fg2\pen-pan
+fg2,cage,static,301.5,193.9,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\fg2\cage-static
+fg2,cage,pan,303.5,195.6,C:\Users\Ryan\source\repos\Reflexium\build\range-pans\mobs\fg2\cage-pan

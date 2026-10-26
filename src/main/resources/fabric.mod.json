@@ -21,7 +21,8 @@
 		{ "config": "reflexium.mixins.json", "environment": "client" },
 		{ "config": "reflexium.rendering.mixins.json", "environment": "client" },
 		{ "config": "reflexium.compat.mixins.json", "environment": "client" },
-		{ "config": "reflexium.vitrail.mixins.json", "environment": "client" }
+		{ "config": "reflexium.vitrail.mixins.json", "environment": "client" },
+		{ "config": "reflexium.iris.mixins.json", "environment": "client" }
 	],
 	"depends": {
 		"fabricloader": ">=${loader_version}",

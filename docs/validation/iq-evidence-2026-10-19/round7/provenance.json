@@ -1,0 +1,13 @@
+{
+    "prototype_jar_sha256":  "AE9D77A34F6A261A8E8E00B0ACD676CD40BF32B4ECE1BDF4EE315D65B00C5193",
+    "debug_port":  25627,
+    "base":  "e66c518",
+    "port":  25626,
+    "revert":  "b1b51f0",
+    "note":  "Vanilla and binary arms use the same prototype JAR; dev toggle reloads block atlas.",
+    "owned_pid":  5088,
+    "prototype":  "a232068f09814a8994a2ed8060c975c2b1f60dcf",
+    "final_jar_sha256":  "D12F8DF630B0F5F270AC0CFE5CE4C3228E32C86122168C00205249DC077C9950",
+    "final_build":  "BUILD SUCCESSFUL; build/validation/round7/build-final.log",
+    "shutdown":  "PID 5088 absent and listeners 25626/25627 closed after authenticated quit exit=1"
+}

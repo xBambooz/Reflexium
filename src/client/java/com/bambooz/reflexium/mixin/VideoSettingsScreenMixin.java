@@ -1,8 +1,8 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.gui.ReflexiumOptions;
-import com.bambooz.reflexium.vulkan.VulkanSession;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
@@ -23,10 +23,8 @@ public abstract class VideoSettingsScreenMixin extends OptionsSubScreen {
 	@Inject(method = "addOptions", at = @At(value = "INVOKE", ordinal = 1,
 			target = "Lnet/minecraft/client/gui/components/OptionsList;addHeader(Lnet/minecraft/network/chat/Component;)V"))
 	private void reflexium$addReflexOption(CallbackInfo ci) {
-		VulkanSession session = VulkanSession.current();
-		if (session != null && session.lowLatency2()) {
+		if (StreamlineSupport.reflexAvailable()) {
 			list.addBig(ReflexiumOptions.reflexMode());
-			list.addBig(ReflexiumOptions.smartReflex());
 		}
 		if (UpscalingRenderer.get().isReady()) {
 			list.addBig(ReflexiumOptions.upscaler());

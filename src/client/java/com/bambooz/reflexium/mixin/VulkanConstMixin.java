@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.compat.ComplementaryHdr;
 import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.backend.vulkan.VulkanConst;
 import org.lwjgl.vulkan.VK10;
@@ -20,6 +21,10 @@ public abstract class VulkanConstMixin {
 		// Only RGBA8 render targets (the main target family): storage support for RGBA8_UNORM is mandatory in
 		// Vulkan, while other formats (RGB8, 16-bit RGB) may not support storage on AMD or Intel drivers.
 		if (format == GpuFormat.RGBA8_UNORM && (usage & 8) != 0) {
+			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
+		}
+		if (format == GpuFormat.RGBA16_FLOAT && (usage & 8) != 0
+				&& ComplementaryHdr.ENABLED && ComplementaryHdr.storageSupported()) {
 			cir.setReturnValue(cir.getReturnValue() | VK10.VK_IMAGE_USAGE_STORAGE_BIT);
 		}
 	}

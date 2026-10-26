@@ -1,0 +1,7 @@
+mode,rep,fps,sleep_us,scene
+off,1,194.5,9.74,shaderless 1080p render distance 31 1000 armor stands
+off,2,199.3,9.74,shaderless 1080p render distance 31 1000 armor stands
+on,1,195.7,10.3,shaderless 1080p render distance 31 1000 armor stands
+on,2,202.0,10.3,shaderless 1080p render distance 31 1000 armor stands
+on_boost,1,199.8,10.2,shaderless 1080p render distance 31 1000 armor stands
+on_boost,2,196.1,10.2,shaderless 1080p render distance 31 1000 armor stands

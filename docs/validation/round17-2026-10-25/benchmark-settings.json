@@ -1,0 +1,18 @@
+{
+    "schema":  1,
+    "warmupSeconds":  8,
+    "measuredRuns":  3,
+    "conditioningRun":  false,
+    "recordMetrics":  true,
+    "gpuUsageSampling":  false,
+    "creatorMode":  false,
+    "onboardingSeen":  true,
+    "keepDownloadedArchives":  false,
+    "radialKeyHint":  false,
+    "defaultSegmentSeconds":  4.0,
+    "corridorMargin":  512,
+    "resultsGraphSeries":  [
+                               "frametime"
+                           ],
+    "hudStyle":  "hidden"
+}

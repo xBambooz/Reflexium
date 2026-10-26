@@ -1,0 +1,362 @@
+[
+  {
+    "label": "before-smoke-2",
+    "captured_generated": 1,
+    "effective_multiplier": 2,
+    "requested_multiplier": 2,
+    "particle_copies": 0,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -9.600005,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 7525,
+    "fg_presented": 7520,
+    "last_error": ""
+  },
+  {
+    "label": "before-smoke-auto",
+    "captured_generated": 2,
+    "effective_multiplier": 3,
+    "requested_multiplier": 0,
+    "particle_copies": 0,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -8.400006,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 10968,
+    "fg_presented": 11401,
+    "last_error": ""
+  },
+  {
+    "label": "before-rain-2",
+    "captured_generated": 1,
+    "effective_multiplier": 2,
+    "requested_multiplier": 2,
+    "particle_copies": 0,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -9.200006,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 15048,
+    "fg_presented": 16993,
+    "last_error": ""
+  },
+  {
+    "label": "before-rain-auto",
+    "captured_generated": 2,
+    "effective_multiplier": 3,
+    "requested_multiplier": 0,
+    "particle_copies": 0,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.6,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -7.800007,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 18552,
+    "fg_presented": 20927,
+    "last_error": ""
+  },
+  {
+    "label": "after-smoke-2",
+    "captured_generated": 1,
+    "effective_multiplier": 2,
+    "requested_multiplier": 2,
+    "particle_copies": 1,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -10.000005,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 22973,
+    "fg_presented": 26958,
+    "last_error": ""
+  },
+  {
+    "label": "after-smoke-auto",
+    "captured_generated": 1,
+    "effective_multiplier": 2,
+    "requested_multiplier": 0,
+    "particle_copies": 1,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.6,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -10.000005,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 26686,
+    "fg_presented": 30669,
+    "last_error": ""
+  },
+  {
+    "label": "after-rain-2",
+    "captured_generated": 1,
+    "effective_multiplier": 2,
+    "requested_multiplier": 2,
+    "particle_copies": 1,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -9.400005,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 30789,
+    "fg_presented": 35980,
+    "last_error": ""
+  },
+  {
+    "label": "after-rain-auto",
+    "captured_generated": 2,
+    "effective_multiplier": 3,
+    "requested_multiplier": 0,
+    "particle_copies": 2,
+    "post_particles": true,
+    "render": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display": {
+      "w": 2560,
+      "h": 1440
+    },
+    "camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "eye_y": 153.62,
+      "yaw": -12.4,
+      "pitch": 0
+    },
+    "harness_camera": {
+      "x": 0,
+      "y": 152,
+      "z": 100,
+      "yaw": -8.000007,
+      "pitch": 0
+    },
+    "focus": {
+      "os_input_focus": false,
+      "os_foreground": false,
+      "os_minimized": false,
+      "hwnd": 186190330,
+      "foreground_hwnd": 76482898,
+      "os_cursor": {
+        "x": 1426,
+        "y": 691
+      }
+    },
+    "fg_evaluated": 34991,
+    "fg_presented": 41314,
+    "last_error": ""
+  }
+]

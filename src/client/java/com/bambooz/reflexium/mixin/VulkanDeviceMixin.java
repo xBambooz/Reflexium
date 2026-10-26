@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanInstance;
@@ -22,6 +23,11 @@ public abstract class VulkanDeviceMixin {
 
 	@Inject(method = "close", at = @At("HEAD"))
 	private void reflexium$closing(CallbackInfo ci) {
-		VulkanLifecycle.onDeviceClosing();
+		try {
+			VulkanLifecycle.onDeviceClosing();
+		} catch (RuntimeException e) {
+			// Never stop Minecraft's own device close.
+			ReflexiumClient.LOGGER.error("Reflexium device teardown failed", e);
+		}
 	}
 }

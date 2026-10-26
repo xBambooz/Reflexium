@@ -1,0 +1,18 @@
+Round 12 saved-multiplier clamp check (dev client, final jar 323d57e9...)
+
+Before launch, run/config/reflexium.properties contained:
+  frame_generation=dlss_multi
+  frame_generation_multiplier=8
+
+After launch and DLSS-G initialization, /status reported:
+  frame_generation=dlss_multi
+  fg_multiplier=6
+  fg_max_multiplier=6
+  fg_requested_generated=not checked on this launch
+  last_error=""
+
+run/config/reflexium.properties was rewritten to:
+  frame_generation_multiplier=6
+
+Result: pass. The saved 8 is clamped to the runtime maximum 6, persisted, and no renderer
+error is reported.

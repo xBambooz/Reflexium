@@ -1,0 +1,90 @@
+{
+    "run":  "reflex-cleanup-2026-10-23",
+    "date":  "2026-10-23",
+    "tester":  "validation sub-agent (Claude Code), no source edits, no commits, no pushes",
+    "repo":  "C:\\Users\\Ryan\\source\\repos\\Reflexium",
+    "head":  "8ff1966d7a258383e0d085f4048b488d60fd4201",
+    "git_status_short":  "At start: 24 entries (22 M, 2 D), identical to the session snapshot. Not re-captured after evidence was written (evidence is untracked under docs/validation).",
+    "jar":  {
+                "path":  "C:\\Users\\Ryan\\source\\repos\\Reflexium\\build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+                "size_bytes":  3315717,
+                "mtime":  "2026-10-23T06:22:10.0490644-04:00",
+                "sha256":  "45F7481BA85F7CAC0684229F4E6543EFE97310495DA27B6DC93B5A231D6169E6"
+            },
+    "note_on_jar":  "Dev client runs from source via runClient (Loom). The build jar was hashed for identity only; it was not installed into run/mods or Modrinth.",
+    "launch":  {
+                   "method":  "mc-agent-harness tools/launch.ps1 (not tools/run-debug.ps1). Reason: brain standing rule, test clients on secondary monitor, no focus steal. Same gradle task, with -PrxDebug=25599.",
+                   "command":  "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\\Users\\Ryan\\source\\repos\\mc-agent-harness\\tools\\launch.ps1 -Project C:\\Users\\Ryan\\source\\repos\\Reflexium -Port 25910 -Monitor secondary -Width 1920 -Height 1080 -RunDirectory C:\\Users\\Ryan\\source\\repos\\Reflexium\\run -GradlePropertiesJson \"{\\\"rxDebug\\\":\\\"25599\\\"}\" -JavaHome \"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\" -TimeoutSeconds 900",
+                   "harness_port":  25910,
+                   "debug_port":  25599,
+                   "game_pid":  7288,
+                   "launcher_pid":  5476,
+                   "launcher_result":  "ok, focus_unchanged=true, foreground hwnd unchanged (5571440)",
+                   "window":  "display 2 XF250Q at 2560,0, 1920x1080, not focusable",
+                   "displays":  "PG27AQDP 2560x1440 479.99 Hz primary; XF250Q 1920x1080 239.76 Hz secondary",
+                   "gpu":  "NVIDIA GeForce RTX 5070, driver as reported by the session (617.42 per Ryan)"
+               },
+    "other_clients_untouched":  {
+                                    "pids":  [
+                                                 17548,
+                                                 20276,
+                                                 5472,
+                                                 15736
+                                             ],
+                                    "name":  "Modrinth javaw (Minecraft clients)",
+                                    "state_at_end":  "alive at 06:37:01 (after quit); none running at 06:40:16. Not stopped by this session; cause not established.",
+                                    "on_gpu_process_list_at_end":  "no (nvidia-smi snapshot 06:37)"
+                                },
+    "join":  "rxdbg join \"Reflexium Vitrail Smoke\" -\u003e world_loaded true, frames advancing",
+    "pose":  {
+                 "requested":  "-25.5 69 23.5 0 0",
+                 "observed":  "x -25.5, y 65.0 (feet; eye 66.62), z 23.5, yaw 0, pitch 0. The player settled to the ground; identical for every capture."
+             },
+    "mods_in_run_mods":  [
+                             "BetterF3-20.0.0-Fabric-26.3.jar",
+                             "cloth-config-fabric-26.3.159.jar",
+                             "DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar",
+                             "fabric-api-0.162.0+26.3.jar",
+                             "iris-fabric-experimental-build-26.3.jar",
+                             "modmenu-21.0.0.jar",
+                             "reeses-sodium-options-fabric-2.2.5+mc26.3.jar",
+                             "sodium-fabric-0.9.2+mc26.3.jar"
+                         ],
+    "mods_note":  "Dev runClient also loads the project itself (Reflexium), the harness jar and the Loom dev mods. Vitrail and Aperture not installed (log: Vitrail: not installed).",
+    "pack":  "Iris 1.12.0-snapshot+mc26.3-local, Mellow v3.4.1a",
+    "settings_during_run":  {
+                                "vsync":  "off (check 3 used on, restored)",
+                                "maxFps":  260,
+                                "reflex_submission":  0,
+                                "frame_generation":  "off",
+                                "reflex_interval_us":  "-1 (check 4 used 16667, restored)",
+                                "reflex_trace_profiling":  "not enabled",
+                                "sound_master":  0
+                            },
+    "scene_A":  "upscaler off, quality performance (native 1920x1080)",
+    "scene_B":  "upscaler dlss, quality performance (render 960x540 -\u003e 1920x1080), dlss_model cnn",
+    "measurement":  "mode switch, 3 s warmup, frame_mark (POST harness /reflexium), 10 s wall clock, frame_stats_from (POST harness /reflexium), status snapshot (harness plugins.reflexium, rxdbg status)",
+    "abba_sequence":  "off, on, on_boost, on, off per scene",
+    "timeline":  "protocol.log.txt and launch-log.txt hold the timestamped steps",
+    "shutdown":  {
+                     "command":  "rxdbg.ps1 quit exit",
+                     "reply":  "{\"exiting\": true, \"ok\": true}",
+                     "pid_verified":  "command line contains agentharness-1.0.0.jar and run directory; harness status pid 7288",
+                     "exited":  true,
+                     "exit_time":  "2026-10-23T06:37:01",
+                     "crash_report":  "run/crash-reports/crash-2026-10-23_06.36.59-client.txt (Client shutdown from post-main watchdog)",
+                     "gradle":  "runClient FAILED after the watchdog (BUILD FAILED in 12m 14s); launcher pid 5476 gone"
+                 },
+    "evidence":  {
+                     "fps":  "fps.jsonl (16 rows)",
+                     "status":  "status.jsonl (26 harness snapshots)",
+                     "timings":  "timings-{A,B}-{off,on,on_boost}.json",
+                     "screenshots":  "screenshots/*.png (6 scene shots, 1 HUD shot)",
+                     "compare":  "compare/{A,B}/metrics.json",
+                     "errors":  "errors.txt",
+                     "launch":  "launch-log.txt, launch-output.json",
+                     "driver_helpers":  "lib.ps1"
+                 },
+    "restored_at_end":  "upscaler off, quality performance, dlss_model transformer, reflex_mode on_boost, vsync off, reflex_interval_us -1 (matches run/config/reflexium.properties values before the test)",
+    "brain":  "Read INDEX.md, workflow.md, communication-style.md, memory-protocol.md, minecraft/agent-harness.md, minecraft/workflow.md, projects/overview.md (Reflexium row) and tools/README.md before launching. Brain status clean at start."
+}

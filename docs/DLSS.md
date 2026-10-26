@@ -1,31 +1,110 @@
-# DLSS in Reflexium: findings and plan
+# DLSS and FSR in Reflexium
 
-Status: DLSS and AMD FSR 3.1 upscaling run on vanilla Vulkan and the supported Vitrail shader path.
-The 2026-10-13 smoke checks below describe the tested scope. They do not establish zero smearing
-for all content or NVIDIA/AMD certification.
+Status: DLSS and AMD FSR 3.1 upscaling run on vanilla Vulkan, the supported Vitrail shader path and
+the experimental Iris Vulkan build. Streamline 2.14.16 owns DLSS Super Resolution, Reflex/PCL and
+fixed 2x/3x/4x frame generation on the same Vulkan device; the raw NGX and raw low-latency2 paths
+were deleted in round 10. The 2026-10-23 pass measured clear gains
+with Iris/BSL at 1080p and 4K; vanilla 1080p is CPU bound on the test machine and remains faster
+without upscaling. The 2026-10-13 smoke checks below describe the tested scope. They do not establish
+zero smearing for all content or NVIDIA/AMD certification. Round 6 results are in
+[validation/round6-2026-10-24.md](validation/round6-2026-10-24.md).
+
+## Streamline path
+
+Streamline is loaded from its own directory (`<game>/reflexium/streamline`). The vendored SDK is
+2.14.16; its production DLLs are Authenticode-signed by NVIDIA and the asset SHA-256 is recorded in
+[validation/streamline-2026-10-24.md](validation/streamline-2026-10-24.md) and
+`native/streamline/SDK_VERSION.txt`.
+
+- The bridge initializes Streamline before Minecraft creates its Vulkan instance, adds the SDK's
+  instance and device requirements, and calls `slSetVulkanInfo` immediately after device creation.
+- Super Resolution uses Streamline frame tokens, `sl::Constants`, depth/motion/input/output tags and
+  `slEvaluateFeature`. The same render size, jitter, depth, motion vectors and reprojection feed it
+  as the NGX path.
+- Reflex uses `slReflexSetOptions`, one `slReflexSleep` per real frame and Streamline PCL markers.
+  `VkPresentIdKHR` remains the only present tag; Streamline configures the swapchain latency mode
+  itself.
+- The swapchain, image acquisition and present calls are routed through Streamline's Vulkan
+  proxies. The game still owns instance, device, queue and command recording. FSR keeps its own
+  scheduler and cannot share the Streamline present path.
+- Frame generation uses Streamline for fixed 2x/3x/4x on Vulkan, with hudless colour and UI-alpha
+  tagging. Streamline Dynamic MFG is D3D12-only at 2.14.16, so Auto keeps the application's
+  refresh-headroom policy. DLSS-G and DLSS SR share one constants block and mirrored inputs; the
+  previous raw-NGX SR exception is gone.
+- The unresolved defects are the BSL 1440p forest Quality loss, the 1080p evaluate cost and the
+  shaderless DLSS deficit.
+
+Full gate results, tables, per-pass timings and the not-run matrix rows are in the
+[Streamline report](validation/streamline-2026-10-24.md).
 
 ## Current implementation
 
-- The world renders at the selected internal resolution with Halton projection jitter. The GUI is
-  drawn after reconstruction at display resolution. Jitter phases scale with the square of the
-  ratio, including 72 phases at 3x Ultra Performance.
+Image-quality acceptance is recorded per requirement in
+[validation/upscaling-quality-2026-10-14.md](validation/upscaling-quality-2026-10-14.md) and in the
+[2026-10-23 production pass](validation/production-pass-2026-10-23.md). Nothing here is vendor
+certification, and the known gaps below are not hidden by the passing smoke checks.
+
+- The world renders at the selected internal resolution with Halton projection jitter. DLSS uses at
+  least 32 phases (NVIDIA programming guide 2.2: 16 minimum, 32 or more preferred), FSR keeps its
+  `max(8, ceil(8 * ratio^2))` rule, so 72 phases at 3x Ultra Performance for both. The GUI is drawn
+  after reconstruction at display resolution.
+- Super resolution runs after the world and hand passes and before vanilla's post effects
+  (`GameRenderer.applyPostEffects`), so those effects and the GUI see display-resolution color. When an
+  applied post chain samples the main target's depth, the world and hand depth the upscaler consumed
+  is copied nearest-neighbour into the display-size depth attachment first; with no such consumer
+  there is no depth work. Frame generation receives the image after post effects.
 - Camera vectors use full previous/current projections and camera translation. Opaque entity and
   block-entity submissions capture final current and previous animated vertex positions. A separate
-  velocity pass writes only surfaces matching scene depth. Geometry/model changes, cuts, teleports
-  and newly visible objects discard incompatible history. Capture is bounded to 196,608 vertices.
-- Mipmapped material samplers use `log2(render/display)` while upscaling, dynamically intercepted
-  in Mojang's `SamplerCache`, with zero bias in DLAA / Native AA. GUI, depth and composite samplers
-  keep their normal sampling.
+  velocity pass writes only surfaces matching scene depth. The first-person hand and held item are
+  captured in their own window with the modelview and projection they are drawn with (vanilla's hud
+  projection, or Vitrail's drawn hand matrix), so a swing or equip animation carries an independent
+  vector and a camera turn that carries the hand along produces none. Capture is bounded to 196,608
+  vertices.
+- History resets on the first frame, level change, a translation over 8 blocks, a gap over 250 ms, a
+  camera mode or camera entity change, a loading frame, and a frame-to-frame rotation over 60 degrees
+  (shortest arc, so `q` and `-q` agree). Each reason is counted separately in the harness status.
+  Camera, object and hand history restart together.
+- Mipmapped color materials use `log2(render/display) - 1` while upscaling (NVIDIA guide 3.5 and AMD's
+  recommendation), zero at native size. The correction is applied at the shared render pass binding
+  boundary for `Sampler0` (vanilla) and `u_BlockTex` (Sodium's terrain atlas, created outside
+  `SamplerCache`), and at Vitrail's atlas and PBR material sampler picks. A replacement is never
+  corrected again. GUI, depth, lightmap, shadow and composite samplers keep their states. The harness
+  status reports the `mipLodBias` recorded from the Vulkan create info for the samplers that were bound.
+- FSR camera planes and vertical field of view are decoded from Minecraft's unmodified camera
+  projection, not from the matrix after view bob, damage tilt and nausea. Reprojection keeps the drawn
+  matrix. Non-finite or impossible metadata is rejected and the last valid values are kept.
+- The transformer model requests K for DLAA/Quality/Balanced/Performance and L for Ultra Performance.
+  The 1440p K/M comparison favors K's retained detail and lower cost. Auto passes zero, CNN is preset E. The value is a hint
+  passed to NGX at feature creation; NGX does not report which model it selected.
 - The block selection outline uses vanilla's world pass. Post-upscale depth reconstruction left
   surface edges partially clipped, so the outline is reconstructed with the scene.
 - Color textures are created with `VK_IMAGE_USAGE_STORAGE_BIT`, eliminating intermediate full-screen
   copies and allowing DLSS and FSR to evaluate directly into the render target.
-- FSR receives AMD's autogenerated reactive mask from matched opaque/final scene colors on the
-  vanilla path. It is disabled for shader packs, whose pre-composite and tone-mapped colors are not
-  a matched pair.
+- Native-resolution frame generation uses Minecraft's window-sized colour and depth targets directly.
+  It records motion vectors into a separate render-size target and adds no colour copy, depth copy or
+  render-size swap. See [the performance report](PERFORMANCE.md) for the measured frame rates.
+- FSR runs without an autogenerated reactive mask. The vanilla opaque-color copy and reactive
+  dispatch were removed because their cost outweighed the benefit; FSR relies on its own
+  shading-change detection there. When a shader pack surface is available, its pre-composite
+  composition is passed as both the contribution mask and the reactive input. DLSS transformer
+  presets do not take a reactive mask (guide 3.15).
 - Vitrail 0.12.x receives reduced render targets, consistent projection jitter and a depth-difference
-  hand mask. Known Complementary packs keep their own TAA resolve with pack jitter disabled in memory while upscaling. Saved
-  pack options and Vitrail scale remain intact. See [Vitrail details](VITRAIL.md).
+  hand mask. The reviewed Complementary Reimagined r5.9.3 source bypasses its final full-scene TAA
+  resolve while preserving TAA-dependent lighting sampling. Both the pack version and normalized source
+  SHA-256 must match. Other source versions retain the conservative fallback. Saved pack options and
+  Vitrail scale remain intact. See [Vitrail details](VITRAIL.md).
+- Under Iris, pack temporal options are switched off generically by option name, not by pack identity:
+  boolean `TAA`/`FXAA`/`SMAA` variants and value options `TAA_DEFINE=0`, `TAA_MODE=0`, `TAA_JITTER=0`,
+  `FXAA_DEFINE=-1` and sharpening `0`. This covers BSL, Complementary Reimagined/Unbound, Mellow, Solas
+  and Bliss without per-pack source assumptions. Exact-source edits remain optional extras for the two
+  reviewed packs. Packs that hard-code jitter or a resolve with no option switch are not certifiable.
+- The Iris scene depth is `RenderTargets.getDepthTextureView(1)` (pre-translucent) with fallback to
+  indices 2 and 0 if an arbitrary loader/pack does not allocate it. Hand coverage comes from the hand
+  draw's depth difference. That mask is used only for the hand velocity pass: applying it to the world
+  motion pass classified some static pixels as hand under view bob and zeroed their motion, which
+  produced the reported walking smear. World passes now use a cleared coverage buffer. This is generic
+  Iris behavior; the root cause and before/after evidence are in
+  [the October 23 report](validation/pack-fg-bob-2026-10-23.md).
 - A missing `nvngx_dlss.dll` downloads in the background from the pinned NVIDIA 310.9.1 commit and
   must match SHA-256 before installation. NGX initializes on the render thread after completion,
   without restarting Minecraft. Existing DLLs are preserved. Automatic download can be disabled
@@ -33,31 +112,54 @@ for all content or NVIDIA/AMD certification.
 
 ## Validation and limits
 
-On 2026-10-13, Windows 11, Java 25.0.4, RTX 5070 and driver 617.42 passed vanilla DLSS/FSR smoke
-checks and Vitrail 0.12.0-beta + Sodium 0.9.2 + Complementary Reimagined r5.9.3 checks. The shader
-run exercised all five quality modes in both upscalers, all DLSS model choices, resize, pack reload,
-shader and upscaler toggles, a saved 75% Vitrail scale, and world rejoin. Evaluation counters advanced
-without renderer errors. The missing-DLL test downloaded 58,956,912 bytes with SHA-256
-`3975567b8943c53acce397f2b72380092f84f162d00b0d2c7d08a1025c563983` and reached DLSS evaluation in
-the same JVM. Still, turning, translation and motion-overlay captures were inspected.
+The [2026-10-19 Iris/BSL quality pass](validation/iq-overnight-2026-10-19.md) fixes frozen Bayer
+effect sampling when BSL TAA is bypassed. Exact-source edits preserve temporal sampling in clouds,
+AO, light shafts, reflections and LOD shadows while reconstruction remains owned by Reflexium.
+Quality/Balanced sky grain visibly improves without reducing measured ground detail. BSL deformation
+and blended-layer motion remain incomplete; this is not acceptance of lossless motion for every material.
 
-Remaining limits:
+Round 2 adds previous-deformation vectors for the exact reviewed BSL leaf/vine sources and captures
+depth-writing skin hands submitted through the translucent phase. The no-wave camera control passes
+for those leaf surfaces; independent animated-noise correspondence and the full motion-quality target
+remain open. See the report's Round 2 evidence and exclusions.
 
-- Translucent geometry and shader-generated deformation, such as waving leaves or water, do not
-  have independent per-vertex vectors. FSR's vanilla reactive mask mitigates transparency history;
-  shader packs need their own valid masks or motion outputs for equivalent handling.
-- The first-person hand receives zero motion rather than full animation vectors. Animated
-  block-entity capture has offline coverage but has not received a dedicated visual acceptance run.
+Round 3 extends the reviewed BSL producer to grass, crops, plants, tall plants and lilypads,
+including previous camera-relative contact bending. Iris primary depth/vectors now use its
+pre-translucent depth so terrain behind glass/water retains background correspondence. The
+no-wave grass and glass controls pass, including the brick wall behind a separate glass plane.
+Water surface shading, refraction, reflections, particles and volumetric clouds remain unresolved
+layers. See Round 3 for native/Quality/Balanced/Performance pans and the unchanged-default A/B.
+
+The 2026-10-13 smoke checks (Windows 11, Java 25.0.4, RTX 5070, driver 617.42, Vitrail 0.12.0-beta,
+Sodium 0.9.2, Complementary Reimagined r5.9.3) passed all quality modes in both upscalers, all DLSS
+model choices, resize, pack reload, shader and upscaler toggles, and world rejoin. The missing-DLL
+test downloaded 58,956,912 bytes with SHA-256
+`3975567b8943c53acce397f2b72380092f84f162d00b0d2c7d08a1025c563983` and reached DLSS evaluation in the same
+JVM. The 2026-10-14 recovery validation (linked above) adds independent numerical checks, an input/output
+capture path and 1080p comparisons. Its per-item outcomes take precedence over broad acceptance prose;
+the full quality target still has unresolved shader-stage and material-motion requirements.
+
+Known gaps:
+
+- SR still consumes the pack's final tone-mapped LDR image. An earlier HDR stage needs separate world
+  and post target sizing, exposure and format handling. The source-guarded adapter removes the extra
+  temporal resolve for the reviewed pack; it does not implement that HDR stage or a general lighting
+  denoiser. Source mismatches and unreviewed packs retain their original full-scene TAA fallback.
+- General translucent geometry, particles and shader-generated deformation outside the reviewed BSL
+  vegetation have no independent per-vertex vectors; they keep background camera motion. This includes BSL
+  water and the pack's world-time animation mode. FSR's shading-change detection and, for reviewed
+  packs, the composition mask mitigate transparency history; shader packs still need their own valid
+  masks or motion outputs for equivalent handling. The coverage inventory is in the validation report.
 - Custom renderers that change vertex connectivity without changing counts/UVs need stable vertex
-  identifiers from the renderer. Objects beyond the capture budget retain camera vectors.
+  identifiers from the renderer. Objects beyond the capture budget retain camera vectors. Hand layers
+  that do not write depth remain excluded; depth-writing blended hand coverage follows actual hand depth.
 - Unknown packs need pack-specific temporal validation. Aperture's separate renderer remains untested.
-- Other GPUs, high-resolution image-quality/performance comparisons, vendor verification tools,
-  Ray Reconstruction and Frame Generation have not been validated or implemented as applicable.
+- Other GPUs, vendor verification tools, Ray Reconstruction and a per-vendor image-quality
+  certification have not been done.
 
 Build checks run with `.\\gradlew.bat build`. The optional real-Vitrail-record check runs with
 `.\\gradlew.bat -I tools\\vitrail-check.gradle vitrailCompatCheck`. See [debugging](DEBUGGING.md) for
 repeatable captures. Radiance and Vitrail are the reference implementations reviewed for this work.
-
 ## How Radiance does it
 
 Radiance (Java mod) + MCVR (its C++ renderer, GPLv3) ship DLSS Super Resolution, Ray Reconstruction and Frame Generation.
@@ -65,7 +167,7 @@ Radiance (Java mod) + MCVR (its C++ renderer, GPLv3) ship DLSS Super Resolution,
 - **Native NGX.** MCVR links NVIDIA's static `nvsdk_ngx` library and calls NGX from C++ through JNI (`dlss_wrapper.cpp`, based on NVIDIA's Apache-2.0 `vk_denoise_dlssrr` sample). Feature DLLs (`nvngx_dlss*.dll`) are not shipped; players drop them into `<instance>/radiance/`.
 - **Motion vectors from its own renderer.** MCVR replaces Minecraft's world rendering with a ray tracer. Every hit keeps the previous frame's vertex positions (per-geometry previous index/vertex buffers) and previous object-to-world matrices (`shader/world/ray_tracing/internal/advanced/scene/motion.glsl`). Motion = current clip position minus previous clip position with the full previous view-projection, so camera translation, camera rotation and moving entities are all exact.
 - **Inputs.** Render-resolution color, linear depth converted to device depth, motion vectors, `MVLowRes`, jitter passed negated, `InReset` on camera cuts (more than 1 block or 30 degrees between frames).
-- **Frame generation** uses raw NGX DLSS-G (`NGX_VK_CREATE_DLSSG` / `EVALUATE_DLSSG`) with camera matrices, HUD-less color and UI alpha, and paces generated frames itself. It does not use Reflex.
+- **Frame generation** in Radiance uses raw NGX DLSS-G with camera matrices, HUD-less color and UI alpha, and paces generated frames itself. It does not use Reflex. This is the approach Reflexium replaced with Streamline in round 10.
 
 ## Why the old Reflexium DLSS had broken motion
 
@@ -78,7 +180,7 @@ Calling the driver's `_nvngx.dll` exports directly from Java (FFM), to avoid a n
 - `NVSDK_NGX_VULKAN_GetFeatureDeviceExtensionRequirements` before init: access violation (null read) inside `_nvngx.dll`.
 - `NVSDK_NGX_VULKAN_Init_ProjectID` after device creation: access violation (`0xFFFFFFFFFFFFFFFF`) inside `_nvngx.dll`.
 
-The export signatures match the public SDK (confirmed against OptiScaler's proxy), so the static library must pass state the exports rely on (most likely `FeatureCommonInfo.InternalData`). Reflexium now uses a native bridge linked against `nvsdk_ngx_s.lib`, like MCVR. MSVC Build Tools were installed and the bridge is bundled; ordinary Java builds need no native compiler.
+The export signatures match the public SDK (confirmed against OptiScaler's proxy), so the static library must pass state the exports rely on (most likely `FeatureCommonInfo.InternalData`). Reflexium now uses Streamline, which links NGX internally, so Reflexium itself no longer links `nvsdk_ngx_s.lib`. MSVC Build Tools build the Streamline and FSR bridges; ordinary Java builds need no native compiler.
 
 ## What 1.1.0 already does
 
@@ -95,7 +197,7 @@ Facts from the 26.3 jar:
 
 Steps:
 
-1. **Native bridge** (`reflexium_ngx.dll`, MSVC + `nvsdk_ngx_s.lib`, JNI or FFM): init on Minecraft's device, create/evaluate/release SR, shutdown. Start from NVIDIA's Apache-2.0 `vk_denoise_dlssrr` wrapper, not MCVR's GPL changes.
+1. **Streamline bridge** (`reflexium_sl.dll`, MSVC, FFM): `slInit` before the Vulkan instance, `slSetVulkanInfo` after the device, then Streamline tokens, tags and `slEvaluateFeature`. The earlier raw `reflexium_ngx.dll` bridge was removed in round 10.
 2. **Render resolution split**: world into a render-resolution target, DLSS output into the display-resolution `mainRenderTarget`, GUI drawn after at full resolution.
 3. **Jitter**: Halton(2,3) sub-pixel offsets in the level projection matrix, negative texture LOD bias of `log2(render/display)`.
 4. **Motion vectors**, the part that broke last time:

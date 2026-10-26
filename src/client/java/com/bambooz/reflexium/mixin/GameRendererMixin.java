@@ -1,10 +1,18 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.debug.DebugSettings;
+import com.bambooz.reflexium.upscale.DeferredEffects;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import net.minecraft.client.renderer.DebugCrosshairRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.GlobalSettingsUniform;
 import net.minecraft.client.renderer.Projection;
@@ -14,38 +22,61 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** DLSS frame hooks; see {@link UpscalingRenderer} for the sequence. Every hook is a no-op while DLSS is off. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+	@Shadow @Final private DebugCrosshairRenderer debugCrosshairRenderer;
+	@Shadow @Final private Projection hudProjection;
+	@Shadow @Final private ProjectionMatrixBuffer hud3dProjectionMatrixBuffer;
+	@Shadow @Final private RenderTarget mainRenderTarget;
+	@Unique private CameraRenderState reflexium$crosshairCamera;
+	@Unique private int reflexium$crosshairGuiScale;
 	@Unique private boolean reflexium$originalConsistentDepth;
+
+	@Inject(method = "processBlurEffect", at = @At("HEAD"))
+	private void reflexium$noteActualGuiBlur(CallbackInfo ci) { UpscalingRenderer.get().noteGuiBlur(); }
+
 	@ModifyVariable(method = "render3dHud", at = @At("HEAD"), argsOnly = true)
 	private boolean reflexium$preserveWorldDepth(boolean consistentDepthRequired) {
 		reflexium$originalConsistentDepth = consistentDepthRequired;
-		return consistentDepthRequired || UpscalingRenderer.get().isUpscalingThisFrame() && UpscalingRenderer.get().usesDirectDepth();
+		UpscalingRenderer upscaling = UpscalingRenderer.get();
+		return consistentDepthRequired || (upscaling.isUpscalingThisFrame() || upscaling.isFrameGenerationOnly()) && upscaling.usesDirectDepth();
 	}
 
 	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;integrate3DHudDepth()V"))
 	private void reflexium$integrateOnlyForPostEffects(GameRenderer renderer, Operation<Void> original) {
-		// The motion pass already combines world and hand depth for SR and FG.
-		if (reflexium$originalConsistentDepth) original.call(renderer);
+		// The motion pass combines world and hand depth for SR. Native FG still presents the vanilla image, so it
+		// keeps the normal merged depth for post effects and later passes.
+		if (reflexium$originalConsistentDepth || UpscalingRenderer.get().isFrameGenerationOnly()) original.call(renderer);
 	}
+
 	@WrapMethod(method = "render")
 	private void reflexium$frame(Operation<Void> original) {
 		GameRenderer self = (GameRenderer) (Object) this;
 		try {
+			DeferredEffects.clear();
 			UpscalingRenderer.get().beginFrame(self);
 			original.call();
-		} finally {
-			UpscalingRenderer.get().endFrame(self);
+		} catch (Throwable failure) {
+			// Restoring state can fail on the same broken encoder; never let that hide the original cause.
+			try {
+				UpscalingRenderer.get().endFrame(self);
+			} catch (Throwable cleanup) {
+				failure.addSuppressed(cleanup);
+			}
+			throw failure;
 		}
+		UpscalingRenderer.get().endFrame(self);
 	}
 
 	@WrapOperation(method = "render", at = @At(value = "INVOKE",
@@ -61,17 +92,80 @@ public abstract class GameRendererMixin {
 		UpscalingRenderer.get().beforeLevel((GameRenderer) (Object) this);
 	}
 
+	/** Super resolution belongs before post effects: reconstruct the scene, then let them run at display size. */
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
+	private void reflexium$upscale(CallbackInfo ci) {
+		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
+		if (!FrameGenerationRenderer.get().wantsMotion()
+				|| !DebugSettings.replayFgParticles)
+			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+	}
+
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V",
 			shift = At.Shift.AFTER))
-	private void reflexium$upscale(CallbackInfo ci) {
-		UpscalingRenderer.get().afterPostEffects((GameRenderer) (Object) this);
+	private void reflexium$completeScene(CallbackInfo ci) {
+		UpscalingRenderer.get().completeScene((GameRenderer) (Object) this);
+		// FG consumes particle-free scene color. Replay current effects on every output, before GUI.
+		if (FrameGenerationRenderer.get().wantsMotion()
+				&& DebugSettings.replayFgParticles)
+			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
+		if (FrameGenerationRenderer.get().streamlineActive())
+			FrameGenerationRenderer.get().streamlineHudless(mainRenderTarget, UpscalingRenderer.get().commandBuffer());
+		reflexium$drawDeferredCrosshair();
+	}
+
+	/**
+	 * The F3 axis crosshair is fixed on screen but drawn 1 block ahead of the camera into the world target, so the
+	 * camera motion pass gives it a world point's motion and the upscaler drags its history across every turn.
+	 * While upscaling it is drawn after reconstruction instead, at display resolution, like the GUI.
+	 */
+	@WrapOperation(method = "render3dHud", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/renderer/DebugCrosshairRenderer;render(Lnet/minecraft/client/renderer/state/level/CameraRenderState;ILcom/mojang/renderpearl/api/textures/GpuTextureView;Lcom/mojang/renderpearl/api/textures/GpuTextureView;)V"))
+	private void reflexium$deferCrosshair(DebugCrosshairRenderer renderer, CameraRenderState camera, int guiScale,
+			GpuTextureView color, GpuTextureView depth, Operation<Void> original) {
+		if (!UpscalingRenderer.get().isUpscalingThisFrame() || !DebugSettings.deferCrosshair) {
+			original.call(renderer, camera, guiScale, color, depth);
+			return;
+		}
+		reflexium$crosshairCamera = camera;
+		reflexium$crosshairGuiScale = guiScale;
+	}
+
+	@Unique
+	private void reflexium$drawDeferredCrosshair() {
+		CameraRenderState camera = reflexium$crosshairCamera;
+		FrameGenerationRenderer frameGeneration = FrameGenerationRenderer.get();
+		if (camera == null) {
+			frameGeneration.setDeferredUiDraw(null);
+			return;
+		}
+		reflexium$crosshairCamera = null;
+		Runnable draw = () -> {
+			// The axes use the display-resolution HUD projection in every target, including the UI alpha
+			// replay, so the recomposed HUD matches the real frame instead of missing the crosshair.
+			RenderSystem.setProjectionMatrix(hud3dProjectionMatrixBuffer.getBuffer(hudProjection.getMatrix(new Matrix4f())), ProjectionType.PERSPECTIVE);
+			// Effects have finished using world depth. Lines belong on every output, like the GUI.
+			RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(mainRenderTarget.getDepthTexture(), 0.0);
+			debugCrosshairRenderer.render(camera, reflexium$crosshairGuiScale, mainRenderTarget.getColorTextureView(),
+					mainRenderTarget.getDepthTextureView());
+		};
+		frameGeneration.setDeferredUiDraw(draw);
+		frameGeneration.drawGuiCopies((GameRenderer) (Object) this, draw);
+		draw.run();
 	}
 
 	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lorg/joml/Matrix4f;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private Matrix4f reflexium$jitterLevel(Matrix4f projection) {
+		DeferredEffects.projection(projection);
 		GameRenderer self = (GameRenderer) (Object) this;
 		return UpscalingRenderer.get().jitterLevelProjection(projection, self.gameRenderState().levelRenderState.cameraRenderState);
+	}
+
+	@ModifyArg(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;render(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;ZLnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;Lorg/joml/Vector4f;ZZ)V"), index = 3)
+	private GpuBufferSlice reflexium$particleFog(GpuBufferSlice fog) {
+		DeferredEffects.fog(fog);
+		return fog;
 	}
 
 	@Inject(method = "renderLevel", at = @At("RETURN"))
@@ -83,10 +177,13 @@ public abstract class GameRendererMixin {
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lnet/minecraft/client/renderer/Projection;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private GpuBufferSlice reflexium$jitterHud(ProjectionMatrixBuffer buffer, Projection projection, Operation<GpuBufferSlice> original) {
 		UpscalingRenderer dlss = UpscalingRenderer.get();
-		if (!dlss.isUpscalingThisFrame()) {
+		if (!dlss.isUpscalingThisFrame() && !dlss.isFrameGenerationOnly()) {
 			return original.call(buffer, projection);
 		}
-		return buffer.getBuffer(dlss.jitterHudProjection(projection.getMatrix(new Matrix4f())));
+		Matrix4f unjittered = projection.getMatrix(new Matrix4f());
+		Matrix4f jittered = dlss.jitterHudProjection(unjittered);
+		dlss.noteHandProjection(unjittered, jittered);
+		return buffer.getBuffer(jittered);
 	}
 
 	@Inject(method = "render3dHud", at = @At("HEAD"))

@@ -3,7 +3,7 @@ package com.bambooz.reflexium;
 import com.bambooz.reflexium.compat.ApertureCompat;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
-import com.bambooz.reflexium.debug.DebugServer;
+import com.bambooz.reflexium.debug.server.DebugServer;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,6 @@ public final class ReflexiumClient implements ClientModInitializer {
 		ReflexiumConfig config = ReflexiumConfig.get();
 		LOGGER.info("Reflexium loaded (Reflex: {}, Vitrail: {}, Aperture: {})",
 				config.reflexMode().displayName(),
-				
 				VitrailCompat.version(),
 				ApertureCompat.status());
 		DebugServer.startIfRequested();

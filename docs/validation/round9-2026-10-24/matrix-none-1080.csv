@@ -1,0 +1,6 @@
+"pack","window","mode","fps","eval_fps","line","render","display","mip","reflex","fg_status","world","screen","camera","error"
+"none","1920x1080","native","1430.9","0","Upscaling: off","1920x1080","1920x1080","-2.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"none","1920x1080","native_aa","702.3","702.3","DLSS: DLAA 1920x1080 -> 1920x1080","1920x1080","1920x1080","0.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"none","1920x1080","quality","828.6","828.6","DLSS: Quality 1280x720 -> 1920x1080","1280x720","1920x1080","-1.585","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"none","1920x1080","balanced","854.8","854.8","DLSS: Balanced 1114x626 -> 1920x1080","1114x626","1920x1080","-1.785","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"none","1920x1080","performance","879.5","879.5","DLSS: Performance 960x540 -> 1920x1080","960x540","1920x1080","-2.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""

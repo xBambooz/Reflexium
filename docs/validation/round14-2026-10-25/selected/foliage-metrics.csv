@@ -1,0 +1,15 @@
+arm,crop,psnr_db,detail_correlation,laplacian_native,laplacian_test
+native-repeat,A,99.00,1.0000,52.048,52.048
+DLAA-auto,A,25.93,0.844,52.048,33.68
+Quality-auto,A,25.82,0.834,52.048,34.41
+Quality-Transformer,A,25.82,0.834,52.048,34.39
+Quality-18-phases,A,25.53,0.815,52.048,35.34
+Quality-64-phases,A,25.90,0.839,52.048,34.06
+Quality-bias-2.085,A,25.79,0.833,52.048,34.83
+native-repeat,B,57.08,0.9999,45.240,45.239
+DLAA-auto,B,26.50,0.850,45.240,29.70
+Quality-auto,B,26.37,0.841,45.240,30.45
+Quality-Transformer,B,24.38,0.829,45.240,29.93
+Quality-18-phases,B,23.70,0.806,45.240,30.72
+Quality-64-phases,B,23.91,0.829,45.240,29.57
+Quality-bias-2.085,B,26.36,0.841,45.240,30.59

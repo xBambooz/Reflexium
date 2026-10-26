@@ -1,7 +1,8 @@
 package com.bambooz.reflexium.debug;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
@@ -23,7 +24,7 @@ public final class ReflexiumDebugEntries {
 			REFLEX, new Line(() -> ReflexController.get().statusLine()),
 			LATENCY, new Line(() -> ReflexController.get().latencyLine()),
 			DLSS, new Line(() -> UpscalingRenderer.get().statusLine()),
-			FRAME_GENERATION, new Line(() -> com.bambooz.reflexium.dlss.FrameGenerationRenderer.get().statusLine()));
+			FRAME_GENERATION, new Line(() -> FrameGenerationRenderer.get().statusLine()));
 
 	private ReflexiumDebugEntries() {
 	}

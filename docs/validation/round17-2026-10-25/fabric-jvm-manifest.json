@@ -1,0 +1,53 @@
+{
+    "source_sha256":  "9339585CC6E9B9552A937F77D45D7DF37A28A4FAA2AA87C1EB1329D98272C4AD",
+    "version":  "26.3-0.19.5",
+    "jvm":  [
+                {
+                    "rules":  [
+                                  {
+                                      "action":  "allow",
+                                      "os":  {
+                                                 "name":  "osx"
+                                             }
+                                  }
+                              ],
+                    "value":  [
+                                  "-XstartOnFirstThread"
+                              ]
+                },
+                {
+                    "rules":  [
+                                  {
+                                      "action":  "allow",
+                                      "os":  {
+                                                 "name":  "windows"
+                                             }
+                                  }
+                              ],
+                    "value":  "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"
+                },
+                {
+                    "rules":  [
+                                  {
+                                      "action":  "allow",
+                                      "os":  {
+                                                 "arch":  "x86"
+                                             }
+                                  }
+                              ],
+                    "value":  "-Xss1M"
+                },
+                "--enable-native-access=ALL-UNNAMED",
+                "--add-exports",
+                "java.base/jdk.internal.misc=ALL-UNNAMED",
+                "-Djava.library.path=${natives_directory}/java",
+                "-Djna.tmpdir=${natives_directory}/jna",
+                "-Dorg.lwjgl.system.SharedLibraryExtractPath=${natives_directory}/lwjgl",
+                "-Dio.netty.native.workdir=${natives_directory}/netty",
+                "-Dminecraft.launcher.brand=${launcher_name}",
+                "-Dminecraft.launcher.version=${launcher_version}",
+                "-cp",
+                "${classpath}",
+                "-DFabricMcEmu= net.minecraft.client.main.Main "
+            ]
+}

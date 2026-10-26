@@ -1,16 +1,13 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.debug.DebugServer;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
+import com.bambooz.reflexium.debug.server.DebugServer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Reflex frame pacing. The sleep must happen before SDL event polling in run(): input is sampled
@@ -18,16 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-	@Shadow private static int fps;
-
-	@Inject(method = "getFps", at = @At("HEAD"), cancellable = true)
-	private void reflexium$generatedFps(CallbackInfoReturnable<Integer> cir) {
-		int mult = FrameGenerationRenderer.get().displayMultiplier();
-		if (mult > 1) {
-			cir.setReturnValue(fps * mult);
-		}
-	}
-
 	@Inject(method = "run", at = @At(value = "INVOKE",
 			target = "Lcom/mojang/blaze3d/systems/RenderSystem;pollEvents(Lcom/mojang/blaze3d/platform/SDLEventHandler;)V"))
 	private void reflexium$sleepBeforeInput(CallbackInfo ci) {
@@ -38,6 +25,12 @@ public abstract class MinecraftMixin {
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void reflexium$debugTick(CallbackInfo ci) {
 		DebugServer.onClientTick();
+	}
+
+	/** The debug HTTP dispatcher is non-daemon; stop it before the JVM shutdown watchdog sees it. */
+	@Inject(method = "stop", at = @At("HEAD"))
+	private void reflexium$stopDebugServer(CallbackInfo ci) {
+		DebugServer.stop();
 	}
 
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;renderFrame(Z)V"))
@@ -67,8 +60,7 @@ public abstract class MinecraftMixin {
 			target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=frameLimiter"))
 	private void reflexium$observeFrameLimit(boolean advanceGameTime, CallbackInfo ci) {
 		Minecraft minecraft = (Minecraft) (Object) this;
-		ReflexController.get().updateFrameLimit(minecraft.gameRenderer.gameRenderState().framerateLimit,
-				minecraft.options.enableVsync().get(), minecraft.getWindow());
+		ReflexController.get().updateFrameLimit(minecraft.gameRenderer.gameRenderState().framerateLimit, minecraft.getWindow());
 	}
 
 	/** While Reflex paces frames with the same cap, vanilla's extra post-present sleep would only add latency. */

@@ -1,6 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.EntityMotionState;
+import com.bambooz.reflexium.motion.EntityMotionState;
 
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;

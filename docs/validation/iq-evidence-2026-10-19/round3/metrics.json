@@ -1,0 +1,506 @@
+[
+  {
+    "path": "before-bsl-plants-quality",
+    "region": "opaque_ground",
+    "mse": 2.214442592592593,
+    "psnr": 44.678159347901094,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-quality",
+    "region": "plants",
+    "mse": 62.961909523809524,
+    "psnr": 30.140024699305318,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-quality",
+    "region": "water",
+    "mse": 125.36003928571428,
+    "psnr": 27.149212413068163,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-balanced",
+    "region": "opaque_ground",
+    "mse": 2.6098666666666666,
+    "psnr": 43.96462040276774,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-balanced",
+    "region": "plants",
+    "mse": 85.18052976190476,
+    "psnr": 28.82740024121064,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-balanced",
+    "region": "water",
+    "mse": 363.0817166666667,
+    "psnr": 22.530759807258693,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-performance",
+    "region": "opaque_ground",
+    "mse": 3.8643462962962962,
+    "psnr": 42.26004322878151,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-performance",
+    "region": "plants",
+    "mse": 107.41605714285714,
+    "psnr": 27.820111539243797,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-plants-performance",
+    "region": "water",
+    "mse": 391.5075261904762,
+    "psnr": 22.203402456832038,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-quality",
+    "region": "opaque_ground",
+    "mse": 2.3056407407407407,
+    "psnr": 44.50288723333731,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-quality",
+    "region": "plants",
+    "mse": 68.03670952380952,
+    "psnr": 29.803370593108035,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-quality",
+    "region": "water",
+    "mse": 100.66699642857142,
+    "psnr": 28.101932499793527,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-balanced",
+    "region": "opaque_ground",
+    "mse": 2.681477777777778,
+    "psnr": 43.84706158684422,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-balanced",
+    "region": "plants",
+    "mse": 118.11290952380952,
+    "psnr": 27.407829930719117,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-balanced",
+    "region": "water",
+    "mse": 430.53101904761905,
+    "psnr": 21.79075913752088,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-performance",
+    "region": "opaque_ground",
+    "mse": 3.7921222222222224,
+    "psnr": 42.34198034422013,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-performance",
+    "region": "plants",
+    "mse": 106.2709880952381,
+    "psnr": 27.866656422509834,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-plants-performance",
+    "region": "water",
+    "mse": 494.4706214285714,
+    "psnr": 21.189398674230468,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-quality",
+    "region": "opaque_ground",
+    "mse": 1.309337037037037,
+    "psnr": 46.96028907988084,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-quality",
+    "region": "plants",
+    "mse": 1.5829404761904762,
+    "psnr": 46.13615776610767,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-quality",
+    "region": "water",
+    "mse": 8.224397619047618,
+    "psnr": 38.97976262185593,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-balanced",
+    "region": "opaque_ground",
+    "mse": 1.605474074074074,
+    "psnr": 46.074770640936855,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-balanced",
+    "region": "plants",
+    "mse": 1.8699964285714286,
+    "psnr": 45.41239583771627,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-balanced",
+    "region": "water",
+    "mse": 81.67172142857143,
+    "psnr": 29.010086513789464,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-performance",
+    "region": "opaque_ground",
+    "mse": 8.580877777777777,
+    "psnr": 38.79548644750384,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-performance",
+    "region": "plants",
+    "mse": 20.155890476190475,
+    "psnr": 35.08678371062893,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-bsl-water-performance",
+    "region": "water",
+    "mse": 165.85323809523808,
+    "psnr": 25.933564058253992,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-quality",
+    "region": "opaque_ground",
+    "mse": 1.3810166666666666,
+    "psnr": 46.72881441016514,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-quality",
+    "region": "plants",
+    "mse": 1.609577380952381,
+    "psnr": 46.06368500496916,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-quality",
+    "region": "water",
+    "mse": 8.728409523809523,
+    "psnr": 38.72145246367563,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-balanced",
+    "region": "opaque_ground",
+    "mse": 1.7131277777777778,
+    "psnr": 45.792906037901986,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-balanced",
+    "region": "plants",
+    "mse": 2.026075,
+    "psnr": 45.06424843099686,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-balanced",
+    "region": "water",
+    "mse": 90.1954630952381,
+    "psnr": 28.578956681403515,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-performance",
+    "region": "opaque_ground",
+    "mse": 7.415542592592592,
+    "psnr": 39.429374271693696,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-performance",
+    "region": "plants",
+    "mse": 12.933925,
+    "psnr": 37.01350022594572,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-bsl-water-performance",
+    "region": "water",
+    "mse": 170.3000392857143,
+    "psnr": 25.818656127199482,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-quality",
+    "region": "opaque_ground",
+    "mse": 3.684837037037037,
+    "psnr": 42.46662075044766,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-quality",
+    "region": "plants",
+    "mse": 52.25074404761905,
+    "psnr": 30.94987881712101,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-quality",
+    "region": "water",
+    "mse": 56.39208333333333,
+    "psnr": 30.618622215294696,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-balanced",
+    "region": "opaque_ground",
+    "mse": 3.816451851851852,
+    "psnr": 42.314205731512004,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-balanced",
+    "region": "plants",
+    "mse": 54.09477738095238,
+    "psnr": 30.79925023009405,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-balanced",
+    "region": "water",
+    "mse": 56.73414404761905,
+    "psnr": 30.592358538538384,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-performance",
+    "region": "opaque_ground",
+    "mse": 4.629637037037037,
+    "psnr": 41.47533417148226,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-performance",
+    "region": "plants",
+    "mse": 61.32128214285714,
+    "psnr": 30.254691340960985,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-plants-performance",
+    "region": "water",
+    "mse": 69.59343571428572,
+    "psnr": 29.705120834342043,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-quality",
+    "region": "opaque_ground",
+    "mse": 3.724177777777778,
+    "psnr": 42.420499565325414,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-quality",
+    "region": "plants",
+    "mse": 52.36564761904762,
+    "psnr": 30.94033881936472,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-quality",
+    "region": "water",
+    "mse": 56.97159523809524,
+    "psnr": 30.57421980740657,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-balanced",
+    "region": "opaque_ground",
+    "mse": 3.843111111111111,
+    "psnr": 42.28397420003651,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-balanced",
+    "region": "plants",
+    "mse": 54.50342738095238,
+    "psnr": 30.76656547658552,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-balanced",
+    "region": "water",
+    "mse": 57.3568630952381,
+    "psnr": 30.544949695624478,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-performance",
+    "region": "opaque_ground",
+    "mse": 4.561933333333333,
+    "psnr": 41.53931426524609,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-performance",
+    "region": "plants",
+    "mse": 60.84288095238095,
+    "psnr": 30.288705908567877,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-plants-performance",
+    "region": "water",
+    "mse": 66.76042857142858,
+    "psnr": 29.88561244879738,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-quality",
+    "region": "opaque_ground",
+    "mse": 3.993122222222222,
+    "psnr": 42.11767757504447,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-quality",
+    "region": "plants",
+    "mse": 7.3917761904761905,
+    "psnr": 39.44331552102922,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-quality",
+    "region": "water",
+    "mse": 12.884960714285715,
+    "psnr": 37.029972621249485,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-balanced",
+    "region": "opaque_ground",
+    "mse": 3.985777777777778,
+    "psnr": 42.12567279392356,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-balanced",
+    "region": "plants",
+    "mse": 7.506172619047619,
+    "psnr": 39.376618132291846,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-balanced",
+    "region": "water",
+    "mse": 13.824292857142858,
+    "psnr": 36.724374354369445,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-performance",
+    "region": "opaque_ground",
+    "mse": 4.742416666666666,
+    "psnr": 41.37080652625038,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-performance",
+    "region": "plants",
+    "mse": 8.631640476190476,
+    "psnr": 38.769870179857215,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "before-vanilla-water-performance",
+    "region": "water",
+    "mse": 15.111270238095239,
+    "psnr": 36.337793886394785,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-quality",
+    "region": "opaque_ground",
+    "mse": 3.993901851851852,
+    "psnr": 42.116829727726085,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-quality",
+    "region": "plants",
+    "mse": 7.371102380952381,
+    "psnr": 39.455479174915446,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-quality",
+    "region": "water",
+    "mse": 12.730007142857144,
+    "psnr": 37.082517135298424,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-balanced",
+    "region": "opaque_ground",
+    "mse": 3.9862296296296296,
+    "psnr": 42.12518047936318,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-balanced",
+    "region": "plants",
+    "mse": 7.543814285714285,
+    "psnr": 39.35489372506914,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-balanced",
+    "region": "water",
+    "mse": 13.73435238095238,
+    "psnr": 36.75272175015206,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-performance",
+    "region": "opaque_ground",
+    "mse": 4.999685185185185,
+    "psnr": 41.14137701860151,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-performance",
+    "region": "plants",
+    "mse": 9.214540476190477,
+    "psnr": 38.48606678787683,
+    "yaw_delta": 0.0
+  },
+  {
+    "path": "after-vanilla-water-performance",
+    "region": "water",
+    "mse": 15.956028571428572,
+    "psnr": 36.101555555663666,
+    "yaw_delta": 0.0
+  }
+]

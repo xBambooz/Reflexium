@@ -1,0 +1,58 @@
+diff --git a/src/client/java/com/bambooz/reflexium/compat/IrisCompat.java b/src/client/java/com/bambooz/reflexium/compat/IrisCompat.java
+index 30034f9..e152e64 100644
+--- a/src/client/java/com/bambooz/reflexium/compat/IrisCompat.java
++++ b/src/client/java/com/bambooz/reflexium/compat/IrisCompat.java
+@@ -84,7 +84,7 @@ public final class IrisCompat {
+ 				renderTargetsField.setAccessible(true);
+ 				depthView = Class.forName("net.irisshaders.iris.targets.RenderTargets").getMethod("getDepthTextureView", int.class);
+ 			}
+-			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), 1);
++			var view = (com.mojang.renderpearl.api.textures.GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), com.bambooz.reflexium.debug.DebugSettings.irisSurfaceDepth ? 0 : 1);
+ 			if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height)
+ 				throw new IllegalStateException("Iris pre-translucent depth does not match the current frame");
+ 			return view;
+diff --git a/src/client/java/com/bambooz/reflexium/debug/DebugServer.java b/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
+index 1ad8875..2ecf460 100644
+--- a/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
++++ b/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
+@@ -663,6 +663,15 @@ public final class DebugServer {
+ 				if (!Float.isFinite(offset) || offset < -4.0f || offset > 4.0f) throw new BadRequest("mip_bias_offset must be finite within -4..4 (+1 reproduces the pre-baseline bias)");
+ 				yield () -> DebugSettings.setMipBiasOffset(offset);
+ 			}
++			case "jitter_phases" -> {
++				int phases = Integer.parseInt(value);
++				if (phases != 0 && phases != 16 && phases != 32 && phases != 64) throw new BadRequest("jitter_phases must be 0, 16, 32 or 64");
++				yield () -> DebugSettings.jitterPhasesOverride = phases;
++			}
++			case "iris_surface_depth" -> {
++				boolean on = flag(Map.of("v", value), "v", true);
++				yield () -> DebugSettings.irisSurfaceDepth = on;
++			}
+ 			case "pack_shadow_cap" -> {
+ 				// "<resolution>,<distance>"; 0 keeps the pack's value. Recompiles the pack so the options apply.
+ 				String[] parts = value.trim().split(",");
+diff --git a/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java b/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
+index 92ff71c..309ae5b 100644
+--- a/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
++++ b/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
+@@ -22,6 +22,8 @@ public final class DebugSettings {
+ 	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
+ 	public static boolean clearFoliageSurface = true;
+ 	public static int dlssPreset = -1;
++	public static int jitterPhasesOverride;
++	public static boolean irisSurfaceDepth;
+ 	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
+ 	public static boolean reflexSubmission = false;
+ 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
+diff --git a/src/client/java/com/bambooz/reflexium/dlss/UpscalingRenderer.java b/src/client/java/com/bambooz/reflexium/dlss/UpscalingRenderer.java
+index ba6d090..f7b607e 100644
+--- a/src/client/java/com/bambooz/reflexium/dlss/UpscalingRenderer.java
++++ b/src/client/java/com/bambooz/reflexium/dlss/UpscalingRenderer.java
+@@ -1461,6 +1461,7 @@ public final class UpscalingRenderer {
+ 	/** Halton(2,3) sub-pixel offsets in render pixels. DLSS uses at least 32 phases, FSR its own ratio rule. */
+ 	private void advanceJitter() {
+ 		jitterPhases = DlssMath.jitterPhases(renderWidth, displayWidth, builtUpscaler);
++		if (builtUpscaler == Upscaler.DLSS && DebugSettings.jitterPhasesOverride != 0) jitterPhases = DebugSettings.jitterPhasesOverride;
+ 		jitterIndex = jitterIndex % jitterPhases + 1;
+ 		if (builtUpscaler == Upscaler.OFF || !DebugSettings.jitterEnabled()) {
+ 			jitterX = 0.0f;

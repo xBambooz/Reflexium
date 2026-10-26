@@ -1,10 +1,45 @@
 # Upscaling performance
 
-Continuation status, 14 October 2026: the apparent FG regression is session drift. The remaining Reflex throughput penalty is reproduced with Benchmark Mod on FPS Lab's standard scene, but a safe throughput fix has not been established. The changes below add diagnostics and correct latency reporting; they do not claim an FPS optimization. See the continuation evidence and the latest sleep audit at the end of this document.
+Continuation status, 14 October 2026: the apparent FG regression is session drift. The remaining Reflex throughput penalty is reproduced with Benchmark Mod on FPS Lab's standard scene, but a safe throughput fix has not been established. The changes below add diagnostics and correct latency reporting; they do not claim an FPS optimization. See the continuation evidence and the latest sleep audit at the end of this document. The upscaler path was re-measured on 23 October 2026; that section above is the current result.
 
 Measured on 14 October 2026, RTX 5070, NVIDIA 617.42, Minecraft 26.3, GraalVM Java 25, Vulkan, 1920x1080, VSync off, unlimited FPS and Reflex On. Frame generation is off unless a test explicitly enables it. This is a shaderless fixed-pose investigation, separate from the older moving-route Set A and shader Set B results.
 
 The outline timings below describe the earlier post-upscale renderer. That renderer was removed after visual checks showed depth-clipped edges even with corrected line indices. Current builds use vanilla's world-pass outline and skip the outline depth reconstruction entirely. The uniform and scene-depth optimizations measured here remain in place.
+
+## Round 5, 24 October 2026
+
+The Streamline SR matrix, BSL forest 1440p per-pass investigation, shaderless overhead floor,
+Reflex/PCL rows and the DLSS-G unfocused behaviour are in
+[the round 5 report](validation/round5-2026-10-24.md). Summary: BSL gains at 1080p and mostly at 4K,
+forest 1440p Quality and Balanced still lose, shaderless 1080p platform loses in every mode, and the
+1440p terrain growth follows BSL's shadow cost rather than mip bias.
+
+## Production pass, 23 October 2026
+
+The current build was measured on the smoke platform with Iris/BSL 10.1.8. Full tables, the no-shader
+CPU-bound analysis and the frame generation counts are in
+[the production pass report](validation/production-pass-2026-10-23.md). Summary:
+
+| Scene | Native | DLSS Quality | DLSS Balanced | DLSS Performance | FSR Performance |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1080p BSL | 389 | 447 (+15%) | 462 (+19%) | 508 (+31%) | 496 (+27%) |
+| 4K BSL | 175 | 218 (+24%) | 240 (+37%) | 274 (+56%) | 253 (+44%) |
+| 1080p no shaders | 992 | 853 (-14%) | 871 (-12%) | 869 (-12%) | 848 (-15%) |
+
+The no-shader scene is CPU bound: a native 960x540 window still spends 634 us in the world timestamp
+against 798 us at 1080p, so removing pixels does not free enough GPU time to pay for reconstruction.
+The shader and 4K rows are GPU bound and show the intended gains. DLAA costs about 14% at 1080p BSL.
+
+Frame generation on DLSS Performance at 1080p BSL delivered exact generated counts: 2x produced one
+generated present per real frame, 3x two and 6x five, while all three paced to the 223 FPS display
+budget. The base rate fell from 483 FPS rendered-only to 111, 74 and 37 real FPS respectively.
+Generation stops while a GUI screen is open. These are submitted presents, not scanout.
+
+Retained changes from this pass: native frame generation keeps the main colour and depth targets and
+adds no full-resolution copies or render-size swap; empty deferred particle or weather states no
+longer force a display-depth resolve; the unused FSR reactive output image and five stale profiler
+spans were removed. The earlier cleanup removed the Auto native-versus-DLSS probe loop, the
+full-resolution DLSS sharpen pass and the FSR opaque copy plus reactive mask.
 
 ## Measurement
 
@@ -211,6 +246,18 @@ DLAA audit: explicit Transformer is K=11, CNN is E=5, and Auto leaves per-qualit
 
 The final reduced-set, uninstrumented ABBA against `ac1e339` remains for the verification agent. It must use a fresh label, defaults of three BM passes and ten-second warmups, and `-IncludeFG` because FG profiling code changed. The exact command is in [the benchmark README](benchmarks/README.md). Do not treat this diagnostic set as that final comparison.
 
+### Pinned candidate quick check, 14 October 2026
+
+A clean `d057dbf` worktree built and passed `build bmDriverJar` with its install directory redirected away from the active Modrinth profile. Its jar was pinned as `build/perf-jars/d057dbf.jar`, SHA-256 `36E7F13025848664376B9FF06FE1D129E574097BCAE85BDCB1F1F7A7FD587085`. A `-Quick` Benchmark Mod run then compared it with `ac1e339` on the frozen shaderless scene. Each arm used one fresh JVM, one BM pass and a five-second warmup, with no conditioning capture. [Protocol, six capture hashes, rows, world hashes and summary](benchmarks/bm/quick-perf-d057/) are retained. Both launches preserved desktop focus; all six captures had the same route hash, and the 63 protected world files were unchanged.
+
+| Mode | Old FPS | Candidate FPS | Change | 1% low change |
+| --- | ---: | ---: | ---: | ---: |
+| Native | 1830.7 | 1835.0 | +0.24% | +1.77% |
+| Transformer Performance | 638.2 | 644.7 | +1.02% | -3.87% |
+| DLSS FG 2x, real frames | 318.7 | 319.1 | +0.12% | -2.50% |
+
+All throughput changes are within the quick run's 2.4% single-pair noise band; its 1% low band is 16.8%. This is a regression screen, not evidence of an optimization. The full reduced-set ABBA remains the verification handoff. No performance code change was retained from this quick check.
+
 ## VK_NV_low_latency2 sleep audit, 14 October 2026
 
 The frozen `benchmark-route` was captured in one JVM per set, forward and reverse, with one BM pass, five seconds of warmup and `-Diagnostics`. All sets used `reflex_submission=0` so the driver reports avoided the previously observed inverted explicit-attribution timestamps. The second set changed only the benchmark process environment to `DISABLE_VULKAN_OBS_CAPTURE=1`, the disable variable in the installed OBS Vulkan layer manifest. The third used `DISABLE_LAYER_NV_PRESENT_1=1` to isolate NVIDIA's presentation layer; a separate `vulkaninfo` probe still reported `VK_NV_low_latency2` revision 3 with that layer disabled. The copied world's hashes matched before and after all sets, and the launcher reported unchanged foreground focus. These instrumented FPS values are diagnostic, not final uninstrumented acceptance. [Capture summaries, profiles, driver reports, world hashes and raw BM capture hashes](benchmarks/bm/reflex-sleep-audit/).
@@ -231,7 +278,7 @@ In the normal set, Off spent about 0.76 ms per frame in RenderPearl submit inclu
 
 ## Reflex isolation and 800 us interval check, 14 October 2026
 
-Smart Reflex is disabled by default on this investigation branch. Every new measurement also explicitly sets `smart_reflex=0`; a pacing pause is not an accepted optimization. The test jar is SHA-256 `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`.
+Smart Reflex was removed on 23 October 2026. The measurements in this section predate the removal and explicitly disabled it; a pacing pause is not an accepted optimization. The test jar is SHA-256 `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`.
 
 The inherited `build/trace-tools/api-reflex-route.txt` is a detailed LunarG API dump of 50 sampled frames, numbered 10000 through 59000 at intervals of 1000. Each sampled frame has one `vkQueueSubmit2KHR` call with two `VkSubmitInfo2` batches, both tagged with the simulation ID, followed by one present carrying that same ID in `VkPresentIdKHR`. All simulation/render/present-start marker IDs match. There are no extra loader-visible NGX submissions in these samples. NGX receives the application's Vulkan resolver functions and records its SR work into supplied command buffers. Driver-private submissions remain outside this observation. [Trace summary and retained queue/pNext packets](benchmarks/bm/reflex-investigation/trace-summary.json).
 
@@ -241,7 +288,7 @@ A fresh dump of 32 consecutive active frames (LunarG 12000 through 12031, applic
 
 The old `reflex-images-20261014-A` measurements overlap the other agent's benchmark campaign and are excluded from performance conclusions. Nsight Systems is not installed. New GPU work waits until both Minecraft clients and benchmark parent processes have exited, including gaps between launches.
 
-The runtime-only `reflex_interval_us` debug override adds a minimum interval while retaining full Reflex sleep and any slower user/VRR cap. `-1` restores the normal setting. The 800 us hypothesis is that requesting an explicit 1250 FPS ceiling selects a better driver pacing path even when the actual rendered rate is below that ceiling. Status must show the requested interval, `reflex_sleeping=true` and `reflex_pacing_paused=false`.
+The runtime-only `reflex_interval_us` debug override adds a minimum interval while retaining full Reflex sleep and any slower user cap. `-1` restores the normal setting. The 800 us hypothesis is that requesting an explicit 1250 FPS ceiling selects a better driver pacing path even when the actual rendered rate is below that ceiling. Status must show the requested interval and `reflex_sleeping=true`.
 
 The native [reflex-reference.cpp](../tools/reflex-reference.cpp) isolates the driver without Minecraft, NGX, SDL or Java. It creates a non-activating secondary-monitor Win32 window, an Immediate three-image latency-enabled swapchain and a timeline sleep semaphore. It calibrates device-local buffer fills to roughly 1.1 ms GPU work, adds 350 us of simulated CPU work after sleep/input markers, and compares Off, On/0 us and On/800 us. It can use one submission batch or RenderPearl's two-batch layout. Its timestamps and driver reports are diagnostics for this transfer-heavy workload, not a game latency or mouse-feel acceptance test.
 
@@ -316,3 +363,25 @@ against 307.8 Off. Raising Windows timer resolution (1 ms or 0.5 ms) did not cha
 
 This matches the hard ceiling of about 1250 FPS players see with Reflex On in Valorant and Fortnite: a fixed
 driver pacing cost of roughly 0.8 ms per frame. Reflexium's behavior with Reflex On is the same as those games.
+
+## Preventing overlapping measurements
+
+The BM runner now refuses to start while another Minecraft client, BM/FPS Lab parent process or native Reflex reference is active, and checks again before each fresh JVM. This includes other worktrees and the gap between another campaign's launches. The check ignores its own shell ancestors and Gradle daemons. Its offline check covers client, parent, native-reference and allowed-process cases; a live invocation correctly refused the concurrent BM campaign without creating a new client. It does not close another agent's process or reserve the GPU against a later launch. This changes measurement reliability, with no claimed rendering speedup.
+
+## Rejected FG submit batching experiment, 14 October 2026
+
+The isolated `perf/fg-submit-batch` experiment recorded every generated/real swapchain blit before the ordinary encoder submit, then issued the same metered presents in order. It retained per-image acquire waits, present signals and RenderPearl's command-pool/transient-memory completion wait. It used the sequential path when the actual swapchain could not safely supply the entire batch. The [WSI acquisition limit](https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html#vkAcquireNextImageKHR) bounds the number held simultaneously to `imageCount - surface.minImageCount + 1`.
+
+One completed, uninstrumented `-Quick` pair used the unchanged frozen 48-second BM route, one pass per mode, five-second warmups, no conditioning and two fresh JVMs. Both launches preserved foreground focus and the copied world's hashes. Baseline runtime SHA-256 was `1F32E0EB5873B01C662E7457FC305A1FCEB6B1FA01BC7935FFCFF31EBBDB269C`; experimental runtime was `7F01BEE11E842BF2E5B41FDB9C054C04943038F65103C0AF2AF43D8CD504ABEB`. [Rows](benchmarks/bm/fg-batch/runs.jsonl), [summary](benchmarks/bm/fg-batch/summary.json), [protocol](benchmarks/bm/fg-batch/protocol.json), and [raw capture paths, hashes and BM summaries](benchmarks/bm/fg-batch/captures.json) are retained.
+
+| Mode | Baseline real FPS | Candidate real FPS | Raw change |
+| --- | ---: | ---: | ---: |
+| Native | 1841.0 | 1515.1 | -17.7% |
+| DLSS FG 2x | 302.0 | 308.5 | +2.2% |
+| DLSS MFG 4x | 159.2 | 207.5 | +30.3% |
+
+The unchanged native path drifted well beyond the 2.4% single-pair FPS noise band. FG 2x's change was within that band. The apparent MFG gain is therefore unconfirmed, and the batching runtime change was removed. This is not a completed ABBA or a measured shipped improvement. The rejected patch and experimental jars remain only under the ignored worktree build directory. No preset, exposure, sharpening, outline or Vitrail TAA change was retained.
+
+The first attempt ended after a completed baseline MFG capture when the read-only `/reflexium` response timed out. Its partial artifacts remain at `build/perf-batch/build/bm-bench/fg-batch-quick1-A` and are excluded. The runner now retries that read once on `TimeoutException`, while setting mutations still fail immediately. A requested reverse pair was refused because another agent's quality-validation client had launched after this pair ended. No other client was stopped to obtain measurements. A trustworthy gain still requires a repeat with stable controls and exclusive access; the original cross-session FG regression's precise cause remains unproven.
+
+The final scoped build passed DLSS math, object-motion, profiler, Reflex timing and Gradle checks. It used an isolated install target to avoid replacing the other agent's active quality work. Its built and copied runtime hashes match the unchanged 1F32E0EB baseline. The shared checkout's existing Modrinth install was separately verified against its own successful quality build. Those are distinct source states; [build commands, scopes and full hashes](benchmarks/bm/fg-batch/build-verification.json) record them. The experimental batching runtime is not installed or retained.

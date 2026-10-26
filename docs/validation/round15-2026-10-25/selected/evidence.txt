@@ -1,0 +1,84 @@
+Round 15 evidence, 2026-10-25
+
+Environment
+- Reflexium branch round6-validation, base 8419d45 plus the orchestrator decision line in docs/OBJECTIVES.md.
+- Dev client only, harness branch fullscreen-opt-in commit 0b90ab5, Minecraft 26.3, Vulkan, vanilla renderer, no shader pack.
+- Secondary XF250Q 1920x1080, never activated for the foliage runs. Ports 25641, 25643 (foliage) and 25644, 25645 (fullscreen), debug server 25599.
+- Render distance 12, frozen server ticks, noon, clear weather. Native reference repeat identical on both poses.
+- The first 25641 launch came up on OpenGL because the mixin failure had reset preferredGraphicsBackend to "default". It was discarded, the option was restored to "vulkan", and every reported arm ran with DLSS available.
+
+Foliage poses
+- Range: 200.5 / 151 / 0.5, yaw 60, pitch 3, eye 152.62.
+- Forest: 200.5 / 67 / 150, yaw 90, pitch 0.
+- Both static for at least 2.5 s before capture; two captures per arm 0.8 s apart. All repeats agree.
+
+Range input audit (Quality auto)
+- render 1280x720 -> display 1920x1080
+- jitter requested 32 Halton(2,3) phases, sign +1,+1, observed index 1, evaluated frames rising
+- mip bias requested -1.5849625; u_BlockTex binds 3 of 3 with applied_bias -1.5849625
+- requested preset hint 0 (Auto/K); last_error empty
+- Sodium 0.9.2 block_layer_opaque.fsh samples u_BlockTex once, multiplies the vertex color, and applies
+  "if (color.a < ALPHA_CUTOUT) discard;" to that same sample. The biased sampler is therefore the one the
+  cutout discard tests; there is no separate unbiased alpha sample.
+- The shader's alternative RGSS path calls textureLod, which ignores sampler mipLodBias. The run used
+  sodium-options pixel_filtering_mode NEAREST, so sampleNearest/textureGrad was active and the bias applied.
+- Vanilla 26.3 uses its CUTOUT/DARK_CUTOUT coverage-preserving mip generator (round 7 source audit);
+  oak_leaves.png.mcmeta selects dark_cutout. The atlas is not a naive box filter.
+- No MSAA/alpha-to-coverage path exists in this renderer: the terrain cutout is alpha-test discard at one sample.
+
+Arms measured on both poses
+- native (upscaler off), DLAA auto/K, DLAA E, DLAA J, DLAA L, DLAA with jitter disabled (diagnostic),
+  Quality auto/K, Quality E, Quality J, Quality L, Quality M, Quality with jitter disabled (diagnostic),
+  Quality with mip_bias_offset +0.585 (bias -1.0) and +1.585 (bias 0).
+- Metrics: PSNR RGB, high-pass detail correlation and Laplacian on matched crops. See
+  foliage-range-metrics.csv and foliage-forest-metrics.csv. Suffix -1/-2 are repeats.
+- Crop names: leafA/leafB (range leaf tower), solid (range stone pavement), frame (range stone/wood frame),
+  leafF (forest tree canopy), wall (forest stone wall), grass (forest ground), trunk (forest trunk).
+
+Key observed values (range, mean of the two repeats)
+- DLAA K: leafA PSNR 24.58 dB, correlation 0.797, Laplacian 34.07 against native 53.19.
+- DLAA jitter disabled: leafA PSNR 32.06 dB, correlation 0.951, Laplacian 45.97.
+- Quality K: leafA 24.11 dB, 0.781, 34.23; leafB 24.93 dB, 0.787, 29.64; solid 41.58 dB, 0.771, 3.34 vs 5.13.
+- Quality E: leafA 24.44 dB, 0.772, 34.77; solid 41.24 dB, 0.752, 3.90.
+- Quality J: leafA 24.12 dB, 0.780, 34.18; Quality L: 23.53 dB, 0.715, 31.04; Quality M: 23.12 dB, 0.681, 30.80.
+- Quality bias -1.0: leafA 24.14 dB, 0.785, 34.09; bias 0: 24.13 dB, 0.785, 34.08. No recovery.
+- Quality jitter disabled: leafA 20.22 dB, 0.408, 35.19. The upscaler needs jitter at 0.667 ratio.
+
+Forest
+- DLAA K leafF 27.50 dB, 0.772, Laplacian 10.45 vs native 17.40; wall 31.47 dB, 0.757, 5.23 vs 9.15.
+- DLAA jitter disabled leafF 39.46 dB, 0.982, 16.19; wall 39.11 dB, 0.949, 7.96.
+- Quality K leafF 27.12 dB, 0.742, 10.40; Quality E 27.18 dB, 0.738, 10.53; Quality J 27.11 dB, 0.742, 10.44; Quality L 26.41 dB, 0.677, 9.73.
+- Quality bias -1.0 leafF 27.15 dB, 0.744, 10.42; bias 0 26.82 dB, 0.716, 10.27. The 0 bias arm also dropped wall correlation to 0.469.
+
+Observation
+- The relative Laplacian loss is uniform across cutout leaves, stone, wood and grass (about 35 percent at
+  Quality K; about 57 to 66 percent of native Laplacian retained). Foliage is not an outlier.
+- There is no whole-frame or subpixel misalignment: an integer shift search found 0,0 best, and a bilinear
+  search at 0.1 px steps from -1.0 to +1.0 px also found 0,0 on leafA and solid.
+- Consecutive DLSS DLAA frames are stable (crop PSNR 46.6 and 46.2 between three captures), so the loss is
+  a converged reconstruction difference, not temporal noise.
+- Disabling jitter produces the near-native static image at 1:1, but destroys the 0.667-ratio Quality image.
+  The jitter is doing the work the model expects; the static softness is the model's temporal filter on
+  hard-edged pixel-art textures, not an input-level defect isolated to alpha cutout.
+
+Fullscreen
+- Without -Fullscreen, POST /fullscreen returned 400 with
+  "HarnessException: Fullscreen is disabled for this instance; launch with -Fullscreen".
+- With -Fullscreen, {"fullscreen":true,"activate":true}: requested=true, borderless=true,
+  sdl_fullscreen=false, exclusive_fullscreen=false, display_id=2, target_display_id=2, 1921x1080,
+  os_foreground=true.
+- Focused DLSS Quality 1280x720 -> 1920x1080 with DLSS-G 3x and Reflex On: generated +1152 and real +576
+  over 2 s; fg_status "DLSS MFG 3x (Streamline)"; no last_error.
+- Alt+Tab under fullscreen: foreground 17957118 -> 14418524, generated +0 and real +1209 over 2 s,
+  no error. Returning focus with SetForegroundWindow: generated +1144 and real +572 over 2 s.
+- Leaving fullscreen: requested=false, borderless=false, 1920x1080, still on display 2; FG still 3x.
+- Resize to 1600x900: swapchain 1600x900, render 1067x600, generated +1034 over 2 s, no error.
+  Back to 1920x1080: render 1280x720, generated +1144 and real +572 over 2 s, no error.
+- One handled "swapchain out of date" present occurred during the resize; Minecraft recovered by
+  reconfiguring the surface. Streamline logged redundant slDLSSGSetOptions calls for two frames around
+  the fullscreen transition; those were warnings, not failures.
+- Render-target screenshots: fullscreen mean luma 59.5 variance 2394, windowed 59.5/2393, resize 59.0/2268.
+  No black frame.
+- Crash reports: newest is crash-2026-10-25_00.54.18-client.txt, written before this session; no new report.
+- The previous foreground HWND 6297458 was restored and verified equal after the batch. All clients were
+  closed by authenticated quit; no Reflexium java process remains.

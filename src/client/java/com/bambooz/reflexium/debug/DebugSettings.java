@@ -1,7 +1,7 @@
 package com.bambooz.reflexium.debug;
 
 /**
- * Runtime overrides for the upscaling debug harness (see {@link DebugServer}). Every default reproduces
+ * Runtime overrides for the upscaling debug harness (see {@link com.bambooz.reflexium.debug.server.DebugServer}). Every default reproduces
  * the shipped behavior exactly, so nothing here changes rendering unless a debug command sets it.
  */
 public final class DebugSettings {
@@ -13,13 +13,65 @@ public final class DebugSettings {
 	private static volatile boolean drawStaticObjects;
 	public static boolean fastUniforms = true;
 	public static boolean directDepth = true;
+	/** Draw the F3 axis crosshair after upscaling; false restores the pre-upscale draw for A/B captures. */
+	public static boolean deferCrosshair = true;
+	public static boolean deferParticles = true;
+	public static boolean replayFgParticles = true;
+	public static boolean cloudMotion = true;
+	/** Post-SR coverage view: green matches scene depth, red is rejected, black has no foliage. */
+	public static boolean foliageDepthDebug;
+	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
+	public static boolean clearFoliageSurface = true;
 	public static int dlssPreset = -1;
-	/** False chains zero IDs to clear explicit queue attribution for a diagnostic comparison. */
-	public static boolean reflexSubmission = true;
+	/** 0 follows the ratio policy; a positive value forces this many Halton phases for an A/B. */
+	private static volatile int jitterPhases;
+	/** Reports a queued DLSS-G feature load failure instead of loading the plugin, for the fallback path. */
+	private static volatile boolean failDlssgLoad;
+	/** Makes the next evaluated DLSS frame report VK_ERROR_DEVICE_LOST, for the fallback path. */
+	private static volatile boolean simulateDeviceLost;
 	/** -1 keeps the normal cap; nonnegative values impose a diagnostic minimum frame interval. */
 	public static int reflexIntervalUs = -1;
+	private static volatile float mipBiasOffset;
+	private static volatile boolean handMotion = true;
+	/** Exact-source pack foliage vectors (BSL today); off leaves camera-only vectors on waving geometry. */
+	private static volatile boolean foliageMotion = true;
+	/** Use the pack hand coverage mask to zero world motion. False leaves a cleared mask for A/B diagnosis. */
+	private static volatile boolean packHandMask = true;
+	private static volatile boolean packTaaRetained = true;
+	private static volatile boolean packResolveBypass = true;
+	private static volatile boolean packPreFilters = false;
+	/** Dev A/B: restore the reviewed pack's FXAA and sharpening on the jittered input (off by default while upscaling). */
+	public static boolean packPreFilters() { return packPreFilters; }
+	public static void setPackPreFilters(boolean retained) { packPreFilters = retained; }
+	public static boolean packResolveBypass() { return packResolveBypass; }
+	public static void setPackResolveBypass(boolean bypass) { packResolveBypass = bypass; }
 	public static boolean objectMotion() { return objectMotion; }
 	public static void setObjectMotion(boolean enabled) { objectMotion = enabled; }
+	/** Dev-only offset added to the vendor texture LOD baseline while upscaling (+1 reproduces the pre-2026-10-14 bias). */
+	public static float mipBiasOffset() { return mipBiasOffset; }
+	public static void setMipBiasOffset(float offset) { mipBiasOffset = offset; }
+	public static int jitterPhases() { return jitterPhases; }
+	public static void setJitterPhases(int phases) { jitterPhases = phases; }
+	public static boolean failDlssgLoad() { return failDlssgLoad; }
+	public static void setFailDlssgLoad(boolean fail) { failDlssgLoad = fail; }
+	/** True once; the simulated device loss is consumed by the next DLSS evaluation. */
+	public static boolean takeSimulatedDeviceLost() {
+		if (!simulateDeviceLost) return false;
+		simulateDeviceLost = false;
+		return true;
+	}
+	public static void setSimulatedDeviceLost(boolean lost) { simulateDeviceLost = lost; }
+	/** False restores zero motion for the first-person hand, for matched A/B captures. */
+	public static boolean handMotion() { return handMotion; }
+	public static void setHandMotion(boolean enabled) { handMotion = enabled; }
+	/** False disables pack deformation vectors (BSL foliage) for an A/B against camera-only reprojection. */
+	public static boolean packHandMask() { return packHandMask; }
+	public static void setPackHandMask(boolean enabled) { packHandMask = enabled; }
+	public static boolean foliageMotion() { return foliageMotion; }
+	public static void setFoliageMotion(boolean enabled) { foliageMotion = enabled; }
+	/** Dev A/B for known shader packs: keep (default) or drop the pack's own full-scene TAA while upscaling. */
+	public static boolean packTaaRetained() { return packTaaRetained; }
+	public static void setPackTaaRetained(boolean retained) { packTaaRetained = retained; }
 	public static boolean drawStaticObjects() { return drawStaticObjects; }
 	public static void setDrawStaticObjects(boolean enabled) { drawStaticObjects = enabled; }
 

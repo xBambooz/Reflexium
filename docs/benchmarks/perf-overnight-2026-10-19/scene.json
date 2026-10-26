@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "id": "benchmark-route",
+  "name": "Benchmark Route",
+  "description": "",
+  "author": "Bambooz",
+  "version": 3,
+  "minecraftDataVersion": 5023,
+  "routeSeconds": 48.0,
+  "builtin": false,
+  "environment": {
+    "timeOfDay": 6000,
+    "weather": "clear",
+    "freezeTime": true,
+    "freezeWeather": true,
+    "randomTickSpeed": 0,
+    "mobSpawning": false,
+    "renderDistanceHint": 16
+  },
+  "keyframes": [
+    {
+      "dimension": "minecraft:overworld",
+      "x": -199.5,
+      "y": 111.61999988555908,
+      "z": -199.5,
+      "yaw": -45.0,
+      "pitch": 15.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": -59.5,
+      "y": 96.61999988555908,
+      "z": -119.5,
+      "yaw": -20.0,
+      "pitch": 20.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": 60.5,
+      "y": 101.61999988555908,
+      "z": -39.5,
+      "yaw": 10.0,
+      "pitch": 15.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": 180.5,
+      "y": 121.61999988555908,
+      "z": 60.5,
+      "yaw": 60.0,
+      "pitch": 20.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": 120.5,
+      "y": 91.61999988555908,
+      "z": 200.5,
+      "yaw": 140.0,
+      "pitch": 12.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": -39.5,
+      "y": 101.61999988555908,
+      "z": 220.5,
+      "yaw": -160.0,
+      "pitch": 18.0,
+      "segmentSeconds": 8.0,
+      "easing": "LINEAR"
+    },
+    {
+      "dimension": "minecraft:overworld",
+      "x": -199.5,
+      "y": 116.61999988555908,
+      "z": 120.5,
+      "yaw": -110.0,
+      "pitch": 15.0,
+      "segmentSeconds": 4.0,
+      "easing": "LINEAR"
+    }
+  ],
+  "entityTimeline": null
+}

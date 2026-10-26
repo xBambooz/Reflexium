@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.mixin;
 
-import com.bambooz.reflexium.dlss.ObjectMotion;
+import com.bambooz.reflexium.motion.ObjectMotion;
+import com.bambooz.reflexium.debug.FrameProfiler;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -19,9 +20,9 @@ public abstract class RenderTypeFeatureMotionMixin {
 	@WrapMethod(method = "prepareGroup")
 	private void reflexium$prepare(FeatureFrameContext context, List<SubmitNode> submits, boolean ordered, Operation<Void> original) {
 		ObjectMotion motion = ObjectMotion.get();
-		if (!motion.isActive()) { original.call(context, submits, ordered); return; }
-		try { original.call(context, motion.observe(submits), ordered); }
-		finally { motion.endGroup(); }
+		long timing = FrameProfiler.start(FrameProfiler.FEATURE_PREPARE, null);
+		try { original.call(context, motion.isActive() ? motion.observe(submits) : submits, ordered); }
+		finally { motion.endGroup(); FrameProfiler.end(FrameProfiler.FEATURE_PREPARE, timing, null); }
 	}
 
 	@Inject(method = "getVertexBuilder", at = @At("RETURN"), cancellable = true)

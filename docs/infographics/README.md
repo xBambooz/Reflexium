@@ -12,7 +12,7 @@ This diagram maps the sequential execution order of a single rendered frame from
 
 ### [02-reflex.png](file:///C:/Users/Ryan/source/repos/Reflexium/docs/infographics/02-reflex.png)
 **How Reflex lowers latency**
-This infographic explains how just-in-time CPU pacing eliminates the GPU command backlog that causes input delay in un-paced pipelines. It outlines the differences between operating modes, details the non-linear VRR auto-cap formula, and breaks down the driver telemetry metrics reported in the F3 overlay.
+This infographic explains how just-in-time CPU pacing eliminates the GPU command backlog that causes input delay in un-paced pipelines. It outlines the operating modes and breaks down the driver telemetry metrics reported in the F3 overlay. The VRR auto-cap formula shown in the older image is no longer implemented.
 
 ---
 

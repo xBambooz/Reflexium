@@ -1,10 +1,10 @@
 package com.bambooz.reflexium.config;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.dlss.UpscaleQuality;
-import com.bambooz.reflexium.dlss.Upscaler;
-import com.bambooz.reflexium.dlss.DlssModel;
-import com.bambooz.reflexium.dlss.FrameGeneration;
+import com.bambooz.reflexium.upscale.dlss.DlssModel;
+import com.bambooz.reflexium.framegen.FrameGeneration;
+import com.bambooz.reflexium.upscale.UpscaleQuality;
+import com.bambooz.reflexium.upscale.Upscaler;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -13,25 +13,28 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 /**
- * config/reflexium.properties. Reads the pre-rename nvidia-reflex-mod.properties once if present.
- */
+	* config/reflexium.properties. Reads the pre-rename nvidia-reflex-mod.properties once if present.
+	*/
 public final class ReflexiumConfig {
 	private static final Path DIR = FabricLoader.getInstance().getConfigDir();
 	private static final Path PATH = DIR.resolve("reflexium.properties");
 	private static final Path LEGACY_PATH = DIR.resolve("nvidia-reflex-mod.properties");
+	public static final DlssModel DEFAULT_DLSS_MODEL = DlssModel.AUTO;
+	public static final FrameGeneration DEFAULT_FRAME_GENERATION = FrameGeneration.DLSS;
 	private static final ReflexiumConfig INSTANCE = load();
 
 	private volatile ReflexMode reflexMode = ReflexMode.ON;
-	private volatile boolean smartReflex = false;
 	private volatile UpscaleQuality upscaleQuality = UpscaleQuality.QUALITY;
 	private volatile Upscaler upscaler = Upscaler.AUTO;
-	private volatile DlssModel dlssModel = DlssModel.AUTO;
-	private volatile int fsrSharpness = 20;
-	private volatile FrameGeneration frameGeneration = FrameGeneration.OFF;
-	private volatile int frameGenerationMultiplier = 4;
+	private volatile DlssModel dlssModel = DEFAULT_DLSS_MODEL;
+	private volatile int fsrSharpness = 0;
+	private volatile boolean postUpscaleParticles = true;
+	private volatile FrameGeneration frameGeneration = DEFAULT_FRAME_GENERATION;
+	private volatile int frameGenerationMultiplier = 0; // 0 = Auto
 	private volatile boolean betterF3ModulePlaced = false;
 
 	private ReflexiumConfig() {
@@ -50,8 +53,8 @@ public final class ReflexiumConfig {
 		save();
 	}
 
-	public boolean smartReflex() { return smartReflex; }
-	public void setSmartReflex(boolean value) { smartReflex = value; save(); }
+	public boolean postUpscaleParticles() { return postUpscaleParticles; }
+	public void setPostUpscaleParticles(boolean value) { postUpscaleParticles = value; save(); }
 
 	/** DLSS Super Resolution preset. Needs the Vulkan renderer. */
 	public UpscaleQuality upscaleQuality() {
@@ -66,9 +69,7 @@ public final class ReflexiumConfig {
 	public Upscaler upscaler() { return upscaler; }
 	public void setUpscaler(Upscaler value) {
 		upscaler = value;
-		if (value == Upscaler.OFF) {
-			frameGeneration = FrameGeneration.OFF;
-		} else if (value == Upscaler.FSR && (frameGeneration == FrameGeneration.DLSS || frameGeneration == FrameGeneration.DLSS_MULTI)) {
+		if (value == Upscaler.FSR && (frameGeneration == FrameGeneration.DLSS || frameGeneration == FrameGeneration.DLSS_MULTI)) {
 			frameGeneration = FrameGeneration.OFF;
 		} else if (value == Upscaler.DLSS && frameGeneration == FrameGeneration.FSR) {
 			frameGeneration = FrameGeneration.OFF;
@@ -82,28 +83,33 @@ public final class ReflexiumConfig {
 	public void setFsrSharpness(int value) { fsrSharpness = Math.clamp(value, 0, 100); save(); }
 	public FrameGeneration frameGeneration() { return frameGeneration; }
 	public void setFrameGeneration(FrameGeneration value) {
-		if (upscaler == Upscaler.OFF && value != FrameGeneration.OFF) {
-			value = FrameGeneration.OFF;
-		} else if (upscaler == Upscaler.FSR && (value == FrameGeneration.DLSS || value == FrameGeneration.DLSS_MULTI)) {
+		if (upscaler == Upscaler.FSR && (value == FrameGeneration.DLSS || value == FrameGeneration.DLSS_MULTI)) {
 			value = FrameGeneration.OFF;
 		} else if (upscaler == Upscaler.DLSS && value == FrameGeneration.FSR) {
 			value = FrameGeneration.OFF;
 		}
 		frameGeneration = value;
+		if (value == FrameGeneration.DLSS) frameGenerationMultiplier = 0;
+		else if (value == FrameGeneration.DLSS_MULTI && frameGenerationMultiplier != 0) frameGenerationMultiplier = Math.max(3, frameGenerationMultiplier);
 		save();
 	}
 
 	public int frameGenerationMultiplier() { return frameGenerationMultiplier; }
-	public void setFrameGenerationMultiplier(int value) { frameGenerationMultiplier = Math.clamp(value, 2, 8); save(); }
+	public void setFrameGenerationMultiplier(int value) {
+		frameGenerationMultiplier = value == 0 ? 0 : Math.clamp(value, 2, 8);
+		frameGeneration = frameGeneration.withMultiplier(frameGenerationMultiplier);
+		save();
+	}
 
 	/**
-	 * Clamps the stored multiplier into 2..maximum once the driver reports its limit. Called on NGX init, because
+	 * Preserves Auto (0), clamps fixed multipliers into 2..maximum once the driver reports its limit. Called on NGX init, because
 	 * load runs before the GPU is known. 2 is the floor because it is DLSS FG, which every supported GPU runs.
 	 */
 	public void limitFrameGenerationMultiplier(int maximum) {
-		int clamped = Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
+		int clamped = frameGenerationMultiplier == 0 ? 0 : Math.clamp(frameGenerationMultiplier, 2, Math.max(2, maximum));
 		if (clamped != frameGenerationMultiplier) {
 			frameGenerationMultiplier = clamped;
+			frameGeneration = frameGeneration.withMultiplier(clamped);
 			save();
 		}
 	}
@@ -134,17 +140,18 @@ public final class ReflexiumConfig {
 			return config;
 		}
 
-		// reflex_frame_limiter (removed) is not read, so it is dropped from the file on the next save.
+		// reflex_frame_limiter and smart_reflex (removed) are not read, so they are dropped on the next save.
 		config.reflexMode = ReflexMode.parse(props.getProperty("reflex_mode", props.getProperty("mode")), config.reflexMode);
-		config.smartReflex = parseBoolean(props, "smart_reflex", config.smartReflex);
+		config.postUpscaleParticles = parseBoolean(props, "post_upscale_particles", config.postUpscaleParticles);
 		config.upscaleQuality = UpscaleQuality.parse(props.getProperty("upscale_quality", props.getProperty("dlss_mode")), config.upscaleQuality);
 		config.upscaler = Upscaler.parse(props.getProperty("upscaler"),
 				"off".equalsIgnoreCase(props.getProperty("dlss_mode")) ? Upscaler.OFF : config.upscaler);
 		config.dlssModel = DlssModel.parse(props.getProperty("dlss_model"), config.dlssModel);
 		config.frameGeneration = FrameGeneration.parse(props.getProperty("frame_generation"), config.frameGeneration);
-		try { config.frameGenerationMultiplier = Math.clamp(Integer.parseInt(props.getProperty("frame_generation_multiplier", "4")), 2, 8); }
+		try { int multiplier = Integer.parseInt(props.getProperty("frame_generation_multiplier", "0")); config.frameGenerationMultiplier = multiplier == 0 ? 0 : Math.clamp(multiplier, 2, 8); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
-		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "20")), 0, 100); }
+		config.frameGeneration = config.frameGeneration.withMultiplier(config.frameGenerationMultiplier);
+		try { config.fsrSharpness = Math.clamp(Integer.parseInt(props.getProperty("fsr_sharpness", "0")), 0, 100); }
 		catch (NumberFormatException ignored) { /* Keep the default for malformed config values. */ }
 		config.betterF3ModulePlaced = parseBoolean(props, "betterf3_module_placed", config.betterF3ModulePlaced);
 		if (source == LEGACY_PATH) {
@@ -162,7 +169,7 @@ public final class ReflexiumConfig {
 	private synchronized void save() {
 		Properties props = new Properties();
 		props.setProperty("reflex_mode", reflexMode.serializedName());
-		props.setProperty("smart_reflex", Boolean.toString(smartReflex));
+		props.setProperty("post_upscale_particles", Boolean.toString(postUpscaleParticles));
 		props.setProperty("upscale_quality", upscaleQuality.serializedName());
 		props.setProperty("upscaler", upscaler.serializedName());
 		props.setProperty("dlss_model", dlssModel.serializedName());
@@ -176,7 +183,7 @@ public final class ReflexiumConfig {
 			try (Writer writer = Files.newBufferedWriter(temp)) {
 				props.store(writer, "Reflexium. reflex_mode: off | on | on_boost");
 			}
-			Files.move(temp, PATH, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+			Files.move(temp, PATH, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
 		} catch (IOException e) {
 			ReflexiumClient.LOGGER.warn("Could not save {}", PATH, e);
 		}

@@ -1,0 +1,16 @@
+model,preset,quality,render_size,gpu_evaluate_us,cpu_evaluate_us,gpu_samples,fps
+auto,0,performance,960x540,674.2,71.0,54,277
+auto,0,quality,1280x720,610.4,70.7,51,269
+auto,0,balanced,1114x626,621.9,70.7,51,267
+auto,0,native_aa,1920x1080,626.0,71.6,45,240
+transformer,11,performance,960x540,591.2,70.4,54,279
+transformer,13,performance,960x540,648.0,70.5,53,276
+cnn,5,performance,960x540,261.9,73.3,60,302
+transformer,11,quality,1280x720,628.4,71.8,51,268
+transformer,11,balanced,1114x626,620.5,71.1,51,268
+transformer,11,native_aa,1920x1080,655.8,70.7,45,242
+cnn,5,quality,1280x720,264.4,73.4,54,282
+cnn,5,balanced,1114x626,253.0,74.5,55,279
+cnn,5,native_aa,1920x1080,302.4,74.7,49,263
+transformer,12,ultra_performance,640x360,648.2,68.9,61,309
+auto,0,ultra_performance,640x360,600.2,68.1,60,304

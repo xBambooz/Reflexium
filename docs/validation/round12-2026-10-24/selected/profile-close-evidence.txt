@@ -1,0 +1,26 @@
+Round 12 Modrinth profile close check
+
+Profile: %APPDATA%\ModrinthApp\profiles\26.3 Testing Instance
+Jar SHA-256: 323d57e9cfdf9a29200d3c80dc883d15e8d90a973c170510161ee398a7de9596
+PID: 38940
+
+At 01:10:04 the client logged:
+  Reflexium debug server stopped
+  Stopping!
+At 01:10:05 the remaining server and Iris shutdown lines were written.
+CloseMainWindow was sent at about 01:10:03; the process was gone within 2 s.
+
+Profile crash-reports before close (latest):
+  crash-2026-10-24_23.46.23-client.txt (Round 11 WrongMethodTypeException)
+Profile crash-reports after close (latest):
+  crash-2026-10-24_23.46.23-client.txt (unchanged)
+No new crash report was written. No WrongMethodTypeException appears in the shutdown log.
+
+Release-path close without the debug server (PID 39208, same final jar):
+The -Dreflexium.debugPort line was removed from the launch args, so no debug HTTP server or
+dev-only stop path was active. The client auto-joined the acceptance world and rendered DLSS
+Quality 1707x960 -> 2560x1440. CloseMainWindow at 01:16:19; the process was gone within 2 s.
+The profile crash-reports latest entry before and after is still
+crash-2026-10-24_23.46.23-client.txt. No WrongMethodTypeException appears in the shutdown log.
+The launch args file was restored with the debug port afterwards.
+

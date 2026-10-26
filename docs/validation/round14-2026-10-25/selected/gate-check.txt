@@ -1,0 +1,30 @@
+Round 14 hardware gating check (mocked adapter results, no pre-RTX hardware needed)
+
+Task: DlssFeatureGateCheck, registered in build.gradle and run by Gradle check.
+Command: gradlew.bat build --no-daemon --console=plain
+Output: DLSS feature gate checks passed: pre-RTX 40, RTX 40, RTX 50, non-NVIDIA and missing runtime.
+
+Cases asserted:
+  slIsFeatureSupported(kFeatureDLSS_G) false, maxGenerated 0
+    -> upscaling allowed, frame generation hidden, MFG hidden
+    -> reason key reflexium.gate.fg_requires_rtx40
+    -> text "Frame Generation requires an RTX 40 series or newer GPU with hardware GPU scheduling"
+  supported, numFramesToGenerateMax 1 (RTX 40 DLSS-G 2x)
+    -> frame generation allowed, MFG hidden
+    -> reason key reflexium.gate.mfg_requires_rtx50
+    -> text "Multi Frame Generation requires an RTX 50 series GPU"
+  supported, numFramesToGenerateMax 5 (RTX 50, six presents)
+    -> frame generation and MFG allowed, no reason
+  non-NVIDIA adapter
+    -> DLSS and frame generation disabled
+    -> reason key reflexium.gate.dlss_requires_rtx
+  NVIDIA adapter with Streamline unavailable
+    -> DLSS SR still allowed, frame generation hidden
+    -> reason key reflexium.gate.fg_needs_streamline
+
+The reason key is appended to the Frame Generation and MFG tooltips in Video Settings and to the
+dedicated Reflexium screen; the same text appears in the Frame Generation status line.
+Live gate on the RTX 5070 (current client):
+  fg_gate_fg_allowed=true, fg_gate_mfg_allowed=true, fg_gate_reason="", fg_gate_reason_key=""
+Forced DLSS-G load failure on the same adapter (not a gating case):
+  fg_status="DLSS Frame Generation failed to load (see log)", gate reason empty, SR continues.

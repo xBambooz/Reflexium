@@ -1,0 +1,35 @@
+[
+    {
+        "mode":  "native",
+        "old_fps":  1830.7059358173265,
+        "new_fps":  1835.0179635189766,
+        "fps_change_pct":  0.23553906814230974,
+        "old_low1":  367.59807850914672,
+        "new_low1":  374.08813190700351,
+        "low1_change_pct":  1.7655297394856495,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    },
+    {
+        "mode":  "tf-performance",
+        "old_fps":  638.16860947858652,
+        "new_fps":  644.68093720888464,
+        "fps_change_pct":  1.0204713352508721,
+        "old_low1":  316.78812044548312,
+        "new_low1":  304.52167597847193,
+        "low1_change_pct":  -3.872128932663732,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    },
+    {
+        "mode":  "fg2",
+        "old_fps":  318.6998750042049,
+        "new_fps":  319.07006105061629,
+        "fps_change_pct":  0.11615506482596238,
+        "old_low1":  179.82691659277944,
+        "new_low1":  175.32901585631782,
+        "low1_change_pct":  -2.501238869955813,
+        "fps_noise_band_pct":  2.4,
+        "low1_noise_band_pct":  16.8
+    }
+]

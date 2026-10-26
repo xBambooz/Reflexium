@@ -1,0 +1,2690 @@
+[
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999998,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 9.664416666666666,
+    "psnr": 38.279047152393176,
+    "high_pass_correlation": 0.7781234410037429,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 70.92076666666667,
+    "psnr": 29.62306939109601,
+    "high_pass_correlation": 0.694005378351009,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 202.7343619047619,
+    "psnr": 25.06152996383722,
+    "high_pass_correlation": 0.8018725436270604,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 5.382705555555556,
+    "psnr": 40.82079737153822,
+    "high_pass_correlation": 0.7912171702304172,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 67.69807916666667,
+    "psnr": 29.825040144745223,
+    "high_pass_correlation": 0.7101349954619169,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 199.69857523809523,
+    "psnr": 25.127053944871456,
+    "high_pass_correlation": 0.8067790763544587,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 10.048607407407408,
+    "psnr": 38.10974481915834,
+    "high_pass_correlation": 0.8254315247335697,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 68.39653611111112,
+    "psnr": 29.780462530940362,
+    "high_pass_correlation": 0.7054826462631302,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 218.7884838095238,
+    "psnr": 24.73055902208354,
+    "high_pass_correlation": 0.7913879732823365,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 5.603142592592593,
+    "psnr": 40.646486860376555,
+    "high_pass_correlation": 0.8284928134762746,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 68.79889305555555,
+    "psnr": 29.75498910186635,
+    "high_pass_correlation": 0.7013974645290973,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 224.19493142857144,
+    "psnr": 24.624545709741888,
+    "high_pass_correlation": 0.7849169797558315,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 10.260085185185185,
+    "psnr": 38.019293943121625,
+    "high_pass_correlation": 0.8127292458810392,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 72.78455833333334,
+    "psnr": 29.510411098784623,
+    "high_pass_correlation": 0.6698007910862134,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 233.96169904761905,
+    "psnr": 24.43935594285678,
+    "high_pass_correlation": 0.7665342079677152,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 5.748662962962963,
+    "psnr": 40.535135136267264,
+    "high_pass_correlation": 0.8138872998187174,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 71.27926388888889,
+    "psnr": 29.601171548369084,
+    "high_pass_correlation": 0.671842461574458,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 231.79394666666667,
+    "psnr": 24.47978270757119,
+    "high_pass_correlation": 0.7667969215722946,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 10.63052037037037,
+    "psnr": 37.86525836847997,
+    "high_pass_correlation": 0.7852239255640041,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 78.73983055555556,
+    "psnr": 29.16885884994172,
+    "high_pass_correlation": 0.6551318225857645,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 269.69781333333333,
+    "psnr": 23.822029355908327,
+    "high_pass_correlation": 0.7319531827736694,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 6.197577777777778,
+    "psnr": 40.20858375125873,
+    "high_pass_correlation": 0.7857318634474945,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 79.74012083333334,
+    "psnr": 29.114034714375702,
+    "high_pass_correlation": 0.6451960196204666,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 257.66182476190477,
+    "psnr": 24.020302827259528,
+    "high_pass_correlation": 0.7443926116109538,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 10.805805555555555,
+    "psnr": 37.79423212481412,
+    "high_pass_correlation": 0.7654768826353321,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 77.69320555555555,
+    "psnr": 29.22697320429321,
+    "high_pass_correlation": 0.6150057917591618,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 237.6907504761905,
+    "psnr": 24.370680789937857,
+    "high_pass_correlation": 0.7406507357894139,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 6.2853111111111115,
+    "psnr": 40.14753581551611,
+    "high_pass_correlation": 0.7635654875665423,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 76.37372222222223,
+    "psnr": 29.30136403561393,
+    "high_pass_correlation": 0.6163401301191965,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 237.0257580952381,
+    "psnr": 24.382848165845218,
+    "high_pass_correlation": 0.7393862817265521,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 10.490551851851851,
+    "psnr": 37.922820261624175,
+    "high_pass_correlation": 0.7722435002979621,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 73.92736805555556,
+    "psnr": 29.442751160432557,
+    "high_pass_correlation": 0.6738539059441302,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 231.13645142857143,
+    "psnr": 24.49211919473907,
+    "high_pass_correlation": 0.767259140311777,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 6.573057407407408,
+    "psnr": 39.9531293555371,
+    "high_pass_correlation": 0.772492908393787,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 80.4804013888889,
+    "psnr": 29.07390227145312,
+    "high_pass_correlation": 0.6380000954344505,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 283.6959219047619,
+    "psnr": 23.602272679588687,
+    "high_pass_correlation": 0.7159896772972478,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999999,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999999,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.614509259259259,
+    "psnr": 41.48954839109021,
+    "high_pass_correlation": 0.7910111052513958,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 67.46814583333334,
+    "psnr": 29.839815858751592,
+    "high_pass_correlation": 0.7116575325148466,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 198.45379809523808,
+    "psnr": 25.154209458282093,
+    "high_pass_correlation": 0.8106629237323657,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.868451851851852,
+    "psnr": 42.25543165026543,
+    "high_pass_correlation": 0.7632912172746577,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 53.94605833333333,
+    "psnr": 30.81120643204325,
+    "high_pass_correlation": 0.7504593065989387,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 135.23389904761905,
+    "psnr": 26.819947911264403,
+    "high_pass_correlation": 0.7768910225428863,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.657146296296296,
+    "psnr": 41.44960480101539,
+    "high_pass_correlation": 0.8251238463959117,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 67.7912,
+    "psnr": 29.81907039264624,
+    "high_pass_correlation": 0.7033313875510462,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 223.0408476190476,
+    "psnr": 24.646959540035475,
+    "high_pass_correlation": 0.7860354340882899,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.4353148148148147,
+    "psnr": 42.77113818578008,
+    "high_pass_correlation": 0.7962486751492767,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 56.089533333333335,
+    "psnr": 30.641985341869965,
+    "high_pass_correlation": 0.7545636384205077,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 149.49055619047618,
+    "psnr": 26.384666031500096,
+    "high_pass_correlation": 0.763524307831858,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.724142592592592,
+    "psnr": 41.38757363069211,
+    "high_pass_correlation": 0.8144021271049064,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 70.30856388888888,
+    "psnr": 29.66072133669303,
+    "high_pass_correlation": 0.680626559752704,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 230.6505161904762,
+    "psnr": 24.50125929981615,
+    "high_pass_correlation": 0.7701659462765541,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.5995,
+    "psnr": 42.5683818296785,
+    "high_pass_correlation": 0.7819337317660947,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 58.24675277777778,
+    "psnr": 30.47808642157016,
+    "high_pass_correlation": 0.7298625911378647,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 152.16786095238095,
+    "psnr": 26.307574251543187,
+    "high_pass_correlation": 0.7498866954085116,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 5.546642592592592,
+    "psnr": 40.69050178595647,
+    "high_pass_correlation": 0.7752432723969664,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 79.80270833333333,
+    "psnr": 29.110627302407085,
+    "high_pass_correlation": 0.6461224843086246,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 259.2404761904762,
+    "psnr": 23.993775503445264,
+    "high_pass_correlation": 0.742433480864375,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 4.171887037037037,
+    "psnr": 41.92747820426854,
+    "high_pass_correlation": 0.7585096751696341,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 68.05499861111112,
+    "psnr": 29.802203314094374,
+    "high_pass_correlation": 0.6858921416887198,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 174.54118857142856,
+    "psnr": 25.711824318162428,
+    "high_pass_correlation": 0.7246395234082862,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.985272222222222,
+    "psnr": 41.15391482797756,
+    "high_pass_correlation": 0.8018162888928555,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 73.39660138888888,
+    "psnr": 29.47404410382685,
+    "high_pass_correlation": 0.6523188245503527,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 224.07494095238096,
+    "psnr": 24.62687070216925,
+    "high_pass_correlation": 0.7637930862668412,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.856774074074074,
+    "psnr": 42.2685616178842,
+    "high_pass_correlation": 0.7517522929700461,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 63.02066527777778,
+    "psnr": 30.135973773751722,
+    "high_pass_correlation": 0.6821062861595745,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 160.22583428571428,
+    "psnr": 26.083478192622117,
+    "high_pass_correlation": 0.7151500108693617,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 5.4360277777777775,
+    "psnr": 40.77798693582879,
+    "high_pass_correlation": 0.7667292787087792,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 74.11590972222223,
+    "psnr": 29.431689172216522,
+    "high_pass_correlation": 0.6675348759560856,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 243.28001142857144,
+    "psnr": 24.26973933329971,
+    "high_pass_correlation": 0.7532525720452499,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 4.190777777777778,
+    "psnr": 41.907857285340924,
+    "high_pass_correlation": 0.7511237561048826,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 66.79434444444445,
+    "psnr": 29.883406690592903,
+    "high_pass_correlation": 0.6846653829525361,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "vanilla-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 170.21251238095238,
+    "psnr": 25.820888788075408,
+    "high_pass_correlation": 0.7198981931914505,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999998,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999999,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999999,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 0.9999999999999998,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 5.817798148148148,
+    "psnr": 40.48321711792237,
+    "high_pass_correlation": 0.8000980179047232,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 25.96467638888889,
+    "psnr": 33.98697446738517,
+    "high_pass_correlation": 0.7190039789646472,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 98.53304,
+    "psnr": 28.19498478759619,
+    "high_pass_correlation": 0.6311394102484323,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 6.080648148148148,
+    "psnr": 40.29130486831765,
+    "high_pass_correlation": 0.7806650495207471,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 33.66305,
+    "psnr": 32.859268987182666,
+    "high_pass_correlation": 0.6712805231957775,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 158.7068,
+    "psnr": 26.12484825800465,
+    "high_pass_correlation": 0.489197758746514,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 2.7297574074074076,
+    "psnr": 43.76956307712018,
+    "high_pass_correlation": 0.882411593325288,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 102.07524444444445,
+    "psnr": 28.041599322459714,
+    "high_pass_correlation": 0.6206708760927857,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 638.9444152380952,
+    "psnr": 20.07617282373634,
+    "high_pass_correlation": 0.14327706402101045,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 2.702535185185185,
+    "psnr": 43.813090039845434,
+    "high_pass_correlation": 0.886279857288808,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 63.26130694444444,
+    "psnr": 30.119422009060184,
+    "high_pass_correlation": 0.6498195542466312,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 1095.0748323809523,
+    "psnr": 17.736365629888837,
+    "high_pass_correlation": 0.016645852561523167,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 3.1704166666666667,
+    "psnr": 43.119640184789645,
+    "high_pass_correlation": 0.8711022188124966,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 80.17482083333333,
+    "psnr": 29.09042362784197,
+    "high_pass_correlation": 0.6122518275577715,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 1183.7455142857143,
+    "psnr": 17.398220145796238,
+    "high_pass_correlation": 0.04367656793282012,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.1847944444444445,
+    "psnr": 43.09998953874519,
+    "high_pass_correlation": 0.8693190156602085,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 76.84749305555556,
+    "psnr": 29.274506564999054,
+    "high_pass_correlation": 0.6048567520645429,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 853.75008,
+    "psnr": 18.817496034830864,
+    "high_pass_correlation": 0.10554398906236963,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.073927777777778,
+    "psnr": 42.03067035268715,
+    "high_pass_correlation": 0.8585472342302866,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 97.16315138888889,
+    "psnr": 28.25578768602567,
+    "high_pass_correlation": 0.6383690078276952,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 717.0288609523809,
+    "psnr": 19.575437241678877,
+    "high_pass_correlation": 0.05809574930772045,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 4.1227833333333335,
+    "psnr": 41.97889849159026,
+    "high_pass_correlation": 0.8508952276431806,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 67.90909305555556,
+    "psnr": 29.81152430483594,
+    "high_pass_correlation": 0.6358092332916642,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 729.5560876190476,
+    "psnr": 19.50021675183882,
+    "high_pass_correlation": 0.23578225168058514,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 3.3291,
+    "psnr": 42.907535201131914,
+    "high_pass_correlation": 0.8603376681444265,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 81.95359444444445,
+    "psnr": 28.995123546007598,
+    "high_pass_correlation": 0.5906809792577216,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 1355.1830495238096,
+    "psnr": 16.810823999535287,
+    "high_pass_correlation": 0.050212024987464764,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.4403814814814813,
+    "psnr": 42.76473759541528,
+    "high_pass_correlation": 0.8317494808745519,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 59.146994444444445,
+    "psnr": 30.41147680024952,
+    "high_pass_correlation": 0.600731876884097,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 970.5854266666666,
+    "psnr": 18.260465947682697,
+    "high_pass_correlation": 0.0638870166452902,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.44272037037037,
+    "psnr": 41.65431381731671,
+    "high_pass_correlation": 0.8403658220871728,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "plants",
+    "mse": 123.71873611111111,
+    "psnr": 27.206448861902924,
+    "high_pass_correlation": 0.609653040831775,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 1064.1438933333334,
+    "psnr": 17.860800037214982,
+    "high_pass_correlation": 0.1276747293236916,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "ground",
+    "mse": 4.38245,
+    "psnr": 41.71363391001785,
+    "high_pass_correlation": 0.8394677135011677,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "plants",
+    "mse": 90.12110833333334,
+    "psnr": 28.58253836714354,
+    "high_pass_correlation": 0.6242540504447074,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "static",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 1008.7261485714286,
+    "psnr": 18.093070819519372,
+    "high_pass_correlation": -0.04006428721011998,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-native-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 0.0,
+    "psnr": 168.13080360867912,
+    "high_pass_correlation": 1.0,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 5.96334074074074,
+    "psnr": 40.375907355577915,
+    "high_pass_correlation": 0.7843594670210983,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 35.93960555555555,
+    "psnr": 32.5750705453863,
+    "high_pass_correlation": 0.6673915635371929,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 160.3961638095238,
+    "psnr": 26.07886383804295,
+    "high_pass_correlation": 0.4884781800096592,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 5.089896296296296,
+    "psnr": 41.06371426940794,
+    "high_pass_correlation": 0.8225493050518107,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 77.0073388888889,
+    "psnr": 29.26548244954271,
+    "high_pass_correlation": 0.539959700031167,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-cnn-5",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 225.66972380952382,
+    "psnr": 24.596070634846438,
+    "high_pass_correlation": 0.23029983756807082,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 2.7959314814814813,
+    "psnr": 43.66553836705254,
+    "high_pass_correlation": 0.8738947808251109,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 75.87445277777778,
+    "psnr": 29.329847889947906,
+    "high_pass_correlation": 0.6220343767873701,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 926.7910361904762,
+    "psnr": 18.460985361727595,
+    "high_pass_correlation": 0.09188024539000267,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 2.142014814814815,
+    "psnr": 44.82257890651218,
+    "high_pass_correlation": 0.8819475469591256,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 176.69230555555555,
+    "psnr": 25.65862723231674,
+    "high_pass_correlation": 0.4522513832519437,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-quality-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 323.86458095238095,
+    "psnr": 23.02716906337318,
+    "high_pass_correlation": 0.3212593878804258,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 3.195487037037037,
+    "psnr": 43.085433007591774,
+    "high_pass_correlation": 0.8691225185470355,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 84.4089375,
+    "psnr": 28.86691927258472,
+    "high_pass_correlation": 0.6050883533180512,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 639.502260952381,
+    "psnr": 20.072382766077222,
+    "high_pass_correlation": 0.05818158172069858,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 2.486175925925926,
+    "psnr": 44.175485040781474,
+    "high_pass_correlation": 0.8727872210833191,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 97.87422777777778,
+    "psnr": 28.224120123477388,
+    "high_pass_correlation": 0.475896226449861,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 449.39604,
+    "psnr": 21.604511196956274,
+    "high_pass_correlation": 0.151324711405056,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.174718518518518,
+    "psnr": 41.924531624794994,
+    "high_pass_correlation": 0.8495006472980119,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 75.54550833333333,
+    "psnr": 29.348717130272508,
+    "high_pass_correlation": 0.6242432946185636,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 1429.4805352380952,
+    "psnr": 16.579021147774288,
+    "high_pass_correlation": 0.11288238378080794,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.438674074074074,
+    "psnr": 42.76689346586767,
+    "high_pass_correlation": 0.8672738678861849,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 102.52248472222222,
+    "psnr": 28.022612377209633,
+    "high_pass_correlation": 0.48880868616854006,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-balanced-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 604.2725161904762,
+    "psnr": 20.31847518958118,
+    "high_pass_correlation": 0.18225561065495047,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 3.5949425925925924,
+    "psnr": 42.573884013143285,
+    "high_pass_correlation": 0.8267771398900925,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 99.9653625,
+    "psnr": 28.132308156774766,
+    "high_pass_correlation": 0.5755768849889279,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 233.0194419047619,
+    "psnr": 24.456882031049595,
+    "high_pass_correlation": 0.39044518286652347,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 2.7439444444444443,
+    "psnr": 43.747050467324186,
+    "high_pass_correlation": 0.8531330779561777,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 116.08734027777778,
+    "psnr": 27.482954998483983,
+    "high_pass_correlation": 0.4232753758159189,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-11",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 152.94521142857144,
+    "psnr": 26.285444766881298,
+    "high_pass_correlation": 0.48069344806413533,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "ground",
+    "mse": 4.364916666666667,
+    "psnr": 41.7310440413269,
+    "high_pass_correlation": 0.8289741132471083,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "plants",
+    "mse": 58.8970875,
+    "psnr": 30.429865416996996,
+    "high_pass_correlation": 0.6444033056485629,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 0,
+    "region": "leaves",
+    "mse": 685.1400819047619,
+    "psnr": 19.77300985611157,
+    "high_pass_correlation": 0.1685962073077571,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 0.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "ground",
+    "mse": 3.6634555555555557,
+    "psnr": 42.49189433750647,
+    "high_pass_correlation": 0.8637508627076758,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "plants",
+    "mse": 176.76024722222223,
+    "psnr": 25.65695760559846,
+    "high_pass_correlation": 0.426870129544556,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  },
+  {
+    "label": "bsl-performance-transformer-13",
+    "motion": "pan",
+    "frame": 11,
+    "region": "leaves",
+    "mse": 378.90805523809524,
+    "psnr": 22.34546522791996,
+    "high_pass_correlation": 0.2269127926750288,
+    "camera": {
+      "x": -24.5,
+      "y": 131.0,
+      "z": 11.5,
+      "yaw": 12.0,
+      "pitch": 0.0
+    }
+  }
+]

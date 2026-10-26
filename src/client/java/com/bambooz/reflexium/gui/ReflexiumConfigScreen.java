@@ -1,14 +1,16 @@
 package com.bambooz.reflexium.gui;
 
 import com.bambooz.reflexium.compat.ApertureCompat;
+import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
-import com.bambooz.reflexium.dlss.DlssModel;
-import com.bambooz.reflexium.dlss.FrameGeneration;
-import com.bambooz.reflexium.dlss.FrameGenerationRenderer;
-import com.bambooz.reflexium.dlss.UpscaleQuality;
-import com.bambooz.reflexium.dlss.Upscaler;
-import com.bambooz.reflexium.dlss.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.dlss.DlssModel;
+import com.bambooz.reflexium.framegen.FrameGeneration;
+import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
+import com.bambooz.reflexium.upscale.UpscaleQuality;
+import com.bambooz.reflexium.upscale.Upscaler;
+import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.reflex.ReflexMode;
 import com.bambooz.reflexium.vulkan.VulkanSession;
@@ -34,12 +36,14 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		VulkanSession session = VulkanSession.current();
 		boolean isNvidia = session != null && session.isNvidia();
 
-		list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.reflex_mode"),
-				config::reflexMode, List.of(ReflexMode.values()), ReflexMode::label, mode -> {
+		boolean reflexSupported = ReflexController.get().isSupported();
+		var reflexButton = DropdownButton.create(this, Component.translatable("reflexium.option.reflex_mode"),
+				ReflexController.get()::mode, List.of(ReflexMode.values()), ReflexMode::label, mode -> {
 					ReflexController.get().setMode(mode);
-				}));
-
-		list.addBig(ReflexiumOptions.smartReflex());
+				});
+		// Frame generation requires Reflex: the effective mode is forced On while DLSS-G is requested.
+		reflexButton.active = reflexSupported && !FrameGenerationRenderer.get().needsReflex();
+		list.addBig(reflexButton);
 
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));
 
@@ -70,37 +74,40 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 					}));
 		}
 
-		if (effective == Upscaler.FSR || config.upscaler() == Upscaler.FSR) {
+		if (config.upscaler() != Upscaler.OFF) {
 			list.addBig(ReflexiumOptions.fsrSharpness());
+			list.addBig(ReflexiumOptions.postUpscaleParticles());
 		}
 
-		if (config.upscaler() != Upscaler.OFF) {
-			list.addHeader(Component.translatable("reflexium.group.frame_generation"));
+		list.addHeader(Component.translatable("reflexium.group.frame_generation"));
 
-			List<FrameGeneration> allowedFg = new ArrayList<>();
-			allowedFg.add(FrameGeneration.OFF);
-			boolean dlssActive = effective == Upscaler.DLSS || config.upscaler() == Upscaler.DLSS;
-			boolean fsrActive = effective == Upscaler.FSR || config.upscaler() == Upscaler.FSR;
-			if (dlssActive && isNvidia) {
-				if (FrameGenerationRenderer.get().isDlssFgSupported()) {
-					allowedFg.add(FrameGeneration.DLSS);
-				}
-				if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
-					allowedFg.add(FrameGeneration.DLSS_MULTI);
-				}
-			} else if (fsrActive) {
-				allowedFg.add(FrameGeneration.FSR);
+		List<FrameGeneration> allowedFg = new ArrayList<>();
+		allowedFg.add(FrameGeneration.OFF);
+		boolean dlssAllowed = isNvidia && config.upscaler() != Upscaler.FSR;
+		boolean fsrAllowed = config.upscaler() != Upscaler.DLSS;
+		if (dlssAllowed) {
+			if (FrameGenerationRenderer.get().isDlssFgSupported()) {
+				allowedFg.add(FrameGeneration.DLSS);
 			}
-
-			list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.frame_generation"),
-					config::frameGeneration, allowedFg, FrameGeneration::label, fg -> {
-						ReflexiumOptions.setFrameGeneration(fg);
-						rebuild();
-					}));
-
-			if (config.frameGeneration() == FrameGeneration.DLSS_MULTI && FrameGenerationRenderer.get().isDlssMfgSupported()) {
-				list.addBig(ReflexiumOptions.frameGenerationMultiplier());
+			if (FrameGenerationRenderer.get().isDlssMfgSupported()) {
+				allowedFg.add(FrameGeneration.DLSS_MULTI);
 			}
+		} else if (fsrAllowed) {
+			allowedFg.add(FrameGeneration.FSR);
+		}
+
+		list.addBig(DropdownButton.create(this, Component.translatable("reflexium.option.frame_generation"),
+				config::frameGeneration, allowedFg, FrameGeneration::label, fg -> {
+					ReflexiumOptions.setFrameGeneration(fg);
+					rebuild();
+				}));
+		if (isNvidia) {
+			var gate = FrameGenerationRenderer.get().gate();
+			if (!gate.reasonKey().isEmpty()) list.addHeader(Component.translatable(gate.reasonKey()));
+		}
+
+		if (config.frameGeneration().nvidia() && FrameGenerationRenderer.get().isDlssFgSupported()) {
+			list.addBig(ReflexiumOptions.frameGenerationMultiplier());
 		}
 
 		list.addHeader(Component.translatable("reflexium.status"));
@@ -110,7 +117,27 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 		if (VitrailCompat.isLoaded()) {
 			list.addHeader(Component.literal("Vitrail: " + VitrailCompat.status()));
 		}
+		if (IrisCompat.isLoaded()) {
+			list.addHeader(Component.literal("Iris: " + IrisCompat.status()));
+		}
 		list.addHeader(Component.literal("Aperture: " + ApertureCompat.status()));
+	}
+
+	private String shownState = state();
+	private int ticks;
+
+	/** What the options and status lines were built from. Reflex pacing text is excluded: it flips at high FPS. */
+	private static String state() {
+		return UpscalingRenderer.get().statusLine() + "|" + FrameGenerationRenderer.get().statusLine() + "|" + UpscalingRenderer.get().dlssReady()
+				+ "|" + FrameGenerationRenderer.get().isDlssFgSupported() + "|" + FrameGenerationRenderer.get().isDlssMfgSupported()
+				+ "|" + ShaderPacks.status() + "|" + IrisCompat.isDrawingPack();
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		// A finished DLSS download or a runtime failure changes what can be offered; rebuild once per change.
+		if (++ticks % 20 == 0 && !state().equals(shownState)) rebuild();
 	}
 
 	private void rebuild() {

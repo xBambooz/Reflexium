@@ -10,19 +10,23 @@ VkQueue scGameQueue = VK_NULL_HANDLE;
 VkDevice scDevice = VK_NULL_HANDLE;
 VkPhysicalDevice scPhysical = VK_NULL_HANDLE;
 uint32_t scFamily = 0, scFirstPrivate = 0;
-RxImage scGenerated = {};
+struct ScheduledFrame { RxImage image; uint64_t id; };
+ScheduledFrame scFrame = {};
+bool scPending = false;
 PFN_vkCmdBlitImage scBlit = nullptr;
 
-ffxReturnCode_t copyGenerated(ffxDispatchDescFrameGeneration* params, void*) {
-    if (!scGenerated.image || !params->outputs[0].resource) return FFX_API_RETURN_ERROR_PARAMETER;
+ffxReturnCode_t copyGenerated(ffxDispatchDescFrameGeneration* params, void* context) {
+    const auto* frame = static_cast<const ScheduledFrame*>(context);
+    if (!frame || params->frameID != frame->id || !frame->image.image || !params->outputs[0].resource) return FFX_API_RETURN_ERROR_PARAMETER;
+    const RxImage& generated = frame->image;
     VkImageBlit region = {};
     region.srcSubresource.aspectMask = region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     region.srcSubresource.layerCount = region.dstSubresource.layerCount = 1;
     // Minecraft's swapchain blit flips Y; apply exactly the same transform to the generated image.
-    region.srcOffsets[0] = {0, scGenerated.height, 0};
-    region.srcOffsets[1] = {scGenerated.width, 0, 1};
-    region.dstOffsets[1] = {scGenerated.width, scGenerated.height, 1};
-    scBlit(static_cast<VkCommandBuffer>(params->commandList), reinterpret_cast<VkImage>(scGenerated.image), VK_IMAGE_LAYOUT_GENERAL,
+    region.srcOffsets[0] = {0, generated.height, 0};
+    region.srcOffsets[1] = {generated.width, 0, 1};
+    region.dstOffsets[1] = {generated.width, generated.height, 1};
+    scBlit(static_cast<VkCommandBuffer>(params->commandList), reinterpret_cast<VkImage>(generated.image), VK_IMAGE_LAYOUT_GENERAL,
         static_cast<VkImage>(params->outputs[0].resource), VK_IMAGE_LAYOUT_GENERAL, 1, &region, VK_FILTER_NEAREST);
     params->numGeneratedFrames = 1;
     return FFX_API_RETURN_OK;
@@ -38,33 +42,50 @@ RX_EXPORT void rx_fsr_sc_init(void* device, void* physical, void* gdpa, void* ga
     scBlit = reinterpret_cast<PFN_vkCmdBlitImage>(deviceProcAddr(scDevice, "vkCmdBlitImage"));
 }
 
-RX_EXPORT void rx_fsr_sc_wait() {
-    if (!scContext) return;
+RX_EXPORT int rx_fsr_sc_wait() {
+    if (!scContext || !scPending) return 0;
     ffxDispatchDescFrameGenerationSwapChainWaitForPresentsVK wait = {};
     wait.header.type = FFX_API_DISPATCH_DESC_TYPE_FGSWAPCHAIN_WAIT_FOR_PRESENTS_VK;
-    ffxDispatch(&scContext, &wait.header);
+    auto result = ffxDispatch(&scContext, &wait.header);
+    if (result == FFX_API_RETURN_OK) scPending = false;
+    return result;
 }
 
 RX_EXPORT int rx_fsr_sc_schedule(const RxImage* generated, uint64_t frameId) {
     if (!scContext || !fgContext) return -1;
-    scGenerated = generated ? *generated : RxImage{};
+    if (scPending) return FFX_API_RETURN_ERROR_PARAMETER;
+    // ponytail: one in-flight image; SDK completion bounds both metadata and image reuse.
+    // Upgrade to an image/context pool only with a per-slot SDK completion contract.
+    scFrame = {generated ? *generated : RxImage{}, frameId};
     ffxConfigureDescFrameGeneration config = {};
     config.header.type = FFX_API_CONFIGURE_DESC_TYPE_FRAMEGENERATION;
     config.swapChain = reinterpret_cast<void*>(scHandle);
     config.frameGenerationEnabled = generated != nullptr;
     config.allowAsyncWorkloads = false;
     config.frameGenerationCallback = copyGenerated;
+    config.frameGenerationCallbackUserContext = &scFrame;
     config.frameID = frameId;
     config.generationRect = {0, 0, static_cast<int32_t>(scDescription.createInfo.imageExtent.width), static_cast<int32_t>(scDescription.createInfo.imageExtent.height)};
-    return ffxConfigure(&fgContext, &config.header);
+    auto result = ffxConfigure(&fgContext, &config.header);
+    if (result == FFX_API_RETURN_OK) scPending = true;
+    return result;
 }
 
-RX_EXPORT void rx_fsr_sc_pause() {
-    if (!scContext) return;
-    if (fgContext) rx_fsr_sc_schedule(nullptr, 0);
-    rx_fsr_sc_wait();
+RX_EXPORT int rx_fsr_sc_pause() {
+    if (!scContext) return 0;
+    auto result = rx_fsr_sc_wait();
+    if (result != 0) return result;
+    if (fgContext) {
+        // Disable without inventing an extra frame or resetting the frame identity to zero.
+        ffxConfigureDescFrameGeneration config = {};
+        config.header.type = FFX_API_CONFIGURE_DESC_TYPE_FRAMEGENERATION;
+        config.swapChain = reinterpret_cast<void*>(scHandle);
+        config.frameID = scFrame.id;
+        result = ffxConfigure(&fgContext, &config.header);
+        if (result != 0) return result;
+    }
     auto idle = reinterpret_cast<PFN_vkDeviceWaitIdle>(deviceProcAddr(scDevice, "vkDeviceWaitIdle"));
-    idle(scDevice);
+    return idle(scDevice);
 }
 
 RX_EXPORT int rx_fsr_sc_create(const VkSwapchainCreateInfoKHR* info, const VkAllocationCallbacks* allocator, VkSwapchainKHR* output) {
@@ -76,7 +97,10 @@ RX_EXPORT int rx_fsr_sc_create(const VkSwapchainCreateInfoKHR* info, const VkAll
     scDescription.swapchain = &scHandle;
     scDescription.allocator = const_cast<VkAllocationCallbacks*>(allocator);
     scDescription.createInfo = *info;
-    scDescription.createInfo.pNext = nullptr; // Reflex cannot use the SDK's opaque proxy handle.
+    // Preserve compatible extension chains. The Java creation hook omits its raw-Reflex structure
+    // for this route. If another producer requires raw Reflex, decline the optional proxy instead.
+    for (auto* next = static_cast<const VkBaseInStructure*>(info->pNext); next; next = next->pNext)
+        if (next->sType == VK_STRUCTURE_TYPE_SWAPCHAIN_LATENCY_CREATE_INFO_NV) return VK_ERROR_INITIALIZATION_FAILED;
     scDescription.gameQueue = {scGameQueue, scFamily, nullptr};
     auto getQueue = reinterpret_cast<PFN_vkGetDeviceQueue>(deviceProcAddr(scDevice, "vkGetDeviceQueue"));
     VkQueue queues[3] = {};
@@ -94,12 +118,14 @@ RX_EXPORT int rx_fsr_sc_create(const VkSwapchainCreateInfoKHR* info, const VkAll
     return VK_SUCCESS;
 }
 
-RX_EXPORT void rx_fsr_sc_destroy(const VkAllocationCallbacks*) {
-    if (!scContext) return;
-    if (fgContext) rx_fsr_sc_schedule(nullptr, 0);
-    rx_fsr_sc_wait();
-    ffxDestroyContext(&scContext, nullptr);
-    scContext = nullptr; scHandle = VK_NULL_HANDLE; scGenerated = {};
+RX_EXPORT int rx_fsr_sc_destroy(const VkAllocationCallbacks*) {
+    if (!scContext) return 0;
+    auto result = rx_fsr_sc_pause();
+    if (result != 0) return result;
+    result = ffxDestroyContext(&scContext, nullptr);
+    if (result != 0) return result;
+    scContext = nullptr; scHandle = VK_NULL_HANDLE; scFrame = {}; scPending = false;
+    return 0;
 }
 RX_EXPORT int rx_fsr_sc_images(uint32_t* count, VkImage* images) {
     return scFunctions.pOutGetSwapchainImagesKHR(scDevice, scHandle, count, images);

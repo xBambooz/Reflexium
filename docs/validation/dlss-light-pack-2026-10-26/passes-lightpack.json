@@ -1,0 +1,740 @@
+[
+  {
+    "key": "lightpack-lightpack-native-pass1",
+    "build": "lightpack",
+    "config": "native",
+    "pass": 1,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-native-pass1",
+    "bm_file": "lightpack-lightpack-native-pass1.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 1920,
+        "h": 1080
+      },
+      "preset_hint": 0,
+      "evaluated_frames": [
+        0,
+        0
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-native-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 111.036,
+      "variance": 1641.079,
+      "edges": 75981,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 40111,
+      "seconds": 90.09368399999785,
+      "avg_fps": 445.2143393315003,
+      "low1_fps": 262.1554143591868,
+      "low01_fps": 171.53909161474036
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 443.20961750704595,
+        "bm_low1_fps": 222.95357900826724,
+        "bm_low01_fps": 64.59155506557642,
+        "frames": 19964,
+        "seconds": 45.04516699999963,
+        "avg_fps": 443.1996000814064,
+        "low1_fps": 251.5669476250195,
+        "low01_fps": 150.3149097358967
+      },
+      {
+        "bm_avg_fps": 447.2386174149893,
+        "bm_low1_fps": 254.85854493353102,
+        "bm_low01_fps": 174.415434605606,
+        "frames": 20147,
+        "seconds": 45.04851699999987,
+        "avg_fps": 447.22892875696795,
+        "low1_fps": 274.36752143752193,
+        "low01_fps": 201.32269007378477
+      }
+    ],
+    "avg_fps": 445.2143393315003,
+    "low1_fps": 262.1554143591868,
+    "low01_fps": 171.53909161474036,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": false
+    },
+    "review_valid": true,
+    "accepted": true
+  },
+  {
+    "key": "lightpack-lightpack-cnn-q-pass1",
+    "build": "lightpack",
+    "config": "cnn-q",
+    "pass": 1,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-cnn-q-pass1",
+    "bm_file": "lightpack-lightpack-cnn-q-pass1.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 5,
+      "evaluated_frames": [
+        31593,
+        31724
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-cnn-q-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.478,
+      "variance": 1484.613,
+      "edges": 45359,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 36725,
+      "seconds": 90.09689199999974,
+      "avg_fps": 407.61672444816526,
+      "low1_fps": 242.24294525177442,
+      "low01_fps": 153.45565546302137
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 407.0742588767143,
+        "bm_low1_fps": 204.0013541225672,
+        "bm_low01_fps": 62.289126096903686,
+        "frames": 18338,
+        "seconds": 45.04914399999997,
+        "avg_fps": 407.06655824581287,
+        "low1_fps": 235.06924908862499,
+        "low01_fps": 135.2529229659463
+      },
+      {
+        "bm_avg_fps": 408.1742189841741,
+        "bm_low1_fps": 221.8464637891197,
+        "bm_low01_fps": 149.79157480961172,
+        "frames": 18387,
+        "seconds": 45.047748000000055,
+        "avg_fps": 408.16690769980283,
+        "low1_fps": 250.4300864528212,
+        "low01_fps": 174.5505323791237
+      }
+    ],
+    "avg_fps": 407.61672444816526,
+    "low1_fps": 242.24294525177442,
+    "low01_fps": 153.45565546302137,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": false
+    },
+    "review_valid": true,
+    "accepted": true
+  },
+  {
+    "key": "lightpack-lightpack-transformer-q-pass1",
+    "build": "lightpack",
+    "config": "transformer-q",
+    "pass": 1,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-transformer-q-pass1",
+    "bm_file": "lightpack-lightpack-transformer-q-pass1.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": false,
+      "log_generation_lines": 0,
+      "gate_valid": false
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 11,
+      "evaluated_frames": [
+        27256,
+        27371
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-transformer-q-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.827,
+      "variance": 1453.408,
+      "edges": 48164,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": false,
+    "pooled": {
+      "frames": 31654,
+      "seconds": 90.09419699999934,
+      "avg_fps": 351.34338341458584,
+      "low1_fps": 215.85800492728225,
+      "low01_fps": 142.42034474624694
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 350.5165736945964,
+        "bm_low1_fps": 183.53878290886087,
+        "bm_low01_fps": 60.53293291678354,
+        "frames": 15789,
+        "seconds": 45.04573699999984,
+        "avg_fps": 350.510415669302,
+        "low1_fps": 208.02776512348683,
+        "low01_fps": 122.06193117232854
+      },
+      {
+        "bm_avg_fps": 352.18251445314854,
+        "bm_low1_fps": 207.28921558422005,
+        "bm_low01_fps": 154.77138163114196,
+        "frames": 15865,
+        "seconds": 45.04845999999997,
+        "avg_fps": 352.1763008102832,
+        "low1_fps": 224.486856929867,
+        "low01_fps": 172.57744412805246
+      }
+    ],
+    "avg_fps": 351.34338341458584,
+    "low1_fps": 215.85800492728225,
+    "low01_fps": 142.42034474624694,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": true
+    },
+    "review_valid": true,
+    "accepted": true
+  },
+  {
+    "key": "lightpack-lightpack-transformer-q-pass2",
+    "build": "lightpack",
+    "config": "transformer-q",
+    "pass": 2,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-transformer-q-pass2",
+    "bm_file": "lightpack-lightpack-transformer-q-pass2.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": false,
+      "log_generation_lines": 0,
+      "gate_valid": false
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 11,
+      "evaluated_frames": [
+        26974,
+        27089
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-transformer-q-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.823,
+      "variance": 1452.675,
+      "edges": 47810,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": false,
+    "pooled": {
+      "frames": 31788,
+      "seconds": 90.09652999999987,
+      "avg_fps": 352.8215792550506,
+      "low1_fps": 217.83462789666967,
+      "low01_fps": 148.5359921275924
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 352.07364675617686,
+        "bm_low1_fps": 185.4354577892116,
+        "bm_low01_fps": 65.73368653025483,
+        "frames": 15860,
+        "seconds": 45.04818399999992,
+        "avg_fps": 352.06746624902854,
+        "low1_fps": 210.1528961448178,
+        "low01_fps": 131.2152997039455
+      },
+      {
+        "bm_avg_fps": 353.58184311079555,
+        "bm_low1_fps": 209.1518240234543,
+        "bm_low01_fps": 158.50560829780585,
+        "frames": 15928,
+        "seconds": 45.048345999999825,
+        "avg_fps": 353.57568954918037,
+        "low1_fps": 226.21279937627864,
+        "low01_fps": 172.75259668746898
+      }
+    ],
+    "avg_fps": 352.8215792550506,
+    "low1_fps": 217.83462789666967,
+    "low01_fps": 148.5359921275924,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": true
+    },
+    "review_valid": true,
+    "accepted": true
+  },
+  {
+    "key": "lightpack-lightpack-cnn-q-pass2",
+    "build": "lightpack",
+    "config": "cnn-q",
+    "pass": 2,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-cnn-q-pass2",
+    "bm_file": "lightpack-lightpack-cnn-q-pass2.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 5,
+      "evaluated_frames": [
+        31246,
+        31379
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-cnn-q-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.49,
+      "variance": 1482.896,
+      "edges": 45607,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 36588,
+      "seconds": 90.10125200000033,
+      "avg_fps": 406.07648826011723,
+      "low1_fps": 243.57925742933358,
+      "low01_fps": 162.76113264152522
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 405.2808689317964,
+        "bm_low1_fps": 207.8632464962671,
+        "bm_low01_fps": 64.99936255444374,
+        "frames": 18259,
+        "seconds": 45.05363899999999,
+        "avg_fps": 405.27247976573,
+        "low1_fps": 233.26751705211055,
+        "low01_fps": 135.43406618211367
+      },
+      {
+        "bm_avg_fps": 406.88900447001527,
+        "bm_low1_fps": 240.71459935293015,
+        "bm_low01_fps": 192.02458127167483,
+        "frames": 18329,
+        "seconds": 45.04761299999968,
+        "avg_fps": 406.8806043063842,
+        "low1_fps": 255.15325926917396,
+        "low01_fps": 202.55899530738327
+      }
+    ],
+    "avg_fps": 406.07648826011723,
+    "low1_fps": 243.57925742933358,
+    "low01_fps": 162.76113264152522,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": false
+    },
+    "review_valid": true,
+    "accepted": true
+  },
+  {
+    "key": "lightpack-lightpack-native-pass2",
+    "build": "lightpack",
+    "config": "native",
+    "pass": 2,
+    "sha256": "3E6CF91CDA7FEA653447297791541B945A2B3A149B47911FD66E805CA07450DF",
+    "label": "lightpack-lightpack-native-pass2",
+    "bm_file": "lightpack-lightpack-native-pass2.bmresult.json.gz",
+    "dh": {
+      "generator_plan": "DISABLED",
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 1920,
+        "h": 1080
+      },
+      "preset_hint": 0,
+      "evaluated_frames": [
+        0,
+        0
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "lightpack-lightpack-native-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 111.022,
+      "variance": 1636.315,
+      "edges": 75642,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 40362,
+      "seconds": 90.0948629999999,
+      "avg_fps": 447.99446556681085,
+      "low1_fps": 254.03756234609975,
+      "low01_fps": 149.14966049808524
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 445.6809913791435,
+        "bm_low1_fps": 203.3682200979702,
+        "bm_low01_fps": 37.161321783975644,
+        "frames": 20077,
+        "seconds": 45.048850000000236,
+        "avg_fps": 445.67175410692823,
+        "low1_fps": 241.51193681759372,
+        "low01_fps": 121.67448425227987
+      },
+      {
+        "bm_avg_fps": 450.3269474374267,
+        "bm_low1_fps": 246.20424087820766,
+        "bm_low01_fps": 170.25877234420994,
+        "frames": 20285,
+        "seconds": 45.04601300000038,
+        "avg_fps": 450.3173233111625,
+        "low1_fps": 268.1464475879368,
+        "low01_fps": 194.5203614188315
+      }
+    ],
+    "avg_fps": 447.99446556681085,
+    "low1_fps": 254.03756234609975,
+    "low01_fps": 149.14966049808524,
+    "dh_review": {
+      "durable_gate": true,
+      "transient_wal_changed": false
+    },
+    "review_valid": true,
+    "accepted": true
+  }
+]

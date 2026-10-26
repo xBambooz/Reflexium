@@ -5,7 +5,12 @@
 	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"BetterF3ConfigMixin"
+		"dh.BlazeDhTerrainMixin",
+		"dh.BlazeDhRenderPassMixin",
+		"dh.IrisDhTerrainMixin",
+		"dh.IrisDhRenderGuardMixin",
+		"BetterF3ConfigMixin",
+		"BetterF3FpsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,0 +1,152 @@
+{
+    "upscaler":  "off",
+    "upscaler_effective":  "off",
+    "upscaler_built":  "off",
+    "quality":  "performance",
+    "dlss_model":  "transformer",
+    "dlss_preset_hint":  0,
+    "history_reset_frames":  0,
+    "transient_motion_uniforms":  true,
+    "direct_scene_depth":  true,
+    "reflex_mode":  "ON",
+    "reflex_status":  "Reflex: On (requested On)",
+    "smart_reflex":  false,
+    "reflex_pacing_paused":  false,
+    "reflex_sleeping":  true,
+    "reflex_latency":  "Reflex render latency: 0.7 ms, sim 0.0, submit 0.3, GPU 0.4",
+    "reflex_submission":  false,
+    "reflex_extension_revision":  3,
+    "reflex_attribution":  "implicit",
+    "reflex_interval_us":  -1,
+    "fsr_sharpness":  20,
+    "frame_generation":  "off",
+    "fg_multiplier":  4,
+    "fg_status":  "Frame generation: off",
+    "fg_max_multiplier":  6,
+    "fg_evaluated_frames":  0,
+    "fg_generated_presents":  0,
+    "fg_real_presents":  49046,
+    "fg_submitted_fps":  1859,
+    "fg_submitted_real_fps":  1859,
+    "fg_display_feedback":  "unavailable",
+    "fg_metering_feedback":  2147483647,
+    "fg_metering_feedback_raw":  "0x7fffffff",
+    "fg_metering_result":  0,
+    "fg_metering_batch_configs":  0,
+    "fg_metering_reset_configs":  0,
+    "fg_metering_unreported":  0,
+    "fg_metering_accepted":  0,
+    "fg_metering_status":  0,
+    "fg_metering_rejected":  0,
+    "fg_metering_rejection_streak":  0,
+    "fg_metering_reset_pending":  false,
+    "fg_metering_problem":  "",
+    "fg_batches_started":  0,
+    "fg_batches_completed":  0,
+    "fg_failed":  false,
+    "fg_problem":  "",
+    "fg_sdk_present_count":  0,
+    "fg_sdk_scheduler":  false,
+    "upscaling_active":  false,
+    "status_line":  "Upscaling: off",
+    "render_size":  {
+                        "w":  1920,
+                        "h":  1080
+                    },
+    "display_size":  {
+                         "w":  1920,
+                         "h":  1080
+                     },
+    "jitter_index":  0,
+    "jitter_px":  {
+                      "x":  0.0,
+                      "y":  0.0
+                  },
+    "jitter_sign":  {
+                        "x":  1.0,
+                        "y":  1.0
+                    },
+    "jitter_enabled":  true,
+    "mv_debug":  false,
+    "object_motion":  true,
+    "object_vertices_captured":  0,
+    "object_vertices_drawn":  0,
+    "object_entities":  0,
+    "object_block_entities":  0,
+    "mip_bias":  0.0,
+    "reactive_mask":  false,
+    "evaluated_frames":  0,
+    "pack_hand_mask":  false,
+    "observed":  {
+                     "mip_bias_requested":  0.0,
+                     "mip_bias_offset":  0.0,
+                     "mip_bias_vendor_baseline":  -1.0,
+                     "material_binds":  {
+                                            "Sampler0":  {
+                                                             "binds":  0,
+                                                             "with_requested_bias":  0
+                                                         },
+                                            "u_BlockTex":  {
+                                                               "binds":  0,
+                                                               "with_requested_bias":  0
+                                                           },
+                                            "pack_atlas":  {
+                                                               "binds":  0,
+                                                               "with_requested_bias":  0
+                                                           },
+                                            "pack_pbr":  {
+                                                             "binds":  0,
+                                                             "with_requested_bias":  0
+                                                         }
+                                        },
+                     "material_replacements":  0,
+                     "jitter_phases":  0,
+                     "jitter_index":  0,
+                     "history_reset_frames":  0,
+                     "last_reset_reason":  "feature rebuild",
+                     "resets_by_reason":  {
+                                              "first_frame":  0,
+                                              "level":  0,
+                                              "teleport":  0,
+                                              "gap":  0,
+                                              "camera":  0,
+                                              "rotation":  0,
+                                              "loading":  0,
+                                              "rebuild":  0,
+                                              "menu":  0
+                                          },
+                     "physical_camera":  {
+                                             "near":  0.05,
+                                             "far":  1024.0,
+                                             "vertical_fov_rad":  1.22,
+                                             "invalid_metadata_frames":  0
+                                         },
+                     "hand_vertices_drawn":  0,
+                     "hand_slots":  0,
+                     "hand_motion":  true,
+                     "post_effects_need_depth":  false,
+                     "post_depth_resolved":  false,
+                     "requested_preset":  0,
+                     "requested_preset_is_hint":  true,
+                     "pack_resolve_bypass_requested":  true,
+                     "pack_resolve_bypass_applied":  false
+                 },
+    "pack":  "0.12.0-beta, no shader pack drawing",
+    "fps":  1848,
+    "frame_time_ms":  0.58,
+    "frames":  49046,
+    "world_loaded":  true,
+    "screen":  "none",
+    "hud_hidden":  false,
+    "motion_running":  false,
+    "camera":  {
+                   "x":  118.514,
+                   "y":  111.133,
+                   "z":  -2.093,
+                   "eye_y":  112.753,
+                   "yaw":  27.444,
+                   "pitch":  16.925
+               },
+    "last_error":  "",
+    "ok":  true
+}

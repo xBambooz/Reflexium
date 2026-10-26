@@ -1,0 +1,210 @@
+﻿[
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "initial",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  1280,
+                        "h":  720
+                    },
+        "error":  "",
+        "step":  "resize",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  1280,
+                        "h":  720
+                    },
+        "error":  "",
+        "step":  "vsync-on",
+        "present_mode":  "FIFO",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  1280,
+                        "h":  720
+                    },
+        "error":  "",
+        "step":  "vsync-off",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  1280,
+                        "h":  720
+                    },
+        "error":  "",
+        "step":  "fullscreen",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "windowed",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: DLSS FG",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "fg2",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: DLSS FG",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "pause-blur",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: DLSS MFG 6x",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "fg6",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "shader-off",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  false
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "shader-reload",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "rejoin",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    },
+    {
+        "render":  {
+                       "w":  640,
+                       "h":  360
+                   },
+        "swapchain_created":  8,
+        "fg":  "Frame generation: off",
+        "display":  {
+                        "w":  960,
+                        "h":  540
+                    },
+        "error":  "",
+        "step":  "fsr",
+        "present_mode":  "IMMEDIATE",
+        "hdr":  true
+    }
+]

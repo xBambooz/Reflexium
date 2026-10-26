@@ -9,15 +9,22 @@ import java.util.Arrays;
 
 /** Opt-in render-thread timings. Query results are read only after availability, never with WAIT. */
 public final class FrameProfiler {
-	public static final int DEPTH = 0, MOTION = 1, OBJECTS = 2, EVALUATE = 3, OUTLINE_DEPTH = 4,
-			OUTLINE = 5, BARRIER_BEFORE = 6, BARRIER_AFTER = 7, REACTIVE = 8, OPAQUE_COPY = 9,
-			PACK_HAND = 10, REFLEX_SLEEP = 11, SUBMIT = 12, FENCE = 13, ACQUIRE = 14, PRESENT = 15, WORLD = 16, QUEUE = 17,
-			REFLEX_DRIVER = 18, REFLEX_WAIT = 19, FENCE_POLL = 20, POOL_RESET = 21,
-			FG_EVALUATE = 22, FG_GUI = 23;
+	public static final int DEPTH = 0, MOTION = 1, OBJECTS = 2, EVALUATE = 3, BARRIER_BEFORE = 4, BARRIER_AFTER = 5,
+			PACK_HAND = 6, REFLEX_SLEEP = 7, SUBMIT = 8, FENCE = 9, ACQUIRE = 10, PRESENT = 11, WORLD = 12, QUEUE = 13,
+			REFLEX_DRIVER = 14, REFLEX_WAIT = 15, FENCE_POLL = 16, POOL_RESET = 17,
+			FG_EVALUATE = 18, FG_GUI = 19, ACQUIRE_REUSE_WAIT = 20, DISPLAY_DEPTH = 21, HDR_COPY = 22, FINAL_BLIT = 23,
+			IRIS_SHADOWS = 24, IRIS_BEGIN = 25, IRIS_DEFERRED = 26, IRIS_COMPOSITE = 27, IRIS_FINAL = 28,
+			PHASE_SKY = 29, PHASE_TERRAIN_SOLID = 30, PHASE_TERRAIN_CUTOUT = 31, PHASE_ENTITIES = 32, PHASE_TRANSLUCENT = 33,
+			PHASE_CLOUDS_WEATHER = 34, PHASE_HAND = 35, PHASE_OTHER = 36, FG_HUDLESS = 37, FG_UI = 38,
+			FEATURE_PREPARE = 39, WORLD_SETUP = 40, WORLD_RESTORE = 41, GLOBALS = 42, WORLD_FENCE = 43;
 	private static final String[] NAMES = {"depth_copy", "camera_motion", "object_motion", "evaluate",
-			"outline_depth", "outline", "barrier_before", "barrier_after", "reactive", "opaque_copy",
+			"barrier_before", "barrier_after",
 			"pack_hand", "reflex_sleep", "submit_including_wait", "submit_fence_wait", "acquire", "present", "world_including_upscaling", "queue_submit",
-			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui"};
+			"reflex_driver_call", "reflex_semaphore_wait", "fence_poll", "command_pool_reset", "fg_evaluate", "fg_gui", "acquire_reuse_wait", "display_depth", "hdr_copy", "final_blit",
+			"iris_shadows_and_prepare", "iris_begin", "iris_deferred", "iris_composite", "iris_final",
+			"phase_sky", "phase_terrain_solid", "phase_terrain_cutout", "phase_entities", "phase_translucent_particles",
+			"phase_clouds_weather", "phase_hand", "phase_other", "fg_hudless_copy", "fg_ui_capture",
+			"feature_prepare", "upscale_world_setup", "upscale_world_restore", "global_uniform_update", "world_fence_wait"};
 	private static final int SLOTS = 16, QUERIES = 128;
 	private static final long[] cpu = new long[NAMES.length], counts = new long[NAMES.length],
 			gpu = new long[NAMES.length], gpuCounts = new long[NAMES.length];
@@ -30,9 +37,13 @@ public final class FrameProfiler {
 	private static float period;
 	private static int slot = -1, next;
 	private static boolean enabled;
+	private static boolean inWorld;
 	private static long skipped;
 
 	private FrameProfiler() {}
+	public static double gpuMeanMs(int label) { return gpuCounts[label] == 0 ? 0 : gpu[label] / (gpuCounts[label] * 1_000_000.0); }
+	public static boolean enabled() { return enabled; }
+	public static boolean inWorld() { return inWorld; }
 
 	public static void init(VkDevice value, VkPhysicalDevice physical) {
 		device = value;
@@ -57,8 +68,9 @@ public final class FrameProfiler {
 	}
 
 	public static void beginFrame() {
+		inWorld = false;
 		slot = -1;
-		if (!enabled || pool == 0) return;
+		if (!enabled() || pool == 0) return;
 		int frame = next++;
 		if (frame % 16 != 0) return;
 		int candidate = (frame / 16) % SLOTS;
@@ -91,7 +103,8 @@ public final class FrameProfiler {
 	}
 
 	public static long start(int label, VkCommandBuffer commands) {
-		if (!enabled) return 0;
+		if (!enabled()) return 0;
+		if (label == WORLD) inWorld = true;
 		if (commands != null && slot >= 0 && used[slot] + 2 <= QUERIES) {
 			int query = used[slot];
 			labels[slot][query / 2] = label;
@@ -105,6 +118,7 @@ public final class FrameProfiler {
 
 	public static void end(int label, long start, VkCommandBuffer commands) {
 		if (start == 0) return;
+		if (label == WORLD) inWorld = false;
 		cpu[label] += ((System.nanoTime() & 0x0000ffffffffffffL) - (start & 0x0000ffffffffffffL)) & 0x0000ffffffffffffL;
 		counts[label]++;
 		int query = (int) (start >>> 48) - 1;
@@ -124,11 +138,13 @@ public final class FrameProfiler {
 		result.addProperty("ok", true);
 		result.addProperty("enabled", enabled);
 		result.addProperty("skipped_gpu_frames", skipped);
+		result.addProperty("world_frames", counts[WORLD]);
 		JsonObject spans = new JsonObject();
 		for (int i = 0; i < NAMES.length; i++) {
 			JsonObject span = new JsonObject();
 			span.addProperty("cpu_samples", counts[i]);
 			span.addProperty("cpu_us", counts[i] == 0 ? 0 : cpu[i] / (counts[i] * 1000.0));
+			span.addProperty("cpu_us_per_world_frame", counts[WORLD] == 0 ? null : cpu[i] / (counts[WORLD] * 1000.0));
 			span.addProperty("gpu_samples", gpuCounts[i]);
 			span.addProperty("gpu_us", gpuCounts[i] == 0 ? 0 : gpu[i] / (gpuCounts[i] * 1000.0));
 			spans.add(NAMES[i], span);

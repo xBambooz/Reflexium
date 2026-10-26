@@ -58,17 +58,34 @@ game runs on the render thread.
 
 ### `set` keys
 
+`/screenshot` also accepts `crop_width`, `crop_height`, and optional `crop_x`, `crop_y`.
+The crop defaults to the image center. `crop_pair_slot=0` starts a two-crop horizontal PNG;
+`crop_pair_slot=1` keeps its left crop and writes the second capture on the right. Both crops
+must have the same dimensions. Returned width/height describe each crop. This lets repeated
+benchmark passes share one image while keeping each captured view small.
+
+The table covers the common keys. `/` (help) and an unknown-key error list every key (`SetCommand.KEYS`).
+
 | Key | Values | Notes |
 | --- | --- | --- |
 | `upscaler` | `off`, `auto`, `dlss`, `fsr` | Same as the config value |
 | `quality` | `native_aa`, `quality`, `balanced`, `performance`, `ultra_performance` | |
 | `dlss_model` | `auto`, `transformer`, `cnn` | |
-| `fsr_sharpness` | `0` to `100` | |
+| `fsr_sharpness` | `0` to `100` | FSR 3.1 only; DLSS output is not post-sharpened |
 | `jitter_sign_x`, `jitter_sign_y` | `1`, `-1`, `default` | Runtime override of the sign UpscalingRenderer applies to the jitter handed to the upscaler. `default` restores the built-in value (`1`, measured in build/jitter-tuning, or `-Dreflexium.dlss.jitterSign`). `jitter_sign` sets both |
 | `jitter` | `0`, `1` | `0` zeroes the projection jitter and the jitter given to the upscaler, for A/B |
 | `mv_debug` | `0`, `1` | Draws the motion vector texture over the upscaled world (see below) |
 | `object_motion` | `0`, `1` | Enables the opaque entity/block-entity velocity pass; `0` gives a camera-only A/B |
 | `object_static` | `0`, `1` | Also redraws static tracked objects for depth-match debugging |
+| `hand_motion` | `0`, `1` | `0` returns the first-person hand to zero motion, for matched hand A/B captures |
+| `pack_hand_mask` | `0`, `1` | `0` also clears hand coverage for the hand velocity pass; `1` (default) uses the pack hand mask for the hand pass only |
+| `foliage_motion` | `0`, `1` | `0` skips exact-source pack deformation vectors (BSL leaves/vines), for a camera-only A/B |
+| `bob_view` | `0`, `1` | Runtime view-bob option, for walking A/B captures. `camera_bob` and `camera_walk_distance` in status show the render-state inputs independently |
+| `mip_bias_offset` | `-4` to `4` | Dev-only offset added to the vendor texture LOD baseline `log2(render/display) - 1` while upscaling. `1` reproduces the pre-2026-10-14 `log2(render/display)` bias. Replacement samplers are rebuilt after a device idle. Never applied at native size |
+| `dlss_preset` | `-1`, `5`, `6`, `10`, `11`, `12`, `13` | `-1` is the quality-aware mapping (Transformer: K for DLAA/Quality/Balanced, M Performance, L Ultra Performance). The value is a hint passed to NGX, not the model NGX reports |
+| `shaders` | `0`, `1` | Toggles the active pack: Iris through its pack manager, or Vitrail by flipping `vitrail/pack.txt` `enabled=` in the active game directory. Reloads the pack |
+| `shader_pack` | pack file name | Iris only: switches to that zip in the shaderpacks directory, enables shaders and reloads. Used by the validation matrix |
+| `pack_taa` | `retain`, `off` | Known Complementary packs only: keep or drop the pack's own full-scene TAA (in memory) while upscaling, for A/B |
 
 ### Frame timing (`/reflexium` with `frame_mark` or `frame_stats_from`)
 
@@ -88,15 +105,52 @@ The authenticated harness endpoint accepts `profile=on|reset|off|status`. `reset
 
 `tools/measure-per-frame.ps1 -Label profile-example -Paths optimized -Passes 1 -Profile` runs a fixed-pose matrix. `-Paths legacy` selects the previous uniform/depth paths and CNN E for paired tests in the same JVM. `perf_uniforms` and `perf_depth` accept `0|1`; `dlss_preset` accepts `-1` (normal mapping), 5 (E), 6 (F), 10 (J) or 11 (K). `reflex_mode` accepts `off|on|on_boost`. Only the existing Reflex setting persists. Status includes the built preset hint and history reset count. See [performance analysis](PERFORMANCE.md).
 
-Use Benchmark Mod and `tools/bm-quick-bench.ps1` for new performance measurements. The older fixed-pose script above documents the historical captures. `-Diagnostics` adds opt-in `fg_evaluate`/`fg_gui` CPU and GPU spans and raw driver reports; its FPS is diagnostic, not uninstrumented acceptance. `reflex_submission=0` chains zero queue IDs to return to implicit attribution; `1` restores the shipped explicit IDs. It resets on JVM restart. Do not use this variant with FG as an acceptance configuration.
+Use Benchmark Mod and `tools/bm-quick-bench.ps1` for new performance measurements. The older fixed-pose script above documents the historical captures. `-Diagnostics` adds opt-in `fg_evaluate`/`fg_gui` CPU and GPU spans and raw driver reports; its FPS is diagnostic, not uninstrumented acceptance. Production defaults to implicit attribution (`reflex_submission=0`). Diagnostic `reflex_submission=1` requests explicit IDs only when `VK_NV_low_latency2` revision 3 or later is available. Returning to `0` clears a previously tagged graphics queue. The override resets on JVM restart; keep attribution comparisons separate from performance acceptance.
 
-`reflex_interval_us=-1|0..1000000` imposes a diagnostic minimum frame interval in microseconds while Reflex is On. `-1` restores the normal cap; an explicit/VRR cap still takes precedence when it is slower. The override is runtime only and appears in status. For example, `800` requests a 1250 FPS ceiling. `-Quick -Explore` runs the selected runtime variants once in one JVM, with no reverse pass or conditioning capture. Use `smart_reflex=0` throughout Reflex investigations.
+`reflex_trace=1..32` arms bounded `[FG API]` logging of logical frame IDs, marker calls, submit tags and physical present roles/results. Collect FG-off, 2x and maximum-MFG traces separately after terrain loads, with no competing GPU workload. This records instrumented call boundaries, not physical scanout or every internal vendor submission. Those new live traces remain pending in the [FG/Reflex report](validation/frame-generation-reflex-2026-10-14.md).
+
+`reflex_interval_us=-1|0..1000000` imposes a diagnostic minimum frame interval in microseconds while Reflex is On. `-1` restores the normal cap; Minecraft's explicit Max Framerate still takes precedence when it is slower. The override is runtime only and appears in status. For example, `800` requests a 1250 FPS ceiling. `-Quick -Explore` runs the selected runtime variants once in one JVM, with no reverse pass or conditioning capture.
 
 `POST /reflexium {"reflex_timings":"1"}` returns up to 64 complete driver reports with microsecond timestamps relative to the first returned simulation start. Preserve these fields even when driver timestamps are inconsistent. F3's `Reflex render latency` uses input sample (or simulation start fallback) through GPU completion, excludes scanout, and refuses reports with inverted driver start/end. CPU present return alone is not render-complete latency. Status includes `reflex_status` and `reflex_submission`, allowing a diagnostic to verify caps and the attribution variant.
 
 Settings written through `set upscaler|quality|dlss_model|fsr_sharpness` are saved to
 `run\config\reflexium.properties` like menu changes. The jitter and `mv_debug` overrides are runtime
 only and reset on restart.
+
+## Upscaler input and output capture
+
+`POST /reflexium` through the authenticated harness with `capture=<name>` (optional `dir=`, `extras=0|1`)
+arms one capture of the next evaluated frame. The render thread schedules readbacks of the render-resolution
+color the upscaler consumed, the display-resolution output of that same evaluation, the motion vectors and the
+scene depth. It writes `<name>_input.png`, `<name>_output.png`, `<name>_motion.png`, `<name>_depth.png` and
+`<name>.json` (sizes, requested model and preset, jitter index, phase count, sign and values sent, world and
+hand matrices, camera, reset reason, pack identity and the `observed` block). The normal frame path only reads
+one volatile reference and does no readback while no request is armed. A request that does not complete within
+20 seconds is cancelled, and late readbacks close their images.
+
+Screenshot readback reads four 8-bit channels and forces alpha opaque, so motion and depth are packed into
+RGB (see `dlss_capture_encode.fsh`): motion is two 12-bit values at 1/32 pixel over ±64 pixels, depth is a
+24-bit fixed point value. `tools/CaptureAnalysis.java` decodes them:
+
+```powershell
+java tools\CaptureAnalysis.java capture-check build\validation\x\wall.json       # motion against the metadata's own matrices
+java tools\CaptureAnalysis.java motion-stats <x_motion.png> 0 0 960 540
+java tools\CaptureAnalysis.java metrics <native.png> <test.png> 200 150 700 450   # detail correlation, Laplacian, PSNR
+java tools\CaptureAnalysis.java crop <in.png> <out.png> 200 150 300 200 3
+```
+
+Numerical reprojection inverts PNG row Y: Minecraft's screenshot readback writes GPU row `y` into
+image row `height-y-1`. The encoded motion components retain their original render-pixel signs.
+The generic camera checker includes hand/object pixels and cannot establish their independent motion.
+`tools/iq-vector-metrics.py` checks known ground and leaf regions in the Round 2 no-wave camera control.
+Its assertions require actual camera movement and a dispatched BSL foliage pass. It needs numpy and Pillow
+only for analysis, and runs with `python -I`. `observed.bsl_foliage_motion` reports dispatch; the two
+`bsl_*_time` values record the deformation times. This is reviewed BSL frame-time leaf/vine coverage,
+not grass, blended layers or cloud vectors.
+
+`tools\upscaling-quality.ps1` is the single driver for the validation matrix (arena, scenes, stills,
+motion sequences, hand swing and equip) and `tools\compare-upscaling.ps1` computes the matched-crop metrics.
+Absolute Laplacian energy rewards shimmer, so the metrics report a high-pass correlation with the native image.
 
 ## Motion vector view (`mv_debug 1`)
 
@@ -105,18 +159,34 @@ A fullscreen overlay of the motion vector texture drawn after upscaling and befo
 - hue is the direction of motion (render pixels, previous position minus current position),
 - brightness is the magnitude, full at 4 render pixels per frame (square-root scaled so sub-pixel
   motion still shows),
-- black means no motion; the first-person hand is always black.
+- black means no motion. The first-person hand is black while it is still on screen, and carries its own
+  vector while the swing or equip animation moves it (`hand_motion 0` restores the all-black hand).
 
 What to expect: with a still camera, static terrain is black while moving opaque objects have their
 own vectors, including animated limbs. A pure `turn` gives a smooth color field across the scene.
 `move` forward gives a radial pattern around the screen center, brighter for near blocks. The hand
-stays black. Frames are very short at several hundred fps, so per-frame motion is small; use
+stays black unless it animates. Frames are very short at several hundred fps, so per-frame motion is small; use
 `set mv_debug 1` with a fast `turn` (for example `turn 180 20`) to see it clearly.
 
 Status includes `evaluated_frames` (must advance to prove the upscaler ran), `pack_hand_mask`,
 `object_vertices_captured`, `object_vertices_drawn`, tracked entity counts, `mip_bias` and
 `reactive_mask`. Vertex counts report geometry submitted to the velocity pass, not the number of
 fragments that passed its depth test. A nonzero count alone does not prove correct velocities.
+`drawn_projection_has_view_effects`, `scene_depth_index`, `camera_bob`, `camera_walk_distance` and
+`bob_view_state` show whether the drawn projection contains view effects and which Iris depth target
+was used. The 2026-10-23 walking smear was a hand coverage mask problem, not a missing bob in the
+camera matrices; see [the report](validation/pack-fg-bob-2026-10-23.md).
+
+The `observed` object holds what the last frame actually did, separate from the requested settings:
+
+- `material_binds`: per binding path (`Sampler0` vanilla, `u_BlockTex` Sodium terrain, `pack_atlas` and
+  `pack_pbr` Vitrail) the number of binds, how many carried a sampler whose real Vulkan `mipLodBias` equals
+  the requested bias, and the bias read back from the sampler actually bound. `mip_bias_requested` alone does
+  not prove a material used it.
+- `jitter_phases`, `resets_by_reason` and `last_reset_reason` (first frame, level, teleport, frame gap, camera
+  mode or entity, rotation cut, loading frame, feature rebuild, menu), `physical_camera` (near, far and
+  vertical FOV taken from the unbobbed projection, with a counter of rejected values), `hand_vertices_drawn`,
+  `post_effects_need_depth` and `post_depth_resolved`.
 
 ## Worked recipe: tuning the jitter sign
 
@@ -198,11 +268,15 @@ four combinations.
 
 ## Notes and limits
 
+The dev-only settings endpoint also accepts `vsync`, `fullscreen` and `pause` booleans for lifecycle checks. The background harness can enforce window placement, so setting fullscreen does not establish a successful fullscreen transition. `-PrxPackHdr=true` enables the experimental pinned-pack HDR route; it remains off in ordinary launches. See [pipeline validation](validation/pipeline-improvements-2026-10-15.md).
+
 Frame generation adds `frame_generation=off|dlss|dlss_multi|fsr` and `fg_multiplier=3..8` to `/set`.
 Status includes the runtime MFG maximum, FG evaluations, successful generated present submissions,
 metering feedback and AMD scheduler present counts. These counters do not measure physical scanout.
-`/screenshot?fg_index=0&gui=1` reads the first generated target. See
-[frame-generation checks](FRAME_GENERATION.md) for the authenticated harness test script.
+Generation stops while any GUI screen is open; `fg_status` and the generation ledger record the menu
+reason, and evaluations resume after the screen closes. `/screenshot?fg_index=0&gui=1` reads the
+first generated target. See [frame-generation checks](FRAME_GENERATION.md) for the authenticated
+harness test script.
 
 - The harness forces `pauseOnLostFocus` off while the debug server runs, so a background window keeps
   ticking and scripted motion is not frozen by the pause menu.
@@ -216,3 +290,7 @@ metering feedback and AMD scheduler present counts. These counters do not measur
   `async=1` on `/move` and `/turn` through `rxdbg.ps1 raw` if you want to poll `/status` meanwhile.
 - If the render thread is blocked (world loading), `/status` answers `504` after 30 seconds.
 - Only one scripted motion runs at a time; a new one replaces the old.
+
+### BSL foliage diagnostics
+
+`foliage_depth_debug=1` displays the BSL foliage merge gate after reconstruction: green accepted, red rejected by scene/hand depth, black no foliage coverage. The display uses the render-size attachment with nearest sampling and does not feed diagnostic vectors into DLSS. `foliage_clear=0` disables the explicit frame-start attachment clear for a dev A/B; restore `1` afterward. Both reset with the JVM. `observed.bsl_foliage_surface_cleared` reports a clear actually issued for the captured frame. See IQ Round 5 and `tools/investigations/iq-round5.mjs` for the owned-client reproduction.

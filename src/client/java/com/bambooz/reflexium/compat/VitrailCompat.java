@@ -1,11 +1,15 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.debug.DebugSettings;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -43,12 +47,15 @@ public final class VitrailCompat {
 
 	/** Only versions whose implementation hooks have been source-reviewed are enabled. */
 	public static boolean isSupportedVersion() {
-		return isLoaded() && version().startsWith("0.12.");
+		String version = version();
+		return isLoaded() && version.startsWith("0.12.");
 	}
 
 	public static boolean canUpscale() {
 		return !isDrawingPack() || isSupportedVersion() && !broken && !integrationBroken;
 	}
+
+	public static boolean ownsTemporalSampling() { return temporalOwner && !integrationBroken; }
 
 	public static String upscalingProblem() {
 		return !isSupportedVersion() ? "Vitrail " + version() + " shader hooks are not supported"
@@ -61,9 +68,12 @@ public final class VitrailCompat {
 			return;
 		}
 		temporalOwner = enabled;
+		ComplementaryTemporalSource.reset();
 		try {
 			if (lookUp() && ((Optional<?>) session.invoke(null)).isPresent()) {
-				Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", java.nio.file.Path.class)
+				// Vitrail's flattened-unit cache keys exclude our external source policy.
+				Class.forName("dev.vitrail.pack.source.OpenedPack").getMethod("forgetKept").invoke(null);
+				Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class)
 						.invoke(null, Minecraft.getInstance().gameDirectory.toPath());
 			}
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
@@ -74,13 +84,16 @@ public final class VitrailCompat {
 
 	/** PackSession.read RETURN: rebuild only the forced layer, leaving every saved option on disk alone. */
 	public static Object withTemporalOwner(Object pack) {
+		ComplementaryTemporalSource.reset();
 		if (!temporalOwner || integrationBroken) {
 			return pack;
 		}
 		try {
 			Class<?> type = pack.getClass();
 			String name = (String) type.getMethod("packFileName").invoke(pack);
-			if (!name.startsWith("ComplementaryReimagined_") && !name.startsWith("ComplementaryUnbound_")) return pack;
+			if (!name.equals("ComplementaryReimagined_r5.9.3.zip")) return pack;
+			Minecraft client = Minecraft.getInstance();
+			if (client != null) ComplementaryHdr.verifyArchive(client.gameDirectory.toPath().resolve("shaderpacks").resolve(name));
 			Set<?> declared = (Set<?>) type.getMethod("declared").invoke(pack);
 			if (!declared.contains("TAA_DEFINE") || !declared.contains("TAA_JITTER")) {
 				return pack;
@@ -88,7 +101,7 @@ public final class VitrailCompat {
 			Map<?, ?> original = (Map<?, ?>) type.getMethod("forced").invoke(pack);
 			Map<Object, Object> forced = new LinkedHashMap<>(original);
 			Method optionValueOf = Class.forName("dev.vitrail.pack.option.OptionValue").getMethod("of", String.class);
-			forced.put("TAA_DEFINE", optionValueOf.invoke(null, "1"));
+			forced.put("TAA_DEFINE", optionValueOf.invoke(null, DebugSettings.packTaaRetained() ? "1" : "0"));
 			forced.put("TAA_JITTER", optionValueOf.invoke(null, "0"));
 			RecordComponent[] components = type.getRecordComponents();
 			Class<?>[] types = new Class<?>[components.length];
@@ -98,7 +111,8 @@ public final class VitrailCompat {
 				values[i] = components[i].getName().equals("forced") ? Map.copyOf(forced)
 						: components[i].getAccessor().invoke(pack);
 			}
-			ReflexiumClient.LOGGER.info("Vitrail {}: pack TAA retained with Reflexium projection jitter", name);
+			ReflexiumClient.LOGGER.info("Vitrail {}: TAA-dependent sampling {} with Reflexium projection jitter", name,
+					DebugSettings.packTaaRetained() ? "enabled" : "disabled for diagnostic comparison");
 			return type.getConstructor(types).newInstance(values);
 		} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
 			integrationBroken = true;
@@ -107,6 +121,54 @@ public final class VitrailCompat {
 		}
 	}
 
+	/**
+	 * Dev harness only (DebugServer {@code set shaders}): flips the enabled flag in the active game directory's
+	 * vitrail/pack.txt and asks Vitrail to read it again. Never called in normal play.
+	 */
+	public static void debugSetPackEnabled(boolean enabled) {
+		if (!isSupportedVersion()) {
+			throw new IllegalStateException("Vitrail " + version() + " is not supported");
+		}
+		try {
+			Path gameDirectory = Minecraft.getInstance().gameDirectory.toPath();
+			Path file = gameDirectory.resolve("vitrail").resolve("pack.txt");
+			String text = Files.readString(file);
+			String updated = text.replaceAll("(?m)^enabled=(true|false)", "enabled=" + enabled);
+			if (!updated.equals(text)) {
+				Files.writeString(file, updated);
+			}
+			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class).invoke(null, gameDirectory);
+		} catch (IOException | ReflectiveOperationException e) {
+			throw new IllegalStateException("could not change the Vitrail pack state", e);
+		}
+	}
+
+	/** Dev harness only: A/B the pack's own TAA with upscaling (DebugServer {@code set pack_taa}). */
+	public static void debugSetPackTaa(boolean retained) {
+		DebugSettings.setPackTaaRetained(retained);
+		debugReloadPack();
+	}
+
+	public static void debugSetPackResolveBypass(boolean bypass) {
+		DebugSettings.setPackResolveBypass(bypass);
+		debugReloadPack();
+	}
+
+	public static void debugSetPackPreFilters(boolean retained) {
+		DebugSettings.setPackPreFilters(retained);
+		debugReloadPack();
+	}
+
+	private static void debugReloadPack() {
+		ComplementaryTemporalSource.reset();
+		try {
+			Class.forName("dev.vitrail.pack.source.OpenedPack").getMethod("forgetKept").invoke(null);
+			Class.forName("dev.vitrail.render.PackChoice").getMethod("reload", Path.class)
+					.invoke(null, Minecraft.getInstance().gameDirectory.toPath());
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("could not reload the Vitrail pack", e);
+		}
+	}
 	/** True while Vitrail draws a shader pack, including the conservative answer when lookup fails. */
 	public static boolean isDrawingPack() {
 		if (!isLoaded()) {

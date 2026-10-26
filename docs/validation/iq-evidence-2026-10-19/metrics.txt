@@ -1,0 +1,10 @@
+before bsl quality sky {"mae":10.503,"mse":199.162,"psnr":25.14,"detail_correlation":-0.0006,"laplacian_reference":1.553,"laplacian_test":2.486}
+before bsl quality ground {"mae":1.304,"mse":4.718,"psnr":41.39,"detail_correlation":0.9159,"laplacian_reference":7.171,"laplacian_test":8.850}
+before bsl balanced sky {"mae":12.592,"mse":309.272,"psnr":23.23,"detail_correlation":-0.0023,"laplacian_reference":1.553,"laplacian_test":2.192}
+before bsl balanced ground {"mae":1.396,"mse":5.227,"psnr":40.95,"detail_correlation":0.9051,"laplacian_reference":7.171,"laplacian_test":9.038}
+after bsl quality sky {"mae":0.512,"mse":0.509,"psnr":51.06,"detail_correlation":0.0243,"laplacian_reference":1.578,"laplacian_test":1.585}
+after bsl quality ground {"mae":1.276,"mse":4.715,"psnr":41.40,"detail_correlation":0.9146,"laplacian_reference":7.180,"laplacian_test":8.925}
+after bsl balanced sky {"mae":11.247,"mse":217.217,"psnr":24.76,"detail_correlation":-0.0024,"laplacian_reference":1.578,"laplacian_test":1.337}
+after bsl balanced ground {"mae":1.364,"mse":5.143,"psnr":41.02,"detail_correlation":0.9055,"laplacian_reference":7.180,"laplacian_test":9.096}
+vanilla quality ground {"mae":1.239,"mse":8.027,"psnr":39.09,"detail_correlation":0.8585,"laplacian_reference":9.708,"laplacian_test":8.192}
+vanilla balanced ground {"mae":1.252,"mse":8.222,"psnr":38.98,"detail_correlation":0.8523,"laplacian_reference":9.708,"laplacian_test":8.350}

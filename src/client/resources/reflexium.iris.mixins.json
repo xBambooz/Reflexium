@@ -1,0 +1,21 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.bambooz.reflexium.mixin.compat.iris",
+	"plugin": "com.bambooz.reflexium.compat.CompatMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"CommonUniformsMixin",
+		"FoliageSurfaceMixin",
+		"DhProjectionMixin",
+		"DhDepthResizeMixin",
+		"IncludeGraphMixin",
+		"IrisPipelineProfileMixin",
+		"HandRendererMixin",
+		"IrisLoadMixin",
+		"IrisPbrSamplerMixin",
+		"PackOptionsMixin",
+		"RenderTargetsMixin"
+	],
+	"injectors": { "defaultRequire": 1 }
+}

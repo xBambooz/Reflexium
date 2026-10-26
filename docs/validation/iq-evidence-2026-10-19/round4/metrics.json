@@ -1,0 +1,10 @@
+[
+ {"pack":"vanilla","variant":"quality-0","region":"floor 400,1100,1000,180","mse":4.244913,"psnr":41.8521},
+ {"pack":"vanilla","variant":"quality-1","region":"floor 400,1100,1000,180","mse":4.254957,"psnr":41.8419},
+ {"pack":"vanilla","variant":"performance-0","region":"floor 400,1100,1000,180","mse":5.929685,"psnr":40.4005},
+ {"pack":"vanilla","variant":"performance-1","region":"floor 400,1100,1000,180","mse":6.473924,"psnr":40.0191},
+ {"pack":"bsl","variant":"quality-0","region":"floor 400,1100,1000,180","mse":2.214081,"psnr":44.6789},
+ {"pack":"bsl","variant":"quality-1","region":"floor 400,1100,1000,180","mse":2.209428,"psnr":44.6880},
+ {"pack":"bsl","variant":"performance-0","region":"floor 400,1100,1000,180","mse":20.139213,"psnr":35.0904},
+ {"pack":"bsl","variant":"performance-1","region":"floor 400,1100,1000,180","mse":23.217504,"psnr":34.4726}
+]

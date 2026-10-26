@@ -21,6 +21,8 @@ loom {
 
 	runs {
 		client {
+			providers.gradlePropertiesPrefixedBy("reflexium.disableDh").get().each { key, value -> vmArg "-D${key}=${value}" }
+			if ("true".equalsIgnoreCase(providers.gradleProperty("rxPackHdr").orNull)) vmArg "-Dreflexium.pack.hdr=true"
 			vmArg "-Dreflexium.logLatency=true"
 			if (rxBenchJar != null) {
 				vmArg "-Xms4G"
@@ -56,8 +58,16 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	clientCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+	testRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
 	clientCompileOnly "maven.modrinth:betterf3:${project.betterf3_version}"
 	if (rxBenchJar != null) clientRuntimeOnly files(rxBenchJar)
+}
+
+
+// Signed NVIDIA Streamline runtime (SDK 2.14.16), extracted to <game>/reflexium/streamline.
+processClientResources {
+	from("native/streamline/bin/x64") { into "streamline" }
+	from("native/streamline/licenses") { into "streamline/licenses" }
 }
 
 processResources {
@@ -88,35 +98,42 @@ java {
 sourceSets.test.compileClasspath += sourceSets.client.output + sourceSets.client.compileClasspath
 sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client.runtimeClasspath
 
-tasks.register("dlssMathCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.DlssMathCheck"
-}
-
-tasks.register("objectMotionCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.dlss.ObjectMotionCheck"
-}
-
-// The assertion main above is the test runner; no JUnit dependency is needed.
+// Assertion checks: each is a plain main() run against the client classes, no Minecraft process or GPU.
+// Every one runs as part of check, which build and installReflexium depend on. No JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
-tasks.named("check") { dependsOn "dlssMathCheck", "objectMotionCheck" }
-
-tasks.register("frameProfilerCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.debug.FrameProfilerCheck"
+def assertionChecks = [
+	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
+	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
+	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",
+	streamlineBridgeCheck        : "com.bambooz.reflexium.upscale.dlss.StreamlineBridgeCheck",
+	dlssFeatureGateCheck         : "com.bambooz.reflexium.upscale.dlss.DlssFeatureGateCheck",
+	dlssRuntimeInstallerCheck    : "com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstallerCheck",
+	objectMotionCheck            : "com.bambooz.reflexium.motion.ObjectMotionCheck",
+	objectMotionWithoutSodiumCheck: "com.bambooz.reflexium.motion.ObjectMotionCheck",
+	frameDeliveryCheck           : "com.bambooz.reflexium.framegen.FrameDeliveryCheck",
+	frameGenerationConstantsCheck: "com.bambooz.reflexium.framegen.FrameGenerationConstantsCheck",
+	frameProfilerCheck           : "com.bambooz.reflexium.debug.FrameProfilerCheck",
+	reflexTimingCheck            : "com.bambooz.reflexium.reflex.ReflexTimingCheck",
+	irisCompatCheck              : "com.bambooz.reflexium.compat.IrisCompatCheck",
+	distantHorizonsCheck         : "com.bambooz.reflexium.compat.DistantHorizonsCheck",
+]
+assertionChecks.each { name, main ->
+	tasks.register(name, JavaExec) {
+		group = "verification"
+		dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
+		classpath = sourceSets.test.runtimeClasspath
+		if (name == "objectMotionWithoutSodiumCheck") {
+			classpath = classpath.filter { !it.name.startsWith("sodium-") }
+			args "--without-sodium"
+		}
+		mainClass = main
+		workingDir = projectDir
+		for (property in ["reflexium.irisJar", "reflexium.dhJar"]) {
+			if (providers.gradleProperty(property).isPresent()) systemProperty property, providers.gradleProperty(property).get()
+		}
+	}
+	tasks.named("check") { dependsOn name }
 }
-tasks.named("check") { dependsOn "frameProfilerCheck" }
-
-tasks.register("reflexTimingCheck", JavaExec) {
-	dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
-	classpath = sourceSets.test.runtimeClasspath
-	mainClass = "com.bambooz.reflexium.reflex.ReflexTimingCheck"
-}
-tasks.named("check") { dependsOn "reflexTimingCheck" }
 
 // -PrxBenchJar: the run classpath otherwise still lists this tree's build/classes and build/resources
 // ahead of the selected jar, so an "old" jar would silently execute the working tree's client code.

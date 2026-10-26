@@ -1,0 +1,90 @@
+diff --git a/src/client/java/com/bambooz/reflexium/debug/DebugServer.java b/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
+index fc1a653..46f8231 100644
+--- a/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
++++ b/src/client/java/com/bambooz/reflexium/debug/DebugServer.java
+@@ -768,6 +768,10 @@ public final class DebugServer {
+ 					DebugSettings.setJitterSignY(sign);
+ 				};
+ 			}
++			case "cutout_mips" -> {
++				boolean on = flag(Map.of("v", value), "v", false);
++				yield () -> { DebugSettings.binaryCutoutMips = on; Minecraft.getInstance().reloadResourcePacks(); };
++			}
+ 			case "foliage_clear" -> {
+ 				boolean on = flag(Map.of("v", value), "v", true);
+ 				yield () -> DebugSettings.clearFoliageSurface = on;
+diff --git a/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java b/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
+index f3b9465..0fac1b8 100644
+--- a/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
++++ b/src/client/java/com/bambooz/reflexium/debug/DebugSettings.java
+@@ -20,6 +20,7 @@ public final class DebugSettings {
+ 	public static boolean cloudMotion = true;
+ 	/** Post-SR coverage view: green matches scene depth, red is rejected, black has no foliage. */
+ 	public static boolean foliageDepthDebug;
++	public static volatile boolean binaryCutoutMips;
+ 	/** False restores the terrain-only target's stale-coverage behavior for a dev A/B. */
+ 	public static boolean clearFoliageSurface = true;
+ 	public static int dlssPreset = -1;
+diff --git a/src/client/java/com/bambooz/reflexium/mixin/CutoutMipMixin.java b/src/client/java/com/bambooz/reflexium/mixin/CutoutMipMixin.java
+new file mode 100644
+index 0000000..0ddd385
+--- /dev/null
++++ b/src/client/java/com/bambooz/reflexium/mixin/CutoutMipMixin.java
+@@ -0,0 +1,45 @@
++package com.bambooz.reflexium.mixin;
++
++import com.bambooz.reflexium.debug.DebugSettings;
++import com.mojang.blaze3d.platform.NativeImage;
++import com.mojang.blaze3d.platform.Transparency;
++import net.minecraft.client.renderer.texture.MipmapGenerator;
++import net.minecraft.client.renderer.texture.MipmapStrategy;
++import net.minecraft.resources.Identifier;
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Inject;
++import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
++
++/** Clean-room binary-majority experiment. Vanilla already fits filtered alpha coverage. */
++@Mixin(MipmapGenerator.class)
++public abstract class CutoutMipMixin {
++	@Inject(method = "generateMipLevels", at = @At("HEAD"), cancellable = true)
++	private static void reflexium$binaryMip(Identifier name, NativeImage[] current, int levels,
++			MipmapStrategy strategy, float bias, Transparency transparency,
++			CallbackInfoReturnable<NativeImage[]> cir) {
++		if (!DebugSettings.binaryCutoutMips || !name.getPath().startsWith("block/")
++				|| !transparency.hasTransparent() || levels < current.length) return;
++		NativeImage[] result = new NativeImage[levels + 1];
++		System.arraycopy(current, 0, result, 0, current.length);
++		for (int level = current.length; level <= levels; level++) {
++			NativeImage parent = result[level - 1];
++			NativeImage image = new NativeImage(parent.getWidth() >> 1, parent.getHeight() >> 1, false);
++			result[level] = image;
++			for (int y = 0; y < image.getHeight(); y++) for (int x = 0; x < image.getWidth(); x++) {
++				int alpha = 0, red = 0, green = 0, blue = 0;
++				for (int dy = 0; dy < 2; dy++) for (int dx = 0; dx < 2; dx++) {
++					int pixel = parent.getPixel(2 * x + dx, 2 * y + dy);
++					int a = pixel >>> 24;
++					alpha += a;
++					red += (pixel >>> 16 & 255) * a;
++					green += (pixel >>> 8 & 255) * a;
++					blue += (pixel & 255) * a;
++				}
++				image.setPixel(x, y, alpha == 0 ? 0 : (alpha >= 510 ? 0xff000000 : 0)
++						| red / alpha << 16 | green / alpha << 8 | blue / alpha);
++			}
++		}
++		cir.setReturnValue(result);
++	}
++}
+diff --git a/src/client/resources/reflexium.mixins.json b/src/client/resources/reflexium.mixins.json
+index 612d116..30d093e 100644
+--- a/src/client/resources/reflexium.mixins.json
++++ b/src/client/resources/reflexium.mixins.json
+@@ -4,6 +4,7 @@
+ 	"package": "com.bambooz.reflexium.mixin",
+ 	"compatibilityLevel": "JAVA_25",
+ 	"client": [
++		"CutoutMipMixin",
+ 		"EntityRenderStateMixin",
+ 		"EntityRendererMotionMixin",
+ 		"EntityRenderDispatcherMotionMixin",

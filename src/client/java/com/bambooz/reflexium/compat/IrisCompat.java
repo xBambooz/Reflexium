@@ -1,0 +1,489 @@
+package com.bambooz.reflexium.compat;
+
+import com.bambooz.reflexium.ReflexiumClient;
+import com.bambooz.reflexium.debug.DebugSettings;
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+	* The experimental Iris Vulkan build draws OptiFine-format packs on Minecraft's own RenderPearl device, into
+	* the main render target Reflexium sizes, with gbuffer projections taken from the jittered level matrix. What
+	* it needs is one temporal owner: the reviewed pack's own jitter and full-scene resolve are removed from the
+	* source while upscaling is selected, and its hand gets Reflexium's jitter and coverage mask
+	* (mixin.compat.iris). Iris implementation classes are not a stable public API.
+	*/
+public final class IrisCompat {
+	private static final String MOD_ID = "iris";
+	public static final String SUPPORTED = "1.12.0-snapshot+mc26.3-local";
+	private static final String PACK = "ComplementaryReimagined_r5.9.3";
+	/** lib/antialiasing/jitter.glsl, hashed with Vitrail's reader convention (LF lines, trailing empty line kept). */
+	private static final String JITTER = "lib/antialiasing/jitter.glsl";
+	private static final String JITTER_SHA256 = "60872f102a808d3f5a6e8a5c0391bb1fb149bb08abb262047cb27e05577d877b";
+	private static final String JITTER_LINE = "#if TAA_JITTER > 0";
+	/**
+	 * BSL's own "retro filter removes AA" block undefines both TAA and FXAA. Every BSL projection jitter call and
+	 * the composite6/composite7 resolves sit behind those defines, so enabling the block leaves Reflexium as the
+	 * only jitter and temporal resolve. Option parsing still sees the original defines, so saved options are kept.
+	 */
+	private static final String BSL = "BSL_v10.1.8";
+	private static final String BSL_SETTINGS = "lib/settings.glsl";
+	private static final String BSL_SETTINGS_SHA256 = "808a7fb287dc081d889b3a8abb36c39590c12bff53bd751e839737e3a1cd13aa";
+	private static final String BSL_AA_LINE = "#ifdef RETRO_FILTER";
+	private static volatile boolean bslAaRemoved;
+	private static final Map<String, String> BSL_SAMPLING = Map.of(
+			"lib/atmospherics/clouds.glsl", "6195aa898de9c38fbb470ca69b87af5399aedb76bc482ce500143a019e9f96ac",
+			"lib/atmospherics/lightShafts.glsl", "e0cb5aaae178edd574d4c6d731c796c94e61ac4bcd9788234bd3c7472860baf2",
+			"lib/lighting/ambientOcclusion.glsl", "7fa271b2780efef4fc176a3b4a7e2c466ec087b5a3d2c27fe0c025222a14751b",
+			"lib/reflections/raytrace.glsl", "f1ddde3723110de60fd5f30d3bee60b2f48528fc18b94c3861bf85f199094d14",
+			"program/deferred1.glsl", "5a6e17ed30c584acc80fa9547a471d8eed138cc62c20173ff1eac1310f5f75c2");
+	/**
+	 * Pack options that select the pack's own temporal AA, post-process AA or pre-upscale sharpening. Upscaling replaces
+	 * all three: TAA would accumulate before DLSS/FSR, FXAA blurs its jittered input (NVIDIA DLSS guide 3.1), and a
+	 * render-size sharpen amplifies aliasing the upscaler then has to resolve; Reflexium sharpens after reconstruction.
+	 * Matched by option name, so any pack exposing them in its menu needs no Reflexium change.
+	 */
+	private static final Set<String> TEMPORAL_OPTIONS = Set.of("TAA", "TAA_ENABLED", "ENABLE_TAA",
+			"TAA_ENABLE", "USE_TAA", "TEMPORAL_AA", "TEMPORAL_ANTIALIASING", "TEMPORAL_ANTI_ALIASING", "TAAU", "TAA_UPSCALING",
+			"FXAA", "FXAA_ENABLED", "ENABLE_FXAA", "USE_FXAA", "SMAA", "SMAA_ENABLED", "ENABLE_SMAA", "USE_SMAA",
+			"IMAGE_SHARPENING", "CONTRAST_ADAPTATIVE_SHARPENING", "CONTRAST_ADAPTIVE_SHARPENING");
+	/**
+	 * Value options and their off value (Complementary family: TAA_DEFINE 0, FXAA_DEFINE -1, Mellow:
+	 * TAA_MODE 0). Matching is by option name so any pack exposing one of these names needs no code change.
+	 * Packs with a fixed jitter in their shader source and no option to turn it off are not covered; the
+	 * reviewed BSL/Complementary source edits remain the only exact-source policy.
+	 */
+	private static final Map<String, List<String>> TEMPORAL_VALUE_OPTIONS = Map.of("TAA_DEFINE", List.of("0"),
+			"TAA_JITTER", List.of("0"), "TAA_MODE", List.of("0", "-1"),
+			"FXAA_DEFINE", List.of("-1", "0"), "IMAGE_SHARPENING", List.of("0"),
+			"SHARPENING", List.of("0", "0.0", "0.00"), "SHARPEN", List.of("0"));
+	private static volatile List<String> optionsOverridden = List.of();
+	/** One of the overridden options was the pack's temporal AA itself, not only FXAA or sharpening. */
+	private static volatile boolean optionsTaaRemoved;
+
+	private static Method packInUse;
+	private static Method config;
+	private static Method packName;
+	private static boolean lookedUp;
+	private static boolean broken;
+	private static volatile boolean temporalOwner;
+	private static volatile boolean jitterRemoved;
+	private static boolean reloadQueued;
+
+	private IrisCompat() {
+	}
+
+	/** Iris owns the framebuffer list, but DH owns some of its depth attachments. */
+	public static void replaceMainDepth(Object framebuffer,
+			GpuTexture replacement,
+			GpuTexture previous) {
+		try {
+			var view = (GpuTextureView) framebuffer.getClass().getMethod("getDepthView").invoke(framebuffer);
+			if (view != null && view.texture() == previous)
+				framebuffer.getClass().getMethod("addDepthAttachment", GpuTexture.class).invoke(framebuffer, replacement);
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris depth attachment update failed", e); }
+	}
+
+	/** Render-thread diagnostic for attachment ownership across SR/native transitions. */
+	public static JsonObject dhTargets() {
+		var result = new JsonObject();
+		try {
+			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			var targetsField = pipeline.getClass().getDeclaredField("renderTargets");
+			targetsField.setAccessible(true);
+			Object targets = targetsField.get(pipeline);
+			var mainDepthField = targets.getClass().getDeclaredField("currentDepthTexture");
+			mainDepthField.setAccessible(true);
+			var mainDepth = (GpuTexture) mainDepthField.get(targets);
+			result.addProperty("iris_main_depth_size", mainDepth.getWidth(0) + "x" + mainDepth.getHeight(0));
+			result.addProperty("iris_main_depth_closed", mainDepth.isClosed());
+			result.addProperty("iris_uses_main_depth", mainDepth == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
+			Class<?> type = Class.forName("net.irisshaders.iris.compat.dh.DHCompatInternal");
+			Object dh = type.getMethod("current").invoke(null);
+			if (dh == null) return result;
+			var depth = (GpuTextureView) type.getMethod("getDepthTexture", boolean.class).invoke(dh, false);
+			result.addProperty("depth_size", depth.getWidth(0) + "x" + depth.getHeight(0));
+			for (String name : List.of("terrain", "water", "generic")) {
+				var field = type.getDeclaredField(name);
+				field.setAccessible(true);
+				Object program = field.get(dh);
+				if (program == null) continue;
+				Object fb = program.getClass().getMethod("getFramebuffer").invoke(program);
+				var attached = (GpuTextureView) fb.getClass().getMethod("getDepthView").invoke(fb);
+				result.addProperty(name + "_depth_size", attached.getWidth(0) + "x" + attached.getHeight(0));
+				result.addProperty(name + "_uses_dh_depth", attached.texture() == depth.texture());
+				result.addProperty(name + "_uses_main_depth", attached.texture() == Minecraft.getInstance().gameRenderer.mainRenderTarget().getDepthTexture());
+			}
+		} catch (ReflectiveOperationException | RuntimeException e) { result.addProperty("error", e.toString()); }
+		return result;
+	}
+	private static Field renderTargetsField;
+	private static Method depthView;
+
+	private static volatile int lastDepthIndex = -1;
+	/** Index the most recent frame used: 1 is pre-translucent, then 2 (no hand) and 0 (final) as fallbacks. */
+	public static int lastDepthIndex() { return lastDepthIndex; }
+
+	/**
+	 * Terrain seen through a blended surface owns the primary SR vector and depth. Iris exposes index 1 as
+	 * the pre-translucent copy; packs or loader revisions that do not allocate it fall back to the no-hand
+	 * and final views rather than failing the whole upscaler. All indices are generic Iris target slots.
+	 */
+	public static GpuTextureView opaqueDepth(int width, int height) {
+		lastDepthIndex = -1;
+		if (!isDrawingPack()) return null;
+		try {
+			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
+			Object pipeline = manager.getClass().getMethod("getPipelineNullable").invoke(manager);
+			if (renderTargetsField == null) {
+				renderTargetsField = pipeline.getClass().getDeclaredField("renderTargets");
+				renderTargetsField.setAccessible(true);
+				depthView = Class.forName("net.irisshaders.iris.targets.RenderTargets").getMethod("getDepthTextureView", int.class);
+			}
+			Object targets = renderTargetsField.get(pipeline);
+			for (int index : new int[] {1, 2, 0}) {
+				var view = (GpuTextureView) depthView.invoke(targets, index);
+				if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height) continue;
+				lastDepthIndex = index;
+				return view;
+			}
+			return null;
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris scene depth unavailable", e); }
+	}
+
+	public static boolean isLoaded() {
+		return FabricLoader.getInstance().isModLoaded(MOD_ID);
+	}
+
+	public static String version() {
+		return FabricLoader.getInstance().getModContainer(MOD_ID)
+				.map(mod -> mod.getMetadata().getVersion().getFriendlyString())
+				.orElse("not installed");
+	}
+
+	/** The inspected experimental Vulkan build. Stable OpenGL Iris never reaches Reflexium's Vulkan path. */
+	public static boolean isSupportedVersion() {
+		// The original Vulkan build and b3 share this version; validate each artifact with irisCompatCheck.
+		return isLoaded() && version().equals(SUPPORTED);
+	}
+
+	public static boolean canUpscale() {
+		return !isDrawingPack() || isSupportedVersion() && !broken;
+	}
+
+	public static String upscalingProblem() {
+		return !isSupportedVersion() ? "Iris " + version() + " shader hooks are not supported" : "Iris shader integration failed (see log)";
+	}
+
+	public static boolean ownsTemporalSampling() { return temporalOwner && !broken; }
+	private static volatile long epoch, configurationEpoch;
+	private static boolean temporalReload;
+	public static long configurationEpoch() { return configurationEpoch; }
+	/** Changes on every Iris pack load (reload, pack switch, shaders toggle); temporal history must restart. */
+	public static long epoch() { return epoch; }
+	/** Iris.loadShaderpack HEAD: forget the previous pack's evidence before its sources are read again. */
+	public static void onPackLoading() {
+		epoch++;
+		if (!temporalReload) configurationEpoch++;
+		BslFoliageMotion.reset();
+		ComplementaryTemporalSource.reset();
+		jitterRemoved = false;
+		bslAaRemoved = false;
+		optionsOverridden = List.of();
+		optionsTaaRemoved = false;
+	}
+	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
+	public static boolean temporalVerified() {
+		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved;
+	}
+	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
+	public static boolean packJitterRemoved() { return jitterRemoved; }
+
+	public static boolean isDrawingPack() {
+		if (!isLoaded()) return false;
+		if (!lookUp()) return true;
+		try {
+			return (boolean) packInUse.invoke(null);
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			broken = true;
+			return true;
+		}
+	}
+
+	/** Called before the frame decision. A change of owner rebuilds the pack from source on the next task. */
+	public static void configureUpscaling(boolean enabled) {
+		if (!isSupportedVersion() || broken || temporalOwner == enabled) return;
+		temporalOwner = enabled;
+		reloadPack(true);
+	}
+
+	/** Dev harness toggle for the supported Iris implementation. */
+	public static void debugSetPackEnabled(boolean enabled) {
+		if (!isSupportedVersion() || !lookUp()) throw new IllegalStateException("Supported Iris is not available");
+		try {
+			Object options = config.invoke(null);
+			options.getClass().getMethod("setShadersEnabled", boolean.class).invoke(options, enabled);
+			// reload() reloads the file too, matching Iris.toggleShaders' set/save/reload sequence.
+			options.getClass().getMethod("save").invoke(options);
+			reloadPack(false);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Could not toggle Iris shaders", e);
+		}
+	}
+
+	/** Debug harness: switch to another shader pack file in the shaderpacks directory and reload it. */
+	public static void debugSetShaderPack(String pack) {
+		if (!isSupportedVersion() || !lookUp()) throw new IllegalStateException("Supported Iris is not available");
+		if (pack == null || pack.isBlank()) throw new IllegalArgumentException("Shader pack name is required");
+		try {
+			Object options = config.invoke(null);
+			options.getClass().getMethod("setShaderPackName", String.class).invoke(options, packFileName(pack));
+			options.getClass().getMethod("setShadersEnabled", boolean.class).invoke(options, true);
+			options.getClass().getMethod("save").invoke(options);
+			reloadPack(false);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Could not switch Iris shader pack to " + pack, e);
+		}
+	}
+
+	/**
+	 * Iris stores the shaderpacks entry as the file name it has to open, so a bare pack name resolves to a
+	 * missing file and every later reload fails. Accept either form for the dev harness.
+	 */
+	private static String packFileName(String pack) {
+		Path folder = FabricLoader.getInstance().getGameDir().resolve("shaderpacks");
+		Path direct = folder.resolve(pack);
+		if (pack.endsWith(".zip") || Files.isRegularFile(direct)) return pack;
+		Path zipped = folder.resolve(pack + ".zip");
+		return Files.isRegularFile(zipped) ? pack + ".zip" : pack;
+	}
+
+	/** Debug and config changes to pack option overrides need the pack compiled again. */
+	public static void reloadForOptionChange() { reloadPack(false); }
+
+	private static void reloadPack(boolean temporalOnly) {
+		if (reloadQueued) return;
+		reloadQueued = true;
+		// Iris reloads from its keybind during the tick; never tear the pipeline down inside a frame.
+		// execute() would run inline on the render thread, inside the frame; schedule() always queues.
+		Minecraft.getInstance().schedule(() -> {
+			reloadQueued = false;
+			// Iris compiles its pack at startup, before any world frame reports it as drawing.
+			if (currentPackName() == null) return;
+			try {
+				temporalReload = temporalOnly;
+				try { Class.forName("net.irisshaders.iris.Iris").getMethod("reload").invoke(null); }
+				finally { temporalReload = false; }
+			} catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+				broken = true;
+				ReflexiumClient.LOGGER.error("Iris shader pack could not reload; upscaling is paused", e);
+			}
+		});
+	}
+
+	/** IncludeGraph.readFile RETURN: the same exact-hash source edits Vitrail receives, for the reviewed pack only. */
+	public static String adapt(Path file, String source) {
+		return adapt(currentPackName(), file, source);
+	}
+
+	static String adapt(String name, Path file, String source) {
+		if (!ownsTemporalSampling() || source == null) return source;
+		if (!PACK.equals(name) && !BSL.equals(name)) return source;
+		String path = file.toString().replace('\\', '/');
+		int root = path.lastIndexOf("shaders/");
+		if (root < 0) return source;
+		String rel = path.substring(root + "shaders/".length());
+		List<String> lines = List.of(source.replace("\r\n", "\n").split("\n", -1));
+		List<String> result = lines;
+		if (BSL.equals(name)) {
+			String foliage = BslFoliageMotion.adapt(rel, source);
+			if (!foliage.equals(source)) return foliage;
+			if (rel.equals(BSL_SETTINGS)) result = removeBslAntiAliasing(lines);
+			else if (BSL_SAMPLING.getOrDefault(rel, "").equals(ComplementaryTemporalSource.sha256(lines))) {
+				// Removing the pack resolve must not freeze its Bayer ray-march sampling into the SR input.
+				// Change only sampling guards, never geometry jitter or the pack's temporal resolve.
+				String edited = String.join("\n", lines).replace("#ifdef TAA\n\t#if TAA_MODE == 0\n\tdither =",
+						"#if 1 // Reflexium: temporal effect sampling with external reconstruction\n\t#if TAA_MODE == 0\n\tdither =");
+				result = List.of(edited.split("\n", -1));
+			}
+		} else if (rel.equals(JITTER)) {
+			result = removeJitter(lines);
+		} else if (DebugSettings.packResolveBypass()) {
+			result = ComplementaryTemporalSource.adapt(name, rel, lines, true, DebugSettings.packPreFilters());
+		}
+		if (result == lines) return source;
+		ReflexiumClient.LOGGER.info("Iris {}: Reflexium temporal edit applied to {}", name, rel);
+		return String.join("\n", result);
+	}
+
+	/**
+	 * ShaderPackOptions construction, after the option set is parsed: switch the pack's own temporal AA toggles off
+	 * while Reflexium owns temporal sampling. The returned copy feeds only this compile; Iris saves its option file
+	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
+	 */
+	public static Map<String, String> temporalOptionOverrides(Object packOptions, Map<String, String> values) {
+		if (!ownsTemporalSampling() || values == null) return values;
+		String name = currentPackName();
+		if (PACK.equals(name) || BSL.equals(name)) return values;
+		try {
+			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+			Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+			Map<String, String> result = new HashMap<>(values);
+			List<String> overridden = new ArrayList<>();
+			for (Object key : booleans.keySet()) {
+				String option = (String) key;
+				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) continue;
+				result.put(option, "false");
+				overridden.add(option);
+			}
+			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+			for (Map.Entry<?, ?> entry : strings.entrySet()) {
+				String option = (String) entry.getKey();
+				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
+				if (offValues == null) continue;
+				Object merged = entry.getValue();
+				Object stringOption = merged.getClass().getMethod("getOption").invoke(merged);
+				List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
+				for (String off : offValues) {
+					if (!allowed.contains(off)) continue;
+					result.put(option, off);
+					overridden.add(option + "=" + off);
+					break;
+				}
+			}
+			if (overridden.isEmpty()) return values;
+			optionsOverridden = List.copyOf(overridden);
+			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
+			ReflexiumClient.LOGGER.info("Iris {}: pack options {} switched off while upscaling (saved options unchanged)", name, overridden);
+			return result;
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			ReflexiumClient.LOGGER.warn("Iris pack option set not readable; pack temporal AA stays as configured", e);
+			return values;
+		}
+	}
+
+	/**
+	 * Pack option values for one compile: the temporal AA overrides only. The pack keeps its own shadow map
+	 * resolution and distance; those are not Reflexium's to trade.
+	 */
+	public static Map<String, String> packOptionOverrides(Object packOptions, Map<String, String> values) {
+		return temporalOptionOverrides(packOptions, values);
+	}
+
+	private static List<String> removeJitter(List<String> lines) {
+		if (!JITTER_SHA256.equals(ComplementaryTemporalSource.sha256(lines))) return lines;
+		List<String> result = new ArrayList<>(lines);
+		for (int i = 0; i < result.size(); i++) {
+			String line = result.get(i);
+			if (!line.strip().equals(JITTER_LINE)) continue;
+			result.set(i, line.substring(0, line.indexOf(JITTER_LINE)) + "#if 0 // Reflexium: projection jitter has one owner");
+			jitterRemoved = true;
+			return List.copyOf(result);
+		}
+		return lines;
+	}
+
+	private static List<String> removeBslAntiAliasing(List<String> lines) {
+		if (!BSL_SETTINGS_SHA256.equals(ComplementaryTemporalSource.sha256(lines))) return lines;
+		List<String> result = new ArrayList<>(lines);
+		for (int i = 0; i < result.size(); i++) {
+			String line = result.get(i);
+			if (!line.strip().equals(BSL_AA_LINE)) continue;
+			// SHARPEN_ENABLED is decided earlier from the original defines. With TAA and FXAA gone, final.glsl
+			// then computes 0.0625 * SHARPEN = -0.0625 for the automatic -1 setting: a blur of the upscaler
+			// input. Sharpening belongs after reconstruction (UpscalingRenderer's DLSS sharpen, FSR's RCAS).
+			String indent = line.substring(0, line.indexOf(BSL_AA_LINE));
+			result.set(i, indent + "#undef SHARPEN_ENABLED // Reflexium: sharpen after upscaling, never before\n"
+					+ indent + "#if 1 // Reflexium: one jitter and temporal resolve owner");
+			bslAaRemoved = true;
+			return List.copyOf(result);
+		}
+		return lines;
+	}
+
+	private static Field depthVersion, colorVersion;
+	private static boolean versionsLookedUp;
+
+	/**
+	 * Iris re-reads the main depth texture only when the target's buffer version changes, not on a size change,
+	 * so a swapped-in render-size depth would stay paired with display-size history. Tie each version to the
+	 * attached texture's identity: it changes exactly when the attachment does and stays stable across frames.
+	 */
+	public static void syncTargetVersions(RenderTarget target) {
+		if (!isLoaded()) return;
+		if (!versionsLookedUp) {
+			versionsLookedUp = true;
+			try {
+				depthVersion = RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+				colorVersion = RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
+				depthVersion.setAccessible(true);
+				colorVersion.setAccessible(true);
+			} catch (ReflectiveOperationException | RuntimeException e) {
+				depthVersion = colorVersion = null;
+				ReflexiumClient.LOGGER.warn("Iris render target versions not found; render-size targets may be stale", e);
+			}
+		}
+		if (depthVersion == null) return;
+		try {
+			depthVersion.setInt(target, System.identityHashCode(target.getDepthTexture()));
+			colorVersion.setInt(target, System.identityHashCode(target.getColorTexture()));
+		} catch (IllegalAccessException ignored) { /* setAccessible succeeded above */ }
+	}
+
+	/** The selected pack without its archive extension, or null. */
+	public static String currentPackName() {
+		if (!lookUp()) return null;
+		try {
+			Optional<?> name = (Optional<?>) packName.invoke(config.invoke(null));
+			if (name.isEmpty()) return null;
+			String value = (String) name.get();
+			return value.endsWith(".zip") ? value.substring(0, value.length() - 4) : value;
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			return null;
+		}
+	}
+
+	public static String status() {
+		if (!isLoaded()) return version();
+		if (!isDrawingPack()) return version() + ", no shader pack drawing";
+		String name = currentPackName();
+		return version() + ", " + (name == null ? "unknown pack" : name)
+				+ (temporalOwner ? temporalVerified() ? ", Reflexium jitter" : ", pack TAA not managed (unverified pack)" : "")
+				+ (temporalOwner && !optionsOverridden.isEmpty() ? " (pack options off: " + String.join(", ", optionsOverridden) + ")" : "");
+	}
+
+	private static boolean lookUp() {
+		if (lookedUp) return !broken;
+		lookedUp = true;
+		try {
+			Class<?> iris = Class.forName("net.irisshaders.iris.Iris");
+			packInUse = iris.getMethod("isPackInUseQuick");
+			config = iris.getMethod("getIrisConfig");
+			packName = config.getReturnType().getMethod("getShaderPackName");
+			// Without these, a swapped render-size depth stays paired with display-size Iris targets.
+			RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+			RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
+			return true;
+		} catch (ReflectiveOperationException | LinkageError e) {
+			broken = true;
+			ReflexiumClient.LOGGER.warn("Iris reflection failed; shader pack integration disabled", e);
+			return false;
+		}
+	}
+}
