@@ -269,10 +269,6 @@ public final class StreamlineSupport {
 		// The state query is the only source for the generated-frame ceiling. Without it the first
 		// options call would assume the SDK maximum and be rejected when the driver supports less.
 		if (deviceReady && dlssgAvailable && dlssgFeatureLoaded) refreshFrameGenerationState();
-		// Keep capability data for the settings UI, but remove the FG proxy before the first
-		// swapchain is created when the saved setting is Off. configure() calls destroy even
-		// for an empty swapchain, so the same post-destruction transition handles startup.
-		if (deviceReady) requestFrameGenerationFeature(ReflexiumConfig.get().frameGeneration().nvidia());
 		String log = bridge.takeLog();
 		if (!log.isEmpty()) ReflexiumClient.LOGGER.info("[Streamline] {}", log.trim());
 		ReflexiumClient.LOGGER.info("Streamline device: {} ({}), version {}", status(), session.deviceName(), bridge.dlssVersion());
@@ -351,6 +347,12 @@ public final class StreamlineSupport {
 	 */
 	public static void requestFrameGenerationFeature(boolean loaded) {
 		if (!dlssgAvailable || bridge == null) return;
+		// slSetFeatureLoaded(DLSS-G, false) crashes the process natively in Streamline 2.14.16,
+		// even after destruction and a device drain, so Off keeps the plugin loaded.
+		if (!loaded) {
+			pendingFeatureLoaded = null;
+			return;
+		}
 		pendingFeatureLoaded = loaded != dlssgFeatureLoaded || (loaded && DebugSettings.failDlssgLoad()) ? loaded : null;
 	}
 

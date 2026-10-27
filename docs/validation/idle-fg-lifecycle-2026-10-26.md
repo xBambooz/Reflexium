@@ -50,3 +50,13 @@ and lows against the same no-mod scene. No performance recovery is claimed yet.
 
 The concurrent `docs/validation/dlss-cost-2026-10-26/` artifacts belong to the
 benchmark agent and were not modified or included in this change.
+
+## Runtime result (2026-10-26, superseded)
+
+A cold launch with FG Off using this change crashed (mclo.gs 131Nh78, WER APPCRASH
+javaw.exe, jvm.dll c0000005, no hs_err). The log reaches "DLSS-G feature loaded=false
+requested; recreating the swapchain" but never the "between swapchains" line, so the
+process died inside the post-destruction device drain or `slSetFeatureLoaded(DLSS-G, false)`.
+Moving the unload to TAIL did not fix the earlier unload crash. The Off path again keeps
+the plugin loaded with options off; `requestFrameGenerationFeature(false)` only cancels a
+pending transition. Loading at TAIL is unchanged. The FG proxy overhead while Off remains.

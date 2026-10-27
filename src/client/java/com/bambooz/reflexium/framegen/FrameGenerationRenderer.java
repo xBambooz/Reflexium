@@ -248,6 +248,12 @@ public final class FrameGenerationRenderer {
 	private void syncDlssgFeatureState() {
 		if (session == null || !session.streamline() || !StreamlineSupport.dlssgAvailable()) return;
 		boolean want = ReflexiumConfig.get().frameGeneration().nvidia();
+		if (!want) {
+			// Off leaves the plugin loaded and uses options-off; unloading crashes this SDK.
+			dlssgFeatureWanted = null;
+			StreamlineSupport.requestFrameGenerationFeature(false);
+			return;
+		}
 		if (Boolean.valueOf(want).equals(dlssgFeatureWanted)) return;
 		dlssgFeatureWanted = want;
 		// Also replaces/cancels a pending transition if the setting changes before recreation.
