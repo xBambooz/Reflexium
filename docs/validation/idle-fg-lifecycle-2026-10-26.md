@@ -60,3 +60,12 @@ process died inside the post-destruction device drain or `slSetFeatureLoaded(DLS
 Moving the unload to TAIL did not fix the earlier unload crash. The Off path again keeps
 the plugin loaded with options off; `requestFrameGenerationFeature(false)` only cancels a
 pending transition. Loading at TAIL is unchanged. The FG proxy overhead while Off remains.
+
+## Correction (2026-10-26, 20:43)
+
+The crash above was misattributed. The same `jvm.dll+0xa88377` fault (no hs_err) also hit the
+fixed jar (20:37) and a 20:24 launch, and matches the known stack-probe failure from the missing
+`-XX:StackShadowPages=32` (see the shared brain, agent-harness round 17). Adding that flag to the
+Fabric 26.3 Modrinth instance args fixed the launch with this jar (FG Off, DLSS-G loaded).
+Whether unloading DLSS-G is actually safe remains untested; 1fbfeec's keep-loaded Off path stays
+until an unload test runs with the flag present.
