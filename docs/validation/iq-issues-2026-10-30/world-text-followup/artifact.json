@@ -1,0 +1,27 @@
+{
+  "jar": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-c29af7ed\\build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+  "sha256": "125b4a66f169dcc9cee70bd886e27b944470922c79e1fac19b170173aa905815",
+  "classes": [
+    {
+      "entry": "com/bambooz/reflexium/upscale/DeferredWorldText.class",
+      "sha256": "3bee9e2dc654f1c342d4fe092da30cc86f828a5bffbdb3cf8e17a504449f5005",
+      "jar_matches_dev_output": true
+    },
+    {
+      "entry": "com/bambooz/reflexium/mixin/WorldTextOrderMixin.class",
+      "sha256": "fcc0b54bc86a7e8d2e57c160038705d24c2ae70ce9ca1db12f7337a2a9653859",
+      "jar_matches_dev_output": true
+    },
+    {
+      "entry": "com/bambooz/reflexium/mixin/LevelRendererAccessor.class",
+      "sha256": "a995918091acae9400d2d6c282bff5ec54defc9199724b8dd0d12c273112758b",
+      "jar_matches_dev_output": true
+    },
+    {
+      "entry": "com/bambooz/reflexium/mixin/GameRendererMixin.class",
+      "sha256": "a63e26973e004adab6cc0c4326b5a71ceefe6707102258b6f08f377076bf0fc6",
+      "jar_matches_dev_output": true
+    }
+  ],
+  "iris_sha256": "566bd7515cc1cb41320a6761932093c1c3ee813fc8cbfd2077e3d128746dc1c2"
+}

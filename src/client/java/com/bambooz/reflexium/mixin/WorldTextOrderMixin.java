@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class WorldTextOrderMixin {
 	@Inject(method = "order(I)Lnet/minecraft/client/renderer/SubmitNodeCollection;", at = @At("RETURN"))
 	private void reflexium$order(int order, CallbackInfoReturnable<SubmitNodeCollection> cir) {
-		DeferredWorldText.register(cir.getReturnValue(), order);
+		DeferredWorldText.register((SubmitNodeStorage) (Object) this, cir.getReturnValue(), order);
 	}
 }
