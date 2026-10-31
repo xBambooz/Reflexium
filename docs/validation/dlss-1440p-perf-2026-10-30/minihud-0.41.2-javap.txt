@@ -1,0 +1,52 @@
+Compiled from "InfoLineFPS.java"
+public class fi.dy.masa.minihud.info.generic.InfoLineFPS extends fi.dy.masa.minihud.info.InfoLine {
+  private static final java.lang.String FPS_KEY;
+
+  public fi.dy.masa.minihud.info.generic.InfoLineFPS(fi.dy.masa.minihud.config.InfoToggle);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokespecial #3                  // Method fi/dy/masa/minihud/info/InfoLine."<init>":(Lfi/dy/masa/minihud/config/InfoToggle;)V
+         5: return
+
+  public fi.dy.masa.minihud.info.generic.InfoLineFPS();
+    Code:
+         0: aload_0
+         1: getstatic     #9                  // Field fi/dy/masa/minihud/config/InfoToggle.FPS:Lfi/dy/masa/minihud/config/InfoToggle;
+         4: invokespecial #15                 // Method "<init>":(Lfi/dy/masa/minihud/config/InfoToggle;)V
+         7: return
+
+  public boolean succeededType();
+    Code:
+         0: iconst_0
+         1: ireturn
+
+  public java.util.List<fi.dy.masa.minihud.info.InfoLine$Entry> parse(fi.dy.masa.minihud.info.InfoLineContext);
+    Code:
+         0: new           #18                 // class java/util/ArrayList
+         3: dup
+         4: invokespecial #20                 // Method java/util/ArrayList."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: invokevirtual #23                 // Method getClientWorld:()Lnet/minecraft/world/level/Level;
+        12: ifnonnull     17
+        15: aconst_null
+        16: areturn
+        17: aload_2
+        18: aload_0
+        19: ldc           #27                 // String minihud.info_line.fps
+        21: iconst_1
+        22: anewarray     #29                 // class java/lang/Object
+        25: dup
+        26: iconst_0
+        27: aload_0
+        28: invokevirtual #31                 // Method mc:()Lnet/minecraft/client/Minecraft;
+        31: invokevirtual #35                 // Method net/minecraft/client/Minecraft.getFps:()I
+        34: invokestatic  #41                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        37: aastore
+        38: invokevirtual #47                 // Method translate:(Ljava/lang/String;[Ljava/lang/Object;)Lfi/dy/masa/minihud/info/InfoLine$Entry;
+        41: invokeinterface #51,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        46: pop
+        47: aload_2
+        48: areturn
+}

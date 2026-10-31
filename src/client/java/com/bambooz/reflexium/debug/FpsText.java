@@ -9,6 +9,18 @@ public final class FpsText {
 	private FpsText() {
 	}
 
+	public static String miniHud(String line, int shown) {
+		var fg = FrameGenerationRenderer.get();
+		return miniHud(line, shown, fg.submittedFps(), fg.submittedRealFps());
+	}
+
+	static String miniHud(String line, int shown, int displayed, int rendered) {
+		String count = Integer.toString(shown);
+		int start = line.indexOf(count);
+		if (displayed <= rendered || rendered <= 0 || start < 0) return line;
+		return line.substring(0, start) + displayed + " (" + rendered + ")" + line.substring(start + count.length());
+	}
+
 	/** "240 fps ..." becomes "240 (80) fps ..."; lines that do not start with the shown count are left alone. */
 	public static String withRendered(String line, int shown) {
 		var fg = FrameGenerationRenderer.get();

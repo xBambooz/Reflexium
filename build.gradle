@@ -102,6 +102,7 @@ sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client
 // Every one runs as part of check, which build and installReflexium depend on. No JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
 def assertionChecks = [
+	fpsTextCheck                 : "com.bambooz.reflexium.debug.FpsTextCheck",
 	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
 	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
 	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",

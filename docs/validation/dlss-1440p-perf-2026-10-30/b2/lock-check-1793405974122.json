@@ -1,0 +1,10 @@
+{
+  "checked": "2026-10-31T00:19:34.122Z",
+  "owner": {
+    "pid": 83028,
+    "owner": "worker-A",
+    "started": "2026-10-30T20:18:32.1239561-04:00"
+  },
+  "alive": true,
+  "stale": false
+}

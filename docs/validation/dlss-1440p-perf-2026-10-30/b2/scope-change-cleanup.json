@@ -1,0 +1,15 @@
+{
+    "scope_changed":  "2026-10-30T20:25:00-04:00 approximate, see task transcript",
+    "checked":  "2026-10-30T20:28:33.0836932-04:00",
+    "owned_game_pid":  244272,
+    "owned_game_alive":  false,
+    "waiter_pid":  220728,
+    "waiter_alive":  false,
+    "lock":  null,
+    "games":  [
+                  {
+                      "ProcessId":  175428,
+                      "Name":  "java.exe"
+                  }
+              ]
+}
