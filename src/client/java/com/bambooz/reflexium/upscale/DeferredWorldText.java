@@ -139,7 +139,12 @@ public final class DeferredWorldText {
 
 	public static void prepare(GameRenderer renderer) {
 		if (!pending()) return;
-		if (!UpscalingRenderer.get().displayDepthResolved()) throw new IllegalStateException("Deferred world text requires resolved scene depth");
+		// A failed evaluation skips the depth resolve; drop this frame's text like deferred particles, never crash the frame.
+		if (!UpscalingRenderer.get().displayDepthResolved()) {
+			limitation = "scene depth not resolved; world text dropped for one frame";
+			texts.clear();
+			return;
+		}
 		var encoder = RenderSystem.getDevice().createCommandEncoder();
 		encoder.clearColorAndDepthTextures(layer.getColorTexture(), CLEAR, layer.getDepthTexture(), 0);
 		var main = renderer.mainRenderTarget();
