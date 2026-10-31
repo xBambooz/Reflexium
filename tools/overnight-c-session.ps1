@@ -14,8 +14,9 @@ try {
     $stream.Write($bytes, 0, $bytes.Length)
 } finally { $stream.Dispose() }
 Write-Output "$(Get-Date -Format o) Acquired GPU lock"
-& "$root/gradlew.bat" build -x installReflexium --no-daemon --console=plain *> "$evidence/build-resume.log"
-if ($LASTEXITCODE -ne 0) {
+$build=Start-Process -FilePath "$root/gradlew.bat" -ArgumentList 'build','-x','installReflexium','--no-daemon','--console=plain' -WorkingDirectory $root -WindowStyle Hidden -RedirectStandardOutput "$evidence/build-resume.log" -RedirectStandardError "$evidence/build-resume.err.log" -Wait -PassThru
+$build.WaitForExit()
+if ($build.ExitCode -ne 0) {
     Remove-Item -LiteralPath $lockPath
     throw 'Full build failed before client launch'
 }

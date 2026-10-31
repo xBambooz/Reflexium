@@ -8,8 +8,10 @@ function Untimed {
     if ((Test-Path $lock) -and (Get-Content $lock -Raw | ConvertFrom-Json).purpose -eq 'timed') { throw 'Timed GPU lock: defer analysis' }
 }
 Untimed
-& javac -d "$root/run/overnight-c" tools/CaptureAnalysis.java
-if ($LASTEXITCODE) {throw 'Analyzer compilation failed'}
+if (!(Test-Path "$root/run/overnight-c/CaptureAnalysis.class")) {
+    & javac -d "$root/run/overnight-c" tools/CaptureAnalysis.java
+    if ($LASTEXITCODE) {throw 'Analyzer compilation failed'}
+}
 function Analyze($arguments) {
     Untimed
     $result=& java -cp "$root/run/overnight-c" CaptureAnalysis @arguments
@@ -28,8 +30,8 @@ $rows=foreach($f in Get-ChildItem $out -Filter '*-before.json') {
     $before=Get-Content $f.FullName -Raw | ConvertFrom-Json
     $after=Get-Content "$out/$name-after.json" -Raw | ConvertFrom-Json
     $fov=$before.plugins.reflexium.observed.physical_camera.vertical_fov_rad * 180 / [math]::PI
-    # Same bare stone-gully ROI used by the quick mip pair, excluding foliage and clouds.
-    $roi=@('1435','1110','35','60')
+    # Visually checked in this run: stone/dirt patch, no water, foliage or clouds.
+    $roi=@('710','934','18','25')
     $detail=Analyze (@('metrics',"$raw/p$pack-native-pass$pass.png","$raw/$name.png")+$roi)
     $static=Analyze (@('registered-stability',"$fov",'90','10')+$roi+@("$out/$name-static.tsv"))
     $pan=Analyze (@('registered-stability',"$fov",'90','10')+$roi+@("$out/$name-pan.tsv"))
