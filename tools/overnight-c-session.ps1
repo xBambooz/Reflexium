@@ -1,4 +1,4 @@
-param([int]$Port = 25781, [int]$DebugPort = 25881)
+param([int]$Port = 25781, [int]$DebugPort = 25881, [switch]$NoMesh, [switch]$DisableReflexium)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 $lockPath = 'C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
@@ -21,9 +21,25 @@ if ($build.ExitCode -ne 0) {
     throw 'Full build failed before client launch'
 }
 $options = Get-Content "$root/run/options.txt"
+$chatBinding=$options | Where-Object {$_ -match '^key_key.chat:'}
+$irisBefore=$null
+if ($DisableReflexium) {
+    # Harness mapping lookup requires a key.* name; alias chat to Iris's reload key in this copy only.
+    $options=$options -replace '^key_key.chat:.*','key_key.chat:key.keyboard.r'
+    $irisBefore=[IO.File]::ReadAllText("$root/run/config/iris.properties")
+    [IO.File]::WriteAllText("$root/run/config/iris.properties",($irisBefore -replace 'enableDebugOptions=false','enableDebugOptions=true'))
+}
 $options = $options -replace '^preferredGraphicsBackend:.*','preferredGraphicsBackend:"vulkan"' -replace '^soundCategory_master:.*','soundCategory_master:0.0' -replace '^exclusiveFullscreen:.*','exclusiveFullscreen:false'
 [IO.File]::WriteAllLines("$root/run/options.txt", $options)
-$env:MC_HARNESS_JVM_ARGS = '["-XX:StackShadowPages=32"]'
+$meshBackup=$null
+if ($NoMesh) {
+    $mesh=Get-ChildItem "$root/run/mods" -Filter 'meshelium*.jar' -File
+    if (@($mesh).Count -ne 1) {throw 'Expected one isolated Meshelium jar'}
+    $meshBackup="$root/run/$($mesh.Name).disabled"
+    if (Test-Path -LiteralPath $meshBackup) {throw 'Meshelium backup already exists'}
+    Move-Item -LiteralPath $mesh.FullName -Destination $meshBackup
+}
+$env:MC_HARNESS_JVM_ARGS = if ($DisableReflexium) { '["-XX:StackShadowPages=32","-Dfabric.debug.disableModIds=reflexium"]' } else { '["-XX:StackShadowPages=32"]' }
 & C:/Users/Ryan/source/repos/mc-agent-harness/tools/launch.ps1 -Project $root -RunDirectory "$root/run" -Port $Port -Monitor primary -Width 2560 -Height 1440 -Fullscreen -GradleProperties @{rxDebug=[string]$DebugPort;rxIqUser='RxWhiteA'} -TimeoutSeconds 40 -Pending
 $sessionFile = "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$Port/session.json"
 do {
@@ -51,5 +67,11 @@ Add-Type 'using System; using System.Runtime.InteropServices; public static clas
 @{previous_foreground=$session.foreground_before;restored=[CFocus]::SetForegroundWindow([IntPtr]::new($session.foreground_before));client_pid=$session.game_pid;exited=$true} | ConvertTo-Json | Set-Content "$evidence/exit-$Port.json"
 $lock = Get-Content $lockPath | ConvertFrom-Json
 if ($lock.owner -ne 'worker-C-overnight' -or $lock.pid -ne $PID) { throw 'Lock ownership changed' }
+if ($meshBackup) {Move-Item -LiteralPath $meshBackup -Destination "$root/run/mods"}
+if ($DisableReflexium) {
+    $options=Get-Content "$root/run/options.txt"
+    [IO.File]::WriteAllLines("$root/run/options.txt",($options -replace '^key_key.chat:.*',$chatBinding))
+    [IO.File]::WriteAllText("$root/run/config/iris.properties",$irisBefore)
+}
 Remove-Item -LiteralPath $lockPath
 Write-Output "$(Get-Date -Format o) Client exited, foreground restored, lock released"

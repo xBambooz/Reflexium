@@ -1,0 +1,62 @@
+[
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-native-pass1-static"
+    },
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-native-pass3-static"
+    },
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-quality-a0-b0-pass1-static"
+    },
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-quality-a0-b0-pass3-static"
+    },
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-ultra_performance-a0-b0-pass1-static"
+    },
+    {
+        "metrics":  {
+                        "samples":  24,
+                        "one_sample_candidates":  [
+
+                                                  ],
+                        "all_rendered_frames_verified":  false
+                    },
+        "trace":  "p0-ultra_performance-a0-b0-pass3-static"
+    }
+]
