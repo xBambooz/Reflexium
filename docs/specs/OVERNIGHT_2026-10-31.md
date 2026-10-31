@@ -39,3 +39,25 @@ foreground window, OLED overlay (`tools\oled-overlay.ps1`) on both screens.
 
 Both workers share `C:\Users\Ryan\source\repos\Reflexium-gpu.lock`. A held lock means wait and retry.
 Purpose `timed` means no builds or heavy CPU work by anyone else.
+
+## Morning follow-up, 2026-10-31 07:30 (runs before the overnight list)
+
+Ryan ran the installed `4F5CCE82` jar in his real profile from 03:33 to 03:35 (Complementary r5.9.3 +
+Euphoria Patches 1.10.5, Ultra Performance 2560x1440, transformer preset 12, DLSS-G 3x) and reported three
+bugs. Lead diagnosis from his log and source (read only):
+
+- Dots on block faces, shadows and AO corners: the Euphoria folder name misses the exact-source r5.9.3
+  adapter, so `IrisCompat.temporalOptionOverrides` sets `TAA` false and `TAA_DEFINE=0`. That freezes the pack's
+  `#ifdef TAA` dither animation (gbuffers_terrain Bayer64, deferred1/composite1 noisetex) into a static
+  screen pattern that DLSS keeps. Worker B (codex_codex_ryan): keep TAA defined, bypass `DoTAA`, keep pack
+  jitter, FXAA and sharpening off. Doc: `docs/validation/pack-dither-2026-10-31.md`.
+- Own name tag appearing: Iris `ShadowRenderer` has its own `SubmitNodeStorage` and extracts the local
+  player; perspectivenametag drops the camera-entity check, so the shadow pass submits the player's tag and
+  `WorldTextOrderMixin` registered every storage. Worker A (codex): defer only `LevelRenderer.submitNodeStorage`.
+- Sign text "still weird": unconfirmed. Hypotheses for worker A: FG judder from sign text in the UI layer
+  (move sign text before the hudless snapshot, keep name tags in UI), depth self-occlusion from the 3x3
+  nearest depth at Ultra Performance, pack shading mismatch, distance aliasing.
+
+Ryan is asleep after this; he asked for Sol high workers to do all implementation and research, the lead to
+verify, and to wait for Codex usage to return rather than switching providers. After both fixes are merged,
+built and installed to the Testing Instance, run the overnight list above with the new jar.
