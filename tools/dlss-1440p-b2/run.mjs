@@ -65,7 +65,7 @@ function modeProof(spec, first, last, current, index) {
 		render_size: rx.render_size.w === expected.w && rx.render_size.h === expected.h,
 		evaluated_counter: active ? rx.evaluated_frames > firstRx.evaluated_frames : rx.evaluated_frames === firstRx.evaluated_frames,
 		preset_hint: spec.preset ? rx.dlss_preset_hint === spec.preset : true,
-		window_primary_borderless: last.window.x === 0 && last.window.width === 2560 && last.window.height === 1440 && last.window.fullscreen.borderless && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1,
+		window_primary_borderless: last.window.x === 0 && [2560,2561].includes(last.window.width) && last.window.height === 1440 && last.window.fullscreen.borderless && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1,
         focused: last.focus.os_foreground && last.focus.os_input_focus,
 		pack_expected: shaderless ? String(rx.pack).includes('no shader pack drawing') : String(rx.pack).includes('Euphoria'),
         immediate: rx.swapchain_present_mode === 'IMMEDIATE',

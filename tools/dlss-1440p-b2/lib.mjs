@@ -99,6 +99,8 @@ export async function launch(port, label, jar) {
                 await client_.rx('exclusive_fullscreen','0');
                 await client_.call('fullscreen',{fullscreen:0});
                 await client_.call('fullscreen',{fullscreen:1,activate:1});
+                const focused=await client_.call('status');
+                if(!focused.focus.os_foreground)save(`${evidence}/focus-${result.pid}.json`,JSON.parse(ps(`& '${root}/tools/dlss-1440p-b2/focus.ps1' -Hwnd ${focused.focus.hwnd}`)));
 				save(path.join(scratch, 'launches', label + '-title.json'), status);
 				return result.pid;
 			}

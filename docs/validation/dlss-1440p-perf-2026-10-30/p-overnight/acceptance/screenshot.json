@@ -1,0 +1,22 @@
+{
+  "frame": 7514,
+  "jitter_index": 31,
+  "jitter_px": {
+    "x": 0.46875,
+    "y": -0.04320988
+  },
+  "camera": {
+    "x": -13.5,
+    "y": 70,
+    "z": 11.5,
+    "eye_y": 71.62,
+    "yaw": -113,
+    "pitch": 0
+  },
+  "width": 2560,
+  "height": 1440,
+  "crop_x": 0,
+  "crop_y": 0,
+  "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-79390f11\\docs\\validation\\dlss-1440p-perf-2026-10-30\\p-overnight\\acceptance\\world.png",
+  "ok": true
+}
