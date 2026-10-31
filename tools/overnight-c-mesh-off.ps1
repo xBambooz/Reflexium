@@ -35,6 +35,11 @@ try {
             Call capture_sequence @{dir="$raw/$name-static";count=24;interval_ms=250}|ConvertTo-Json -Depth 40|Set-Content "$dir/$name-static.json"
         }
     }
+    foreach($q in @('quality','performance','ultra_performance')) {
+        foreach($multiplier in @(1,3)) {
+            & "$PSScriptRoot/overnight-c-dither.ps1" -Port $Port -Quality $q -Multiplier $multiplier -Label "no-mesh-$q-$($multiplier)x"
+        }
+    }
     $mellowDir="$root/docs/validation/overnight-c-2026-10-31/mellow"
     $mellowOptions="$root/run/shaderpacks/Mellow v3.4.1a.zip.txt"
     [IO.File]::WriteAllText($mellowOptions,"SSAO=true`nDYNAMIC_SHADOWS=false`n")

@@ -22,12 +22,15 @@ try {
     Call wait @{ms=10000}|Out-Null
     Snapshot before
     for($arm=1;$arm -le 3;$arm++) {
+        $pipelinesBefore=@(Select-String -Path "$root/run/logs/latest.log" -Pattern 'Creating pipeline for dimension').Count
         # Alias configured in this isolated launch; KeyMapping.click dispatches the shared R key.
         Call key @{name='key.chat';down=1;ticks=1}|Out-Null
         Call wait @{ms=10000}|Out-Null
         if ((Status).screen -ne 'none') {Call key @{scancode=41}|Out-Null}
         Snapshot "reload-$arm"
         Copy-Item "$root/run/logs/latest.log" "$dir/client.log" -Force
+        $pipelinesAfter=@(Select-String -Path "$root/run/logs/latest.log" -Pattern 'Creating pipeline for dimension').Count
+        if ($pipelinesAfter -le $pipelinesBefore) {throw 'Reload key did not create a new Iris pipeline; control inconclusive'}
         Call quit @{}|Out-Null
         Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
         Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10}|Out-Null
