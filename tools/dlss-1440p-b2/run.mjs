@@ -28,7 +28,7 @@ const CONFIGS = {
  'b-e': {upscaler:'dlss',quality:'balanced',preset:5,w:1485,h:835},
  'p-e': {upscaler:'dlss',quality:'performance',preset:5,w:1280,h:720},
  'up-e': {upscaler:'dlss',quality:'ultra_performance',preset:5,w:853,h:480},
- 'native-qsize': {upscaler:'off',w:1707,h:960},
+ 'native-qsize': {upscaler:'off',w:1707,h:960,windowed:true},
 };
 const ORDER = Object.keys(CONFIGS);
 const shaderless = selection.startsWith('shaderless');
@@ -66,7 +66,9 @@ function modeProof(spec, first, last, current, index) {
 		render_size: rx.render_size.w === expected.w && rx.render_size.h === expected.h,
 		evaluated_counter: active ? rx.evaluated_frames > firstRx.evaluated_frames : rx.evaluated_frames === firstRx.evaluated_frames,
 		preset_hint: spec.preset ? rx.dlss_preset_hint === spec.preset : true,
-		window_primary_borderless: last.window.x === 0 && [2560,2561].includes(last.window.width) && last.window.height === 1440 && last.window.fullscreen.borderless && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1,
+		window_expected: last.window.x === 0 && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1 && (spec.windowed
+			? last.window.width===spec.w && last.window.height===spec.h && !last.window.fullscreen.borderless && !last.window.fullscreen.requested
+			: [2560,2561].includes(last.window.width) && last.window.height===1440 && last.window.fullscreen.borderless),
         focused: last.focus.os_foreground && last.focus.os_input_focus,
 		pack_expected: shaderless ? String(rx.pack).includes('no shader pack drawing') : String(rx.pack).includes('Euphoria'),
         immediate: rx.swapchain_present_mode === 'IMMEDIATE',
@@ -84,7 +86,10 @@ async function runPass(c, pid, config, pass, visit) {
 	log(`pass ${key} (visit ${visit}) starting`);
 	await c.rx('frame_generation', 'off');
 	await c.rx('reflex_mode', 'on');
-    await c.call('fullscreen',{fullscreen:1,activate:1});
+    if(spec.windowed){
+        await c.call('fullscreen',{fullscreen:0});
+        await c.call('window',{monitor:'primary',x:0,y:0,width:spec.w,height:spec.h,activate:true});
+    }else await c.call('fullscreen',{fullscreen:1,activate:1});
 	await c.rx('upscaler', spec.upscaler);
 	if (spec.preset) {
 		await c.rx('quality', spec.quality);
