@@ -1,0 +1,9 @@
+git.exe : warning: in the working copy of 'tools/iq-overnight-session-A.ps1', LF will be replaced by CRLF the next 
+time Git touches it
+At C:\Users\Ryan\.t3\worktrees\Reflexium\t3-de619d04\tools\iq-overnight-session-A.ps1:107 char:4
++    & git -C $root add -A -- docs/validation/overnight-A-2026-10-31 do ...
++    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+

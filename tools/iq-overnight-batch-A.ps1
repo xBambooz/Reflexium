@@ -18,17 +18,31 @@ foreach($skin in @(0,1)){foreach($anim in @(0,1)){
 $startIndex=[Array]::FindIndex([object[]]$jobs,[Predicate[object]]{param($job) $job.Label -eq $StartAt})
 if($startIndex -lt 0){throw "Unknown starting session: $StartAt"}
 $jobs=$jobs[$startIndex..($jobs.Count-1)]
-foreach($job in $jobs){
+$resume=0
+for($jobIndex=0;$jobIndex -lt $jobs.Count;$jobIndex++){
+ $job=$jobs[$jobIndex]
  Write-Output "START $($job.Label) $(Get-Date -Format o)"
- try{& "$PSScriptRoot/iq-overnight-session-A.ps1" @job -Port $port -DebugPort $debugPort -WaitForC -WaitForP}
+ try{& "$PSScriptRoot/iq-overnight-session-A.ps1" @job -Port $port -DebugPort $debugPort -WaitForC -WaitForP -ResumeLockPid $resume -KeepSlot:($jobIndex -lt $jobs.Count-1)}
  catch{
   Write-Output "FAILED $($job.Label): $_"
   if(Test-Path 'C:/Users/Ryan/source/repos/Reflexium-gpu.lock'){
    $l=Get-Content 'C:/Users/Ryan/source/repos/Reflexium-gpu.lock'|ConvertFrom-Json
-   if($l.owner -eq 'worker-A-overnight'){throw 'cleanup incomplete, retaining owned lock'}
+   if($l.owner -eq 'worker-A-overnight' -and ($l.pid -ne $PID -or (Get-Process -Id $l.client_pid -ErrorAction SilentlyContinue))){throw 'cleanup incomplete, retaining owned lock'}
   }
  }
  $port++;$debugPort++
+ $resume=0
+ $lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
+ if(Test-Path $lock){
+  $l=Get-Content $lock|ConvertFrom-Json
+  if($l.owner -eq 'worker-A-overnight' -and $l.pid -eq $PID){
+   if(Get-Process -Id $l.client_pid -ErrorAction SilentlyContinue){throw 'Cannot reuse or release slot with a live client'}
+   $elapsed=((Get-Date)-[DateTime]::Parse($l.started)).TotalMinutes
+   if($elapsed -lt 30){$resume=$PID;continue}
+   Remove-Item -LiteralPath $lock
+   Write-Output "Released A slot after $elapsed minutes; waiting for C then P again"
+  }
+ }
  # Give waiting GPU workers an acquisition window after every owned client exits.
  for($i=0;$i -lt $(if($job.Task -eq 'text'){10}else{2});$i++){Start-Sleep -Seconds 30}
 }

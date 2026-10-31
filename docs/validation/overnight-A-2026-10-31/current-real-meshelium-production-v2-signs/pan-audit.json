@@ -1,0 +1,50 @@
+[
+    {
+        "arm":  "p0-native-d8-pan",
+        "n":  26,
+        "first":  0.6,
+        "last":  14.999986,
+        "min":  0.6,
+        "max":  14.999986
+    },
+    {
+        "arm":  "p0-quality-d8-pan",
+        "n":  26,
+        "first":  0.15,
+        "last":  14.999986,
+        "min":  0.15,
+        "max":  14.999986
+    },
+    {
+        "arm":  "p0-ultra_performance-d8-pan",
+        "n":  26,
+        "first":  0.0,
+        "last":  14.999986,
+        "min":  0,
+        "max":  14.999986
+    },
+    {
+        "arm":  "p1-native-d8-pan",
+        "n":  26,
+        "first":  0.0,
+        "last":  14.999986,
+        "min":  0,
+        "max":  14.999986
+    },
+    {
+        "arm":  "p1-quality-d8-pan",
+        "n":  26,
+        "first":  0.15,
+        "last":  14.999986,
+        "min":  0.15,
+        "max":  14.999986
+    },
+    {
+        "arm":  "p1-ultra_performance-d8-pan",
+        "n":  26,
+        "first":  0.0,
+        "last":  14.999986,
+        "min":  0,
+        "max":  14.999986
+    }
+]

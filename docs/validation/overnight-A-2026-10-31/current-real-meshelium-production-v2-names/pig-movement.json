@@ -1,0 +1,44 @@
+[
+    {
+        "arm":  "p0-native-walk",
+        "id":  238,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    },
+    {
+        "arm":  "p0-quality-walk",
+        "id":  240,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    },
+    {
+        "arm":  "p0-ultra_performance-walk",
+        "id":  242,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    },
+    {
+        "arm":  "p1-native-walk",
+        "id":  244,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    },
+    {
+        "arm":  "p1-quality-walk",
+        "id":  246,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    },
+    {
+        "arm":  "p1-ultra_performance-walk",
+        "id":  248,
+        "samples":  16,
+        "z_delta":  -6.124755859375,
+        "old_samples":  0
+    }
+]

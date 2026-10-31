@@ -35,6 +35,15 @@ if($Task -eq 'fg'){
   Setting shaders $pack
   Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
   Call wait @{ms=10000}|Out-Null
+  if(!(Status).focus.os_foreground){
+   Call window @{activate=$true}|Out-Null
+   $owned=Status
+   $shell=New-Object -ComObject WScript.Shell
+   $activated=$shell.AppActivate([int]$owned.pid)
+   Call wait @{ms=500}|Out-Null
+   @{pid=$owned.pid;app_activate=$activated;status=(Status)}|ConvertTo-Json -Depth 40|Set-Content "$ev/p$pack-focus-retry.json"
+  }
+  if(!(Status).focus.os_foreground){throw 'FG visual acquisition requires the owned window foreground'}
   Snap "p$pack-before"
   $before=(Status).plugins.reflexium.fg_generated_presents
   foreach($scene in $Scenes){
