@@ -108,3 +108,5 @@ Overnight workers (all on primary DISPLAY1 borderless fullscreen, shared lock):
 - A (codex): sign, name tag, white-hand and generated-frame matrices, plus Meshelium present pass.
 - C (codex_codex_ryan): IrisCompatCheck fixture skip, mip shimmer A/B, full dither checks, live persistence,
   Mellow dither, Meshelium sequences/culling/FPS, sky-only reload attribution.
+
+- 09:30: P stopped on the Codex usage limit of the `codex` account (resets 12:41 PM) before any committed result; no client or lock left behind. The lead resumes P (and A if it stops the same way) after the reset, per Ryan's instruction to wait rather than switch providers.
