@@ -202,6 +202,7 @@ public final class IrisCompat {
 		if (!temporalReload) configurationEpoch++;
 		BslFoliageMotion.reset();
 		ComplementaryTemporalSource.reset();
+		IrisOptionPersistence.reset();
 		jitterRemoved = false;
 		bslAaRemoved = false;
 		optionsOverridden = List.of();
@@ -333,64 +334,80 @@ public final class IrisCompat {
 
 	/**
 	 * ShaderPackOptions construction, after the option set is parsed: switch the pack's own temporal AA toggles off
-	 * while Reflexium owns temporal sampling. The returned copy feeds only this compile; Iris saves its option file
-	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
+	 * while Reflexium owns temporal sampling. The returned copy feeds compilation; IrisOptionPersistence restores
+	 * user values at Iris's shared properties writer. The reviewed packs keep their exact source edits.
 	 */
 	public static Map<String, String> temporalOptionOverrides(Object packOptions, Map<String, String> values) {
 		return temporalOptionOverrides(currentPackName(), packOptions, values);
 	}
 
 	static Map<String, String> temporalOptionOverrides(String name, Object packOptions, Map<String, String> values) {
-		if (!ownsTemporalSampling() || values == null) return values;
-		if (BSL.equals(name)) return values;
-		// IncludeGraph reads and adapts sources before ShaderPackOptions is constructed.
-		// Keep effect sampling animated only when the reviewed full-scene resolve was bypassed.
-		boolean keepTaa = ComplementaryTemporalSource.supports(name) && ComplementaryTemporalSource.applied();
+		if (!ownsTemporalSampling() || values == null || BSL.equals(name)) return values;
 		try {
-			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
-			Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+			Map<String, String> off = temporalOffValues(packOptions);
+			// IncludeGraph applies the resolve bypass before ShaderPackOptions construction.
+			if (ComplementaryTemporalSource.supports(name) && ComplementaryTemporalSource.applied()) {
+				off.keySet().removeIf(key -> key.equalsIgnoreCase("TAA") || key.equalsIgnoreCase("TAA_DEFINE"));
+			}
+			if (off.isEmpty()) return values;
 			Map<String, String> result = new HashMap<>(values);
-			List<String> overridden = new ArrayList<>();
-			for (Object key : booleans.keySet()) {
-				String option = (String) key;
-				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) continue;
-				if (keepTaa && option.equalsIgnoreCase("TAA")) continue;
-				result.put(option, "false");
-				overridden.add(option);
-			}
-			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
-			for (Map.Entry<?, ?> entry : strings.entrySet()) {
-				String option = (String) entry.getKey();
-				if (keepTaa && option.equalsIgnoreCase("TAA_DEFINE")) continue;
-				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
-				if (offValues == null) continue;
-				Object merged = entry.getValue();
-				Object stringOption = merged.getClass().getMethod("getOption").invoke(merged);
-				List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
-				for (String off : offValues) {
-					if (!allowed.contains(off)) continue;
-					result.put(option, off);
-					overridden.add(option + "=" + off);
-					break;
-				}
-			}
-			if (overridden.isEmpty()) return values;
-			optionsOverridden = List.copyOf(overridden);
-			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
-			ReflexiumClient.LOGGER.info("Iris {}: pack options {} switched off while upscaling (saved options unchanged)", name, overridden);
+			result.putAll(off);
+			optionsOverridden = off.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).sorted().toList();
+			optionsTaaRemoved = off.keySet().stream().anyMatch(key -> key.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
+			ReflexiumClient.LOGGER.info("Iris {}: compile options {} overridden; original user values restored at pack option save", name, optionsOverridden);
 			return result;
-		} catch (ReflectiveOperationException | RuntimeException e) {
-			ReflexiumClient.LOGGER.warn("Iris pack option set not readable; pack temporal AA stays as configured", e);
-			return values;
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Iris pack option set not readable", e);
 		}
 	}
 
-	/**
-	 * Pack option values for one compile: the temporal AA overrides only. The pack keeps its own shadow map
-	 * resolution and distance; those are not Reflexium's to trade.
-	 */
+	private static Map<String, String> temporalOffValues(Object packOptions) throws ReflectiveOperationException {
+		Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+		Map<String, String> off = new HashMap<>();
+		Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+		for (Object key : booleans.keySet()) {
+			String option = (String) key;
+			if (TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) off.put(option, "false");
+		}
+		Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+		for (Map.Entry<?, ?> entry : strings.entrySet()) {
+			String option = (String) entry.getKey();
+			List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
+			if (offValues == null) continue;
+			Object stringOption = entry.getValue().getClass().getMethod("getOption").invoke(entry.getValue());
+			List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
+			for (String value : offValues) {
+				if (allowed.contains(value)) { off.put(option, value); break; }
+			}
+		}
+		return off;
+	}
+
+	/** Capture user values before adding compile overrides, including on native loads for legacy repair. */
 	public static Map<String, String> packOptionOverrides(Object packOptions, Map<String, String> values) {
-		return temporalOptionOverrides(packOptions, values);
+		String name = currentPackName();
+		if (name == null || values == null || BSL.equals(name)) return temporalOptionOverrides(name, packOptions, values);
+		try {
+			Map<String, String> originals = IrisOptionPersistence.prepare(
+					Minecraft.getInstance().gameDirectory.toPath().resolve("reflexium/iris-options"), name, values, temporalOffValues(packOptions));
+			Map<String, String> effective = temporalOptionOverrides(name, packOptions, originals);
+			if (System.getProperty("reflexium.debugPort") != null) {
+				Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+				Map<String, String> diagnostic = new java.util.TreeMap<>();
+				for (String kind : List.of("getBooleanOptions", "getStringOptions")) {
+					Map<?, ?> options = (Map<?, ?>) set.getClass().getMethod(kind).invoke(set);
+					for (String key : temporalOffValues(packOptions).keySet()) {
+						Object merged = options.get(key);
+						if (merged == null) continue;
+						Object option = merged.getClass().getMethod("getOption").invoke(merged);
+						String fallback = String.valueOf(option.getClass().getMethod("getDefaultValue").invoke(option));
+						diagnostic.put(key, effective.getOrDefault(key, fallback));
+					}
+				}
+				ReflexiumClient.LOGGER.info("Iris {}: effective temporal compile values {}", name, diagnostic);
+			}
+			return effective;
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris pack options could not be protected", e); }
 	}
 
 	private static List<String> removeJitter(List<String> lines) {

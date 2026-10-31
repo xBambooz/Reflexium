@@ -86,3 +86,57 @@ Copied runtime includes Sodium 0.9.2 and no Meshelium. The patch operates on Iri
 - Repeat with Meshelium 1.6.2 and Sodium 0.9.2 after worker C's integration.
 - Investigate Mellow's static dither path separately with matched source and live tests.
 
+
+
+## Follow-up: prevent persisted compile overrides
+
+Lead review identified the saved-option rewrite as a Reflexium bug, superseding the earlier unresolved attribution. The installed Iris loadExternalShaderpack constructs ShaderPack using the incoming user values, obtains effective optionValues.mutableCopy, converts its boolean and string entries to Properties, and invokes tryUpdateConfigPropertiesFile. Before this follow-up, compile overrides therefore became saved values on every load. Evidence: persistence/save-path-bytecode.txt and the read-only real-profile file copied to persistence/before.properties (mtime 2026-10-31 03:35:02).
+
+IrisLoadMixin now sanitizes Properties at the HEAD of the shared tryUpdateConfigPropertiesFile writer. ShaderPackScreen.applyChanges and Done use IrisApiConfig.setShadersEnabledAndApply, which reloads the pack and reaches the same writer. HeaderEntry Export reads that sanitized saved file; it does not extract effective options. IrisConfig.save writes global Iris configuration, not pack option values. The remaining Properties writers found in IdMap and OrderBackedProperties do not serialize ShaderPackOptions. No separate screen save hook is needed.
+
+IrisOptionPersistence records the pre-override user values under gameDirectory/reflexium/iris-options/<SHA-256 of pack name>.properties before compilation can proceed. override.<key> records the affected key/signature, original.<key> records a present user value, and missing original.<key> means the user had no entry. Writes replace a temporary record atomically where supported. An I/O failure aborts before overrides are returned. At the shared Iris writer, each protected key is restored to its original value or removed if originally absent; unrelated keys stay unchanged. Native loads use the same boundary so repair works even if DLSS is initially off.
+
+For an unrecorded file, repair requires every key in the pack's full option override set to have its forced value. A complete match drops those keys to defaults and logs the pack and repaired keys once per process. Partial matches are unchanged. If a record exists, a complete signature restores its exact recorded originals instead. Screen-queued changes and Reset are captured before Iris clears the queue; these explicit user actions are not treated as a legacy signature, even if they deliberately select all disabled values. Each pack load clears the previous save snapshot.
+
+The compile log now says original user values are restored at pack option save. The earlier text claiming saved options unchanged has been removed. Tests cover complete legacy repair, partial-match preservation, exact recorded restoration including absent entries, unrelated options, reloads, queued user edits, deliberate queued all-off settings, and snapshot reset.
+
+Follow-up final build: BUILD SUCCESSFUL in 14s, 24 actionable tasks: 20 executed, 4 up-to-date. All registered checks passed, including Iris user option persistence checks. Built artifact SHA-256 2DE80928EE4BA81BE135BE8ABE0F594CB8F43C269B429524789423A2F773A0B5. Live client used this worktree's matching project outputs with the exact Iris snapshot already verified above.
+
+Live follow-up used one client, PID 203252, harness 25725/debug 25825, on the primary PG27AQDP at 2560x1440. loaded-status.json verifies borderless=true, exclusive_fullscreen=false, foreground=true. The GPU lock was held for the complete session, no build ran while it was alive, authenticated quit closed it, process exit was checked, foreground restoration returned true to HWND 1446568, and the lock was released afterward.
+
+Input was a direct copy of Ryan's real leaked file with no pre-existing recovery record. Before values (excluding the timestamp comment):
+
+```properties
+AAA_THIS_IS_A_EUPHORIA_PATCHES_SETTINGS_FILE=true
+AAB_FOR_EUPHORIA_PATCHES_VERSION_1_10_5=true
+FXAA_DEFINE=-1
+IMAGE_SHARPENING=0
+TAA=false
+TAA_DEFINE=0
+TAA_JITTER=0
+```
+
+After the first load, after a DLSS reload, and after the native reload, contents excluding timestamp comments were:
+
+```properties
+AAA_THIS_IS_A_EUPHORIA_PATCHES_SETTINGS_FILE=true
+```
+
+The five override keys are all absent. Iris's normal option serialization also drops the default-valued AAB version marker. The migration log appears exactly once: repaired leaked Reflexium pack options [FXAA_DEFINE, IMAGE_SHARPENING, TAA, TAA_DEFINE, TAA_JITTER] using pack defaults. The recovery-record.properties copy contains override.<key> entries with no original.<key> entries, correctly recording absence.
+
+Debug-only logging resolved effective values from the compile map and Iris option defaults:
+
+| Compile | TAA | TAA_DEFINE | TAA_JITTER | FXAA_DEFINE | IMAGE_SHARPENING |
+| --- | --- | --- | --- | --- | --- |
+| DLSS first load and reload | true | -1 | 0 | -1 | 0 |
+| Native load and native reload | true | -1 | 1 | 1 | 5 |
+
+Automatic TAA_DEFINE=-1 activates TAA at the pack's default detail quality. The reviewed resolve/jitter source edits applied on DLSS; native has no source edits or option overrides. This follow-up supersedes the earlier warning that Ryan must manually reset saved TAA_DEFINE=0: the full leaked signature is now repaired automatically on a fixed-version load.
+
+Screen Apply was exercised through Pause, Options, Sodium Video Settings, Iris Shader Packs, Shader Pack Settings. Changing Visual Style from Reimagined to Unbound queued SHADER_STYLE=4. Clicking the actual Apply button triggered pack recompilation at 08:10:51, persisted SHADER_STYLE=4, and left all five protected keys absent. Then the same screen restored Reimagined/default SHADER_STYLE=1 and applied again, removing that entry. Done returned to video settings. Evidence: screen-before-apply.png, screen-after-apply.png, their status/property snapshots, and the effective compile log at 08:10:51. No screen reflection shortcut was used.
+
+Native sky-only control: native.png shows terrain before reload, native-reload.png shows only sky after a same-pack in-world reload with upscaler=off. native-reload-status.json confirms native resolution, the identical camera pose and pack, no source edits, and no Reflexium error. Thus the behavior reproduces with DLSS off; it was not fixed or attributed further.
+
+Evidence is under pack-dither-2026-10-31/persistence: before.properties, loaded.properties, reload.properties, screen-after-apply.properties, native.properties, native-reload.properties, matching status/screenshot files, client.log, build.log, recovery-record.properties, focus-restored.json, and save-path-bytecode.txt. tools/pack-dither-persistence.ps1 reproduces the scripted load/reload/native checks. IrisCompatCheck covers exact recorded recovery, partial signatures, absence, unrelated keys and queued all-off intent without a game.
+
+Remaining unverified for persistence: live partial-signature and nondefault-original recovery beyond the runnable checks; live screen Reset, Import and Export (their save/read routes were inspected); other packs and Iris versions; disk-full/permission-failure behavior beyond code inspection; restart recovery beyond the filesystem-backed check; interactions with Meshelium; and the cause of native sky-only reload. The real profile remains unchanged and was never launched. No push or merge was performed.

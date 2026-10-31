@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 /**
  * Iris builds a pack's option values from the saved user changes once the option set is parsed, before any
  * program source is transformed. Overriding the pack's own temporal AA toggles here works for every pack that
- * exposes them, without source edits, and the saved option file is never written.
+ * exposes them, without source edits, and IrisOptionPersistence removes compile overrides at the shared save boundary.
  */
 @Pseudo
 @Mixin(targets = "net.irisshaders.iris.shaderpack.option.ShaderPackOptions", remap = false)

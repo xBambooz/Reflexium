@@ -29,6 +29,7 @@ public final class IrisCompatCheck {
 	public static void main(String[] args) throws Exception {
 		abi(Path.of(System.getProperty("reflexium.irisJar", "run/mods/iris-fabric-experimental-build-26.3.jar")));
 		sources(Path.of("run/shaderpacks/" + PACK + ".zip"));
+		optionPersistence();
 		euphoria();
 		bsl(Path.of("run/shaderpacks/BSL_v10.1.8.zip"));
 		proxySwapchain();
@@ -92,6 +93,40 @@ public final class IrisCompatCheck {
 		}
 	}
 
+
+	private static void optionPersistence() throws Exception {
+		Path directory = Files.createTempDirectory("iris-user-options");
+		Map<String, String> off = Map.of("TAA", "false", "TAA_DEFINE", "0", "TAA_JITTER", "0", "FXAA_DEFINE", "-1", "IMAGE_SHARPENING", "0");
+		var repaired = IrisOptionPersistence.prepare(directory, "legacy", off, off);
+		if (!repaired.isEmpty()) throw new AssertionError("Complete legacy leak not repaired");
+		var properties = new java.util.Properties(); properties.putAll(off);
+		properties.setProperty("OTHER", "42");
+		var saved = IrisOptionPersistence.forSave(properties);
+		if (saved.size() != 1 || !saved.getProperty("OTHER").equals("42")) throw new AssertionError("Override saved or unrelated option lost");
+		IrisOptionPersistence.reset();
+		if (!IrisOptionPersistence.prepare(directory, "legacy", Map.of(), off).isEmpty()) throw new AssertionError("Reload introduced overrides");
+		var partial = Map.of("TAA", "false", "TAA_DEFINE", "0");
+		if (!IrisOptionPersistence.prepare(directory, "partial", partial, off).equals(partial)) throw new AssertionError("Partial match repaired");
+		var explicit = Map.of("TAA", "false", "TAA_DEFINE", "1", "FXAA_DEFINE", "1", "OTHER", "42");
+		IrisOptionPersistence.prepare(directory, "recorded", explicit, off);
+		var restored = IrisOptionPersistence.forSave(properties);
+		if (!restored.getProperty("TAA").equals("false") || !restored.getProperty("TAA_DEFINE").equals("1")
+				|| restored.containsKey("TAA_JITTER") || !restored.getProperty("FXAA_DEFINE").equals("1")) throw new AssertionError("User values/absence not restored");
+		IrisOptionPersistence.reset();
+		var leaked = new java.util.HashMap<>(off); leaked.put("OTHER", "42");
+		var recovered = IrisOptionPersistence.prepare(directory, "recorded", leaked, off);
+		if (!recovered.equals(explicit)) throw new AssertionError("Durable originals not recovered: " + recovered);
+		var changed = Map.of("TAA_DEFINE", "0", "FXAA_DEFINE", "0");
+		IrisOptionPersistence.prepare(directory, "recorded", changed, off);
+		if (!IrisOptionPersistence.forSave(properties).getProperty("FXAA_DEFINE").equals("0")) throw new AssertionError("Screen queued user change lost");
+		IrisOptionPersistence.userChangesPending(true);
+		if (!IrisOptionPersistence.prepare(directory, "intentional-off", off, off).equals(off)) throw new AssertionError("Queued user disable mistaken for leak");
+		IrisOptionPersistence.reset();
+		if (IrisOptionPersistence.forSave(properties) != properties) throw new AssertionError("Stale pack snapshot");
+		try (var files = Files.list(directory)) { for (Path file : files.toList()) Files.delete(file); }
+		Files.delete(directory);
+		System.out.println("Iris user option persistence checks passed");
+	}
 
 	private static void euphoria() throws Exception {
 		String pack = PACK + " + EuphoriaPatches_1.10.5";
@@ -226,7 +261,7 @@ public final class IrisCompatCheck {
 				}
 				if (!backup || !restore) throw new AssertionError("Hand capture boundaries missing: " + name);
 			}
-			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
+			require(zip, "net/irisshaders/iris/Iris", "tryUpdateConfigPropertiesFile(Ljava/nio/file/Path;Ljava/util/Properties;)V", "loadExternalShaderpack(Ljava/lang/String;)Z", "getShaderPackOptionQueue()Ljava/util/Map;", "shouldResetShaderPackOptionsOnNextReload()Z", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "renderShadows", "beginLevelRendering", "beginTranslucents", "finalizeLevelRendering");
