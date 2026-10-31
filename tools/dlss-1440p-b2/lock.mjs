@@ -34,7 +34,7 @@ export function exclusive(own=0){
  const others=census.filter(p=>{
   if(p.ProcessId===own)return false;
   if(/GradleDaemon/.test(p.CommandLine)){
-   const state=ps(`Get-ChildItem '$env:USERPROFILE/.gradle/daemon/*/daemon-${p.ProcessId}.out.log' -ErrorAction SilentlyContinue | Get-Content | Select-String 'Marking the daemon as (idle|busy)' | Select-Object -Last 1`);
+   const state=ps(`Get-ChildItem '${process.env.USERPROFILE.replaceAll('\\','/')}/.gradle/daemon/*/daemon-${p.ProcessId}.out.log' -ErrorAction SilentlyContinue | Get-Content | Select-String 'Marking the daemon as (idle|busy)' | Select-Object -Last 1 | ForEach-Object {$_.Line}`);
    if(state.includes('Marking the daemon as idle')){idleDaemons.push({pid:p.ProcessId,state});return false;}
   }
   return true;
