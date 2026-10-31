@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.debug.server;
 
 import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.MesheliumCompat;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
@@ -42,7 +43,7 @@ final class SetCommand {
 			"dlss_preset", "mip_bias_offset", "perf_uniforms", "perf_depth", "cloud_motion", "crosshair_defer",
 			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug", "omit_sign_text", "world_text_defer", "world_text_ignore_depth",
 			// Shader pack dev overrides
-			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters",
+			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters", "meshelium_delegation",
 			// Reflex diagnostics
 			"reflex_trace", "reflex_interval_us", "pcl_flash");
 
@@ -57,6 +58,10 @@ final class SetCommand {
 			case "world_text_ignore_depth" -> {
 				boolean on = flag(value, true);
 				yield () -> com.bambooz.reflexium.upscale.DeferredWorldText.ignoreSceneDepth = on;
+			}
+			case "meshelium_delegation" -> {
+				boolean on = flag(value, true);
+				yield () -> MesheliumCompat.debugDelegation = on;
 			}
 			case "world_text_defer" -> {
 				boolean on = flag(value, true);
