@@ -1,0 +1,11 @@
+{
+  "checked": "2026-10-31T12:58:14.779Z",
+  "owner": {
+    "pid": 235300,
+    "purpose": "IQ baseline398-mid-rate",
+    "owner": "worker-A-overnight",
+    "started": "2026-10-31T08:56:22.1941000-04:00"
+  },
+  "alive": true,
+  "stale": false
+}
