@@ -6,6 +6,7 @@ import {acquire,release,exclusive} from './lock.mjs';
 // Profiling stays off for every pass here (the copy proof runs separately).
 import fs from 'node:fs';
 import {quickCaptures} from './quick-capture.mjs';
+import {captureMiniHud} from './minihud-p.mjs';
 import {
 	root, scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
 	dhSnapshot, sameSnapshot, sameDurable, dhGeneratorPlan, logSize, dhLogSince, listResults, readResult,
@@ -224,6 +225,7 @@ async function main() {
     await c.rx('shaders',shaderless?'0':'1');
 	await delay(12000);
 
+	if(process.argv.includes('--minihud'))await captureMiniHud(c,pid);
 	const visit1 = (selection.endsWith('reverse') || selection.startsWith('extra:')?[]:rows).map(cfg => [cfg, 1, 1]);
 	const visit2 = (selection.endsWith('reverse')?[...rows].reverse():[]).map(cfg => [cfg, 2, 2]);
 	for (const [cfg, pass, visit] of [...visit1, ...visit2]) await runPass(c, pid, cfg, pass, visit);

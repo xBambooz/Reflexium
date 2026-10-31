@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import {acquire,release,exclusive} from './lock.mjs';
 import {root,ps,save,delay} from './lib.mjs';
-const dir=root+'/docs/validation/dlss-1440p-perf-2026-10-30/p-overnight/acceptance';
+const dir=root+'/docs/validation/dlss-1440p-perf-2026-10-30/p-overnight/'+(process.argv.includes('--focused')?'acceptance-focused':'acceptance');
 const profile=process.env.APPDATA+'/ModrinthApp/profiles/26.3 Testing Instance';
-const port=25873;
+const port=process.argv.includes('--focused')?25875:25873;
+const debugPort=port+1;
 let pid=0,foreground=0;
 const call=async(endpoint,body)=>{
  const token=fs.readFileSync(profile+'/.agentharness-token','utf8').trim();
@@ -17,7 +18,7 @@ try{
  save(dir+'/jar.json',{hash});
  if(hash!=='6B40061CBA29FC5E874621FE13F5FDE1E6D8BC41B9D3A62D3C82F0D1B10748DA')throw Error('Testing jar mismatch');
  foreground=Number(ps(`Add-Type 'using System;using System.Runtime.InteropServices;public class PFocus{[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();}';[PFocus]::GetForegroundWindow().ToInt64()`));
- const template=fs.readFileSync(process.env.TEMP+'/opencode/modrinth-java.args','utf8').replace(/-Dreflexium.debugPort=\d+/,'-Dreflexium.debugPort=25874').replace(/(--gameDir\s*\n)[^\n]+/, '$1'+JSON.stringify(profile.replaceAll('\\','/')));
+ const template=fs.readFileSync(process.env.TEMP+'/opencode/modrinth-java.args','utf8').replace(/-Dreflexium.debugPort=\d+/,'-Dreflexium.debugPort='+debugPort).replace(/(--gameDir\s*\n)[^\n]+/, '$1'+JSON.stringify(profile.replaceAll('\\','/')));
  const args=process.env.TEMP+'/opencode/p-acceptance.args';
  fs.writeFileSync(args,`-Dagentharness.port=${port}\n-Dagentharness.monitor=primary\n-Dagentharness.width=2560\n-Dagentharness.height=1440\n-Dagentharness.fullscreen=true\n-Dagentharness.focusable=true\n`+template);
  const harness='C:/Users/Ryan/source/repos/mc-agent-harness/build/libs/agentharness-1.0.0.jar';
@@ -27,11 +28,15 @@ try{
  for(let i=0;i<120;i++){try{status=await call('status');if(status.screen.includes('Title'))break;}catch{}await delay(1000);}
  if(status?.pid!==pid || status.game_directory.replaceAll('\\','/').toLowerCase()!==profile.replaceAll('\\','/').toLowerCase())throw Error('PID mismatch');
  await call('fullscreen',{fullscreen:1,activate:1});
+ if(process.argv.includes('--focused')){
+  const focusStatus=await call('status');
+  save(dir+'/focus.json',JSON.parse(ps(`& '${root}/tools/dlss-1440p-b2/focus.ps1' -Hwnd ${focusStatus.focus.hwnd}`)));
+ }
  await call('join',{world:'Reflexium Acceptance',timeout_s:120});
  await delay(12000);
  status=await call('status');save(dir+'/status.json',status);
- save(dir+'/debug-status.json',await (await fetch('http://127.0.0.1:25874/status')).json());
- save(dir+'/screenshot.json',await (await fetch('http://127.0.0.1:25874/screenshot?'+new URLSearchParams({path:dir+'/world.png',gui:'1'}))).json());
+ save(dir+'/debug-status.json',await (await fetch(`http://127.0.0.1:${debugPort}/status`)).json());
+ save(dir+'/screenshot.json',await (await fetch(`http://127.0.0.1:${debugPort}/screenshot?`+new URLSearchParams({path:dir+'/world.png',gui:'1'}))).json());
  fs.copyFileSync(profile+'/logs/latest.log',dir+'/latest.log');
  console.log(JSON.stringify({pid,window:status.window,focus:status.focus,rx:status.plugins?.reflexium}));
 }finally{

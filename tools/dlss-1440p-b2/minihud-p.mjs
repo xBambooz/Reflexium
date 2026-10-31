@@ -1,11 +1,9 @@
 import fs from 'node:fs';
 import {acquire,release,exclusive} from './lock.mjs';
 import {profile,evidence,save,launch,client,quit,delay} from './lib.mjs';
-if(!process.argv.includes('--execute')){console.log('Dry run');process.exit(0);}
-await acquire('capture');
-let pid,c;
-try{
- exclusive();pid=await launch(25779,'p-minihud');c=client(25779);
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+export async function captureMiniHud(c,pid){
  await c.rx('shaders','1');
  await c.rx('upscaler','dlss');await c.rx('quality','quality');
  await c.rx('exclusive_fullscreen','0');
@@ -20,4 +18,12 @@ try{
  save(evidence+'/minihud/debug-status.json',await c.debugGet('/status',{}));
  fs.copyFileSync(profile+'/logs/latest.log',evidence+'/minihud/latest.log');
  console.log('MiniHUD capture saved');
-}finally{if(c&&pid)await quit(c,pid);release();}
+ await c.rx('frame_generation','off');
+}
+if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ if(!process.argv.includes('--execute')){console.log('Dry run');process.exit(0);}
+ await acquire('capture');
+ let pid,c;
+ try{exclusive();pid=await launch(25779,'p-minihud');c=client(25779);await captureMiniHud(c,pid);}
+ finally{if(c&&pid)await quit(c,pid);release();}
+}
