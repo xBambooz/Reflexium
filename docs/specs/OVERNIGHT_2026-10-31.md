@@ -61,3 +61,14 @@ bugs. Lead diagnosis from his log and source (read only):
 Ryan is asleep after this; he asked for Sol high workers to do all implementation and research, the lead to
 verify, and to wait for Codex usage to return rather than switching providers. After both fixes are merged,
 built and installed to the Testing Instance, run the overnight list above with the new jar.
+
+Later the same message thread, Ryan added two requirements:
+
+- Tonight's test clients run on his main monitor (DISPLAY1, primary, 2560x1440) in borderless fullscreen,
+  replacing the secondary-monitor rule: harness `-Monitor primary -Width 2560 -Height 1440 -Fullscreen`, then
+  the `fullscreen` endpoint with fullscreen=1 and activate=1, holding the GPU lock for the whole session. The
+  OLED overlay runs with `-SkipPrimary`, covering only the secondary display.
+- Reflexium must be compatible with Meshelium (his profile: meshelium 1.6.2+mc26.3 with Sodium 0.9.2). No
+  earlier Reflexium test included it. Worker C (codex_codex_ryan) researches jitter, render resolution, mip bias,
+  depth, temporal occlusion, Iris interplay and the Streamline device path, then fixes and quick-tests. Doc:
+  `docs/validation/meshelium-2026-10-31.md`. The overnight matrices should include Meshelium once C lands.
