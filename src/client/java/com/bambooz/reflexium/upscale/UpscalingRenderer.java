@@ -943,6 +943,8 @@ public final class UpscalingRenderer {
 		resets.write(o, currentFrame);
 		o.add("physical_camera", history.physicalJson());
 		o.addProperty("hand_vertices_drawn", handVerticesDrawn);
+		o.addProperty("hand_vertices_captured", ObjectMotion.get().capturedHandVertices());
+		o.addProperty("hand_projection_available", history.haveHandProjection);
 		o.addProperty("hand_slots", ObjectMotion.get().handSlots());
 		o.addProperty("hand_motion", DebugSettings.handMotion());
 		o.addProperty("post_effects_need_depth", postEffectsNeedDepth);

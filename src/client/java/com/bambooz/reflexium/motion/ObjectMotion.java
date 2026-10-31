@@ -90,6 +90,7 @@ public final class ObjectMotion {
 	private final ArrayList<Track> contexts = new ArrayList<>();
 	private int lastDrawVertices;
 	private int capturedVertices;
+	private int capturedHandVertices;
 
 	// First-person hand and held item. Its vertices are recorded in model space and drawn with the hand's own
 	// view and projection, so the camera delta of world tracks never applies to them.
@@ -112,6 +113,7 @@ public final class ObjectMotion {
 
 	/** Before the level submits anything. {@code enabled} false drops all history and records nothing. */
 	public void beginFrame(boolean enabled, boolean drawStatic) {
+		capturedHandVertices = 0;
 		if (!enabled) {
 			capturedVertices = 0;
 			if (active || !entityTracks.isEmpty() || !blockTracks.isEmpty() || handTrack.hadPrevious) {
@@ -240,7 +242,8 @@ public final class ObjectMotion {
 		slot.signature = 1;
 		slot.overflow = false;
 		slot.feature = type;
-		slot.model = node instanceof ModelFeatureRenderer.Submit<?> model ? model.model() : null;
+		// submitModelPart creates a new Model.Simple every frame around the same persistent geometry.
+		slot.model = node instanceof ModelFeatureRenderer.Submit<?> model ? model.model().root() : null;
 		if (track == handTrack) {
 			if (slot.view == null) {
 				slot.view = new Matrix4f();
@@ -395,6 +398,7 @@ public final class ObjectMotion {
 	}
 
 	public int handVertices() { return lastHandVertices; }
+	public int capturedHandVertices() { return capturedHandVertices; }
 	public int handSlots() { return handSeen ? handTrack.cursor : 0; }
 	/** Writes position (relative to this frame's camera) and previous position (relative to last frame's camera) per vertex. */
 	void writeVertices(FloatBuffer out) {
@@ -622,6 +626,7 @@ public final class ObjectMotion {
 			if (owner.capturedVertices < MAX_VERTICES) {
 				slot.add(x, y, z, cull);
 				owner.capturedVertices++;
+				if (slot.view != null) owner.capturedHandVertices++;
 			} else slot.overflow = true;
 		}
 

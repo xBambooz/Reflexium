@@ -92,6 +92,7 @@ public final class ObjectMotionCheck {
 		check(motion.trackedEntities() == 0 && motion.drawnVertices() == 0, "disable clears history and stats");
 		check(forwarded > ObjectMotion.MAX_VERTICES, "capture cap never suppresses actual rendering");
 		handAnimation();
+		modelPartIdentity();
 		if (args.length == 0) packedCapture();
 		else {
 			try { Class.forName("net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter");
@@ -99,6 +100,27 @@ public final class ObjectMotionCheck {
 			} catch (ClassNotFoundException expected) { }
 		}
 		System.out.println("ObjectMotionCheck passed: identity, geometry history, camera/object displacement, GPU layout, nesting, budget and hand animation");
+	}
+
+	private static void modelPartIdentity() throws Exception {
+		var root = new net.minecraft.client.model.geom.ModelPart(List.of(), java.util.Map.of());
+		ObjectMotion motion = new ObjectMotion();
+		for (int frame = 0; frame < 2; frame++) {
+			motion.beginFrame(true, false);
+			motion.enterHand(new Matrix4f());
+			var model = new net.minecraft.client.model.Model.Simple(root, ignored -> null);
+			var node = new net.minecraft.client.renderer.feature.ModelFeatureRenderer.Submit<>(null,
+					new com.mojang.blaze3d.vertex.PoseStack().last().copy(), model, net.minecraft.util.Unit.INSTANCE,
+					0, 0, -1, null, null);
+			motion.onSubmit(node);
+			motion.leaveContext();
+			motion.observe(List.of(node)).iterator().next();
+			check(current(motion).model == root, "model-part identity survives a new Model.Simple wrapper");
+			var capture = new ObjectMotion.Capture(SINK, current(motion), motion, true);
+			for (int v = 0; v < 4; v++) capture.addVertex(frame * .05f + v % 2, v / 2, -.5f, -1, v % 2, v / 2, 0, 0, 0, 1, 0);
+			check(motion.prepareHandDraws(false, false) == (frame == 0 ? 0 : 4), "wrapped model-part hand history");
+			motion.endFrame();
+		}
 	}
 
 	private static void packedCapture() {
