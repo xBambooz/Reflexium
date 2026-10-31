@@ -12,6 +12,11 @@ import java.util.Set;
 public final class CompatMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if (mixinClassName.contains(".meshelium.")) {
+			return FabricLoader.getInstance().getModContainer("meshelium")
+					.map(mod -> mod.getMetadata().getVersion().getFriendlyString().equals("1.6.2+mc26.3"))
+					.orElse(false) && FabricLoader.getInstance().isModLoaded("sodium");
+		}
 		if ((mixinClassName.contains(".dh.") || mixinClassName.endsWith(".DhProjectionMixin") || mixinClassName.endsWith(".DhDepthResizeMixin"))
 				&& Boolean.getBoolean("reflexium.disableDhMixin." + mixinClassName.substring(mixinClassName.lastIndexOf('.') + 1))) return false;
 		if (mixinClassName.endsWith(".DhProjectionMixin") || mixinClassName.endsWith(".DhDepthResizeMixin")

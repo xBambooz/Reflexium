@@ -109,6 +109,7 @@ sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client
 // Every one runs as part of check, which build and installReflexium depend on. No JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
 def assertionChecks = [
+	mesheliumCompatCheck        : "com.bambooz.reflexium.compat.MesheliumCompatCheck",
 	fpsTextCheck                 : "com.bambooz.reflexium.debug.FpsTextCheck",
 	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
 	deferredWorldTextCheck       : "com.bambooz.reflexium.upscale.DeferredWorldTextCheck",
@@ -137,7 +138,7 @@ assertionChecks.each { name, main ->
 		}
 		mainClass = main
 		workingDir = projectDir
-		for (property in ["reflexium.irisJar", "reflexium.dhJar"]) {
+		for (property in ["reflexium.irisJar", "reflexium.dhJar", "reflexium.mesheliumJar"]) {
 			if (providers.gradleProperty(property).isPresent()) systemProperty property, providers.gradleProperty(property).get()
 		}
 	}
