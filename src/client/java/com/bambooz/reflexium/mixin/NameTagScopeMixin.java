@@ -15,7 +15,7 @@ public abstract class NameTagScopeMixin {
 	@WrapMethod(method = "submitNameTag")
 	private void reflexium$scope(PoseStack pose, Vec3 offset, int y, Component name, boolean seeThrough,
 			int light, CameraRenderState camera, Operation<Void> original) {
-		DeferredWorldText.enter();
+		DeferredWorldText.enter(false);
 		try { original.call(pose, offset, y, name, seeThrough, light, camera); }
 		finally { DeferredWorldText.exit(); }
 	}

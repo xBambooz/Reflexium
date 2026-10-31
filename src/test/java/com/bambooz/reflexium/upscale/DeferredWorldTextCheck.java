@@ -13,7 +13,10 @@ public final class DeferredWorldTextCheck {
 		field("enabled").setBoolean(null, true);
 		var source = new SubmitNodeStorage();
 		var original = source.order(7);
-		DeferredWorldText.register(original, 7);
+		field("mainStorage").set(null, source);
+		DeferredWorldText.register(new SubmitNodeStorage(), original, 7);
+		if (!((Map<?, ?>) field("phases").get(null)).isEmpty()) throw new AssertionError("foreign storage registered");
+		DeferredWorldText.register(source, original, 7);
 		var phases = (Map<?, ?>) field("phases").get(null);
 		var destination = DeferredWorldText.class.getDeclaredMethod("destination", Class.forName(DeferredWorldText.class.getName() + "$Phase"));
 		destination.setAccessible(true);
@@ -24,11 +27,19 @@ public final class DeferredWorldTextCheck {
 		for (int i = 0; i < inputs.length; i++) {
 			if (destination.invoke(null, phases.get(inputs[i])) != outputs[i]) throw new AssertionError("text phase/order " + i);
 		}
-		DeferredWorldText.enter();
-		DeferredWorldText.enter();
+		DeferredWorldText.enter(true);
+		DeferredWorldText.enter(false);
 		DeferredWorldText.exit();
+		if (!field("signScope").getBoolean(null)) throw new AssertionError("nested scope changed text kind");
 		if (field("scope").getInt(null) != 1) throw new AssertionError("nested text scope");
+		field("signPrepared").setBoolean(null, true);
+		if (!DeferredWorldText.prepared()) throw new AssertionError("sign readiness");
+		field("namePrepared").setBoolean(null, true);
+		field("signCount").setInt(null, 4);
+		field("nameCount").setInt(null, 2);
 		DeferredWorldText.clear();
+		if (field("signCount").getInt(null) != 0 || field("nameCount").getInt(null) != 0 || field("signPrepared").getBoolean(null) || field("namePrepared").getBoolean(null))
+			throw new AssertionError("empty frame retained a previous kind");
 		if (!phases.isEmpty() || field("scope").getInt(null) != 0 || DeferredWorldText.pending() || DeferredWorldText.prepared())
 			throw new AssertionError("frame reset must discard text state");
 		System.out.println("Deferred world text phase, order, scope and reset checks passed");

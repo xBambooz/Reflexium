@@ -19,7 +19,7 @@ public abstract class SignTextScopeMixin {
 	@WrapMethod(method = "submitSignText")
 	private void reflexium$scope(SignRenderState state, PoseStack pose, SubmitNodeCollector collector,
 			SignText text, Operation<Void> original) {
-		DeferredWorldText.enter();
+		DeferredWorldText.enter(true);
 		try { original.call(state, pose, collector, text); }
 		finally { DeferredWorldText.exit(); }
 	}

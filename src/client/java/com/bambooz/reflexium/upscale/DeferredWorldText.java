@@ -6,6 +6,7 @@ import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
+import com.bambooz.reflexium.mixin.LevelRendererAccessor;
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -39,7 +40,7 @@ import java.util.OptionalDouble;
 /** Scoped world glyphs resolved once against scene depth, then shared by the real frame and FG UI. */
 public final class DeferredWorldText {
 	private record Phase(int order, int index) { }
-	private record Text(Phase phase, TextFeatureRenderer.Submit node) { }
+	private record Text(Phase phase, TextFeatureRenderer.Submit node, boolean sign) { }
 	private static final IdentityHashMap<FeatureRenderPhase<?>, Phase> phases = new IdentityHashMap<>();
 	private static final IdentityHashMap<SubmitNodeCollection, Boolean> collections = new IdentityHashMap<>();
 	private static final ArrayList<Text> texts = new ArrayList<>();
@@ -47,9 +48,13 @@ public final class DeferredWorldText {
 	private static final Matrix4f projection = new Matrix4f();
 	private static final Vector4f CLEAR = new Vector4f(0, 0, 0, 0);
 	private static ProjectionMatrixBuffer projectionBuffer;
-	private static TextureTarget layer;
-	private static int scope;
-	private static boolean enabled, prepared, depthChecked, depthAvailable;
+	private static TextureTarget layer, signLayer;
+	private static SubmitNodeStorage mainStorage;
+	private static boolean signScope;
+	private static int scope, signCount, nameCount;
+	/** Runtime diagnostic only; default scene depth remains enabled. */
+	public static boolean ignoreSceneDepth;
+	private static boolean enabled, signPrepared, namePrepared, depthChecked, depthAvailable;
 	public static int captured, fallback;
 	public static String limitation = "";
 	private static final RenderPipeline COMPOSITE = RenderPipeline.builder()
@@ -64,14 +69,13 @@ public final class DeferredWorldText {
 
 	public static void clear() {
 		finish();
-		prepared = false;
+		signPrepared = false; namePrepared = false;
 		depthChecked = false; depthAvailable = false;
 	}
 
 	public static void finish() {
-		if (!texts.isEmpty()) storage = new SubmitNodeStorage();
 		texts.clear(); phases.clear(); collections.clear();
-		scope = 0; enabled = false;
+		scope = 0; signCount = 0; nameCount = 0; signScope = false; enabled = false; mainStorage = null;
 	}
 
 	public static void begin(GameRenderer renderer) {
@@ -93,20 +97,22 @@ public final class DeferredWorldText {
 		if (layer == null || layer.width != width || layer.height != height) {
 			upscaling.waitForGpu();
 			close();
-			layer = new TextureTarget("Reflexium display world text", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+			layer = new TextureTarget("Reflexium display name tags", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
+			signLayer = new TextureTarget("Reflexium display sign text", width, height, GpuFormat.RGBA8_UNORM, GpuFormat.D32_FLOAT);
 		}
+		mainStorage = ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).reflexium$submitNodeStorage();
 		enabled = true;
 	}
 
 	public static void projection(Matrix4f matrix) { projection.set(matrix); }
-	public static void enter() { scope++; }
+	public static void enter(boolean sign) { if (scope++ == 0) signScope = sign; }
 	public static void exit() { scope--; }
 	public static boolean pending() { return !texts.isEmpty(); }
-	public static boolean prepared() { return prepared; }
-	public static RenderTarget layer() { return prepared ? layer : null; }
+	public static boolean prepared() { return signPrepared || namePrepared; }
+	public static RenderTarget layer() { return namePrepared ? layer : signPrepared ? signLayer : null; }
 
-	public static void register(SubmitNodeCollection collection, int order) {
-		if (!enabled || collections.put(collection, Boolean.TRUE) != null) return;
+	public static void register(SubmitNodeStorage source, SubmitNodeCollection collection, int order) {
+		if (!enabled || source != mainStorage || collections.put(collection, Boolean.TRUE) != null) return;
 		var all = collection.allPhases();
 		for (int i = 0; i < all.size(); i++) phases.put(all.get(i), new Phase(order, i));
 		phases.put(collection.seeThrough, new Phase(0, -1));
@@ -115,7 +121,8 @@ public final class DeferredWorldText {
 	public static boolean collect(FeatureRenderPhase<?> phase, SubmitNode node) {
 		if (!enabled || scope == 0 || !(node instanceof TextFeatureRenderer.Submit text)) return false;
 		Phase key = phases.get(phase);
-		if (key == null || DeferredEffects.worldFog() == null) { fallback++; return false; }
+		if (key == null) return false; // Shadow, GUI and hand storages keep their own text.
+		if (DeferredEffects.worldFog() == null) { fallback++; return false; }
 		if (IrisCompat.isDrawingPack()) {
 			if (!depthChecked) {
 				var main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
@@ -126,7 +133,8 @@ public final class DeferredWorldText {
 				limitation = "pack depth unavailable; retaining vanilla world text"; fallback++; return false;
 			}
 		}
-		texts.add(new Text(key, text));
+		texts.add(new Text(key, text, signScope));
+		if (signScope) signCount++; else nameCount++;
 		captured++;
 		return true;
 	}
@@ -145,10 +153,16 @@ public final class DeferredWorldText {
 			texts.clear();
 			return;
 		}
+		if (signCount > 0) { drawLayer(renderer, signLayer, true); signPrepared = true; }
+		if (nameCount > 0) { drawLayer(renderer, layer, false); namePrepared = true; }
+		texts.clear();
+	}
+
+	private static void drawLayer(GameRenderer renderer, TextureTarget layer, boolean sign) {
 		var encoder = RenderSystem.getDevice().createCommandEncoder();
 		encoder.clearColorAndDepthTextures(layer.getColorTexture(), CLEAR, layer.getDepthTexture(), 0);
 		var main = renderer.mainRenderTarget();
-		encoder.copyTextureToTexture(main.getDepthTexture(), layer.getDepthTexture(), 0, 0, 0, 0, 0, layer.width, layer.height);
+		if (!ignoreSceneDepth) encoder.copyTextureToTexture(main.getDepthTexture(), layer.getDepthTexture(), 0, 0, 0, 0, 0, layer.width, layer.height);
 		var savedProjection = RenderSystem.getProjectionMatrixBuffer();
 		var savedType = RenderSystem.getProjectionType();
 		var savedFog = RenderSystem.getShaderFog();
@@ -159,18 +173,16 @@ public final class DeferredWorldText {
 			RenderSystem.setProjectionMatrix(projectionBuffer.getBuffer(projection), ProjectionType.PERSPECTIVE);
 			RenderSystem.setShaderFog(DeferredEffects.worldFog());
 			stack.identity().mul(renderer.gameRenderState().levelRenderState.cameraRenderState.viewRotationMatrix);
-			for (Text text : texts) destination(text.phase).submit(text.node);
+			for (Text text : texts) if (text.sign == sign) destination(text.phase).submit(text.node);
 			try (var frame = renderer.featureRenderDispatcher().prepareFrame(storage);
 				var pass = encoder.createRenderPass(() -> "Reflexium depth-tested world text", layer.getColorTextureView(), Optional.empty(), layer.getDepthTextureView(), OptionalDouble.empty())) {
 				RenderSystem.bindDefaultUniforms(pass);
 				FeatureRenderDispatcher.renderAllFeatures(pass, frame);
-				prepared = true;
 			}
 		} catch (RuntimeException | Error failure) {
 			storage = new SubmitNodeStorage();
 			throw failure;
 		} finally {
-			texts.clear();
 			stack.popMatrix();
 			RenderSystem.setProjectionMatrix(savedProjection, savedType);
 			RenderSystem.setShaderFog(savedFog);
@@ -178,8 +190,10 @@ public final class DeferredWorldText {
 	}
 
 	/** The layer is already occluded and premultiplied. Never depth-test it against the cleared UI depth. */
-	public static void composite(RenderTarget target) {
-		if (!prepared) return;
+	public static void composite(RenderTarget target) { if (namePrepared) composite(target, layer); }
+	public static void compositeSigns(RenderTarget target) { if (signPrepared) composite(target, signLayer); }
+
+	private static void composite(RenderTarget target, RenderTarget layer) {
 		try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
 				() -> "Reflexium composite world text", target.getColorTextureView(), Optional.empty())) {
 			pass.setPipeline(RenderSystem.getCompiledPipeline(COMPOSITE));
@@ -191,6 +205,8 @@ public final class DeferredWorldText {
 	static void close() {
 		clear();
 		if (layer != null) layer.destroyBuffers();
+		if (signLayer != null) signLayer.destroyBuffers();
+		signLayer = null;
 		layer = null;
 		if (projectionBuffer != null) projectionBuffer.close();
 		projectionBuffer = null;

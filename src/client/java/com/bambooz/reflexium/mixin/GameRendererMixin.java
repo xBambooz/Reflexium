@@ -102,6 +102,7 @@ public abstract class GameRendererMixin {
 	private void reflexium$upscale(CallbackInfo ci) {
 		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
 		DeferredWorldText.prepare((GameRenderer) (Object) this);
+		DeferredWorldText.compositeSigns(mainRenderTarget);
 		if (!FrameGenerationRenderer.get().wantsMotion()) DeferredWorldText.composite(mainRenderTarget);
 		if (!FrameGenerationRenderer.get().wantsMotion()
 				|| !DebugSettings.replayFgParticles)
