@@ -1,0 +1,24 @@
+{
+  "valid": false,
+  "reason": "Server-side TimeoutException during unload; final DH and process proof not collected",
+  "flags": {
+    "focusLost": false,
+    "debugOrChatOpen": false,
+    "invalid": false,
+    "loadTimeout": false,
+    "firstCapture": true,
+    "gpuClockDrift": false,
+    "renderDistanceMismatch": true,
+    "gpuUsageAvailable": false,
+    "chunkStatsAvailable": false,
+    "legacy": false
+  },
+  "label": "b3-native-pass1",
+  "pooled": {
+    "frames": 12507,
+    "seconds": 90.08750400000041,
+    "avg_fps": 138.83168524682338,
+    "low1_fps": 87.9679543298531,
+    "low01_fps": 64.87187804086929
+  }
+}

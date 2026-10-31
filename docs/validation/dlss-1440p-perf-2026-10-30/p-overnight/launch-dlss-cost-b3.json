@@ -1,11 +1,11 @@
 {
-  "pid": 130072,
-  "port": 25801,
-  "debug_port": 25831,
+  "pid": 436,
+  "port": 25803,
+  "debug_port": 25833,
   "info": {
-    "ProcessId": 130072,
+    "ProcessId": 436,
     "Name": "javaw.exe",
     "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
   },
-  "started": "2026-10-31T16:42:26.952Z"
+  "started": "2026-10-31T17:14:35.445Z"
 }

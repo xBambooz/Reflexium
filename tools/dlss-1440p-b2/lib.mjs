@@ -55,6 +55,18 @@ export function processInfo(pid) {
 	return JSON.parse(ps(`Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}' | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`) || 'null');
 }
 
+// World unload can block the render-thread bridge beyond its fixed 30-second server timeout.
+// Retry only state reads; repeating a start request could launch a second benchmark.
+export async function benchmarkState(c) {
+	for(let attempt=1;attempt<=3;attempt++){
+		try{return await c.call('bm',{});}
+		catch(error){
+			if(attempt===3 || !String(error).includes('TimeoutException'))throw error;
+			console.log(new Date().toISOString(),`benchmark state read timed out; retry ${attempt}/2`);
+		}
+	}
+}
+
 // Detached launch via the repo launcher (Win32_Process.Create, javaw). Mirrors round 17's launch().
 export async function launch(port, label, jar) {
 	const listeners=ps(`@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in ${port},${25790+port-25760}}).Count`);

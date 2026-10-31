@@ -10,7 +10,7 @@ import {captureMiniHud} from './minihud-p.mjs';
 import {
 	root, scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
 	dhSnapshot, sameSnapshot, sameDurable, dhGeneratorPlan, logSize, dhLogSince, listResults, readResult,
-	capframexCsv, metrics, contentCheck, passKey,
+	capframexCsv, metrics, contentCheck, passKey, benchmarkState,
 } from './lib.mjs';
 
 const [build, portArg, selection = 'forward'] = process.argv.slice(2);
@@ -101,7 +101,7 @@ async function runPass(c, pid, config, pass, visit) {
 	const before = new Set(listResults());
 	const label = key;
 	for (let i = 0; i < 360; i++) {
-		const state = await c.call('bm', {});
+		const state = await benchmarkState(c);
 		if (['IDLE', 'FINISHED', 'ABORTED'].includes(state.phase)) break;
 		await delay(1000);
 	}
@@ -111,7 +111,7 @@ async function runPass(c, pid, config, pass, visit) {
 	fs.mkdirSync(`${evidence}/crops`, {recursive: true});
 	let captured = null, everMeasuring = false, dhCrop = null, dhEnd = null;
 	for (let count = 0; count < 480; count++) {
-		const state = await c.call('bm', {});
+		const state = await benchmarkState(c);
 		if (state.phase === 'MEASURING') {
 			everMeasuring = true;
 			const index = Number(state.runIndex);
@@ -126,7 +126,7 @@ async function runPass(c, pid, config, pass, visit) {
 				dhCrop = dhSnapshot(sceneWorld);
 				await delay(250);
 				const last = await c.call('status');
-				const current = await c.call('bm', {});
+				const current = await benchmarkState(c);
 				const mode = modeProof(spec, first, last, current, index);
 				captured = {index, first, last, shot, bm: current, mode};
 				save(`${evidence}/proofs/${key}-capture.json`,captured);
