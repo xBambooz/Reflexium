@@ -1,6 +1,8 @@
 # Black OLED-care overlay for the primary display while unattended tests run.
 # Covers every monitor with a borderless black window that never takes focus on its own.
 # Click it, then press Esc to close. Usage: powershell -NoProfile -ExecutionPolicy Bypass -File tools\oled-overlay.ps1
+# -SkipPrimary leaves the primary display uncovered, for test clients running fullscreen there.
+param([switch]$SkipPrimary)
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -21,6 +23,7 @@ public class OledOverlay : Form {
 
 $forms = @()
 foreach ($screen in [System.Windows.Forms.Screen]::AllScreens) {
+	if ($SkipPrimary -and $screen.Primary) { continue }
 	$form = New-Object OledOverlay
 	$form.FormBorderStyle = 'None'
 	$form.StartPosition = 'Manual'
