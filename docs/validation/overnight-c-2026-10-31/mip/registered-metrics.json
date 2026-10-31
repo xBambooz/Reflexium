@@ -15,6 +15,21 @@
         "evaluations":  16773
     },
     {
+        "arm":  "p0-quality-a0-b0-pass3",
+        "pack":  0,
+        "quality":  "quality",
+        "offset":  0,
+        "pass":  3,
+        "correlation":  0.7190,
+        "sharpness":  11.648,
+        "native_sharpness":  9.529,
+        "mse":  9.356,
+        "static":  0.391514,
+        "pan":  0.776437,
+        "applied_bias":  -1.5846808,
+        "evaluations":  16794
+    },
+    {
         "arm":  "p0-quality-a1-b1-pass1",
         "pack":  0,
         "quality":  "quality",
@@ -28,6 +43,21 @@
         "pan":  0.547883,
         "applied_bias":  -0.5846808,
         "evaluations":  16993
+    },
+    {
+        "arm":  "p0-quality-a1-b1-pass3",
+        "pack":  0,
+        "quality":  "quality",
+        "offset":  1,
+        "pass":  3,
+        "correlation":  0.8308,
+        "sharpness":  6.681,
+        "native_sharpness":  9.529,
+        "mse":  5.194,
+        "static":  0.188789,
+        "pan":  0.461133,
+        "applied_bias":  -0.5846808,
+        "evaluations":  17193
     },
     {
         "arm":  "p0-quality-a2-b1-pass1",
@@ -45,6 +75,21 @@
         "evaluations":  16973
     },
     {
+        "arm":  "p0-quality-a2-b1-pass3",
+        "pack":  0,
+        "quality":  "quality",
+        "offset":  1,
+        "pass":  3,
+        "correlation":  0.8352,
+        "sharpness":  6.705,
+        "native_sharpness":  9.529,
+        "mse":  5.075,
+        "static":  0.196140,
+        "pan":  0.545406,
+        "applied_bias":  -0.5846808,
+        "evaluations":  17124
+    },
+    {
         "arm":  "p0-quality-a3-b0-pass1",
         "pack":  0,
         "quality":  "quality",
@@ -58,6 +103,21 @@
         "pan":  0.917076,
         "applied_bias":  -1.5846808,
         "evaluations":  16760
+    },
+    {
+        "arm":  "p0-quality-a3-b0-pass3",
+        "pack":  0,
+        "quality":  "quality",
+        "offset":  0,
+        "pass":  3,
+        "correlation":  0.7173,
+        "sharpness":  11.386,
+        "native_sharpness":  9.529,
+        "mse":  9.208,
+        "static":  0.370837,
+        "pan":  0.829069,
+        "applied_bias":  -1.5846808,
+        "evaluations":  16825
     },
     {
         "arm":  "p0-ultra_performance-a0-b0-pass1",
@@ -75,6 +135,21 @@
         "evaluations":  17727
     },
     {
+        "arm":  "p0-ultra_performance-a0-b0-pass3",
+        "pack":  0,
+        "quality":  "ultra_performance",
+        "offset":  0,
+        "pass":  3,
+        "correlation":  0.6770,
+        "sharpness":  7.286,
+        "native_sharpness":  9.529,
+        "mse":  11.528,
+        "static":  0.364543,
+        "pan":  0.679462,
+        "applied_bias":  -2.585526,
+        "evaluations":  17792
+    },
+    {
         "arm":  "p0-ultra_performance-a1-b1-pass1",
         "pack":  0,
         "quality":  "ultra_performance",
@@ -88,6 +163,21 @@
         "pan":  0.523276,
         "applied_bias":  -1.585526,
         "evaluations":  17696
+    },
+    {
+        "arm":  "p0-ultra_performance-a1-b1-pass3",
+        "pack":  0,
+        "quality":  "ultra_performance",
+        "offset":  1,
+        "pass":  3,
+        "correlation":  0.7127,
+        "sharpness":  5.675,
+        "native_sharpness":  9.529,
+        "mse":  10.206,
+        "static":  0.214379,
+        "pan":  0.507348,
+        "applied_bias":  -1.585526,
+        "evaluations":  17875
     },
     {
         "arm":  "p0-ultra_performance-a2-b1-pass1",
@@ -105,6 +195,21 @@
         "evaluations":  17671
     },
     {
+        "arm":  "p0-ultra_performance-a2-b1-pass3",
+        "pack":  0,
+        "quality":  "ultra_performance",
+        "offset":  1,
+        "pass":  3,
+        "correlation":  0.7229,
+        "sharpness":  5.591,
+        "native_sharpness":  9.529,
+        "mse":  10.071,
+        "static":  0.224228,
+        "pan":  0.572945,
+        "applied_bias":  -1.585526,
+        "evaluations":  18158
+    },
+    {
         "arm":  "p0-ultra_performance-a3-b0-pass1",
         "pack":  0,
         "quality":  "ultra_performance",
@@ -118,6 +223,21 @@
         "pan":  0.763480,
         "applied_bias":  -2.585526,
         "evaluations":  17513
+    },
+    {
+        "arm":  "p0-ultra_performance-a3-b0-pass3",
+        "pack":  0,
+        "quality":  "ultra_performance",
+        "offset":  0,
+        "pass":  3,
+        "correlation":  0.6693,
+        "sharpness":  7.444,
+        "native_sharpness":  9.529,
+        "mse":  11.571,
+        "static":  0.357987,
+        "pan":  0.695943,
+        "applied_bias":  -2.585526,
+        "evaluations":  17845
     },
     {
         "arm":  "p1-quality-a0-b0-pass1",

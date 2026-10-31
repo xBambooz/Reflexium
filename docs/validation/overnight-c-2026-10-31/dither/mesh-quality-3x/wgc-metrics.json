@@ -1,0 +1,7 @@
+{
+    "callbacks":  938,
+    "every_application_present_verified":  false,
+    "mean_luma_change":  0.047949,
+    "distinct_hashes":  938,
+    "max_callback_gap_ms":  50
+}

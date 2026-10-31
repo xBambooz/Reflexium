@@ -63,3 +63,61 @@ Analysis reuses `CaptureAnalysis.java` rotation registration with physical FOV, 
 `mip/registered-metrics.json` and CSV currently contain the 24 accepted original arms only (pass1 p0, passes1/2 p1). Rejected p0 pass2 is excluded. In the pack Ultra arms, mean offset0/+1 correlation is 0.49225/0.487675, Laplacian energy 3.62875/2.75825, static residual 0.354045/0.306508 and pan residual 0.457571/0.408827. Lower residual accompanies lower sharpness; this does not establish a universal default improvement. Default remains zero. Replacement shaderless pass3 is running and must be added before the final recommendation.
 
 `after-restart.properties` contains only the Euphoria marker after restart, supporting persistence of default recovery. Recorded nondefault recovery, partial-signature refusal and screen Reset/Import/Export remain untested. No real profile was edited.
+
+## Item 2 result: recommend retaining offset 0
+
+The accepted matrix now has two independently settled passes per mode: shaderless passes 1 and 3, pack passes 1 and 2. Each pass has ABBA 0,+1,+1,0, two qualities, a native reference, 24 static readbacks and 24 full-turn readbacks per arm. Meshelium is present for every shaderless arm, including Ultra Performance. Each input reports the expected pack state. Pose is (200.5,110,150), yaw90/pitch10, RD20, 2560x1440 target. The native reference and DLSS screenshot share yaw90. Rotation registration uses each pan frame's actual yaw and the recorded physical FOV; no consecutive-rendered-frame claim.
+
+Mean of four captures per offset/content/quality in the inspected stone/block-edge ROI (710,934,18,25):
+
+| Content / quality | Offset | Native detail correlation | Laplacian sharpness | Static residual | Registered pan residual | Native MSE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Shaderless Quality | 0 | 0.7159 | 11.583 | 0.376612 | 0.821160 | 9.376 |
+| Shaderless Quality | +1 | 0.8331 | 6.703 | 0.199306 | 0.517138 | 5.109 |
+| Shaderless Ultra | 0 | 0.6736 | 7.409 | 0.389100 | 0.715850 | 11.755 |
+| Shaderless Ultra | +1 | 0.7205 | 5.616 | 0.222944 | 0.553177 | 10.267 |
+| Pack Quality | 0 | 0.5010 | 5.774 | 0.376394 | 0.411460 | 4.662 |
+| Pack Quality | +1 | 0.5541 | 3.773 | 0.325965 | 0.344511 | 3.853 |
+| Pack Ultra | 0 | 0.4922 | 3.629 | 0.354045 | 0.457571 | 5.486 |
+| Pack Ultra | +1 | 0.4877 | 2.758 | 0.306508 | 0.408827 | 5.138 |
+
+Actual u_BlockTex biases are -1.5846808/-0.5846808 at Quality offset0/+1 and -2.585526/-1.585526 at Ultra offset0/+1. Every accepted arm reports an applied bias in `registered-metrics.json`; raw bind counts, reset metadata, exposure and FOV remain in before/after/input JSON. All input captures have exposure1 and history_reset=false. Changes before the capture are separately visible in observed resets_by_reason; capture-time false does not prove no reset during a whole arm.
+
+Recommendation: keep default 0. The +1 offset reduces static residual by about 13 to 47 percent and pan residual by about 11 to 37 percent in this crop, but removes about 24 to 42 percent of Laplacian energy. It improves correlation in three modes, while pack Ultra correlation slightly decreases (0.4922 to 0.4877). These measurements support +1 as a softness/stability tradeoff, not a universal reconstruction gain. A single small rock/block-edge crop does not settle distant foliage or the whole hill. No default was changed. Full images stay under `run/overnight-c/mip/`; the committed JSON/CSV provides per-arm values. Two discarded analysis attempts (water ROI and off-image left ROI) are not pooled into these results.
+
+## Item 3: six post-fix dither arms, Meshelium present
+
+Quality, Performance and Ultra Performance each completed FG-off and actual 3x at the same constructed sandstone AO corner, position (399.1,161.2,36.1), yaw150/pitch12. Static samples, a 4-degree/100-tick pan, a 45-degree camera cut and time-advancing sunlight samples are committed under `dither/`. Sunlight used tick rate100, unfreeze and advance_time=true, then restored tick rate20, frozen time9000 and advance_time=false. These are current-code observations, not a matched pre-fix comparison. Every arm includes Meshelium; a Meshelium-absent dither repeat remains unverified.
+
+| Arm | Generated presents during arm | WGC CSV images | Adjacent WGC luma change | Static readback change | Registered pan change | Cut readback change |
+| --- | --- | --- | --- | --- | --- | --- |
+| Quality off | 0 | 834 | 0.088797 | 0.422171 | 0.304093 | 0.080786 |
+| Quality 3x | 18140 | 938 | 0.047949 | 0.377568 | 0.304895 | 0.091234 |
+| Performance off | 0 | 833 | 0.076917 | 0.282983 | 0.327541 | 0.078694 |
+| Performance 3x | 16506 | 980 | 0.034258 | 0.277467 | 0.310314 | 0.103900 |
+| Ultra off | 0 | 847 | 0.061615 | 0.375842 | 0.379598 | 0.072475 |
+| Ultra 3x repeat | 17112 | 996 | 0.026900 | 0.368383 | 0.333292 | 0.081246 |
+
+Real-frame ROI is (940,500,128,128); WGC captures that same window region and analyzes its interior (1,1,125,125). WGC's first and last crops are committed and visually show the game rather than the OLED overlay. The game stayed foreground on display1 beneath both overlays. WGC is successive capture callbacks, not verified consecutive application presents: gaps reach 43.75 to 125 ms. WGC's terminal frame/png counts can exceed CSV rows by one or two at shutdown; metrics use only the existing CSV-listed images. Preserve this capture-tool boundary. No claim of complete generated-frame image coverage. Lower 3x WGC residual also reflects presentation interpolation and sampling cadence, so it is not evidence of better SR reconstruction.
+
+The initial Ultra 3x workload was interrupted before completion when C retained its remaining session for options/Mellow. It has no generation.json and is excluded. `mesh-ultra_performance-3x-repeat` is the complete accepted arm. FG-off status can retain a stale effective_multiplier=3; generation mode is off and generated delta is zero. Actual FG-on arms report effective_multiplier=3 and rising generated counters. Sparse cut readbacks start after endpoint latency, so immediate first-frame rejection and absence of boiling in every frame remain unverified. No render error was reported in the accepted snapshots.
+
+## Item 4: live recovery, with UI limits
+
+The copied leaked file was repaired to defaults on first pack load and stayed clean after a fresh JVM restart (`after-restart.properties`). Live `options/` checks then wrote explicit nondefaults in the isolated copy, loaded them to establish the record, replaced the copy with the complete leaked signature and reloaded. Recovery restored TAA=true, TAA_DEFINE=1, TAA_JITTER=1, FXAA_DEFINE=1 and IMAGE_SHARPENING=2 exactly (`recovered-nondefault.properties`). A four-key signature missing TAA_JITTER was preserved unchanged, including TAA=false and TAA_DEFINE=0; the missing key stayed absent (`partial-signature.properties`). The script restored the original copied file in finally, and `restored.properties` contains only the Euphoria marker. No real profile file was changed.
+
+Screen navigation reached Sodium Video Settings, Iris Shader Packs and its settings pane using harness clicks and render-target screenshots. `screen-reset.*` records an ATTEMPT, not an executed Reset: the version-matched HeaderEntry.resetButtonClicked bytecode requires Minecraft.hasShiftDown(), and the harness click does not establish native held Shift. Export/Import handlers explicitly refuse while Options.fullscreen is true, with options.iris.mustDisableFullscreen. This run retained the required borderless fullscreen and did not complete their file dialogs. Reset/Import/Export therefore remain unverified, not passed. All completed load/reload/save checks preserve user values or absence; that does not certify the unexercised export route.
+
+## Item 5: Mellow live observation and source boundary
+
+Ultra Performance 853x480 to 2560x1440, Mellow v3.4.1a, clean SR status. Live status reports compile overrides IMAGE_SHARPENING=false, SMAA=false, TAA_MODE=0. Initial pack defaults disable SSAO and dynamic shadows, so an additional isolated options fixture explicitly enabled SSAO=true and DYNAMIC_SHADOWS=true. `mellow/effects-on.json`, `effects-options.properties` and twelve-frame `effects-static.json` preserve that targeted run. Full screenshots and input/depth/motion files remain under run/overnight-c/mellow*. The close-up AO corner was visually inspected. No exact noise-phase or per-effect instrumentation was captured, so visual freezing of both AO and PCF is not independently proven by the output sequence.
+
+Version-matched source confirms dither() selects ign(Pos,false) with TAA_MODE=0. Crucially, the zip embeds the entire dither function and settings into shader program files, including program/gbuffers_terrain.fsh, in addition to lib/noise.glsl. A lib/noise.glsl-only hash edit would leave those paths unchanged. A complete exact-source adapter needs reviewed hashes and coverage of these expanded programs, full-scene resolve and geometry jitter. No partial Mellow fix was added. The source mechanism and observed TAA_MODE=0 are verified; complete effect-specific live validation and a safe adapter remain open.
+
+## Item 6: Meshelium-present timing half, comparison pending
+
+Three five-second frame-mark intervals per mode, shaderless frozen world at mip pose, FG off, VSync off, primary borderless and foreground beneath the OLED overlays. C's lock was explicitly marked timed during this measurement. No image analysis/build ran during those intervals. Native average FPS: 642.648, 643.928, 642.250 (median642.648). Ultra: 544.601, 545.186, 543.537 (median544.601). See `meshelium/mesh-on/` for stamped intervals and status. These short static diagnostics are not P's 1440p matrix or a Meshelium acceleration comparison. The removed-mod timing half, removed-mod static sequences and a genuine one-frame culling-dip trace remain pending. Present-mod static Quality/Ultra shaderless/pack sequences already exist in the accepted mip matrix.
+
+## Slot release, 13:14 EDT
+
+Controller 140380 closed exact client PID184512 through authenticated ownership-checked quit, confirmed exit, restored previous foreground and released the GPU lock at 13:14:32.134. `exit-25783.json` reports restored=true. P acquired at 13:14:32.756, owner worker-P PID61304 purpose timed. No C controller remains in the acquire loop. This observes the start of the first P turn after C; C still owes A and another P turn before its next acquisition. Items 6 removed-mod/continuity, 7 no-Reflexium reload and the item4 UI checks remain outstanding. Integration owner stays the lead. No push, merge or brain edit.
