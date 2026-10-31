@@ -15,10 +15,21 @@ if(!$GatesOnly){foreach($pack in @(0,1)){
   Setting upscaler $(if($mode -eq 'native'){'off'}else{'dlss'})
   if($mode -ne 'native'){Setting quality $mode}
   Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=0}|Out-Null
-  foreach($c in @('kill @e[tag=rx_overnight_pig]','summon pig 200.5 151 8 {Tags:["rx_overnight_pig"],CustomName:"Walking Pig",CustomNameVisible:1b,PersistenceRequired:1b}','tick step 4')){Call command @{command=$c}|Out-Null}
+  Call command @{command='kill @e[tag=rx_overnight_pig]'}|Out-Null
+  Call command @{command='tick step 40'}|Out-Null
+  Call wait @{ms=2500}|Out-Null
+  foreach($c in @('summon pig 200.5 151 8 {Tags:["rx_overnight_pig"],CustomName:"Walking Pig",CustomNameVisible:1b,PersistenceRequired:1b}','tick step 4')){Call command @{command=$c}|Out-Null}
   Call wait @{ms=10000}|Out-Null
   $name="p$pack-$mode"
   Snap "$name-wall" ($mode -ne 'native')
+  if($mode -ne 'native'){
+   Setting frame_generation dlss_multi
+   Setting fg_multiplier 3
+   Call wait @{ms=1500}|Out-Null
+   Snap "$name-fg-contract" $true
+   Setting frame_generation off
+   Call wait @{ms=1000}|Out-Null
+  }
   Call command @{command='tick unfreeze'}|Out-Null
   Call capture_sequence @{dir="$ev/$name-walk";count=16;interval_ms=200}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-walk.json"
   Call command @{command='tick freeze'}|Out-Null

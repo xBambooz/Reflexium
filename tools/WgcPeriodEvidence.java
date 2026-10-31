@@ -26,14 +26,16 @@ public class WgcPeriodEvidence {
   var intervals=new ArrayList<Double>();
   for(int i=1;i<lines.size();i++){
    var a=lines.get(i).split(",");int index=Integer.parseInt(a[0]);double time=Double.parseDouble(a[1]);
-   var im=ImageIO.read(dir.resolve("frame_%05d.png".formatted(index)).toFile());double sharp=lap(im);
+   var im=ImageIO.read(dir.resolve("frame_%05d.png".formatted(index)).toFile());
+   if(args.length>=5)im=im.getSubimage(Integer.parseInt(args[1]),Integer.parseInt(args[2]),Integer.parseInt(args[3]),Integer.parseInt(args[4]));
+   double sharp=lap(im);
    sums[index%3]+=sharp;counts[index%3]++;
    if(previous>=0){double dt=time-previous;intervals.add(dt);if(dt<=0)duplicates++;}
    previous=time;rows.add(String.format(Locale.ROOT,"%d,%.3f,%.5f,%d",index,time,sharp,index%3));
   }
   Collections.sort(intervals);double median=intervals.get(intervals.size()/2);
   for(double d:intervals)if(d>median*1.8)gaps++;
-  Files.write(dir.resolve("sharpness.csv"),rows);
+  Files.write(dir.resolve(args.length>=5?"sharpness-roi.csv":"sharpness.csv"),rows);
   System.out.printf(Locale.ROOT,"{\"frames\":%d,\"median_interval_ms\":%.3f,\"nonpositive_intervals\":%d,\"gaps_over_1_8_median\":%d,\"phase3_mean_laplacian\":[%.5f,%.5f,%.5f],\"labels_verified\":false}%n",lines.size()-1,median,duplicates,gaps,sums[0]/counts[0],sums[1]/counts[1],sums[2]/counts[2]);
  }
 }

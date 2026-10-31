@@ -1,0 +1,128 @@
+[
+    {
+        "new_pig_id":  267,
+        "last":  {
+                     "id":  267,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  267,
+                      "name":  "Walking Pig",
+                      "x":  200.5333333375719,
+                      "y":  151.0,
+                      "z":  8.5
+                  },
+        "z_delta":  -6.124755859375,
+        "arm":  "p0-native-walk",
+        "samples":  16,
+        "old_death_samples":  0
+    },
+    {
+        "new_pig_id":  269,
+        "last":  {
+                     "id":  269,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  269,
+                      "name":  "Walking Pig",
+                      "x":  200.53000000327825,
+                      "y":  151.0,
+                      "z":  8.5
+                  },
+        "z_delta":  -6.124755859375,
+        "arm":  "p0-quality-walk",
+        "samples":  16,
+        "old_death_samples":  2
+    },
+    {
+        "new_pig_id":  272,
+        "last":  {
+                     "id":  272,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  272,
+                      "name":  "Walking Pig",
+                      "x":  200.5,
+                      "y":  151.0,
+                      "z":  8.5
+                  },
+        "z_delta":  -6.124755859375,
+        "arm":  "p0-ultra_performance-walk",
+        "samples":  16,
+        "old_death_samples":  2
+    },
+    {
+        "new_pig_id":  275,
+        "last":  {
+                     "id":  275,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  275,
+                      "name":  "Walking Pig",
+                      "x":  200.59782247597363,
+                      "y":  151.0,
+                      "z":  8.485665020783927
+                  },
+        "z_delta":  -6.110420880158927,
+        "arm":  "p1-native-walk",
+        "samples":  16,
+        "old_death_samples":  2
+    },
+    {
+        "new_pig_id":  277,
+        "last":  {
+                     "id":  277,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  277,
+                      "name":  "Walking Pig",
+                      "x":  200.53000000327825,
+                      "y":  151.0,
+                      "z":  8.5
+                  },
+        "z_delta":  -6.124755859375,
+        "arm":  "p1-quality-walk",
+        "samples":  16,
+        "old_death_samples":  2
+    },
+    {
+        "new_pig_id":  281,
+        "last":  {
+                     "id":  281,
+                     "name":  "Walking Pig",
+                     "x":  200.500244140625,
+                     "y":  151.0,
+                     "z":  2.375244140625
+                 },
+        "first":  {
+                      "id":  281,
+                      "name":  "Walking Pig",
+                      "x":  200.53000000327825,
+                      "y":  151.0,
+                      "z":  8.5
+                  },
+        "z_delta":  -6.124755859375,
+        "arm":  "p1-ultra_performance-walk",
+        "samples":  16,
+        "old_death_samples":  2
+    }
+]

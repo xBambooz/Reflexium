@@ -1,4 +1,4 @@
-param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','text','hand','mesh')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1)
+param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','fgmob','text','hand','mesh')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
@@ -30,19 +30,29 @@ try{
  . "$PSScriptRoot/iq-session.ps1" -Port $Port
  $s=Status
  if($s.game_directory -ne "$root\run"){throw 'wrong run directory'}
+ $command=(Get-CimInstance Win32_Process -Filter "ProcessId=$($s.pid)").CommandLine
+ $arguments=($command+(Get-Content "$root/build/loom-cache/argFiles/runClient" -Raw)).Replace('\','/')
+ $selected=$arguments.Contains($Jar.Replace('\','/'))
+ @{jar=$Jar;sha256=(Get-FileHash $Jar).Hash;pid=$s.pid;jar_in_runtime_arguments=$selected;run_directory=$s.game_directory}|ConvertTo-Json|Set-Content "$ev/artifact.json"
+ if(!$selected){throw 'selected jar absent from runtime arguments'}
  $l=Get-Content $lock|ConvertFrom-Json;$l.pid=$s.pid;$l|ConvertTo-Json|Set-Content $lock
  Get-ChildItem "$root/run/mods/*.jar"|ForEach-Object{[pscustomobject]@{file=$_.Name;sha256=(Get-FileHash $_.FullName).Hash}}|ConvertTo-Json|Set-Content "$ev/mods.json"
  Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
  switch($Task){
   fg {& "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task fg -Label $Label -Interval 60000}
+  fgmob {& "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task fg -Label $Label -Interval 60000 -Scenes @('mob')}
   text {
    & "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task signs -Label "$Label-signs"
    & "$PSScriptRoot/iq-overnight-light-A.ps1" -Port $Port -Label "$Label-thin" -ThinOnly
    & "$PSScriptRoot/iq-overnight-names-A.ps1" -Port $Port -Label "$Label-names"
   }
-  hand {& "$PSScriptRoot/iq-overnight-hand-A.ps1" -Port $Port -Label $Label}
+  hand {
+   & "$PSScriptRoot/iq-overnight-hand-A.ps1" -Port $Port -Label $Label
+   if($Label -eq 'hand-current-s1a1'){& "$PSScriptRoot/iq-overnight-names-A.ps1" -Port $Port -Label 'current-present-names-rerun'}
+  }
   mesh {
    & "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task signs -Label "$Label-signs" -Distances @(8) -Modes @('native','quality','ultra_performance')
+   & "$PSScriptRoot/iq-overnight-light-A.ps1" -Port $Port -Label "$Label-thin" -ThinOnly
    & "$PSScriptRoot/iq-overnight-names-A.ps1" -Port $Port -Label "$Label-names"
   }
  }

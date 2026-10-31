@@ -1,4 +1,4 @@
-param([int]$Port=25740,[string]$Label='current-present',[ValidateSet('fg','signs')][string]$Task='fg',[int]$Interval=60000,[int[]]$Distances=@(4,8,16,24),[string[]]$Modes=@('native','native_aa','quality','ultra_performance'))
+param([int]$Port=25740,[string]$Label='current-present',[ValidateSet('fg','signs')][string]$Task='fg',[int]$Interval=60000,[int[]]$Distances=@(4,8,16,24),[string[]]$Modes=@('native','native_aa','quality','ultra_performance'),[string[]]$Scenes=@('sign','mob','hand-turn','hand-walk'))
 $ErrorActionPreference='Stop'
 . "$PSScriptRoot/iq-session.ps1" -Port $Port
 $root=Split-Path $PSScriptRoot
@@ -37,20 +37,22 @@ if($Task -eq 'fg'){
   Call wait @{ms=10000}|Out-Null
   Snap "p$pack-before"
   $before=(Status).plugins.reflexium.fg_generated_presents
-  foreach($scene in @('sign','mob','hand-turn','hand-walk')){
+  foreach($scene in $Scenes){
    Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
    $crop='1120,620,320,180'
    if($scene -eq 'mob'){
-    Call command @{command='tp @e[tag=rx_text_quick,type=pig] 200.5 151 26'}|Out-Null
+    Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=5}|Out-Null
+    Call command @{command='tp @e[tag=rx_text_quick,type=pig] 200.5 151 9'}|Out-Null
     Call command @{command='item replace entity @a weapon.mainhand with carrot'}|Out-Null
-    $crop='1120,650,320,180'
+    $crop='1120,620,320,180'
    }else{Call command @{command='item replace entity @a weapon.mainhand with air'}|Out-Null}
    if($scene.StartsWith('hand')){$crop='1750,950,320,180';Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=3}|Out-Null}
-   Call wait @{ms=2000}|Out-Null
+   Call wait @{ms=$(if($scene -eq 'mob'){200}else{2000})}|Out-Null
    try{
     if($scene -eq 'hand-walk'){Call key @{name='key.forward';down=$true}|Out-Null}
     elseif($scene -ne 'mob'){Call turn @{dyaw=15;ticks=100;async=$true}|Out-Null}
-    & C:/Users/Ryan/source/repos/Reflexium/tools/wgc-capture/bin/Release/net10.0-windows10.0.26100.0/WgcCapture.exe --pid (Status).pid --out "$ev/p$pack-wgc-$scene" --count 200 --seconds 5.5 --png true --every 1 --crop $crop --min-interval-ms 0 | Set-Content "$ev/p$pack-wgc-$scene-result.json"
+    $count=if($scene -eq 'mob'){48}else{200};$seconds=if($scene -eq 'mob'){1.5}else{5.5}
+    & C:/Users/Ryan/source/repos/Reflexium/tools/wgc-capture/bin/Release/net10.0-windows10.0.26100.0/WgcCapture.exe --pid (Status).pid --out "$ev/p$pack-wgc-$scene" --count $count --seconds $seconds --png true --every 1 --crop $crop --min-interval-ms 0 | Set-Content "$ev/p$pack-wgc-$scene-result.json"
    }finally{Call key @{name='key.forward';down=$false}|Out-Null}
    Snap "p$pack-$scene-after"
   }

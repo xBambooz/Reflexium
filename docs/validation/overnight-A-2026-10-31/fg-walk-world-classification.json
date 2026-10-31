@@ -1,0 +1,43 @@
+[
+    {
+        "label":  "baseline398-mid-rate",
+        "pack":  0,
+        "nonwinning_triplets":  [
+                                    3,
+                                    11,
+                                    19,
+                                    25,
+                                    35,
+                                    36
+                                ],
+        "real_phase":  2
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "pack":  1,
+        "nonwinning_triplets":  [
+                                    20,
+                                    43
+                                ],
+        "real_phase":  0
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "pack":  0,
+        "nonwinning_triplets":  [
+                                    11,
+                                    19,
+                                    46
+                                ],
+        "real_phase":  2
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "pack":  1,
+        "nonwinning_triplets":  [
+                                    20,
+                                    43
+                                ],
+        "real_phase":  2
+    }
+]

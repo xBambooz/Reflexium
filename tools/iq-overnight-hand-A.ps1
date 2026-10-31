@@ -16,6 +16,7 @@ Setting exclusive_fullscreen 0
 Call fullscreen @{fullscreen=0}|Out-Null
 Call fullscreen @{fullscreen=1;activate=1}|Out-Null
 Setting frame_generation off
+Setting dlss_preset 12
 Setting bob_view 1
 foreach($c in @('tick unfreeze','gamemode survival @a','time set noon','weather clear','item replace entity @a weapon.mainhand with air','item replace entity @a weapon.offhand with air','fill 196 150 0 205 150 30 stone','kill @e[tag=rx_text_quick]','kill @e[tag=rx_overnight_pig]')){Call command @{command=$c}|Out-Null}
 foreach($pack in @(0,1)){
@@ -26,13 +27,18 @@ foreach($pack in @(0,1)){
   Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=3}|Out-Null
   Call wait @{ms=10000}|Out-Null
   $name="p$pack-$mode"
+  Copy-Item "$root/run/config/iris.properties" "$ev/$name-iris.properties"
+  $packOptions="$root/run/shaderpacks/ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5.txt"
+  if(Test-Path $packOptions){Copy-Item $packOptions "$ev/$name-pack-options.txt"}
   Snap "$name-idle"
-  Call capture_sequence @{dir="$ev/$name-pan";count=12;interval_ms=460;dyaw=15;ticks=100}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-pan.json"
+  Call turn @{dyaw=15;ticks=100;async=$true}|Out-Null
+  if($mode -ne 'native'){Call reflexium @{capture="$name-pan-input";dir=$ev;extras=0}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-pan-input-capture.json"}
+  Call capture_sequence @{dir="$ev/$name-pan";count=12;interval_ms=460}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-pan.json"
   Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=3}|Out-Null
   try{
    Call key @{name='key.forward';down=$true}|Out-Null
    Call capture_sequence @{dir="$ev/$name-walk";count=8;interval_ms=150}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-walk.json"
-   if($mode -ne 'native'){Call reflexium @{capture="$name-walk";dir=$ev}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-walk-capture.json"}
+   if($mode -ne 'native'){Call reflexium @{capture="$name-walk-input";dir=$ev;extras=0}|ConvertTo-Json -Depth 40|Set-Content "$ev/$name-walk-input-capture.json"}
   }finally{Call key @{name='key.forward';down=$false}|Out-Null}
   Call wait @{ms=1000}|Out-Null
   $a=(Status).camera
