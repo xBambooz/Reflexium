@@ -1,4 +1,4 @@
-param([int]$Port = 25781, [int]$DebugPort = 25881, [switch]$NoMesh, [switch]$DisableReflexium)
+param([int]$Port = 25781, [int]$DebugPort = 25881, [switch]$NoMesh, [switch]$DisableReflexium, [switch]$RemainingChecks)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 $lockPath = 'C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
@@ -20,6 +20,11 @@ if ($build.ExitCode -ne 0) {
     Remove-Item -LiteralPath $lockPath
     throw 'Full build failed before client launch'
 }
+Add-Type 'using System; using System.Runtime.InteropServices; public static class CFocus { [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr w); }'
+$stages=if($RemainingChecks){@('mesh-off','mesh-off-retry','no-reflexium')}else{@('manual')}
+foreach($stage in $stages) {
+if ($RemainingChecks -and (([datetimeoffset]::Now-$started).TotalMinutes -gt 30 -or ($stage -eq 'mesh-off-retry' -and (Test-Path "$evidence/meshelium/mesh-off/native-1.json")))) { $Port++;$DebugPort++;continue }
+if ($RemainingChecks) { $NoMesh=$stage -like 'mesh-off*'; $DisableReflexium=$stage -eq 'no-reflexium' }
 $options = Get-Content "$root/run/options.txt"
 $chatBinding=$options | Where-Object {$_ -match '^key_key.chat:'}
 $irisBefore=$null
@@ -41,8 +46,10 @@ if ($NoMesh) {
     if (Test-Path -LiteralPath $meshBackup) {throw 'Meshelium backup already exists'}
     Move-Item -LiteralPath $mesh.FullName -Destination $meshBackup
 }
-$env:MC_HARNESS_JVM_ARGS = if ($DisableReflexium) { '["-XX:StackShadowPages=32","-Dfabric.debug.disableModIds=reflexium"]' } else { '["-XX:StackShadowPages=32"]' }
-& C:/Users/Ryan/source/repos/mc-agent-harness/tools/launch.ps1 -Project $root -RunDirectory "$root/run" -Port $Port -Monitor primary -Width 2560 -Height 1440 -Fullscreen -GradleProperties @{rxDebug=[string]$DebugPort;rxIqUser='RxWhiteA'} -TimeoutSeconds 40 -Pending
+$env:MC_HARNESS_JVM_ARGS = '["-XX:StackShadowPages=32"]'
+$launchProject=if($DisableReflexium){'C:/Users/Ryan/source/repos/mc-agent-harness/examples/empty-project'}else{$root}
+$clientStarted=[datetimeoffset]::Now
+& C:/Users/Ryan/source/repos/mc-agent-harness/tools/launch.ps1 -Project $launchProject -RunDirectory "$root/run" -Port $Port -Monitor primary -Width 2560 -Height 1440 -Fullscreen -GradleProperties @{rxDebug=[string]$DebugPort;rxIqUser='RxWhiteA'} -TimeoutSeconds 40 -Pending
 $sessionFile = "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$Port/session.json"
 do {
     Start-Sleep 5
@@ -56,16 +63,22 @@ do {
             $session | ConvertTo-Json -Depth 10 | Set-Content $sessionFile
         } catch { Write-Output 'Waiting for authenticated owned client status' }
     }
-} until ($session.game_pid -or ([datetimeoffset]::Now - $started).TotalMinutes -gt 5)
+} until ($session.game_pid -or ([datetimeoffset]::Now - $clientStarted).TotalMinutes -gt 5)
 if (!$session.game_pid) { throw 'No owned game PID. Inspect launch before releasing GPU lock.' }
 Write-Output "Owned client PID $($session.game_pid), harness $Port"
+$workload=$null
+if ($RemainingChecks) {
+    $script=if($NoMesh){'overnight-c-mesh-off.ps1'}else{'overnight-c-no-reflexium.ps1'}
+    $workload=Start-Process powershell.exe -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File',"$PSScriptRoot/$script",'-Port',"$Port" -WindowStyle Hidden -RedirectStandardOutput "$root/run/workload-$Port.log" -RedirectStandardError "$root/run/workload-$Port.err.log" -PassThru
+    [void]$workload.Handle
+}
 while (Get-Process -Id $session.game_pid -ErrorAction SilentlyContinue) {
     if (([datetimeoffset]::Now - $started).TotalMinutes -gt 38) {
         & "$PSScriptRoot/iq-followup-quit.ps1" -Port $Port | Out-File "$evidence/quit-$Port.json"
     }
     Start-Sleep 5
 }
-Add-Type 'using System; using System.Runtime.InteropServices; public static class CFocus { [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr w); }'
+if ($workload -and !$workload.WaitForExit(10000)) {Stop-Process -Id $workload.Id}
 @{previous_foreground=$session.foreground_before;restored=[CFocus]::SetForegroundWindow([IntPtr]::new($session.foreground_before));client_pid=$session.game_pid;exited=$true} | ConvertTo-Json | Set-Content "$evidence/exit-$Port.json"
 $lock = Get-Content $lockPath | ConvertFrom-Json
 if ($lock.owner -ne 'worker-C-overnight' -or $lock.pid -ne $PID) { throw 'Lock ownership changed' }
@@ -75,5 +88,7 @@ if ($DisableReflexium) {
     [IO.File]::WriteAllLines("$root/run/options.txt",($options -replace '^key_key.chat:.*',$chatBinding))
     [IO.File]::WriteAllText("$root/run/config/iris.properties",$irisBefore)
 }
+$Port++;$DebugPort++
+}
 Remove-Item -LiteralPath $lockPath
-Write-Output "$(Get-Date -Format o) Client exited, foreground restored, lock released"
+Write-Output "$(Get-Date -Format o) Owned clients exited, foreground restored, lock released"
