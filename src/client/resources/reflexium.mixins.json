@@ -26,6 +26,7 @@
 		"VideoSettingsScreenMixin",
 		"VulkanCommandEncoderAccessor",
 		"VulkanSubmitTimingMixin",
+		"VulkanViewportDiagnosticMixin",
 		"VulkanBackendMixin",
 		"VulkanConstMixin",
 		"VulkanDeviceMixin",

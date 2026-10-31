@@ -74,9 +74,9 @@ export async function launch(port, label, jar) {
 		.replace(/^preferredGraphicsBackend:.*$/mg, 'preferredGraphicsBackend:"vulkan"')
 		.replace(/^soundCategory_master:.*$/mg, 'soundCategory_master:0.0')
 		.replace(/^fullscreen:.*$/mg, 'fullscreen:false'));
-	const template = fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
+	const template = '-Dreflexium.viewportDiagnostic='+(process.env.RX_VIEWPORT_DIAGNOSTIC==='1')+'\n'+fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
 		.replace(/-Dagentharness.port=\d+/, '-Dagentharness.port=' + port)
-        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable=false')
+        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable='+(process.env.RX_FOCUSABLE==='1'))
 		.replace(/-Dreflexium.debugPort=\d+/, '-Dreflexium.debugPort=' + (25790 + port - 25760))
 		.replace('build/validation/round17/hs_err', 'build/dlss-cost/hs_err');
 	const args = process.env.TEMP + '/opencode/' + label + '.args';

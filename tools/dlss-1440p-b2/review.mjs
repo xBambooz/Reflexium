@@ -17,15 +17,15 @@ if(!fs.existsSync(file))throw Error('No raw passes');
 const passes=JSON.parse(fs.readFileSync(file));
 const records=[];
 for(const row of passes){
- const reference=passes.find(r=>r.config==='native' && r.build===row.build && r.key.startsWith(row.key.startsWith('shaderless')?'shaderless':'b3') && r.valid);
+ const reference=passes.find(r=>r.config==='native' && r.build===row.build && r.key.split('-')[0]===row.key.split('-')[0] && r.valid);
  let correlation=null;
  if(reference){correlation=JSON.parse(ps(`& '${root}/tools/dlss-1440p-b2/correlate.ps1' -Reference '${evidence}/crops/${reference.key}.png' -Candidate '${evidence}/crops/${row.key}.png'`));}
  records.push({...row,correlation,accepted_sample:row.valid && !!correlation?.valid});
 }
 const results=[];
-for(const group of new Set(records.map(r=>r.key.startsWith('shaderless')?'shaderless':'pack'))){
- for(const config of new Set(records.filter(r=>(r.key.startsWith('shaderless')?'shaderless':'pack')===group).map(r=>r.config))){
-  const rows=records.filter(r=>r.config===config && (r.key.startsWith('shaderless')?'shaderless':'pack')===group);
+for(const group of new Set(records.map(r=>r.key.split('-')[0]))){
+ for(const config of new Set(records.filter(r=>(r.key.split('-')[0])===group).map(r=>r.config))){
+  const rows=records.filter(r=>r.config===config && (r.key.split('-')[0])===group);
   const valid=rows.filter(r=>r.accepted_sample);
   const metrics={};
   for(const metric of ['avg_fps','low1_fps','low01_fps']){
