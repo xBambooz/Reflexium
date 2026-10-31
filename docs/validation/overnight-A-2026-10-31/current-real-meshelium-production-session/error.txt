@@ -1,0 +1,9 @@
+Invoke-RestMethod : The request was aborted: The operation has timed out.
+At C:\Users\Ryan\.t3\worktrees\Reflexium\t3-de619d04\tools\iq-session.ps1:6 char:15
++ ...   $result = Invoke-RestMethod "http://127.0.0.1:$Port/$endpoint" -Met ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-RestMethod], WebExc 
+   eption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
+ 
+

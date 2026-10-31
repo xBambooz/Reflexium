@@ -1,0 +1,426 @@
+[
+    {
+        "file":  "AmbientEnvironment-fabric-26.3-26.3.2.jar",
+        "sha256":  "450EA07F96BA8CBB908B1E719D27A18D8844BCA21FDCE355A568F5E90105205B"
+    },
+    {
+        "file":  "AmbientSounds_FABRIC_v6.3.11_mc26.3.jar",
+        "sha256":  "5E9677B06ED2ADA8108B42E1D78355853B5193565D61AF3C9509981344FA1A73"
+    },
+    {
+        "file":  "ArmorPoser-fabric-26.3-16.0.1.jar",
+        "sha256":  "F4C0A49F15F54DBFBA85388BB12F7014B3836252C8F118B48D269D6C8C0C06E3"
+    },
+    {
+        "file":  "AsyncParticles-26.3.2.1+26.3.jar",
+        "sha256":  "1D4657CB96F61ECABB213F5FC0C003C1C4091E5E27A0DDB3189BAF548E26702B"
+    },
+    {
+        "file":  "audioplayer-fabric-2.5.1+26.3.jar",
+        "sha256":  "85D9DA2354919FAD25CD9FD2532CB7CFE62BD4BBE44EE0051CE6E80DC4430367"
+    },
+    {
+        "file":  "Axiom-6.1.5-for-MC26.3.jar",
+        "sha256":  "781EBB4D7C7B7DC5662045D0E6E6F28F914F37FE8C25FD61ADD2622EA58410EC"
+    },
+    {
+        "file":  "BadOptimizations-2.4.1-26.3-fabric.jar",
+        "sha256":  "B72D071777EBF832E7E441754385BE06F942D08A8C3F5B9F317EB8C050490EAF"
+    },
+    {
+        "file":  "bbe-fabric-1.4.0+mc26.3-mod.jar",
+        "sha256":  "BBD7118E9A65C514A69646EE95E8C467154D593C37518D48F392379A51F514A8"
+    },
+    {
+        "file":  "benchmark-mod-1.0.0.jar",
+        "sha256":  "1E44A0D9720244F8CEBE1357C5696D3ECF777BF9F82FEB174D29B22503AB9600"
+    },
+    {
+        "file":  "BetterF3-20.0.0-Fabric-26.3.jar",
+        "sha256":  "E3AE4820DBBED0CD33E2B89DBB16B8A9F40FA576B39BC83F797658F4468738A5"
+    },
+    {
+        "file":  "BetterHitreg-1.0.8-BETA+26.3.jar",
+        "sha256":  "2E8D10FBA2F83B3083791833C1EEEAD4077727E5BD7E004DB46C5B1F626ADAA7"
+    },
+    {
+        "file":  "betterstats-5.8.0+fn-26.3.jar",
+        "sha256":  "5D6CD2915A83908D06B8CAE791D4109361A4B19EB0264A48730E308876305BF6"
+    },
+    {
+        "file":  "boatiview-fabric-0.0.11-26.3.jar",
+        "sha256":  "41BC0F04E01B38E683C781694002D3E917FAC4D00B6BB2D64B700FDEBE9AC23D"
+    },
+    {
+        "file":  "bobby-5.2.16+mc26.3.jar",
+        "sha256":  "9D24790D45CCC2CF45CCB20EEEA3EB72B51F5E8D34B1B0D221E24B259E599398"
+    },
+    {
+        "file":  "c2me-fabric-mc26.3-0.4.2-alpha.0.114.jar",
+        "sha256":  "C93DC9638DAE58E1DCCD901877C3892BB969ACE8EABC6459DF1309654A8C6FD2"
+    },
+    {
+        "file":  "camerautils-fabric-1.1.2+26.3.jar",
+        "sha256":  "869A403C6E19DC50FBC1753A8E12F4825F526892C4DF63419AC82F62C2D40CF3"
+    },
+    {
+        "file":  "capes-1.5.10+26.3.jar",
+        "sha256":  "382E3B4EA46BBEAAA5669B22B8BC6AE0F7AAEDC6E09F2EC0F32AECC5A8F8060E"
+    },
+    {
+        "file":  "centered-crosshair+26.3-1.6.0.jar",
+        "sha256":  "09D683E6C43D82BDFCFFFCBB3424F15A846913DEAF6F890D18F25E01FD468C70"
+    },
+    {
+        "file":  "chat_heads-1.3.2-fabric-26.3.jar",
+        "sha256":  "1DA6F5E86BA3920E096509E1D6D7BB5613B7458FF5B2D4BE7144925E0D3F545D"
+    },
+    {
+        "file":  "cherishedworlds-fabric-18.0.0+26.3.jar",
+        "sha256":  "51C6A2949AE4A89DCE2C773847B76F888DC464F3CA7A630D4F2C72121C0037BE"
+    },
+    {
+        "file":  "cloth-config-fabric-26.3.159.jar",
+        "sha256":  "1716B9964F90D2B885F9BD3887F8824B71B55C32A4123A5853486E722F7C2E4B"
+    },
+    {
+        "file":  "continuity-3.0.1+26.3.jar",
+        "sha256":  "429FB0946118E86CCE8ACE8B57D07E1971088FB3F8115439BB0F2F12DF14F511"
+    },
+    {
+        "file":  "CreativeCore_FABRIC_v2.14.24_mc26.3.jar",
+        "sha256":  "041F5A0F870E3EA744F2CCB321F9192D3FECAFA2866FF991B8084CC9CF34772F"
+    },
+    {
+        "file":  "dark-loading-screen-1.6.20.jar",
+        "sha256":  "E36CF157318C114A88128F0EAA5C901BFC880BD440051E21A80DFD182E638748"
+    },
+    {
+        "file":  "dynamic-fps-3.11.10+minecraft-26.3.0-fabric.jar",
+        "sha256":  "A186D7CDFA3738935CB8425026D118013916FDCFBC060E4397D22368D0BB6594"
+    },
+    {
+        "file":  "EasyPlaceFix-0.6.7.jar",
+        "sha256":  "C20E5C42AAF47A260C058F8230A04B861D4266E7E8EC44713CB72DA8AC1D067F"
+    },
+    {
+        "file":  "eclipsestweakeroo-0.7.7-26.3.jar",
+        "sha256":  "DF19AD1C2865C59D92ADD25C10F1003FE3503DDE4B3B13DA41E953E1A729CAA3"
+    },
+    {
+        "file":  "entityculling-fabric-1.11.3-mc26.3.jar",
+        "sha256":  "D2F80514EE3382B1FA7AFDA4DF762DF50743226E3CD320B829EE507357AEAFBC"
+    },
+    {
+        "file":  "entity_model_features-3.3.12-26.3-fabric.jar",
+        "sha256":  "4A8B04D26C94909A3BA9F08972FB475E7D39F715F666F99A294017BAAA37CB69"
+    },
+    {
+        "file":  "entity_texture_features-7.2.6-26.3-fabric.jar",
+        "sha256":  "9AE73892099AA759E0CFC0CCB1FCBA3986E27A7C743AD5832310BA8CA58F644A"
+    },
+    {
+        "file":  "Essential_1-5-1_fabric_26-3.jar",
+        "sha256":  "E6A4D252041DC479EA895EB4715951F9B8954D147622EB5CA3DB8A101B9F2AAC"
+    },
+    {
+        "file":  "EuphoriaPatcher-1.10.5-r5.9.3-fabric.jar",
+        "sha256":  "F6BE638D63462D765004D08F912A105DB981DC6A24BA2DD6B5E22B5FAB416589"
+    },
+    {
+        "file":  "ExtremeSoundMuffler-4.05_Fabric-26.3.jar",
+        "sha256":  "A32BB2097AA43C9316FCF2C727B255AB2CF5F402DD648AFF5C87CF0E011C3E01"
+    },
+    {
+        "file":  "fabric-api-0.165.0+26.3.jar",
+        "sha256":  "18442E2AD466D6EF41C37DBB4CB68495E6CA6658B1F1EE9BE76143D155EF2C88"
+    },
+    {
+        "file":  "fabric-carpet-26.3+v260915.jar",
+        "sha256":  "7C40B93E807ED914064176898037117097446C6CC76E6A80A856C8BF7F7659F9"
+    },
+    {
+        "file":  "fabric-language-kotlin-1.14.2+kotlin.2.4.21.jar",
+        "sha256":  "FBDBF5286AB9D65FEDB49E6E01C15E338AE303EB7B9D8C7423D0A9BCFE526EF9"
+    },
+    {
+        "file":  "fadeless-2.0.9-26.3.jar",
+        "sha256":  "964ADFEF44178C343CC7AC95A249B8A984549CCDCC6E95E6454627C6083E2EBB"
+    },
+    {
+        "file":  "ferritecore-9.0.0-fabric.jar",
+        "sha256":  "213966C72ED967ACC7392BEB28A866FBA301FF56B9976C2E7801C2DB7DE6BF22"
+    },
+    {
+        "file":  "Flashback-0.43.6-for-MC26.3.jar",
+        "sha256":  "2D2FF6B397831472F63DEDF6B2053C384BF9233540811B4895A803719AE4370B"
+    },
+    {
+        "file":  "floating-storage-0.8.0-test.jar",
+        "sha256":  "1F38F85A63C116E9EA5D8BB142B90D8F57082C2490C70653FD58F22C191FCCB7"
+    },
+    {
+        "file":  "forcecloseloadingscreen-2.3.7.jar",
+        "sha256":  "87414506D55B44C82FE15CF801F60479ECE6CED2289063757FC8BB009BDFE68F"
+    },
+    {
+        "file":  "ForgeConfigAPIPort-v26.3.1-mc26.3.x-Fabric.jar",
+        "sha256":  "95CC2BD7A943F910A54BAF2F65ACDE301DCFB3D8AEFF2C989C04C416D5A4A1CD"
+    },
+    {
+        "file":  "fzzy_config-0.7.7+fix3+26.3.jar",
+        "sha256":  "3D98C61215AE5EB2FE08DB5CAC6B0DA08DC1B6F0A9AC082A3A9EAD8EED736B2A"
+    },
+    {
+        "file":  "Gamma-Utils-Fabric-3.2.2+mc26.3.jar",
+        "sha256":  "8C0BFD60C6278B7F4C339EFC28AFD1985E503A105061B99B458C9E4CCB560B4B"
+    },
+    {
+        "file":  "ImmediatelyFast-Fabric-1.17.1+26.3.jar",
+        "sha256":  "4B346661CD0811D98A6DF8C9FAEB8FAFD9326AB88248430E8BEC845EF1FF6DCA"
+    },
+    {
+        "file":  "invisibleframes-fabric-2.0.1+26.3.jar",
+        "sha256":  "BC5552EFCD1D57E22E6AD3BD247F02F32FB49D4E8E8E2DB522034BA04E32510D"
+    },
+    {
+        "file":  "iris-fabric-experimental-build-26.3.jar",
+        "sha256":  "566BD7515CC1CB41320A6761932093C1C3EE813FC8CBFD2077E3D128746DC1C2"
+    },
+    {
+        "file":  "itemscroller-fabric-26.3-0.33.1.jar",
+        "sha256":  "058A87A5A4AF65F7AB71CA0735D68884741A6F5DEB17B9DEDD041E06FEE541BA"
+    },
+    {
+        "file":  "Ixeris-4.6.11+26.3-fabric.jar",
+        "sha256":  "2FB929C4F295015F3C38032936BFE4D2A8B2ECDAC69C6C9C9A8CF0B67480380B"
+    },
+    {
+        "file":  "konkrete_fabric_1.11.1_MC_26.3.jar",
+        "sha256":  "5C5E4DA4088929AB72859DB7DFEF88EE5F34E72D0D9322E59F33757A089A773E"
+    },
+    {
+        "file":  "krypton-0.3.2.jar",
+        "sha256":  "0B4A648B9C2F048247F849712AFF58B2BAC5B27B60C0072BB6BF493AD8B79FEF"
+    },
+    {
+        "file":  "libjf-26.3.1.jar",
+        "sha256":  "1B236E7F12EC4CF78E1C7DB6406638492ABAB99F106F7AF18D38A245E40E07E2"
+    },
+    {
+        "file":  "litematica-fabric-26.3-0.29.1.jar",
+        "sha256":  "0138223FB9B8F971F5C3DC4A79021B33B73E0F145ED6F4C76DF3732583E676DA"
+    },
+    {
+        "file":  "lithium-fabric-0.26.3+mc26.3.jar",
+        "sha256":  "103B6AAB3932F119155565254A3F33B1BE0DA26B9BF7A5EEC24851542144FC78"
+    },
+    {
+        "file":  "malilib-fabric-26.3-0.30.2.jar",
+        "sha256":  "ABD59F642ABD891586BFEC2CD1937771DED925081EBE3870D152CA96356B5119"
+    },
+    {
+        "file":  "melody_fabric_1.0.17_MC_26.3.jar",
+        "sha256":  "C889A455AAD7A6BCDC2FABFC690FCF87659F4AE64B4B9FD7A8705B4BDB313C67"
+    },
+    {
+        "file":  "meshelium-1.6.2+mc26.3.jar",
+        "sha256":  "F39419AE68E7EDB9B336A52F4CE94CCA2DFB8C4A443652E6A9EF8FB63641C400"
+    },
+    {
+        "file":  "minihud-fabric-26.3-0.41.2.jar",
+        "sha256":  "31442C26D432A65C50C02B649610087F7FF5955E2E4746259C0D714B98D47FB8"
+    },
+    {
+        "file":  "modernfix-5.27.20-build.2.jar",
+        "sha256":  "F340FFF04132AE9B60EAE494D2DE4CD177D436DA8C0E525D6BD8F5B15ED141B5"
+    },
+    {
+        "file":  "modmenu-21.0.0.jar",
+        "sha256":  "837812C6C98D66141DB7B5DCAE668F27FB78D557E8F4C0C89912985FC26A5E6F"
+    },
+    {
+        "file":  "moreculling-fabric-26.3-1.9.0.jar",
+        "sha256":  "4739CF1BBA326D538247B565A0200F926B2C56BF0E1106495335EEC4D8528B0C"
+    },
+    {
+        "file":  "MouseTweaks-fabric-mc26.3-2.31.jar",
+        "sha256":  "7FA35DF568C870C45FD144DC9A54139459DED823615DDA32BC09D9025831E655"
+    },
+    {
+        "file":  "mru-1.0.44+26.3-fabric.jar",
+        "sha256":  "9CC8A03242C58D395C4368ED802BCFAEE9301CD0D2D0CF69556F0252E2452BF6"
+    },
+    {
+        "file":  "netprodis-2.0.0+26.1.jar",
+        "sha256":  "F3D8C38855E1FE1E09BE5727AFAF166207A8747CC8B3DE5AEC84AED7C50E9E17"
+    },
+    {
+        "file":  "notenoughanimations-fabric-1.12.6-mc26.3.jar",
+        "sha256":  "81539E3BB8D222AE3ED3046677FFE466DD6898EC2B75B78F8EB26CB1A43BE0C8"
+    },
+    {
+        "file":  "nuit-fabric-1.0.0-beta.6+mc26.3.jar",
+        "sha256":  "3BA4B648E79B7AE4646EE28EE172289B25488768747ABC2ABD36FB8BDF862962"
+    },
+    {
+        "file":  "nuit-interop-fabric-1.0.0-beta.5+mc26.3.jar",
+        "sha256":  "6492DD5DC676BACB5E05459507F081AD844DBA9DF70C6E70DE2CB4A22AFAB5B3"
+    },
+    {
+        "file":  "omnisens-0.1.0+mc26.3-fabric.jar",
+        "sha256":  "5C4C7425237BCB48E5A5C7D9FC1B29E5FF17D9E1E3ADA3DBA89DBF54B689F28F"
+    },
+    {
+        "file":  "particlerain-4.0.2+26.3-fabric.jar",
+        "sha256":  "A2610B5A6AC5AD601EA8B0BF01C451587335967771967B33096BB4D469C7CE64"
+    },
+    {
+        "file":  "particle_core-0.3.3+fix1+26.2.jar",
+        "sha256":  "63FAAFCEC078EA567A410F75FE449AE6895D29028686A144C18E5121C9552A6B"
+    },
+    {
+        "file":  "peek-fabric-1.6.0+26.3.jar",
+        "sha256":  "3DEC36A8DF8D40C6E981B483D83B28A211DDD02ADCFDF3FF41F5861ECD9096BA"
+    },
+    {
+        "file":  "perspectivenametag-fabric-1.2.0+26.2.jar",
+        "sha256":  "230598BCB543D17A05E4C6BCFB6803E087D7142B03B94F81E7C77E1A09270C73"
+    },
+    {
+        "file":  "pickupnotifier-v26.3.0-mc26.3.x+fabric.jar",
+        "sha256":  "832383EC1DAF70575BF789BA15229B0542994E5055D7E078EB239A7778A8202B"
+    },
+    {
+        "file":  "Ping-Wheel-1.12.2-fabric-26.3.jar",
+        "sha256":  "883C2818636DD01B4EE354E18D07337C7D1449BEEC27A006D9C78FA56F8968D4"
+    },
+    {
+        "file":  "placeholder-api-3.2.0+26.3.jar",
+        "sha256":  "D9A5351B42A8D79CFC2E7F2A471472F9E4DFF3B13874C8D420DBB93600B91A85"
+    },
+    {
+        "file":  "puzzleslib-v26.3.17-mc26.3.x+fabric.jar",
+        "sha256":  "F5CE767FB44B9F791EA8DDE092248B9E5479942421FF9165B4C8561B3A04519B"
+    },
+    {
+        "file":  "railoptimization-2.0+mc26.1.2-fabric.jar",
+        "sha256":  "B3AEEAD4146155B4D85D2B02AF01990B257D6C4BB9CE424FDBE2A7881A7AFB18"
+    },
+    {
+        "file":  "raised-fabric-26.3-6.0.2.jar",
+        "sha256":  "1586EC1E9ECBBB9518F4C23B11A0A6FFE5821115A5CB13C855961AFD5E071773"
+    },
+    {
+        "file":  "reeses-sodium-options-fabric-2.2.5+mc26.3.jar",
+        "sha256":  "B692ACB0F84D7477DEAE48E2BA0908E1913C0D87DB53DAA4D23CBE646E9028F0"
+    },
+    {
+        "file":  "respackopts-26.3.0.jar",
+        "sha256":  "9051B9CBE22DDC2D474BB206D6C2F96D21CA9C5D47EFE69B1C60C981D016333F"
+    },
+    {
+        "file":  "rrls-5.2.8+mc.26.3.jar",
+        "sha256":  "AB0FDA8A8421DA7DCE8921DA30D4DD634A9863B25D99FDE5488270E57B95D572"
+    },
+    {
+        "file":  "ScalableLux-fabric-mc26.3-0.3.0-alpha.0.6-all.jar",
+        "sha256":  "E9137A04FDEFCA4FD1F4740AB3DC6194B5EA7C15456C6691376B910053853A29"
+    },
+    {
+        "file":  "screenshotgallery-fabric-2.1.jar",
+        "sha256":  "16EAD004471F993492CA7505E581566C994158D172A8DE73CE4DC71014BF18D0"
+    },
+    {
+        "file":  "servermanager-1.1.0+26.3.jar",
+        "sha256":  "F45905FABCAB732D398089F76BC03DFFBD0C7C1641C23646B77E5CCED1C7600E"
+    },
+    {
+        "file":  "servux-fabric-26.3-0.12.2.jar",
+        "sha256":  "EF7D39903CCD75550776BB58BB1EC2689FEDC6A6A30205DC7F6246E63A993F97"
+    },
+    {
+        "file":  "simplefog-fabric-26.1-2.0.15.jar",
+        "sha256":  "4187B4DB78D70CA7515DED3C629F86A0F0DC61A236FFD9F1584E6D8C05BC60BF"
+    },
+    {
+        "file":  "skinlayers3d-fabric-1.11.4-mc26.3.jar",
+        "sha256":  "82450ED109221B571F60F6115C31A384F9CFB072DEB5135B11C16FEBCE672387"
+    },
+    {
+        "file":  "smoothskies-2.12.2+26.3-fabric.jar",
+        "sha256":  "63582A76E799163A9A63E31B7E106DD50668B827F534743D1588D317E617C26E"
+    },
+    {
+        "file":  "sodium-fabric-0.9.2+mc26.3.jar",
+        "sha256":  "87A5BB39F7E6E41106E77F122F82FC93F9D3BC0B6EBCB746B314172A446A287A"
+    },
+    {
+        "file":  "sounds-2.6.0+26.3-fabric.jar",
+        "sha256":  "F9EC9C0ABFEBBBBF255C827E23892FC38D02ED3FF60DA2BE002F4C87F5AE249E"
+    },
+    {
+        "file":  "spark-1.10.187-fabric.jar",
+        "sha256":  "3FC00663CAA542B1E78333730609B4EB2568326628E3666A3938AD58CBC9ACC6"
+    },
+    {
+        "file":  "SubtleEffects-fabric-26.3-1.15.1-hotfix.1.jar",
+        "sha256":  "8E6755F56AF481EDD3BC768FE2EC89CFF624635BF755DE6EC6B3572BDAF23AAE"
+    },
+    {
+        "file":  "symbol-chat-26.3-1.4.3.jar",
+        "sha256":  "0EB48D16A9E5F3EBB2F65D5577AEC15AF5765C0E4A56CAD81289562F1DAA4803"
+    },
+    {
+        "file":  "syncmatica-fabric-26.3-0.3.20.jar",
+        "sha256":  "EC1F272C1F640D9D9C161F9969CFDDAFAE94E705679B22C0F767A9EA256F20B4"
+    },
+    {
+        "file":  "tcdcommons-5.8.0+fn-26.3.jar",
+        "sha256":  "C3682577B70BF2617A5B5495302CCE89FEC6CBF2B9BDCFA13A418B91DDBEBBBD"
+    },
+    {
+        "file":  "trade-cycling-fabric-1.0.23+26.3.jar",
+        "sha256":  "FCADD701CFDEF4466ED8538231E08255B049243F725241948FC93FC21816BA32"
+    },
+    {
+        "file":  "tweakermore-v3.33.3-beta.1-mc26.3.jar",
+        "sha256":  "DE276A7448013B105C0C6E59FBBFA928533F0C3301328C794A5D7F3C6DFACE3C"
+    },
+    {
+        "file":  "tweakeroo-fabric-26.3-0.30.1.jar",
+        "sha256":  "E26C316B2CB336EBD8439A29B48E75D98DF2E20F205EFD57E0F29197F28EEC56"
+    },
+    {
+        "file":  "visuality-0.7.15+26.3.jar",
+        "sha256":  "9810F96DC433719EB0C6E02229930308E708B5698C12C596E44C7D563B789F63"
+    },
+    {
+        "file":  "voicechat-fabric-2.6.27+26.3.jar",
+        "sha256":  "9E1C93144A3F7498E546102F6786AEA6E4992866C4C5D21BD2E0EDB702399153"
+    },
+    {
+        "file":  "waveycapes-fabric-1.11.3-mc26.3.jar",
+        "sha256":  "3AA1122E150B4DC21C39CD418B48AEEA9E2183CEFAC0FAA6F8D1528B67DAAF7E"
+    },
+    {
+        "file":  "Windy-1.1.1+26.1.jar",
+        "sha256":  "79DB3F46FB1CC397A224FCA153B3DFB1779E9B792626013FC23F28A17AB5505F"
+    },
+    {
+        "file":  "worldedit-mod-7.4.6.jar",
+        "sha256":  "24F2338AC9D5E7205F15CDB4A118924C5D9CBD48AB0CABF8BA36B07B7D64C22B"
+    },
+    {
+        "file":  "yet_another_config_lib_v3-3.9.7+26.3-fabric.jar",
+        "sha256":  "C52D41D444522D9ABBA994CD4C4EE2E71A065D7C31010F92A9959B80CCB4B0F5"
+    },
+    {
+        "file":  "zconfig-1.0.0+26.x.jar",
+        "sha256":  "B48151A35CC495BCB612A3C400770CDCE5B4AD1302E072407ACACD34A765EBE8"
+    },
+    {
+        "file":  "zfastnoise-1.1.2+26.3.jar",
+        "sha256":  "CF2DDF3BAC3D7B0A102649D11BD13E3E3AC99B18DFA435E9335E4ABFF266CCF8"
+    }
+]
