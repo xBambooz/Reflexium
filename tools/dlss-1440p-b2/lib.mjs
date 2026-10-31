@@ -62,7 +62,7 @@ export async function launch(port, label, jar) {
 	const irisName=fs.readdirSync(realMods).find(n=>/^iris.*\.jar$/.test(n));
 	const copyNames=fs.readdirSync(profile+'/mods').filter(n=>/^iris.*\.jar$/.test(n));
 	const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
-	if(!irisName || copyNames.length!==1 || hash(realMods+irisName)!==hash(profile+'/mods/'+copyNames[0]))
+	if(!irisName || copyNames.length!==1 || hash(realMods+irisName)!==hash(profile+'/mods/'+copyNames[0]) || hash(profile+'/mods/'+copyNames[0])!=='566bd7515cc1cb41320a6761932093c1c3ee813fc8cbfd2077e3d128746dc1c2')
 		throw Error('Iris copy differs from real profile. Stage the matching jar in RxRound17 while closed before measurement.');
 	const dhJar=profile+'/mods/DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar';
 	if(fs.existsSync(dhJar))fs.renameSync(dhJar,dhJar+'.disabled');

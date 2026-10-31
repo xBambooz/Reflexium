@@ -78,7 +78,7 @@ function modeProof(spec, first, last, current, index) {
 
 async function runPass(c, pid, config, pass, visit) {
 	const spec = CONFIGS[config];
-	if(Date.now()-sessionStarted>43*60000) throw Error('GPU session time limit reached');
+	if(Date.now()-sessionStarted>35*60000) throw Error('GPU session time limit reached');
 	const key = passKey(group, config, pass);
 	log(`pass ${key} (visit ${visit}) starting`);
 	await c.rx('frame_generation', 'off');
@@ -176,7 +176,7 @@ async function runPass(c, pid, config, pass, visit) {
 	const valid = !gateFlags.focus_lost && captured.mode.valid && content.content_valid && dhGate && idle.passed
 		&& !gateFlags.invalid && !gateFlags.load_timeout && gateFlags.backend_vulkan && gateFlags.settle_ready;
 	const record = {
-		key, build, config, pass, visit, label, bm_file: `${key}.bmresult.json.gz`,
+		key, build, config, pass, visit, label, artifact_sha256:EXPECTED[build], bm_file: `${key}.bmresult.json.gz`,
 		idle: {cpu_cv: idle.cpu_cv, gpu_range: idle.gpu_range},
 		dh: {generator_plan: genPlan, before: {files: dhBefore.files}, crop: {files: dhCrop.files}, end: {files: dhEnd.files},
 			durable_unchanged_before_to_end: sameDurable(dhBefore, dhEnd), unchanged_crop_to_end: sameSnapshot(dhCrop, dhEnd),
@@ -206,7 +206,7 @@ async function main() {
     sessionStarted=Date.now();
     exclusive();
 	if(quick){
-  const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json';
+  const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxOvernightP/settings.json';
   bmSettingsOriginal=fs.readFileSync(settings,'utf8');save(evidence+'/quick-bm-settings-original.json',JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')));
   fs.writeFileSync(settings,JSON.stringify({...JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')),measuredRuns:1},null,2));
   process.env.RX_VIEWPORT_DIAGNOSTIC='1';process.env.RX_FOCUSABLE='1';
@@ -246,6 +246,7 @@ main().catch(error => {
 	console.error('RUN FAILED', error.stack || error);
 	process.exitCode = 1;
 }).finally(async()=>{
+    if(fs.existsSync(profile+'/logs/latest.log'))fs.copyFileSync(profile+'/logs/latest.log',`${evidence}/client-${port}-${selection.replaceAll(':','-')}.log`);
     if(ownedPid){try{await quit(ownedClient,ownedPid);ownedPid=0;}catch(e){console.error('cleanup failed; reservation retained',e.message);}}
-    if(!ownedPid){if(bmSettingsOriginal!==null)fs.writeFileSync(process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json',bmSettingsOriginal);release();}
+    if(!ownedPid){if(bmSettingsOriginal!==null)fs.writeFileSync(process.env.USERPROFILE+'/Documents/Benchmark Mod RxOvernightP/settings.json',bmSettingsOriginal);release();}
 });
