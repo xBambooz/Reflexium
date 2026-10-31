@@ -178,6 +178,9 @@ public final class FrameGenerationRenderer {
 		return streamlinePath() && ReflexiumConfig.get().frameGeneration().nvidia();
 	}
 	public boolean streamlineActive() { return streamlineActive; }
+	public boolean capturesUiAlpha() { return UI_RECOMPOSITION; }
+	public RenderTarget debugHudlessTarget() { return hudlessTarget; }
+	public RenderTarget debugUiAlphaTarget() { return uiColorAlphaTarget; }
 	public long streamlineGeneratedPresents() { return streamlineGeneratedPresents; }
 	public String streamlineProblem() { return streamlineProblem; }
 	public int lastStreamlinePresentResult() { return lastStreamlinePresentResult; }
@@ -587,7 +590,8 @@ public final class FrameGenerationRenderer {
 				new org.joml.Vector4f(0.0f, 0.0f, 0.0f, 0.0f), uiColorAlphaTarget.getDepthTexture(), 0.0);
 		UpscalingRenderer.swap(renderer.mainRenderTarget(), uiColorAlphaTarget);
 		try {
-			// Same order as the real frame: crosshair first, then GUI.
+			// Same order as the real frame: occluded world text, crosshair, then GUI.
+			com.bambooz.reflexium.upscale.DeferredWorldText.composite(renderer.mainRenderTarget());
 			if (deferredUiDraw != null) deferredUiDraw.run();
 			draw.run();
 		}

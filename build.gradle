@@ -21,6 +21,13 @@ loom {
 
 	runs {
 		client {
+			def iqUser = providers.gradleProperty("rxIqUser").orNull
+			if (iqUser != null) {
+				programArg "--username"
+				programArg iqUser
+				programArg "--uuid"
+				programArg UUID.nameUUIDFromBytes(("OfflinePlayer:" + iqUser).getBytes("UTF-8")).toString().replace("-", "")
+			}
 			providers.gradlePropertiesPrefixedBy("reflexium.disableDh").get().each { key, value -> vmArg "-D${key}=${value}" }
 			if ("true".equalsIgnoreCase(providers.gradleProperty("rxPackHdr").orNull)) vmArg "-Dreflexium.pack.hdr=true"
 			vmArg "-Dreflexium.logLatency=true"
@@ -104,6 +111,7 @@ tasks.named("test") { failOnNoDiscoveredTests = false }
 def assertionChecks = [
 	fpsTextCheck                 : "com.bambooz.reflexium.debug.FpsTextCheck",
 	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
+	deferredWorldTextCheck       : "com.bambooz.reflexium.upscale.DeferredWorldTextCheck",
 	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
 	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",
 	streamlineBridgeCheck        : "com.bambooz.reflexium.upscale.dlss.StreamlineBridgeCheck",

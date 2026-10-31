@@ -618,7 +618,10 @@ public final class UpscalingRenderer {
 	public void reconstructScene(GameRenderer gameRenderer) {
 		if (!swapped) {
 			// Native frame generation still completes a scene so FG can consume the rendered image and vectors.
-			if (motionOnly) reconstructed = true;
+			if (motionOnly) {
+				reconstructed = true;
+				if (worldDepthCaptured && !failed && DeferredWorldText.pending()) resolveDisplayDepth(gameRenderer.mainRenderTarget());
+			}
 			if (worldTiming != 0) FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 			return;
 		}
@@ -664,7 +667,7 @@ public final class UpscalingRenderer {
 		}
 		FrameProfiler.end(FrameProfiler.WORLD, worldTiming, commandBuffer());
 		reconstructed = true;
-		if (worldDepthCaptured && !failed && (DeferredEffects.pending() || postEffectsNeedDepth(gameRenderer))) {
+		if (worldDepthCaptured && !failed && (DeferredEffects.pending() || DeferredWorldText.pending() || postEffectsNeedDepth(gameRenderer))) {
 			resolveDisplayDepth(main);
 		}
 	}
@@ -949,6 +952,11 @@ public final class UpscalingRenderer {
 		o.addProperty("hand_motion", DebugSettings.handMotion());
 		o.addProperty("post_effects_need_depth", postEffectsNeedDepth);
 		o.addProperty("post_depth_resolved", depthResolved);
+		o.addProperty("world_text_nodes", DeferredWorldText.captured);
+		o.addProperty("world_text_fallback_nodes", DeferredWorldText.fallback);
+		o.addProperty("world_text_prepared", DeferredWorldText.prepared());
+		o.addProperty("world_text_limitation", DeferredWorldText.limitation);
+		o.addProperty("omit_sign_text", DebugSettings.omitSignText);
 		o.addProperty("requested_preset", builtPreset);
 		o.addProperty("requested_preset_is_hint", true);
 		o.addProperty("pack_resolve_bypass_requested", DebugSettings.packResolveBypass());
@@ -978,6 +986,17 @@ public final class UpscalingRenderer {
 	public synchronized void cancelCapture(UpscaleCapture request) {
 		request.cancel();
 		if (capture == request) capture = null;
+	}
+
+	/** Render-thread readback of display depth or alpha, encoded into RGB because screenshots discard alpha. */
+	public CompletableFuture<NativeImage> captureDisplayChannel(RenderTarget layer, boolean alpha) {
+		if (layer == null) return null;
+		if (captureEncodePass == null) captureEncodePass = new CaptureEncodePass();
+		TextureTarget encoded = new TextureTarget("Reflexium text depth diagnostic", layer.width, layer.height, GpuFormat.RGBA8_UNORM, null);
+		captureEncodePass.render(layer, encoded, alpha ? CaptureEncodePass.ALPHA : CaptureEncodePass.DEPTH);
+		CompletableFuture<NativeImage> result = new CompletableFuture<>();
+		Screenshot.takeScreenshot(encoded, image -> { result.complete(image); Minecraft.getInstance().execute(encoded::destroyBuffers); });
+		return result;
 	}
 
 	/** Before the evaluation: metadata and the input image. The output follows in {@link #finishCapture()}. */
@@ -1410,6 +1429,7 @@ public final class UpscalingRenderer {
 
 	private void releaseFeatureResources() {
 		DeferredEffects.close();
+		DeferredWorldText.close();
 		vanillaCloudMotion.close();
 		ComplementaryHdr.release();
 		hdrInput = destroy(hdrInput);

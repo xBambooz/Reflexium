@@ -2,6 +2,7 @@ package com.bambooz.reflexium.mixin;
 
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.upscale.DeferredEffects;
+import com.bambooz.reflexium.upscale.DeferredWorldText;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.UpscalingRenderer;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -65,9 +66,11 @@ public abstract class GameRendererMixin {
 		GameRenderer self = (GameRenderer) (Object) this;
 		try {
 			DeferredEffects.clear();
+			DeferredWorldText.clear();
 			UpscalingRenderer.get().beginFrame(self);
 			original.call();
 		} catch (Throwable failure) {
+			DeferredWorldText.clear();
 			// Restoring state can fail on the same broken encoder; never let that hide the original cause.
 			try {
 				UpscalingRenderer.get().endFrame(self);
@@ -77,6 +80,7 @@ public abstract class GameRendererMixin {
 			throw failure;
 		}
 		UpscalingRenderer.get().endFrame(self);
+		DeferredWorldText.finish();
 	}
 
 	@WrapOperation(method = "render", at = @At(value = "INVOKE",
@@ -90,12 +94,15 @@ public abstract class GameRendererMixin {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel()V"))
 	private void reflexium$beforeLevel(CallbackInfo ci) {
 		UpscalingRenderer.get().beforeLevel((GameRenderer) (Object) this);
+		DeferredWorldText.begin((GameRenderer) (Object) this);
 	}
 
 	/** Super resolution belongs before post effects: reconstruct the scene, then let them run at display size. */
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"))
 	private void reflexium$upscale(CallbackInfo ci) {
 		UpscalingRenderer.get().reconstructScene((GameRenderer) (Object) this);
+		DeferredWorldText.prepare((GameRenderer) (Object) this);
+		if (!FrameGenerationRenderer.get().wantsMotion()) DeferredWorldText.composite(mainRenderTarget);
 		if (!FrameGenerationRenderer.get().wantsMotion()
 				|| !DebugSettings.replayFgParticles)
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
@@ -111,6 +118,10 @@ public abstract class GameRendererMixin {
 			DeferredEffects.draw(((GameRenderer) (Object) this).featureRenderDispatcher());
 		if (FrameGenerationRenderer.get().streamlineActive())
 			FrameGenerationRenderer.get().streamlineHudless(mainRenderTarget, UpscalingRenderer.get().commandBuffer());
+		if (FrameGenerationRenderer.get().wantsMotion()) {
+			FrameGenerationRenderer.get().drawGuiCopies((GameRenderer) (Object) this, () -> DeferredWorldText.composite(mainRenderTarget));
+			DeferredWorldText.composite(mainRenderTarget);
+		}
 		reflexium$drawDeferredCrosshair();
 	}
 
@@ -158,6 +169,7 @@ public abstract class GameRendererMixin {
 			target = "Lnet/minecraft/client/renderer/ProjectionMatrixBuffer;getBuffer(Lorg/joml/Matrix4f;)Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;"))
 	private Matrix4f reflexium$jitterLevel(Matrix4f projection) {
 		DeferredEffects.projection(projection);
+		DeferredWorldText.projection(projection);
 		GameRenderer self = (GameRenderer) (Object) this;
 		return UpscalingRenderer.get().jitterLevelProjection(projection, self.gameRenderState().levelRenderState.cameraRenderState);
 	}

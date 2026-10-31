@@ -4,6 +4,7 @@ import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.UpscaleCapture;
 import com.bambooz.reflexium.upscale.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.DeferredWorldText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -76,6 +77,7 @@ final class CaptureCommands {
 					files.add(names[i], entry);
 				}
 				meta.add("files", files);
+				if (extras) captureDisplayLayers(dir, name, meta);
 				Path json = dir.resolve(name + ".json");
 				Files.writeString(json, GSON.toJson(meta), StandardCharsets.UTF_8);
 				result.add("capture", meta);
@@ -91,6 +93,43 @@ final class CaptureCommands {
 			throw e;
 		}
 		return result;
+	}
+
+	/** One render-thread boundary for already completed display layers. Separate metadata from the SR input frame. */
+	private static void captureDisplayLayers(Path dir, String name, JsonObject meta) throws Exception {
+		List<String> names = new ArrayList<>();
+		List<CompletableFuture<NativeImage>> images = new ArrayList<>();
+		try {
+			JsonObject status = call(() -> {
+				var fg = FrameGenerationRenderer.get();
+				RenderTarget[] targets = {DeferredWorldText.layer(), fg.wantsMotion() ? fg.debugHudlessTarget() : null,
+						fg.wantsMotion() ? fg.debugUiAlphaTarget() : null, Minecraft.getInstance().gameRenderer.mainRenderTarget()};
+				String[] labels = {"world_text", "fg_hudless_flipped", "fg_ui", "final"};
+				for (int i = 0; i < targets.length; i++) {
+					if (targets[i] == null) continue;
+					CompletableFuture<NativeImage> future = new CompletableFuture<>();
+					images.add(future); names.add(labels[i]);
+					Screenshot.takeScreenshot(targets[i], future::complete);
+					if (i == 0 || i == 2) {
+						names.add(labels[i] + "_alpha");
+						images.add(UpscalingRenderer.get().captureDisplayChannel(targets[i], true));
+					}
+				}
+				var depth = UpscalingRenderer.get().captureDisplayChannel(DeferredWorldText.layer(), false);
+				if (depth != null) { names.add("world_text_depth"); images.add(depth); }
+				return StatusCommands.statusNow();
+			});
+			JsonObject files = new JsonObject();
+			for (int i = 0; i < images.size(); i++) {
+				Path file = dir.resolve(name + "_" + names.get(i) + ".png");
+				images.get(i).get(20, TimeUnit.SECONDS).writeToFile(file);
+				files.addProperty(names.get(i), file.toAbsolutePath().toString());
+			}
+			meta.add("display_layers_status", status);
+			meta.add("display_layers", files);
+		} finally {
+			for (var image : images) image.thenAccept(NativeImage::close);
+		}
 	}
 
 	/** Read every output at one render-thread boundary, rather than comparing unrelated screenshot frames. */
