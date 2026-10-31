@@ -1,0 +1,62 @@
+[
+    {
+        "command":  "--check absent.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check check.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check lib.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check lock.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check profile.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check run.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "--check smoke.mjs",
+        "exit_code":  0,
+        "output":  ""
+    },
+    {
+        "command":  "check",
+        "exit_code":  0,
+        "output":  "B2 helper checks passed\r\nAll 18 chart gain calculations checked"
+    },
+    {
+        "command":  "smoke",
+        "exit_code":  0,
+        "output":  "DRY RUN: smoke prepared; no lock, launch, or HTTP call. Later live run requires --execute."
+    },
+    {
+        "command":  "absent",
+        "exit_code":  0,
+        "output":  "DRY RUN: absent prepared; no lock, launch, or HTTP call. Later live run requires --execute."
+    },
+    {
+        "command":  "profile",
+        "exit_code":  0,
+        "output":  "DRY RUN: profile prepared; no lock, launch, or HTTP call. Later live run requires --execute."
+    },
+    {
+        "command":  "run",
+        "exit_code":  0,
+        "output":  "DRY RUN: run prepared; no lock, launch, or HTTP call. Later live run requires --execute."
+    }
+]

@@ -1,0 +1,58 @@
+[
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\shaders.properties",
+        "Hash":  "69A2C6C897EC4726126A47BD78A8BEAFB0E5ADEEB0660EEB870E3D7892D1E155"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\lib\\common.glsl",
+        "Hash":  "BDDAF5B573E43514C523B641B3E0CCD88BFB333E9AEAA82E56A18DC2B7207DDC"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite.glsl",
+        "Hash":  "377747DEF0E0717E38C727A81EC3D2F380F97867B2271A8C65665122D69CFEB5"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite1.glsl",
+        "Hash":  "144CEF7888D53FBD5EC3333B2614F4759CC9238F0870BF2C6C6D4083A8A9858A"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite2.glsl",
+        "Hash":  "98A8AC9D24C735ED818780CF41E3E0D79DCE759D1DB02BB8E7E7F3A31C7712BA"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite3.glsl",
+        "Hash":  "B5FC2630A4FE37800467EA61DD81D891BF874DCE04AF9E1E5BA22A773917FB99"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite4.glsl",
+        "Hash":  "59AE13CB155DD9C0F49691485292E63AEB7647B2251DA94A51389591150298A9"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite5.glsl",
+        "Hash":  "06853BC2173F5A2B73471C1FB2CACFB45D57C7FE721F0A5090FD30DD34C2CD8C"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite6.glsl",
+        "Hash":  "3F975765715913BEF42A735DF7CFC7AD31E9503EF5C065ABA9F60D37E230D8EE"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite7.glsl",
+        "Hash":  "888C06A3A53C3B55ACAE061FFBE795E7457AA375EBB2FA0F007DE201F02C2A8C"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite8.glsl",
+        "Hash":  "BB52E3A1CA4C0AD4B7151053E55116884F91641549FB95E8771E02DB5B1B4C62"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\composite9.glsl",
+        "Hash":  "67A20CF8FF2B64D96032648ED610EDF2D1626999A5D96277F6842638895859D4"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\deferred1.glsl",
+        "Hash":  "F9EBF6B11481019C15558E674F5982233688843E9C20F44FD7E70757C114DF0A"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3\\shaderpacks\\ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5\\shaders\\program\\final.glsl",
+        "Hash":  "4E6BAAA8EA915F92E3CF56C630B2F960205A5BD34CD9B21510FEF150D886AB64"
+    }
+]

@@ -1,0 +1,10 @@
+﻿import assert from 'node:assert/strict';
+import {root,metrics,capframexCsv} from './lib.mjs';
+assert(root.endsWith('/t3-ab93aef4'));
+assert.equal(metrics([10,10,10]).avg_fps,100);
+assert.equal(capframexCsv([{frames:{t:[0,0.01],ms:[10,10]}}]).trim().split('\n').length,3);
+console.log('B2 helper checks passed');
+const rows = JSON.parse((await import('node:fs')).readFileSync(new URL('../../docs/validation/dlss-1440p-perf-2026-10-30/b2/research/game-gains.json', import.meta.url),'utf8').replace(/^\uFEFF/,''));
+assert.equal(rows.length,18);
+for(const row of rows) assert(Math.abs(row.gain_pct-100*(row.fps/row.native_fps-1))<1e-9);
+console.log('All 18 chart gain calculations checked');
