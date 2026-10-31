@@ -1,0 +1,1161 @@
+[08:58:32] [main/WARN] (FabricLoader/Knot) Class path entries reference missing files: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\build\classes\java\main - the game may not load properly!
+[08:58:32] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.3 with Fabric Loader 0.19.5
+[08:58:32] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[08:58:32] [main/WARN] (FabricLoader/Resolution) Warnings were found!
+ - Mod 'Reese's Sodium Options' (reeses-sodium-options) 2.2.5+mc26.3 recommends version 0.4.2 or later of sodium-extra, which is missing!
+	 - You should install version 0.4.2 or later of sodium-extra for the optimal experience.
+[08:58:32] [main/INFO] (FabricLoader) Loading 70 mods:
+	- agentharness 1.0.0
+	- betterf3 20.0.0
+	- cloth-config 26.3.159
+	   \-- cloth-basic-math 0.6.1
+	- fabric-api 0.162.0+26.3
+	   |-- fabric-advancement-api-v1 1.0.0+38c7a2d55d
+	   |-- fabric-api-base 2.0.6+fcdff87f5d
+	   |-- fabric-api-lookup-api-v1 2.0.24+3434d6d95d
+	   |-- fabric-biome-api-v1 20.1.0+c6aa69a85d
+	   |-- fabric-block-api-v1 3.1.0+0ae6f9115d
+	   |-- fabric-block-getter-api-v2 2.0.9+3434d6d95d
+	   |-- fabric-command-api-v2 3.1.2+fcdff87f5d
+	   |-- fabric-content-registries-v0 15.0.4+74ed1ea55d
+	   |-- fabric-convention-tags-v2 4.10.3+6b5b47fd5d
+	   |-- fabric-crash-report-info-v1 1.0.7+fcdff87f5d
+	   |-- fabric-creative-tab-api-v1 5.0.21+fcdff87f5d
+	   |-- fabric-data-attachment-api-v1 2.2.31+b9b88df45d
+	   |-- fabric-data-generation-api-v1 27.3.0+5be2453c5d
+	   |-- fabric-debug-api-v1 1.0.4+3434d6d95d
+	   |-- fabric-dimensions-v1 5.1.19+47f74c985d
+	   |-- fabric-entity-events-v1 6.0.4+3434d6d95d
+	   |-- fabric-events-interaction-v0 5.3.7+b9b88df45d
+	   |-- fabric-game-rule-api-v1 4.0.10+3434d6d95d
+	   |-- fabric-item-api-v1 14.7.0+cf6bc2db5d
+	   |-- fabric-key-mapping-api-v1 2.0.8+3434d6d95d
+	   |-- fabric-lifecycle-events-v1 4.1.9+ffef5f675d
+	   |-- fabric-loot-api-v3 4.0.8+4068fd645d
+	   |-- fabric-menu-api-v1 2.0.28+ed66f0a35d
+	   |-- fabric-message-api-v1 7.0.10+3434d6d95d
+	   |-- fabric-model-loading-api-v1 8.0.35+fcdff87f5d
+	   |-- fabric-networking-api-v1 6.3.9+b9b88df45d
+	   |-- fabric-object-builder-api-v1 24.1.10+3434d6d95d
+	   |-- fabric-particles-v1 5.0.25+3434d6d95d
+	   |-- fabric-permission-api-v1 1.0.8+fcdff87f5d
+	   |-- fabric-recipe-api-v1 10.0.9+b9b88df45d
+	   |-- fabric-registry-sync-v0 8.0.2+1ca9f6365d
+	   |-- fabric-renderer-api-v1 17.0.15+79385d0b5d
+	   |-- fabric-renderer-indigo 9.1.23+b9d63e335d
+	   |-- fabric-rendering-fluids-v1 6.0.6+3434d6d95d
+	   |-- fabric-rendering-v1 27.0.14+901a437c5d
+	   |-- fabric-resource-conditions-api-v1 6.2.0+0d124ae85d
+	   |-- fabric-resource-loader-v0 3.3.26+4fc5413f5d
+	   |-- fabric-resource-loader-v1 3.0.4+ba0d6c0d5d
+	   |-- fabric-screen-api-v1 5.2.4+48607d035d
+	   |-- fabric-serialization-api-v1 2.0.7+74ed1ea55d
+	   |-- fabric-sound-api-v1 2.0.7+3434d6d95d
+	   |-- fabric-tag-api-v1 2.1.10+fcdff87f5d
+	   |-- fabric-transfer-api-v1 8.0.25+fcdff87f5d
+	   \-- fabric-transitive-access-wideners-v1 8.1.16+52268a0e5d
+	- fabricloader 0.19.5
+	- iris 1.12.0-snapshot+mc26.3-local
+	   |-- io_github_douira_glsl-transformer 3.0.0-pre3
+	   |-- org_anarres_jcpp 1.4.14
+	   \-- org_antlr_antlr4-runtime 4.13.1
+	- java 25
+	- meshelium 1.6.2+mc26.3
+	- minecraft 26.3
+	- mixinextras 0.5.5
+	- modmenu 21.0.0
+	   \-- placeholder-api 3.2.0+26.3
+	- notenoughanimations 1.12.6
+	   \-- trender 1.0.17
+	- perspectivenametag 1.2.0+26.2
+	   |-- icu_suc_kkw557_perspectivenametag-common 1.2.0+26.2
+	   \-- icu_suc_kkw557_perspectivenametag-core 1.2.0+26.2
+	- reeses-sodium-options 2.2.5+mc26.3
+	- reflexium 1.2.0-alpha
+	- skinlayers3d 1.11.4
+	   |-- transition 1.0.27
+	   \-- trender 1.0.17
+	- sodium 0.9.2+mc26.3
+[08:58:32] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/Ryan/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[08:58:32] [main/INFO] (Sodium) Loaded configuration file for Sodium: 37 options available, 1 override(s) found
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'reeses-sodium-options.refmap.json' for reeses-sodium-options.mixins.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'skinlayers3d.refmap.mixins.json' for skinlayers3d.mixins.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris-fabric.refmap.json' for mixins.iris.fabric.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.vertexformat.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.bettermipmaps.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.compat.sodium.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.fixes.maxfpscrash.json could not be read. If this is a development environment you can ignore this message
+[08:58:32] [main/WARN] (FabricLoader/Mixin) Error loading class: dynamic_fps/impl/DynamicFPSMod (java.lang.ClassNotFoundException: dynamic_fps/impl/DynamicFPSMod)
+[08:58:32] [main/WARN] (Sodium) Force-disabling mixin 'features.render.world.sky.LevelRendererMixin' as rule 'mixin.features.render.world.sky' (added by mods [iris]) disables it and children
+[08:58:33] [main/WARN] (FabricLoader/Mixin) Error loading class: traben/entity_model_features/models/parts/EMFModelPart (java.lang.ClassNotFoundException: traben/entity_model_features/models/parts/EMFModelPart)
+[08:58:33] [main/INFO] (Sodium-GraphicsAdapterProbe) Searching for graphics cards...
+[08:58:33] [main/INFO] (Sodium-GraphicsAdapterProbe) Found graphics adapter: AdapterInfo{vendor=NVIDIA, description='NVIDIA GeForce RTX 5070', adapterType=0x0000231B, openglIcdFilePath='C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvoglv64.dll', openglIcdVersion=32.0.16.1742}
+[08:58:33] [main/WARN] (Sodium-Workarounds) Sodium has applied one or more workarounds to prevent crashes or other issues on your system: [NVIDIA_THREADED_OPTIMIZATIONS_BROKEN]
+[08:58:33] [main/WARN] (Sodium-Workarounds) This is not necessarily an issue, but it may result in certain features or optimizations being disabled. You can sometimes fix these issues by upgrading your graphics driver.
+[08:58:33] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[08:58:34] [Datafixer Bootstrap #0/INFO] (Minecraft) 307 Datafixer optimizations took 212 milliseconds
+[08:58:37] [Render thread/INFO] (Minecraft) Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+[08:58:37] [Render thread/INFO] (Minecraft) Setting user: RxWhiteA
+[08:58:37] [Render thread/INFO] (perspectivenametag) Loaded 0 server blacklist entries
+[08:58:37] [Render thread/INFO] (betterf3) [BetterF3] Loading...
+[08:58:37] [Render thread/INFO] (betterf3) [BetterF3] All done!
+[08:58:37] [Render thread/INFO] (Harness) Agent harness listening on 127.0.0.1:25781 (authenticated, opt-in)
+[08:58:37] [Render thread/INFO] (Minecraft) [STDOUT]: [TRender] Initializing Client...
+[08:58:37] [Render thread/INFO] (Reflexium) Reflexium loaded (Reflex: On, Vitrail: not installed, Aperture: not installed)
+[08:58:37] [Download-2/ERROR] (Minecraft) Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:168)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:451)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:118)
+	... 5 more
+[08:58:37] [Render thread/WARN] (Reflexium) Reflexium debug server listening on http://127.0.0.1:25881/ (dev only)
+[08:58:37] [Render thread/INFO] (Mod Menu/Update Checker) Checking mod updates...
+[08:58:37] [Render thread/INFO] (meshelium) Meshelium 1.6.2+mc26.3 initializing (backend gate armed; the decision runs on the first tick where the GPU device exists)
+[08:58:37] [Render thread/INFO] (meshelium) Launch check: -XX:StackShadowPages=32 (Minecraft 26.3's launch profile asks for 32) - fine
+[08:58:37] [Render thread/INFO] (Indigo) [Indigo] Different rendering plugin detected; not applying Indigo.
+[08:58:37] [Render thread/INFO] (meshelium) Meshelium widened the chunk-task priority ladder: 46 -> 134 rungs (+88 chunks of unconditional headroom for the 120-chunk ceiling; wave 13)
+[08:58:37] [Render thread/INFO] (meshelium) Meshelium widened the render-distance option range to [2, 96] before options.txt loads (config maxRenderDistance ceiling; the title-screen gate decision re-validates it)
+[08:58:37] [ModMenu/Update Checker/Fabric Loader/INFO] (Mod Menu/Update Checker) Update available for 'fabricloader@0.19.5'
+[08:58:37] [Download-2/INFO] (Mod Menu/Update Checker) Update available for 'fabric-api@0.162.0+26.3', (-> 0.165.0+26.3)
+[08:58:37] [Render thread/INFO] (Sodium) Setting exclusive fullscreen to true by default, as the user is using a language that likely does not need an IME.
+[08:58:37] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.4.3-snapshot
+[08:58:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App name: Minecraft
+[08:58:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App version: 26.3
+[08:58:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App ID: com.mojang.minecraft
+[08:58:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: SDL revision: SDL-3.4.14-62f10da
+[08:58:38] [Render thread/INFO] (Reflexium) [Streamline] [08-58-37][streamline][info][tid:139024][0s:000ms:593us]pluginManager.cpp:430[setHostSDKVersion] Streamline v2.14.16.b742680bf - built on Wed Sep 30 11:45:07 2026 - host SDK v2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:622us]ota.cpp:406[parseServerManifest] OTA feature sdk_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:636us]ota.cpp:406[parseServerManifest] OTA feature common_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:647us]ota.cpp:406[parseServerManifest] OTA feature deepdvc_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:658us]ota.cpp:406[parseServerManifest] OTA feature dlss_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:782us]ota.cpp:406[parseServerManifest] OTA feature dlss_d_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:792us]ota.cpp:406[parseServerManifest] OTA feature dlss_g_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:799us]ota.cpp:406[parseServerManifest] OTA feature nis_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:805us]ota.cpp:406[parseServerManifest] OTA feature nvperf_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:811us]ota.cpp:406[parseServerManifest] OTA feature pcl_0 version 2.14.16
+[08-58-37][streamline][info][tid:139024][0s:000ms:817us]ota.cpp:406[parseServerManifest] OTA feature reflex_0 version 2.14.16
+[08-58-38][streamline][info][tid:139024][0s:121ms:232us]ota.cpp:832[getNVDAArchitecture] Found NVIDIA GPUs, [00000048F21FD970]: 1
+[08-58-38][streamline][info][tid:139024][0s:122ms:024us]ota.cpp:838[getNVDAArchitecture] Found GPU 0, arch=0x1b0
+[08-58-38][streamline][info][tid:139024][0s:122ms:129us]ota.cpp:242[invokeNGXUpdater] Invoking NGX Updater: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe -cmsid 0 -feature sl_sdk_0 -api update -type zip -gpuarch 0x1B0 -bootstrap
+[08-58-38][streamline][info][tid:139024][0s:122ms:161us]pluginManager.cpp:545[findPlugins] Looking for plugins in C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline ...
+[08-58-38][streamline][info][tid:139024][0s:122ms:224us]pluginManager.cpp:1048[loadPlugins] eLoadDownloadedPlugins flag not passed to preferences, OTA'd plugins will not be loaded!
+[08-58-38][streamline][info][tid:139024][0s:128ms:211us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline\
+[08-58-38][streamline][info][tid:139024][0s:128ms:340us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[08-58-38][streamline][info][tid:139024][0s:128ms:374us]commonInterface.cpp:165[getSystemCaps] Enumerating up to 8 adapters but only one of them can be used to create a device - no mGPU support in this SDK
+[08-58-38][streamline][info][tid:139024][0s:128ms:789us]commonInterface.cpp:287[getSystemCaps] >-----------------------------------------
+[08-58-38][streamline][info][tid:139024][0s:128ms:807us]commonInterface.cpp:290[getSystemCaps] NVIDIA driver 617.42
+[08-58-38][streamline][info][tid:139024][0s:129ms:327us]commonInterface.cpp:315[getSystemCaps] Adapter 0 architecture 0x1b0 implementation 0x5 revision 0xa1 - bit 0x1 - LUID 0.50936
+[08-58-38][streamline][info][tid:139024][0s:129ms:335us]commonInterface.cpp:321[getSystemCaps] -----------------------------------------<
+[08-58-38][streamline][info][tid:139024][0s:129ms:409us]commonEntry.cpp:2124[updateEmbeddedJSON] Detected Windows OS version 10.0.26300
+[08-58-38][streamline][info][tid:139024][0s:129ms:484us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.common' - version 2.14.16.b742680bf PRODUCTION - id 4294967295 - priority 0 - adapter mask 0x1 - interposer 'no'
+[08-58-38][streamline][info][tid:139024][0s:134ms:496us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline\
+[08-58-38][streamline][info][tid:139024][0s:134ms:616us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[08-58-38][streamline][info][tid:139024][0s:166ms:182us]commonEntry.cpp:1042[getNGXFeatureRequirements] Native VK OFA feature supported on this device!
+[08-58-38][streamline][warn][tid:139024][0s:381ms:278us]commonEntry.cpp:1093[getNGXFeatureRequirements] ngxResult not implemented
+[08-58-38][streamline][warn][tid:139024][0s:381ms:300us]dlssEntry.cpp:208[updateEmbeddedJSON] Failed to obtain DLSS min spec requirements from NGX, using SL defaults
+[08-58-38][streamline][info][tid:139024][0s:381ms:307us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeDepth' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[08-58-38][streamline][info][tid:139024][0s:381ms:314us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeMotionVectors' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[08-58-38][streamline][info][tid:139024][0s:381ms:320us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeScalingInputColor' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[08-58-38][streamline][info][tid:139024][0s:381ms:363us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeScalingOutputColor' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[08-58-38][streamline][info][tid:139024][0s:381ms:457us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.dlss' - version 2.14.16.b742680bf PRODUCTION - id 0 - priority 100 - adapter mask 0x1 - interposer 'no'
+[08-58-38][streamline][info][tid:139024][0s:386ms:633us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline\
+[08-58-38][streamline][info][tid:139024][0s:386ms:743us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[08-58-38][streamline][info][tid:139024][0s:397ms:178us]commonEntry.cpp:1042[getNGXFeatureRequirements] Native VK OFA feature supported on this device!
+[08-58-38][streamline][warn][tid:139024][0s:401ms:625us]commonEntry.cpp:1093[getNGXFeatureRequirements] ngxResult not implemented
+[08-58-38][streamline][warn][tid:139024][0s:401ms:642us]dlss_gEntry.cpp:143[updateEmbeddedJSON] Failed to obtain DLSS-G min spec requirements from NGX, using SL defaults
+[08-58-38][streamline][info][tid:139024][0s:401ms:651us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeDepth' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[08-58-38][streamline][info][tid:139024][0s:401ms:658us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeMotionVectors' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[08-58-38][streamline][info][tid:139024][0s:401ms:664us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeHUDLessColor' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[08-58-38][streamline][info][tid:139024][0s:401ms:669us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeUIColorAndAlpha' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[08-58-38][streamline][info][tid:139024][0s:401ms:741us]dlss_gEntry.cpp:339[updateEmbeddedJSON] Successfully set environment variable required by the Vulkan driver.
+[08-58-38][streamline][info][tid:139024][0s:401ms:828us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.dlss_g' - version 2.14.16.b742680bf PRODUCTION - id 1000 - priority 1000 - adapter mask 0x1 - interposer 'no'
+[08-58-38][streamline][info][tid:139024][0s:405ms:973us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline\
+[08-58-38][streamline][info][tid:139024][0s:406ms:086us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[08-58-38][streamline][info][tid:139024][0s:406ms:141us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.pcl' - version 2.14.16.b742680bf PRODUCTION - id 4 - priority 2 - adapter mask 0x1 - interposer 'no'
+[08-58-38][streamline][info][tid:139024][0s:410ms:324us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline\
+[08-58-38][streamline][info][tid:139024][0s:410ms:451us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[08-58-38][streamline][info][tid:139024][0s:410ms:534us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.reflex' - version 2.14.16.b742680bf PRODUCTION - id 3 - priority 100 - adapter mask 0x1 - interposer 'no'
+[08-58-38][streamline][info][tid:139024][0s:410ms:591us]pluginManager.cpp:1190[loadPlugins] Plugin execution order based on priority:
+[08-58-38][streamline][info][tid:139024][0s:410ms:605us]pluginManager.cpp:1193[loadPlugins] P0 - sl.common
+[08-58-38][streamline][info][tid:139024][0s:410ms:611us]pluginManager.cpp:1193[loadPlugins] P2 - sl.pcl
+[08-58-38][streamline][info][tid:139024][0s:410ms:616us]pluginManager.cpp:1193[loadPlugins] P100 - sl.dlss
+[08-58-38][streamline][info][tid:139024][0s:410ms:621us]pluginManager.cpp:1193[loadPlugins] P100 - sl.reflex
+[08-58-38][streamline][info][tid:139024][0s:410ms:625us]pluginManager.cpp:1193[loadPlugins] P1000 - sl.dlss_g
+Streamline initialized, manual Vulkan hooking
+[08:58:38] [Render thread/INFO] (Reflexium) Streamline 0.0.0 (SL 2.14.16) loaded; instance [VK_KHR_external_semaphore_capabilities, VK_KHR_get_physical_device_properties2, VK_KHR_external_memory_capabilities], device [VK_KHR_external_semaphore_win32, VK_KHR_maintenance4, VK_KHR_external_memory_win32, VK_NVX_image_view_handle, VK_NV_low_latency2, VK_NV_optical_flow, VK_NVX_binary_import, VK_EXT_buffer_device_address, VK_KHR_external_semaphore, VK_KHR_push_descriptor, VK_KHR_timeline_semaphore], features12 [descriptorIndexing, bufferDeviceAddress, timelineSemaphore], features13 [synchronization2]
+[08:58:38] [Render thread/INFO] (Minecraft) Optional FeatureSet [NV Diagnostic Checkpoint] supported but device condition failed and will not be enabled
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Meshelium memory budget]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Wireframe]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [EXT MultiDraw]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Meshelium occlusion culling (fragmentStoresAndAtomics)]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Meshelium mesh shaders]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [AMD Buffer Marker]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Meshelium conditional rendering]
+[08:58:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Calibrated Timestamps]
+[08:58:38] [Render thread/INFO] (Reflexium) Enabling device extensions: VK_NV_low_latency2, VK_KHR_present_id, VK_NVX_image_view_handle, VK_NVX_binary_import, VK_KHR_external_semaphore_win32, VK_KHR_maintenance4, VK_KHR_external_memory_win32, VK_NV_optical_flow, VK_KHR_external_semaphore, VK_KHR_timeline_semaphore
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium conservative rasterization: VK_EXT_conservative_rasterization present, not requested; overestimation size 0.001953125 (max extra 0.75, granularity 0.25), degenerate triangles rasterized true, post-depth coverage true
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium java heap: max 8088 MiB (the launcher's default is 2048; a raw JVM takes a quarter of system RAM, so benchmark runs and real sessions can differ here)
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium memory probe on 'NVIDIA GeForce RTX 5070': device-local heap 11943 MiB, maxStorageBufferRange 4095 MiB -> terrain arena ceiling 5971 MiB (50% of the largest DEVICE_LOCAL heap, floor 256 MiB, CLAMPED to what a shader can address; -Dmeshelium.tune.arenaCeilingMiB overrides; integrated GPUs report their shared heap here — the fraction then bounds Meshelium's share of SYSTEM memory)
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium arena geometry: block 512 MiB x 12 = 6144 MiB addressable (limits: maxStorageBufferRange 4095 MiB, maxMemoryAllocationSize -1 MiB, maxPushDescriptors 32, maxPerStageDescriptorStorageBuffers 1048576, maxDescriptorSetStorageBuffers 1048576 — a 0 means the driver did not report it and it was treated as no-information, never as no-capacity)
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium memory budget: VK_EXT_memory_budget supported, device type discrete (reserve kept clear for vanilla and everything else: 512 MiB). A heap SIZE is a hardware fact; a heap BUDGET is what is free after vanilla's textures and every other process, and only the budget can stop Meshelium taking the last of the card and crashing something else
+[08:58:38] [Render thread/INFO] (meshelium) Meshelium: terrain memory can now exceed maxStorageBufferRange (4095 MiB). That limit bounds ONE binding, and the arena is 12 separately bound blocks of 512 MiB, so 6144 MiB is reachable and the ceiling is 5971 MiB. Before the split this card stopped at 4095 MiB
+[08:58:38] [Render thread/INFO] (meshelium) Requesting VK_EXT_mesh_shader on 'NVIDIA GeForce RTX 5070' (driver 1.4.351 NVIDIA 617.42, vendor NVIDIA): meshShader+taskShader supported. Caps: maxTaskWorkGroupInvocations=128, maxTaskPayloadSize=16384, maxMeshWorkGroupInvocations=128, maxMeshOutputVertices=256, maxMeshOutputPrimitives=256, maxPreferredTaskWorkGroupInvocations=32, maxPreferredMeshWorkGroupInvocations=32, prefersLocalInvocationVertexOutput=false, prefersLocalInvocationPrimitiveOutput=false, prefersCompactVertexOutput=false, prefersCompactPrimitiveOutput=true
+[08:58:38] [Render thread/INFO] (Reflexium) Reserved Streamline queues 1..3 in Vulkan family 0
+[08:58:38] [Render thread/INFO] (Reflexium) Vulkan device NVIDIA GeForce RTX 5070 (1.4.351 NVIDIA 617.42): low_latency2=true, present_id=true
+[08:58:38] [Render thread/INFO] (Reflexium) [Streamline] [08-58-38][streamline][info][tid:139024][0s:621ms:086us]pluginManager.cpp:1393[initializePlugins] Initializing plugins - api 0.0.1 - application ID 100721531
+[08-58-38][streamline][info][tid:139024][0s:621ms:709us]generic.cpp:112[initNsightActivity] NSight SDK activity not detected (6)!
+[08-58-38][streamline][info][tid:139024][0s:621ms:767us]commonEntry.cpp:1568[slOnPluginStartup] At least one plugin requires NGX, trying to initialize ...
+[08-58-38][streamline][info][tid:139024][0s:621ms:803us]commonEntry.cpp:1368[ngxLog] [Unknown(32764)] [2026-10-31 08:58:38] [NGXSafeInitializeLog:150] App logging hooks successfully initialized
+
+[08-58-38][streamline][info][tid:139024][0s:621ms:813us]commonEntry.cpp:1369[ngxLog] [Unknown(32764)] [2026-10-31 08:58:38] [NGXLoadLibrary:328] Loaded NGXCore from path (vulkan-1.dll)
+
+[08-58-38][streamline][info][tid:139024][0s:621ms:882us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSafeInitializeLog:139] App logging hooks successfully initialized
+
+[08-58-38][streamline][info][tid:139024][0s:621ms:890us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadLibrary:34] Loaded library from path (vulkan-1.dll)
+
+[08-58-38][streamline][info][tid:139024][0s:622ms:528us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXCheckArchitectureSupport:229] Found matching adapter with NVAPI physical GPU handle: 0x100 and LUID: { 0x0, 0xc6f8 }
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:021us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXGetPathUsingQAI:475] Checking for path to NGX using QueryAdapterInfo
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:067us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXGetPathUsingQAI:512] Path to driverStore found using QAI: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:077us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXGetPath:1046] using path for models: C:\ProgramData\NVIDIA\NGX\models
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:085us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXGetPath:1046] using path for models: C:\ProgramData\NVIDIA\NGX\models
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:091us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [CreateSecurityDescriptor:94] security attributes generated successfully
+
+[08-58-38][streamline][info][tid:139024][0s:629ms:099us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [CreateFolderWithACEs:154] using generated security descriptor for creating folder at: C:\ProgramData\NVIDIA\NGX\models
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:522us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [ModifyExistingFolderDACL:211] updated access control list for NGX cache (NGX cache should now be usable by all authenticated users)
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:544us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXCreateModelsFolder:1073] model folder created: C:\ProgramData\NVIDIA\NGX\models
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:583us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [dlss]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:592us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658702=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:600us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658701=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:608us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9FEB50=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:616us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9FF4BC=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:624us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9FD524=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:631us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DF510=1.3.106
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:638us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9CB0B8=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:645us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9E26B0=2.1.28
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:652us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D48D0=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:659us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E99B5EC=1.2.109
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:665us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DFA64=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:671us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9FD6C0=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:677us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9CF688=2.2.15
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:683us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D6F08=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:689us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9BF564=2.1.201
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:695us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DB4F4=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:701us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D2F5C=1.2.110
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:707us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D7388=1.0.108
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:712us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9F5618=2.1.29
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:718us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DAE68=1.2.109
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:750us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D8C54=1.2.109
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:758us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D3EF0=2.1.28
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:764us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9FACDC=2.1.201
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:770us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_F7361DC=2.1.28
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:776us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9C3560=2.1.201
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:782us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9B0430=2.1.28
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:788us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:794us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_sdk_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:800us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:806us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_common_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:812us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:818us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_deepdvc_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:824us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:829us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:835us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:841us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_d_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:847us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:852us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_g_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:858us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:864us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_nis_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:870us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:875us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_deepdvc_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:881us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:887us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_nvperf_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:894us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:900us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_afx_bnr_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:906us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:912us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_pcl_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:917us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:923us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_ar_gw_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:929us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:935us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_reflex_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:940us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:946us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_sdk_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:954us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:960us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_afx_stdvoice_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:966us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.7
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:972us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_g_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:977us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:983us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_vfx_rl_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:989us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[08-58-38][streamline][info][tid:139024][0s:642ms:995us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_common_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:000us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:006us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:012us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:020us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_nis_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:026us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:032us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_dlss_d_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:037us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:044us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_nvperf_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:050us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:056us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_pcl_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:062us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:068us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [sl_reflex_override_0]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:073us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:079us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [dlisp]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:085us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9CF688=2.1.15
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:091us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=310.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:096us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D8C54=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:102us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9D2F5C=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:108us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DF510=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:114us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E99B5EC=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:119us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_B9DAE68=0.0.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:125us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:130us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.7
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:136us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [dlss_override]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:142us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:148us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_vfx_gs_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:153us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:159us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_ar_fd_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:165us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:172us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_afx_rec_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:178us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:185us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_afx_bnrrec_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:191us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:197us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [nvbcast_vfx_lld_v0_9]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:202us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:208us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [dlssg]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:214us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:219us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [dlssd]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:225us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:231us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1145] [vsr]
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:236us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXLoadConfig:1151] app_E658703=1.6.0
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:242us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::LoadMappingFileData:269] listItem.engineVersion .* listItem.genericCMSId 86aa7b4
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:248us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::LoadMappingFileData:283]  project id 3F9D696D4363312194B0ECB2671E899F cms id B9FBD50
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:254us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::LoadMappingFileData:269] listItem.engineVersion .* listItem.genericCMSId 8618954
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:259us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::LoadMappingFileData:269] listItem.engineVersion .* listItem.genericCMSId b9b05cc
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:265us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::LoadMappingFileData:269] listItem.engineVersion .* listItem.genericCMSId 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:643ms:271us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [MapProjectId:1879] Found cms id 876232c for engine: custom engineVersion 26.3 projectID 4f6b2a0e-6d51-4c8a-9a7e-7c1f3d2b9e15
+
+[08-58-38][streamline][info][tid:139024][0s:716ms:454us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXDRSInit:182] NvAPI_DRS_FindApplicationByName -166
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:502us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXInitContext:245] called from module sl.common.dll at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:522us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dldenoiser, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:548us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:556us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:588us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dldenoiser.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:596us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXReportStatusFeedback:1103] Override shared memory was opened successfully
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:602us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXReportStatusFeedback:1115] Override shared memory was mapped successfully
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:609us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlss, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:615us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:623us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:630us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlss.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:638us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlinpainting, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:655us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:662us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:669us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlinpainting.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:676us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlisr, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:690us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:696us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:703us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlisr.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:709us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlslowmo, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:728us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:736us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:742us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlslowmo.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:754us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlvsr, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:760us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:766us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:772us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlvsr.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:777us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlcolorize, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:783us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:789us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:795us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlcolorize.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:801us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlstyletransfer, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:816us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:824us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:834us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlstyletransfer.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:840us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlvdenoiser, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:857us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:863us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:869us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlvdenoiser.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:875us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlisp, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:881us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:886us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:892us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlisp.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:898us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlresolve, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:904us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:910us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:916us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlresolve.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:922us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssg, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:930us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:940us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:946us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssg.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:952us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature deepdvc, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:972us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:991us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:721ms:998us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_deepdvc.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:003us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssd, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:009us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:015us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:021us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssd.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:027us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature truehdr, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:032us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:038us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:044us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_truehdr.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:050us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature latewarp, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:055us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:062us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:068us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_latewarp.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:073us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature vsr, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:081us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:089us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:096us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_vsr.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:101us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature fgx, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:108us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:128us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:148us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_fgx.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:155us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssnr, denial value 0 for Cms ID 876232c
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:162us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:168us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:178us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 08:58:38] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssnr.dll doesn't exist in any of the search paths!
+
+[08-58-38][streamline][info][tid:139024][0s:722ms:342us]commonEntry.cpp:1694[slOnPluginStartup] NGX loaded - app id 100721531 - application data path C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\streamline
+[08-58-38][streamline][info][tid:139024][0s:722ms:349us]commonEntry.cpp:1754[slOnPluginStartup] At least one plugin requires DRS, trying to initialize ...
+[08-58-38][streamline][info][tid:217772][0s:769ms:762us]ota.cpp:144[execThreadProc] execThreadProc: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe -cmsid 0 -feature sl_sdk_0 -api update -type zip -gpuarch 0x1B0 -bootstrap
+[08-58-38][streamline][info][tid:139024][0s:835ms:272us]commonEntry.cpp:1762[slOnPluginStartup] DRS loaded - app id 100721531
+[08-58-38][streamline][info][tid:139024][0s:835ms:301us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.common:slSetData:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:310us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.common:slGetData:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:317us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.common:slAllocateResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:323us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.common:slFreeResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:330us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.common:slEvaluateFeature:0x7ff9ef4fa0c0
+[08-58-38][streamline][info][tid:139024][0s:835ms:339us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.common:slSetTag:0x7ff9ef4f8ba0
+[08-58-38][streamline][info][tid:139024][0s:835ms:346us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.common:slSetTagForFrame:0x7ff9ef4f8d10
+[08-58-38][streamline][info][tid:139024][0s:835ms:352us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.common:slSetConsts:0x7ff9ef4f9ba0
+[08-58-38][streamline][info][tid:139024][0s:835ms:358us]pluginManager.cpp:1290[processPluginHooks] Hook sl.common:slHookVkPresent:before - OK
+[08-58-38][streamline][info][tid:139024][0s:835ms:364us]pluginManager.cpp:1290[processPluginHooks] Hook sl.common:slHookVkAfterPresent:after - OK
+[08-58-38][streamline][warn][tid:139024][0s:835ms:372us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:CmdBindPipeline is NOT supported, plugin will not function properly
+[08-58-38][streamline][warn][tid:139024][0s:835ms:379us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:CmdBindDescriptorSets is NOT supported, plugin will not function properly
+[08-58-38][streamline][warn][tid:139024][0s:835ms:385us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:BeginCommandBuffer is NOT supported, plugin will not function properly
+[08-58-38][streamline][info][tid:139024][0s:835ms:392us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChain:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:398us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChainForHwnd:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:403us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChainForCoreWindow:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:410us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookResizeSwapChainPre:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:415us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookPresent:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:421us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookAfterPresent:after - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:427us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookPresent1:before - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:432us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookAfterPresent:after - skipped
+[08-58-38][streamline][info][tid:139024][0s:835ms:438us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.pcl:slSetData:0x7ffa034cb850
+[08-58-38][streamline][info][tid:139024][0s:835ms:447us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.pcl:slGetData:0x7ffa034cb860
+[08-58-38][streamline][info][tid:139024][0s:835ms:458us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.pcl:slAllocateResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:464us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.pcl:slFreeResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:470us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.pcl:slEvaluateFeature:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:476us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.pcl:slSetTag:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:484us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.pcl:slSetTagForFrame:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:491us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.pcl:slSetConsts:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:498us]pluginManager.cpp:1251[processPluginHooks] Plugin 'sl.pcl' has no registered hooks
+[08-58-38][streamline][error][tid:139024][0s:835ms:504us]dlssEntry.cpp:943[slOnPluginStartup] NGX indicates DLSSContext is not available - DLSSContext cannot run
+[08-58-38][streamline][info][tid:139024][0s:835ms:744us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.reflex:slSetData:0x7ff9fe67bae0
+[08-58-38][streamline][info][tid:139024][0s:835ms:754us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.reflex:slGetData:0x7ff9fe67c450
+[08-58-38][streamline][info][tid:139024][0s:835ms:762us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.reflex:slAllocateResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:769us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.reflex:slFreeResources:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:774us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.reflex:slEvaluateFeature:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:780us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.reflex:slSetTag:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:787us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.reflex:slSetTagForFrame:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:793us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.reflex:slSetConsts:0x0
+[08-58-38][streamline][info][tid:139024][0s:835ms:801us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkCreateSwapchainKHRBefore:before - OK
+[08-58-38][streamline][info][tid:139024][0s:835ms:808us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkCreateSwapchainKHRAfter:after - OK
+[08-58-38][streamline][info][tid:139024][0s:835ms:815us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkDestroySwapchainKHRBefore:before - OK
+[08-58-38][streamline][info][tid:139024][0s:836ms:567us]dlfgDrs.cpp:41[readSingleDRSKey] Read DRS key 11041231 = 0x8416747 from global profile
+[08-58-38][streamline][info][tid:139024][0s:837ms:882us]dlss_gEntry.cpp:1440[slOnPluginStartup] Host SDK version: 2.14.16, platform: Vulkan (VSync with FG: not supported)
+[08-58-38][streamline][error][tid:139024][0s:837ms:888us]dlss_gEntry.cpp:1485[slOnPluginStartup] NGX indicates DLSS-G is not available - DLSS-G cannot run
+present pointers: interposerExport=00007FF9EFF56E20 deviceQuery=00007FF9EFF56E20 driver=00007FFA0EA19CF0
+feature 0 unsupported 32
+feature 1000 unsupported 32
+device set: dlss=0 dlssg=0 maxGenerated=0 reflex=1 pcl=1
+[08:58:38] [Render thread/INFO] (Reflexium) Streamline device: Streamline: DLSS unavailable, DLSS-G unavailable, Reflex ready, PCL ready (NVIDIA GeForce RTX 5070), version 0.0.0 (SL 2.14.16)
+[08:58:38] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:58:38] [Render thread/INFO] (Reflexium) Reflex: Streamline tokens and PCL markers
+[08:58:38] [Render thread/INFO] (Reflexium) DLSS: downloading DLSS runtime (0.0 MB)
+[08:58:38] [Render thread/INFO] (Reflexium) FSR 3.1 Vulkan runtime loaded on NVIDIA GeForce RTX 5070
+[08:58:38] [Render thread/INFO] (Reflexium) Streamline frame generation: Streamline: DLSS unavailable, DLSS-G unavailable, Reflex ready, PCL ready
+[08:58:38] [Render thread/INFO] (Iris) Debug functionality is disabled.
+[08:58:38] [Render thread/INFO] (Iris) Shaders are disabled because enableShaders is set to false in iris.properties
+[08:58:38] [Render thread/INFO] (Minecraft) Using graphics backend Vulkan, using drivers: 1.4.351 NVIDIA 617.42
+[08:58:38] [Render thread/INFO] (Minecraft) Using graphics device: NVIDIA GeForce RTX 5070 (NVIDIA)
+[08:58:38] [Render thread/INFO] (Minecraft) Using graphics device extensions: VK_EXT_memory_budget (D), VK_KHR_dynamic_rendering (D), VK_KHR_compute_shader_derivatives (D), VK_EXT_shader_subgroup_partitioned (D), VK_EXT_calibrated_timestamps (D), VK_KHR_synchronization2 (D), VK_NV_compute_shader_derivatives (D), VK_EXT_multi_draw (D), VK_EXT_mesh_shader (D), VK_AMD_buffer_marker (D), VK_EXT_vertex_attribute_divisor (D), VK_KHR_win32_surface (I), VK_KHR_swapchain (D), VK_EXT_conditional_rendering (D), VK_KHR_surface (I), VK_KHR_push_descriptor (D), VK_EXT_debug_utils (I)
+[08:58:38] [Render thread/INFO] (Harness) Agent harness: SDL window activation hints disabled
+[08:58:38] [Render thread/INFO] (Minecraft) Created window using SDL video driver: windows
+[08:58:38] [Render thread/INFO] (Minecraft) Exclusive target 2560x1440@479.99 (24bit) on monitor PG27AQDP[0x00000001](2560x1440@479.99 (24bit) at (0,0))
+[08:58:39] [Render thread/INFO] (Harness) Agent harness window placed: display 1 'PG27AQDP' at 0,0 (hwnd 5444214, foreground now 1446568, activated false)
+[08:58:39] [Render thread/INFO] (Reflexium) Vulkan surface formats: 44/0, 50/0, 37/0, 43/0, 97/1000104002, 64/1000104008, 64/0
+[08:58:39] [Render thread/INFO] (Iris) Hardware information:
+[08:58:39] [Render thread/INFO] (Iris) CPU: 16x AMD Ryzen 7 7800X3D 8-Core Processor 
+[08:58:39] [Render thread/INFO] (Iris) GPU: NVIDIA GeForce RTX 5070 (Vulkan 1.4.351 NVIDIA 617.42)
+[08:58:39] [Render thread/INFO] (Iris) OS: Windows 11 (10.0)
+[08:58:39] [Render thread/WARN] (Iris) Pair already assigned: minecraft:pipeline/armor_translucent
+[08:58:39] [Download-2/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[08:58:39] [Download-2/ERROR] (Minecraft) Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:204)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[08:58:39] [Render thread/INFO] (Minecraft) Reloading ResourceManager: vanilla, vanilla, betterf3, cloth-config, fabric-advancement-api-v1, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, iris, meshelium, modmenu, notenoughanimations, placeholder-api, reeses-sodium-options, reflexium, skinlayers3d, sodium, trender, file/rx-white
+[08:58:40] [Worker-Main-9/INFO] (Minecraft) Found unifont_pua-17.0.01.hex, loading
+[08:58:40] [Worker-Main-5/INFO] (Minecraft) Found unifont_all_no_pua-17.0.01.hex, loading
+[08:58:40] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:58:40] [Worker-Main-5/INFO] (Minecraft) Found unifont_jp_patch-17.0.01.hex, loading
+[08:58:40] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 854x480
+[08:58:40] [Render thread/INFO] (Reflexium) Reflex: Off (requested On) (Streamline), latency report ready | Reflex latency: waiting for Streamline data
+[08:58:40] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 854x480
+[08:58:40] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:58:40] [Reflexium DLSS runtime/INFO] (Reflexium) DLSS runtime 310.9.1 installed (56.2 MB) at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\nvngx_dlss.dll
+[08:58:40] [Render thread/INFO] (Reflexium) DLSS: prerequisites met (nvngx_dlss.dll)
+[08:58:41] [Render thread/INFO] (Minecraft) OpenAL initialized on device OpenAL Soft on Headphones (2- Arctis Nova Pro)
+[08:58:41] [Render thread/INFO] (Minecraft) Sound engine started
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[08:58:41] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[08:58:41] [Render thread/INFO] (meshelium) Meshelium overlays Sodium's render-distance slider: range 2..96 (Sodium's own is 2..32). The value is vanilla's option either way; only the range differs, and it follows Meshelium's render-distance ceiling. Meshelium's settings page is registered under its own entry in Sodium's video settings.
+[08:58:41] [Reflexium DLSS runtime/INFO] (Reflexium) DLSS runtime 310.9.1 installed (7.1 MB) at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-ce6c7b5a\run\reflexium\nvngx_dlssg.dll
+[08:58:41] [Render thread/INFO] (Iris) Creating pipeline for dimension minecraft:overworld
+[08:58:41] [Download-2/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[08:58:41] [Download-2/ERROR] (Minecraft) Couldn't connect to realms
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:354)
+	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[08:58:43] [Render thread/INFO] (meshelium) Backend gate: SODIUM_PRESENT — Sodium is installed, so Meshelium's own chunk tap and terrain draw stand down and Sodium builds the chunks. Meshelium then draws Sodium's opaque terrain with mesh shaders, reading it out of Sodium's own buffers. -Dmeshelium.sodium.adapter=false turns that off and leaves Sodium to draw it all. (backend=Vulkan, device='NVIDIA GeForce RTX 5070', driver=1.4.351 NVIDIA 617.42, sodium=0.9.2+mc26.3, built against 0.9.2+mc26.3)
+[08:58:45] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.2 ms, sim 0.0, submit 0.2, GPU 0.0
+[08:58:50] [Render thread/INFO] (Harness) Agent harness fullscreen request allowed on display 1 'PG27AQDP'
+[08:58:50] [Render thread/INFO] (Minecraft) Exclusive target 2560x1440@479.99 (24bit) on monitor PG27AQDP[0x00000001](2560x1440@479.99 (24bit) at (0,0))
+[08:58:50] [Render thread/INFO] (Harness) Agent harness fullscreen request allowed on display 1 'PG27AQDP'
+[08:58:50] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:58:50] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2560x1440
+[08:58:50] [Render thread/INFO] (Harness) Agent harness fullscreen focus requested: true
+[08:58:50] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2560x1440
+[08:58:50] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:58:50] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex latency: incomplete Streamline report
+[08:58:50] [Render thread/WARN] (Minecraft) Error reading pack metadata, attempting fallback type
+com.google.gson.JsonParseException: Pack key supported_formats is deprecated starting from pack format 82. Remove supported_formats from your pack.mcmeta.
+	at knot//com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287)
+	at knot//net.minecraft.server.packs.resources.ResourceMetadata$2.getSection(ResourceMetadata.java:40)
+	at knot//net.minecraft.server.packs.AbstractPackMetadataResources.getMetadataSection(AbstractPackMetadataResources.java:26)
+	at knot//net.minecraft.server.packs.repository.Pack.readPackMetadata(Pack.java:58)
+	at knot//net.minecraft.server.packs.repository.Pack.readMetaAndCreate(Pack.java:43)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.lambda$loadPacks$0(FolderRepositorySource.java:63)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.discoverPacks(FolderRepositorySource.java:94)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.loadPacks(FolderRepositorySource.java:59)
+	at knot//net.minecraft.server.packs.repository.PackRepository.discoverAvailable(PackRepository.java:43)
+	at knot//net.minecraft.server.packs.repository.PackRepository.reload(PackRepository.java:36)
+	at knot//net.minecraft.server.MinecraftServer.configurePackRepository(MinecraftServer.java:1561)
+	at knot//net.minecraft.server.WorldLoader$PackConfig.createResourceManager(WorldLoader.java:87)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:156)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldDataBlocking(WorldOpenFlows.java:210)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldStem(WorldOpenFlows.java:155)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.openWorldLoadLevelStem(WorldOpenFlows.java:432)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.lambda$upgradeAndOpenWorld$2(WorldOpenFlows.java:380)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java:967)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[08:58:51] [Worker-Main-14/INFO] (Minecraft) Loaded 1866 advancements
+[08:58:51] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 67 new biomes in 967.3 μs
+[08:58:51] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 26.3
+[08:58:51] [Server thread/INFO] (Minecraft) Generating keypair
+[08:58:52] [Server thread/INFO] (Minecraft) Loading 342 persistent chunks...
+[08:58:52] [Server thread/INFO] (Minecraft) Preparing spawn area: 2%
+[08:58:52] [Server thread/INFO] (Minecraft) Preparing spawn area: 2%
+[08:58:53] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[08:58:53] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[08:58:53] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[08:58:54] [Server thread/INFO] (Minecraft) Loading 0 chunks for player spawn...
+[08:58:54] [Server thread/INFO] (Minecraft) Preparing spawn area: 87%
+[08:58:54] [Server thread/INFO] (Minecraft) Time elapsed: 2093 ms
+[08:58:54] [Server thread/INFO] (Minecraft) RxWhiteA[local:E:081dae3c] logged in with entity id 47 at (200.5, 110.0, 150.0)
+[08:58:54] [Server thread/INFO] (Minecraft) System chat: RxWhiteA joined the game
+[08:58:54] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:58:54] [Render thread/INFO] (Minecraft) Loaded 3 advancements
+[08:58:54] [Server thread/INFO] (Minecraft) Changing view distance to 20, from 10
+[08:58:54] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 0 mutations / 0 deletes seen this session)
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[08:58:54] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:58:54] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:58:54] [Render thread/WARN] (Minecraft) Requested post effect does not exist: minecraft:end_of_frame
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium occlusion pipelines created for the Sodium host (color format 37, depth format 126; 64-B list entries via the frame ring, section boxes from the record mirror's rows; GEQUAL write-off, colorWriteMask 0, cull NONE)
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium GPU timers up: 72-query timestamp pool through vanilla's own plumbing (VulkanQueryPool + CommandEncoder.writeTimestamp = host vkResetQueryPool per write + vkCmdWriteTimestamp2KHR ALL_COMMANDS, sync2), timestampPeriod 1.0 ns/tick, readback lag 3 frames
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium's Sodium GPU-visibility pipeline created (color format 37, depth format 126, 32 quads/workgroup, 32 sections/task workgroup, fragment=discard).
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain from the GPU record mirror: the task stage selects runs per section (box-raster occlusion with temporal history), one indirect draw per geometry buffer per phase per pass, CPU work O(regions). Region source: Sodium's own chunk list. Two-frame stamp hold: ON. Staging retirement lag: 3 submit(s). Commit barrier: explicit. Row copies: their own command. Rows read from: the per-frame list (fresh). Mirror memory: device-local. Commit recorded: in the draws' command buffer. Fall back if records go stale: ON.
+[08:58:54] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[08:58:54] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 0 mutations / 0 deletes seen this session)
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[08:58:54] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[08:58:54] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[08:58:54] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[08:58:55] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 2.1 ms, sim 0.0, submit 1.5, GPU 0.6
+[08:59:00] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.6 ms, sim 0.0, submit 0.5, GPU 1.1
+[08:59:05] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.4 ms, sim 0.0, submit 0.4, GPU 1.0
+[08:59:10] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.4 ms, sim 0.0, submit 0.3, GPU 1.1
+[08:59:13] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:59:13] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 854x480
+[08:59:13] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 854x480
+[08:59:13] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:59:13] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:59:13] [Render thread/INFO] (Harness) Agent harness fullscreen request allowed on display 1 'PG27AQDP'
+[08:59:13] [Render thread/INFO] (Harness) Agent harness fullscreen request allowed on display 1 'PG27AQDP'
+[08:59:13] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2561x1440
+[08:59:13] [Render thread/INFO] (Harness) Agent harness fullscreen focus requested: true
+[08:59:13] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2561x1440
+[08:59:13] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:59:13] [Server thread/INFO] (Minecraft) System chat: Set minecraft:overworld to 9000 tick(s)
+[08:59:13] [Server thread/INFO] (Minecraft) System chat: Set the weather to clear
+[08:59:14] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:59:14] [Server thread/INFO] (Minecraft) System chat: The game is frozen
+[08:59:14] [Render thread/INFO] (Iris) Destroying pipeline minecraft:overworld
+[08:59:14] [Render thread/INFO] (Iris) Shaders are disabled because enableShaders is set to false in iris.properties
+[08:59:14] [Render thread/INFO] (Iris) Creating pipeline for dimension minecraft:overworld
+[08:59:14] [Server thread/INFO] (Minecraft) Stopping server
+[08:59:14] [Server thread/INFO] (Minecraft) Saving players
+[08:59:14] [Server thread/INFO] (Minecraft) RxWhiteA lost connection: Disconnected
+[08:59:14] [Server thread/INFO] (Minecraft) System chat: RxWhiteA left the game
+[08:59:14] [Server thread/INFO] (Minecraft) Stopping singleplayer server as player logged out
+[08:59:14] [Server thread/INFO] (Minecraft) Saving worlds
+[08:59:14] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[08:59:14] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[08:59:14] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[08:59:14] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[08:59:14] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 23366 mutations / 186 deletes seen this session)
+[08:59:14] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[08:59:14] [Render thread/WARN] (Minecraft) Error reading pack metadata, attempting fallback type
+com.google.gson.JsonParseException: Pack key supported_formats is deprecated starting from pack format 82. Remove supported_formats from your pack.mcmeta.
+	at knot//com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287)
+	at knot//net.minecraft.server.packs.resources.ResourceMetadata$2.getSection(ResourceMetadata.java:40)
+	at knot//net.minecraft.server.packs.AbstractPackMetadataResources.getMetadataSection(AbstractPackMetadataResources.java:26)
+	at knot//net.minecraft.server.packs.repository.Pack.readPackMetadata(Pack.java:58)
+	at knot//net.minecraft.server.packs.repository.Pack.readMetaAndCreate(Pack.java:43)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.lambda$loadPacks$0(FolderRepositorySource.java:63)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.discoverPacks(FolderRepositorySource.java:94)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.loadPacks(FolderRepositorySource.java:59)
+	at knot//net.minecraft.server.packs.repository.PackRepository.discoverAvailable(PackRepository.java:43)
+	at knot//net.minecraft.server.packs.repository.PackRepository.reload(PackRepository.java:36)
+	at knot//net.minecraft.server.MinecraftServer.configurePackRepository(MinecraftServer.java:1561)
+	at knot//net.minecraft.server.WorldLoader$PackConfig.createResourceManager(WorldLoader.java:87)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:156)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldDataBlocking(WorldOpenFlows.java:210)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldStem(WorldOpenFlows.java:155)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.openWorldLoadLevelStem(WorldOpenFlows.java:432)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.lambda$upgradeAndOpenWorld$2(WorldOpenFlows.java:380)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java:967)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[08:59:14] [Worker-Main-9/INFO] (Minecraft) Loaded 1866 advancements
+[08:59:14] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 67 new biomes in 188.4 μs
+[08:59:14] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 26.3
+[08:59:14] [Server thread/INFO] (Minecraft) Generating keypair
+[08:59:14] [Server thread/INFO] (Minecraft) Loading 342 persistent chunks...
+[08:59:14] [Server thread/INFO] (Minecraft) Preparing spawn area: 2%
+[08:59:15] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[08:59:15] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[08:59:15] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[08:59:15] [Render thread/INFO] (Reflexium) Reflex: Off (requested On) (Streamline), latency report ready | Reflex latency: waiting for driver data
+[08:59:15] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:59:15] [Server thread/INFO] (Minecraft) Loading 0 chunks for player spawn...
+[08:59:15] [Server thread/INFO] (Minecraft) Preparing spawn area: 87%
+[08:59:15] [Server thread/INFO] (Minecraft) Time elapsed: 1073 ms
+[08:59:15] [Server thread/INFO] (Minecraft) RxWhiteA[local:E:2ec9c158] logged in with entity id 258 at (200.5, 110.0, 150.0)
+[08:59:15] [Server thread/INFO] (Minecraft) System chat: RxWhiteA joined the game
+[08:59:15] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:59:15] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 23366 mutations / 186 deletes seen this session)
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[08:59:15] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[08:59:15] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[08:59:15] [Render thread/INFO] (Minecraft) Loaded 3 advancements
+[08:59:15] [Server thread/INFO] (Minecraft) Changing view distance to 20, from 10
+[08:59:15] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
+[08:59:16] [Server thread/INFO] (Minecraft) System chat: The game is frozen
+[08:59:16] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 23366 mutations / 186 deletes seen this session)
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[08:59:16] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[08:59:16] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[08:59:20] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.1
+[08:59:25] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.3, GPU 1.0
+[08:59:30] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.0
+[08:59:35] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.3, GPU 1.0
+[08:59:38] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[08:59:38] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2560x1440
+[08:59:38] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[08:59:40] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[08:59:45] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[08:59:50] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[08:59:55] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:00] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:05] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:06] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[09:00:06] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 2561x1440
+[09:00:06] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[09:00:10] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:15] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:17] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[09:00:17] [Server thread/INFO] (Minecraft) System chat: The game is frozen
+[09:00:17] [Render thread/INFO] (Iris) Destroying pipeline minecraft:overworld
+[09:00:17] [Render thread/INFO] (Iris) Shaders are disabled because enableShaders is set to false in iris.properties
+[09:00:17] [Render thread/INFO] (Iris) Creating pipeline for dimension minecraft:overworld
+[09:00:17] [Server thread/INFO] (Minecraft) Stopping server
+[09:00:17] [Server thread/INFO] (Minecraft) Saving players
+[09:00:17] [Server thread/INFO] (Minecraft) RxWhiteA lost connection: Disconnected
+[09:00:17] [Server thread/INFO] (Minecraft) System chat: RxWhiteA left the game
+[09:00:17] [Server thread/INFO] (Minecraft) Stopping singleplayer server as player logged out
+[09:00:17] [Server thread/INFO] (Minecraft) Saving worlds
+[09:00:17] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[09:00:17] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[09:00:17] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[09:00:17] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:00:17] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 34638 mutations / 372 deletes seen this session)
+[09:00:17] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:00:17] [Render thread/WARN] (Minecraft) Error reading pack metadata, attempting fallback type
+com.google.gson.JsonParseException: Pack key supported_formats is deprecated starting from pack format 82. Remove supported_formats from your pack.mcmeta.
+	at knot//com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287)
+	at knot//net.minecraft.server.packs.resources.ResourceMetadata$2.getSection(ResourceMetadata.java:40)
+	at knot//net.minecraft.server.packs.AbstractPackMetadataResources.getMetadataSection(AbstractPackMetadataResources.java:26)
+	at knot//net.minecraft.server.packs.repository.Pack.readPackMetadata(Pack.java:58)
+	at knot//net.minecraft.server.packs.repository.Pack.readMetaAndCreate(Pack.java:43)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.lambda$loadPacks$0(FolderRepositorySource.java:63)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.discoverPacks(FolderRepositorySource.java:94)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.loadPacks(FolderRepositorySource.java:59)
+	at knot//net.minecraft.server.packs.repository.PackRepository.discoverAvailable(PackRepository.java:43)
+	at knot//net.minecraft.server.packs.repository.PackRepository.reload(PackRepository.java:36)
+	at knot//net.minecraft.server.MinecraftServer.configurePackRepository(MinecraftServer.java:1561)
+	at knot//net.minecraft.server.WorldLoader$PackConfig.createResourceManager(WorldLoader.java:87)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:156)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldDataBlocking(WorldOpenFlows.java:210)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldStem(WorldOpenFlows.java:155)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.openWorldLoadLevelStem(WorldOpenFlows.java:432)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.lambda$upgradeAndOpenWorld$2(WorldOpenFlows.java:380)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java:967)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[09:00:18] [Worker-Main-8/INFO] (Minecraft) Loaded 1866 advancements
+[09:00:18] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 67 new biomes in 114.4 μs
+[09:00:18] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 26.3
+[09:00:18] [Server thread/INFO] (Minecraft) Generating keypair
+[09:00:18] [Server thread/INFO] (Minecraft) Loading 342 persistent chunks...
+[09:00:18] [Server thread/INFO] (Minecraft) Preparing spawn area: 2%
+[09:00:18] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[09:00:18] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[09:00:18] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[09:00:19] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[09:00:19] [Server thread/INFO] (Minecraft) Loading 0 chunks for player spawn...
+[09:00:19] [Server thread/INFO] (Minecraft) Preparing spawn area: 87%
+[09:00:19] [Server thread/INFO] (Minecraft) Time elapsed: 993 ms
+[09:00:19] [Server thread/INFO] (Minecraft) RxWhiteA[local:E:6fde5ac3] logged in with entity id 470 at (200.5, 110.0, 150.0)
+[09:00:19] [Server thread/INFO] (Minecraft) System chat: RxWhiteA joined the game
+[09:00:19] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:00:19] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 34638 mutations / 372 deletes seen this session)
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:00:19] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[09:00:19] [Render thread/INFO] (Minecraft) Loaded 3 advancements
+[09:00:19] [Server thread/INFO] (Minecraft) Changing view distance to 20, from 10
+[09:00:19] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
+[09:00:19] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 34638 mutations / 372 deletes seen this session)
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:00:19] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[09:00:19] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[09:00:19] [Server thread/INFO] (Minecraft) System chat: The game is frozen
+[09:00:20] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.8 ms, sim 0.0, submit 0.7, GPU 1.1
+[09:00:25] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.0
+[09:00:30] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:35] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:40] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:00:45] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.1
+[09:00:50] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.0
+[09:00:55] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:00] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:01] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[09:01:01] [Server thread/INFO] (Minecraft) Stopping server
+[09:01:01] [Server thread/INFO] (Minecraft) Saving players
+[09:01:01] [Server thread/INFO] (Minecraft) RxWhiteA lost connection: Disconnected
+[09:01:01] [Server thread/INFO] (Minecraft) System chat: RxWhiteA left the game
+[09:01:01] [Server thread/INFO] (Minecraft) Stopping singleplayer server as player logged out
+[09:01:01] [Server thread/INFO] (Minecraft) Saving worlds
+[09:01:01] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[09:01:01] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[09:01:01] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[09:01:02] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:01:02] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 47445 mutations / 558 deletes seen this session)
+[09:01:02] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:01:02] [Render thread/WARN] (Minecraft) Error reading pack metadata, attempting fallback type
+com.google.gson.JsonParseException: Pack key supported_formats is deprecated starting from pack format 82. Remove supported_formats from your pack.mcmeta.
+	at knot//com.mojang.serialization.DataResult$Error.getOrThrow(DataResult.java:287)
+	at knot//net.minecraft.server.packs.resources.ResourceMetadata$2.getSection(ResourceMetadata.java:40)
+	at knot//net.minecraft.server.packs.AbstractPackMetadataResources.getMetadataSection(AbstractPackMetadataResources.java:26)
+	at knot//net.minecraft.server.packs.repository.Pack.readPackMetadata(Pack.java:58)
+	at knot//net.minecraft.server.packs.repository.Pack.readMetaAndCreate(Pack.java:43)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.lambda$loadPacks$0(FolderRepositorySource.java:63)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.discoverPacks(FolderRepositorySource.java:94)
+	at knot//net.minecraft.server.packs.repository.FolderRepositorySource.loadPacks(FolderRepositorySource.java:59)
+	at knot//net.minecraft.server.packs.repository.PackRepository.discoverAvailable(PackRepository.java:43)
+	at knot//net.minecraft.server.packs.repository.PackRepository.reload(PackRepository.java:36)
+	at knot//net.minecraft.server.MinecraftServer.configurePackRepository(MinecraftServer.java:1561)
+	at knot//net.minecraft.server.WorldLoader$PackConfig.createResourceManager(WorldLoader.java:87)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:156)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldDataBlocking(WorldOpenFlows.java:210)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.loadWorldStem(WorldOpenFlows.java:155)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.openWorldLoadLevelStem(WorldOpenFlows.java:432)
+	at knot//net.minecraft.client.gui.screens.worldselection.WorldOpenFlows.lambda$upgradeAndOpenWorld$2(WorldOpenFlows.java:380)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java:967)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[09:01:02] [Worker-Main-11/INFO] (Minecraft) Loaded 1866 advancements
+[09:01:02] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 67 new biomes in 162.2 μs
+[09:01:02] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 26.3
+[09:01:02] [Server thread/INFO] (Minecraft) Generating keypair
+[09:01:02] [Server thread/INFO] (Minecraft) Loading 342 persistent chunks...
+[09:01:02] [Server thread/INFO] (Minecraft) Preparing spawn area: 2%
+[09:01:02] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:overworld
+[09:01:03] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_nether
+[09:01:03] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[Reflexium Vitrail Smoke]'/minecraft:the_end
+[09:01:03] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[09:01:03] [Server thread/INFO] (Minecraft) Loading 0 chunks for player spawn...
+[09:01:03] [Server thread/INFO] (Minecraft) Preparing spawn area: 87%
+[09:01:03] [Server thread/INFO] (Minecraft) Time elapsed: 983 ms
+[09:01:03] [Server thread/INFO] (Minecraft) RxWhiteA[local:E:4ad53b48] logged in with entity id 682 at (200.5, 110.0, 150.0)
+[09:01:03] [Server thread/INFO] (Minecraft) System chat: RxWhiteA joined the game
+[09:01:03] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:01:03] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 47445 mutations / 558 deletes seen this session)
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:01:03] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[09:01:03] [Render thread/INFO] (Minecraft) Loaded 3 advancements
+[09:01:03] [Server thread/INFO] (Minecraft) Changing view distance to 20, from 10
+[09:01:03] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
+[09:01:03] [Render thread/INFO] (ChunkBuilder) Stopping worker threads
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium region mirror retired with the chunk renderer: 12288 B of native scratch freed (audit=false, 47445 mutations / 558 deletes seen this session)
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium terrain continuity so far this session (stamp hold ON, regions from Sodium's list; the counters are session totals, not this world's): 0 section(s) in 0 chunk group(s) the graphics card could not reach, 0 one-frame region gap(s), 0 region(s) dropped from a frame's list for want of a geometry buffer, 0 whole-frame visibility dip(s), 0 group(s) found with stale records by the audit (the audit runs only under -Dmeshelium.sodium.mirrorAudit=true), 0 draw group(s) covering 0 chunk group(s) left out of a frame for want of a buffer, 0 chunk group(s) held one extra frame, 0 whole chunk group(s) the graphics card itself refused to draw, after which the mirror was written again 0 time(s). Of the frames that refused, 0 read a row describing the SAME chunk the processor last wrote for that id (so the card holds an older copy of the right row and a row copy is not reaching it), 0 read a row describing a DIFFERENT place (so the card is not holding that region's row at all, and the fault is the id or the addressing), and 0 named an id the processor has no record of writing. 0 task workgroup(s) found the card's copy of a chunk group record out of date and used the frame's fresh copy instead.
+[09:01:03] [Render thread/INFO] (ChunkBuilder) Started 10 worker threads
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium has taken Sodium's chunk-renderer slot, wrapping net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer. Opaque terrain will be drawn with mesh shaders out of Sodium's own buffers; translucent geometry stays with Sodium.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium is drawing Sodium's opaque terrain with mesh shaders. Sodium keeps the chunk building and the translucent pass; the geometry is read out of Sodium's own region buffers with no copy and no re-encode.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium Sodium record mirror up: 1024 region ids, 24 MiB device-local (rows + two 12 KiB pass blocks per id) + 32 MiB staging ring; the task stage now selects Sodium's runs from these records instead of a CPU-built table.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium Sodium frame ring up: 1024 regions/slot x 8 slots = 1024 KiB list + 102 KiB indirect commands, device-local where the card allows it.
+[09:01:03] [Render thread/INFO] (meshelium) Meshelium occlusion GPU state up for the Sodium host: 2×1024 KiB section stamps (1024 region ids × 256 slots) + 4096 B region stamps (1024 slots), device 'NVIDIA GeForce RTX 5070'; stats in the record mirror's header, phase-B predicate off.
+[09:01:03] [Server thread/INFO] (Minecraft) System chat: The game is frozen
+[09:01:03] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[09:01:03] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[09:01:05] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.1
+[09:01:10] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:15] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:20] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:25] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:30] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:33] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[09:01:33] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[09:01:35] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.3, GPU 1.0
+[09:01:40] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.3 ms, sim 0.0, submit 0.2, GPU 1.1
+[09:01:45] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:50] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0
+[09:01:55] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 1.2 ms, sim 0.0, submit 0.2, GPU 1.0

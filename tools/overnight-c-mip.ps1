@@ -59,7 +59,7 @@ try {
                 Call wait @{ms=10000} | Out-Null
                 $before=Owned
                 $r=$before.plugins.reflexium
-                if ($r.upscaler_effective -ne 'dlss' -or [math]::Abs($before.camera.yaw-90) -gt .001) { throw 'mode/pose mismatch' }
+                if ($r.upscaler_effective -ne 'dlss' -or !$r.upscaling_active -or $r.render_size.w -ge $r.display_size.w -or [math]::Abs($before.camera.yaw-90) -gt .001) { throw "mode/pose mismatch: $($r.status_line)" }
                 SaveJson "$name-before" $before
                 SaveJson "$name-input" (Call reflexium @{capture=$name;dir=$raw})
                 Call screenshot @{path="$raw/$name.png"} | Out-Null
