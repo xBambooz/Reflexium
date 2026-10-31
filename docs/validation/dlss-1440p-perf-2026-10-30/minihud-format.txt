@@ -1,0 +1,1 @@
+Installed assets/minihud/lang/en_us.json: "minihud.info_line.fps": "%d fps"
