@@ -32,7 +32,14 @@ public final class DeferredWorldTextCheck {
 		DeferredWorldText.exit();
 		if (!field("signScope").getBoolean(null)) throw new AssertionError("nested scope changed text kind");
 		if (field("scope").getInt(null) != 1) throw new AssertionError("nested text scope");
+		field("signPrepared").setBoolean(null, true);
+		if (!DeferredWorldText.prepared()) throw new AssertionError("sign readiness");
+		field("namePrepared").setBoolean(null, true);
+		field("signCount").setInt(null, 4);
+		field("nameCount").setInt(null, 2);
 		DeferredWorldText.clear();
+		if (field("signCount").getInt(null) != 0 || field("nameCount").getInt(null) != 0 || field("signPrepared").getBoolean(null) || field("namePrepared").getBoolean(null))
+			throw new AssertionError("empty frame retained a previous kind");
 		if (!phases.isEmpty() || field("scope").getInt(null) != 0 || DeferredWorldText.pending() || DeferredWorldText.prepared())
 			throw new AssertionError("frame reset must discard text state");
 		System.out.println("Deferred world text phase, order, scope and reset checks passed");
