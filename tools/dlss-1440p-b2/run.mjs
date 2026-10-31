@@ -98,7 +98,7 @@ async function runPass(c, pid, config, pass, visit) {
 	const dhBefore = dhSnapshot(sceneWorld);
 	const logOffset = logSize();
 	const before = new Set(listResults());
-	const label = 'dlss-cost-' + key;
+	const label = key;
 	for (let i = 0; i < 360; i++) {
 		const state = await c.call('bm', {});
 		if (['IDLE', 'FINISHED', 'ABORTED'].includes(state.phase)) break;
@@ -128,6 +128,7 @@ async function runPass(c, pid, config, pass, visit) {
 				const current = await c.call('bm', {});
 				const mode = modeProof(spec, first, last, current, index);
 				captured = {index, first, last, shot, bm: current, mode};
+				save(`${evidence}/proofs/${key}-capture.json`,captured);
 				log(`pass ${key} crop taken, mode proof ${mode.valid}`);
 				// Leave the render thread alone until this measured run finishes (round 17).
 				await delay(23000);
