@@ -5,6 +5,7 @@ import {acquire,release,exclusive} from './lock.mjs';
 // config. Each pass: title idle gate, DH gate, Benchmark Mod route, mode proof, 640 px crop.
 // Profiling stays off for every pass here (the copy proof runs separately).
 import fs from 'node:fs';
+import {quickCaptures} from './quick-capture.mjs';
 import {
 	root, scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
 	dhSnapshot, sameSnapshot, sameDurable, dhGeneratorPlan, logSize, dhLogSince, listResults, readResult,
@@ -13,7 +14,9 @@ import {
 
 const [build, portArg, selection = 'forward'] = process.argv.slice(2);
 const port = Number(portArg);
-const EXPECTED = {b2: '772FA0E4767BCF36E9C03E1AA69B9ABC54048ACBE244F41B0CC1741C529D2560'};
+const quick=selection==='quick';
+let bmSettingsOriginal=null;
+const EXPECTED = {b3: ps(`(Get-FileHash -LiteralPath '${root}/build/libs/${jarName}' -Algorithm SHA256).Hash`)};
 const CONFIGS = {
  native: {upscaler:'off',w:2560,h:1440},
  'q-k': {upscaler:'dlss',quality:'quality',preset:11,w:1707,h:960},
@@ -28,12 +31,12 @@ const CONFIGS = {
 };
 const ORDER = Object.keys(CONFIGS);
 const shaderless = selection.startsWith('shaderless');
-const rows = shaderless ? ['native','q-k','q-e','up-l'] : ORDER;
-const group = shaderless ? 'shaderless' : build;
+const rows = quick ? ['native','q-k','up-l','native-qsize'] : selection==='validate' ? ['native','q-k'] : shaderless ? ['native','q-k','q-e','up-l'] : ORDER;
+const group = quick ? 'quick' : selection==='validate' ? 'validation' : shaderless ? 'shaderless' : build;
 let ownedPid=0, ownedClient=null;
 let sessionStarted=0;
 const jar = `${root}/build/libs/${jarName}`;
-const passesFile = `${evidence}/passes-b2.json`;
+const passesFile = `${evidence}/passes-b3.json`;
 const passes = fs.existsSync(passesFile) ? JSON.parse(fs.readFileSync(passesFile,'utf8')) : [];
 const persist = () => save(`${evidence}/passes-${build}.json`, passes);
 const log = (...args) => console.log(new Date().toISOString(), ...args);
@@ -87,6 +90,7 @@ async function runPass(c, pid, config, pass, visit) {
 	}
 	await delay(12000);
 	const idle = await idleGate(c, pid);
+	save(`${evidence}/idle/${key}.json`,idle);
 
 	const genPlan = dhGeneratorPlan();
     const processesBefore = exclusive(pid);
@@ -110,7 +114,7 @@ async function runPass(c, pid, config, pass, visit) {
 			everMeasuring = true;
 			const index = Number(state.runIndex);
 			// Result run 1 (the first of the reported pair) is state index 2.
-			if (index === 2 && !captured) {
+			if (index === (quick?1:2) && !captured) {
 				const target = BigInt(state.startedNanos) + 21_000_000_000n;
 				const remaining = Number(target - process.hrtime.bigint()) / 1e6;
 				if (remaining > 1000 && remaining < 24000) await delay(remaining - 100);
@@ -151,11 +155,11 @@ async function runPass(c, pid, config, pass, visit) {
 	const processesAfter = exclusive(pid);
 	const dhGate = genPlan === 'DISABLED' && sameDurable(dhBefore, dhEnd) && sameSnapshot(dhCrop, dhEnd) && dhLog.count === 0;
 
-	const pair = result.runs.slice(1, 3);
+	const pair = quick?result.runs.slice(0,1):result.runs.slice(1, 3);
 	const frameMs = pair.flatMap(r => r.frames.ms);
 	const pooled = metrics(frameMs);
 	const perRun = pair.map(r => ({bm_avg_fps: r.summary.avgFps, bm_low1_fps: r.summary.low1Fps, bm_low01_fps: r.summary.low01Fps, ...metrics(r.frames.ms)}));
-	const csvDir = `${scratch}/capframex-all`;
+	const csvDir = `${evidence}/capframex-all`;
 	fs.mkdirSync(csvDir, {recursive: true});
 	fs.writeFileSync(`${csvDir}/${key}.csv`, capframexCsv(pair));
 	const bmDir = `${evidence}/bmresults`;
@@ -197,10 +201,16 @@ async function runPass(c, pid, config, pass, visit) {
 const spread = (a, b) => 100 * (Math.max(a, b) / Math.min(a, b) - 1);
 
 async function main() {
-    await acquire();
+    await acquire('timed');
     sessionStarted=Date.now();
     exclusive();
-	installJar();
+	if(quick){
+  const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json';
+  bmSettingsOriginal=fs.readFileSync(settings,'utf8');save(evidence+'/quick-bm-settings-original.json',JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')));
+  fs.writeFileSync(settings,JSON.stringify({...JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')),measuredRuns:1},null,2));
+  process.env.RX_VIEWPORT_DIAGNOSTIC='1';process.env.RX_FOCUSABLE='1';
+ }
+ installJar();
 	log(`installed ${build} jar into copy profile`);
 	const pid = await launch(port, `dlss-cost-${build}`, jar);
 	const c = client(port);
@@ -222,7 +232,8 @@ async function main() {
 	}
 
 	persist();
-	log('raw passes saved; quitting owned client');
+	if(quick)await quickCaptures(c,pid);
+ log('raw passes saved; quitting owned client');
 	await quit(c, pid);
     ownedPid=0;
     release();
@@ -235,5 +246,5 @@ main().catch(error => {
 	process.exitCode = 1;
 }).finally(async()=>{
     if(ownedPid){try{await quit(ownedClient,ownedPid);ownedPid=0;}catch(e){console.error('cleanup failed; reservation retained',e.message);}}
-    if(!ownedPid)release();
+    if(!ownedPid){if(bmSettingsOriginal!==null)fs.writeFileSync(process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json',bmSettingsOriginal);release();}
 });

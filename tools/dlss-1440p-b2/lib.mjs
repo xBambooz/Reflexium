@@ -14,7 +14,7 @@ export const bmRoot = 'C:/Users/Ryan/Documents/Benchmark Mod RxRound17';
 export const resultsDir = bmRoot + '/results';
 export const sceneWorld = bmRoot + '/scenes/benchmark-route/world';
 export const prepWorld = profile + '/saves/Round17 Benchmark Preparation';
-export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/b2';
+export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/b3';
 export const scratch = root + '/build/dlss-1440p-b2';
 export const jarName = 'Reflexium-1.2.0-alpha-fabric-26.3.jar';
 export const PROTECTED_PID = 25084;
@@ -29,6 +29,7 @@ export const ps = command => execFileSync('powershell.exe', ['-NoProfile', '-Exe
 export function client(port, debugPort = 25790 + port - 25760) {
 	const token = () => fs.readFileSync(path.join(profile, '.agentharness-token'), 'utf8').trim();
 	const call = async (endpoint, params, timeout = 30000) => {
+		if(endpoint==='bm'){endpoint='reflexium';params={benchmark:'state',...params};}
 		const res = await fetch(`http://127.0.0.1:${port}/${endpoint}`, {
 			method: params ? 'POST' : 'GET',
 			headers: {Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json'},
@@ -55,6 +56,8 @@ export function processInfo(pid) {
 
 // Detached launch via the repo launcher (Win32_Process.Create, javaw). Mirrors round 17's launch().
 export async function launch(port, label, jar) {
+	const listeners=ps(`@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in ${port},${25790+port-25760}}).Count`);
+	if(listeners!=='0')throw Error('Launch ports already listening');
 	const realMods=process.env.APPDATA+'/ModrinthApp/profiles/Fabric 26.3/mods/';
 	const irisName=fs.readdirSync(realMods).find(n=>/^iris.*\.jar$/.test(n));
 	const copyNames=fs.readdirSync(profile+'/mods').filter(n=>/^iris.*\.jar$/.test(n));
@@ -72,9 +75,9 @@ export async function launch(port, label, jar) {
 		.replace(/^preferredGraphicsBackend:.*$/mg, 'preferredGraphicsBackend:"vulkan"')
 		.replace(/^soundCategory_master:.*$/mg, 'soundCategory_master:0.0')
 		.replace(/^fullscreen:.*$/mg, 'fullscreen:false'));
-	const template = fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
+	const template = '-Dreflexium.viewportDiagnostic='+(process.env.RX_VIEWPORT_DIAGNOSTIC==='1')+'\n'+fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
 		.replace(/-Dagentharness.port=\d+/, '-Dagentharness.port=' + port)
-        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable=false')
+        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable='+(process.env.RX_FOCUSABLE==='1'))
 		.replace(/-Dreflexium.debugPort=\d+/, '-Dreflexium.debugPort=' + (25790 + port - 25760))
 		.replace('build/validation/round17/hs_err', 'build/dlss-cost/hs_err');
 	const args = process.env.TEMP + '/opencode/' + label + '.args';
@@ -142,6 +145,7 @@ export async function idleGate(client_, pid) {
 		}
 		await delay(2000);
 	}
+	save(`${evidence}/idle-failure-${Date.now()}.json`,{pid,samples,passed:false});
 	throw new Error('Title load did not settle');
 }
 

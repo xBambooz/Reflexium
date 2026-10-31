@@ -1,0 +1,20 @@
+{
+  "checked": "2026-10-31T06:55:10.469Z",
+  "ownedClientPids": [
+    126372,
+    142004,
+    157604,
+    163392
+  ],
+  "liveJava": {
+    "ProcessId": 195044,
+    "ParentProcessId": 184524,
+    "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+  },
+  "ownedClientsGone": true,
+  "lockPresent": false,
+  "settingsEqual": true,
+  "settingsHashBefore": "6D6CACFF9320D9D840482DDD20B229133D787A688E573615E13964D4F8D7A7D8",
+  "settingsHashAfter": "6D6CACFF9320D9D840482DDD20B229133D787A688E573615E13964D4F8D7A7D8",
+  "installedHash": "0265E79E5A362F5227A517163BD4C726C97A3157521DA38F70AB9FB92BD67E72"
+}

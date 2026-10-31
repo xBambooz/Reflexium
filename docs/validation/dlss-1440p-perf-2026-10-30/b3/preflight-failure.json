@@ -1,0 +1,8 @@
+{
+  "checked": "2026-10-31T05:31:15.288Z",
+  "pid": 195044,
+  "formatted": "2026-10-31T01:30:10.295-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as \r\nidle, address: [a2705fe3-ddb7-4ef7-aeea-c86e965e7b58 port:53456, addresses:[localhost/127.0.0.1]]",
+  "line": "2026-10-31T01:30:10.295-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [a2705fe3-ddb7-4ef7-aeea-c86e965e7b58 port:53456, addresses:[localhost/127.0.0.1]]",
+  "rejectedTwice": true,
+  "clientLaunched": false
+}

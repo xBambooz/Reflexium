@@ -1,0 +1,11 @@
+{
+  "checked": "2026-10-31T05:28:50.441Z",
+  "owner": {
+    "pid": 131720,
+    "purpose": "capture",
+    "owner": "worker-A",
+    "started": "2026-10-31T01:25:49.2014485-04:00"
+  },
+  "alive": true,
+  "stale": false
+}
