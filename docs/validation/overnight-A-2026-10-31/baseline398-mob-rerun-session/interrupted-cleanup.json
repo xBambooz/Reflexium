@@ -1,0 +1,14 @@
+{
+    "foreground":  922038,
+    "restored":  true,
+    "previous_foreground":  922038,
+    "owned_pids_exited":  [
+                              191864,
+                              95380,
+                              193928,
+                              184892,
+                              38712
+                          ],
+    "reason":  "Interrupted after reservation changed during resume; live real profile, no measurements",
+    "time":  "2026-10-31T17:43:37.6759291-04:00"
+}
