@@ -6,9 +6,10 @@ while (!(Test-Path "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$Port/
 try {
     do {Start-Sleep 3;try {$s=Status}catch{$s=$null}} until($s)
     if ($s.game_directory -ne "$root\run") {throw 'Wrong run'}
+    if (!$s.world_loaded) {Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null}
+    Call wait @{ms=10000}|Out-Null
     Call fullscreen @{fullscreen=1;activate=1}|Out-Null
     Call window @{monitor='primary';x=0;y=0;width=2561;height=1440}|Out-Null
-    if (!$s.world_loaded) {Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null}
     & "$PSScriptRoot/overnight-c-fps.ps1" -Port $Port -Label mesh-off
     $dir="$root/docs/validation/overnight-c-2026-10-31/meshelium/mesh-off"
     $raw="$root/run/overnight-c/mesh-off"

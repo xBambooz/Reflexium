@@ -15,9 +15,10 @@ try {
     if ($s.game_directory -ne "$root\run") {throw 'Wrong run'}
     $process=Get-CimInstance Win32_Process -Filter "ProcessId=$($s.pid)"
     if ($process.CommandLine -notmatch 'fabric.debug.disableModIds=reflexium') {throw 'Missing loader disable flag'}
+    if (!$s.world_loaded) {Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null}
+    Call wait @{ms=10000}|Out-Null
     Call fullscreen @{fullscreen=1;activate=1}|Out-Null
     Call window @{monitor='primary';x=0;y=0;width=2561;height=1440}|Out-Null
-    if (!$s.world_loaded) {Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null}
     Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10}|Out-Null
     Call wait @{ms=10000}|Out-Null
     Snapshot before

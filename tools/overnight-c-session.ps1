@@ -32,10 +32,12 @@ if ($DisableReflexium) {
 $options = $options -replace '^preferredGraphicsBackend:.*','preferredGraphicsBackend:"vulkan"' -replace '^soundCategory_master:.*','soundCategory_master:0.0' -replace '^exclusiveFullscreen:.*','exclusiveFullscreen:false'
 [IO.File]::WriteAllLines("$root/run/options.txt", $options)
 $meshBackup=$null
+$meshOriginal=$null
 if ($NoMesh) {
     $mesh=Get-ChildItem "$root/run/mods" -Filter 'meshelium*.jar' -File
     if (@($mesh).Count -ne 1) {throw 'Expected one isolated Meshelium jar'}
     $meshBackup="$root/run/$($mesh.Name).disabled"
+    $meshOriginal=$mesh.FullName
     if (Test-Path -LiteralPath $meshBackup) {throw 'Meshelium backup already exists'}
     Move-Item -LiteralPath $mesh.FullName -Destination $meshBackup
 }
@@ -67,7 +69,7 @@ Add-Type 'using System; using System.Runtime.InteropServices; public static clas
 @{previous_foreground=$session.foreground_before;restored=[CFocus]::SetForegroundWindow([IntPtr]::new($session.foreground_before));client_pid=$session.game_pid;exited=$true} | ConvertTo-Json | Set-Content "$evidence/exit-$Port.json"
 $lock = Get-Content $lockPath | ConvertFrom-Json
 if ($lock.owner -ne 'worker-C-overnight' -or $lock.pid -ne $PID) { throw 'Lock ownership changed' }
-if ($meshBackup) {Move-Item -LiteralPath $meshBackup -Destination "$root/run/mods"}
+if ($meshBackup) {Move-Item -LiteralPath $meshBackup -Destination $meshOriginal}
 if ($DisableReflexium) {
     $options=Get-Content "$root/run/options.txt"
     [IO.File]::WriteAllLines("$root/run/options.txt",($options -replace '^key_key.chat:.*',$chatBinding))
