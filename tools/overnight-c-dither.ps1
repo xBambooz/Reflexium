@@ -22,6 +22,8 @@ try {
     Setting shaders 1
     Setting upscaler dlss
     Setting quality $Quality
+    Call quit @{} | Out-Null
+    Call join @{world='Reflexium Vitrail Smoke';timeout_s=120} | Out-Null
     foreach($cmd in @('gamemode spectator @a','tick freeze','time set 9000','weather clear','gamerule minecraft:advance_time false','fill 395 159 30 405 166 42 air','fill 395 159 30 405 159 42 smooth_stone','fill 397 160 34 403 164 34 smooth_sandstone','fill 397 160 35 397 164 40 smooth_sandstone','fill 397 165 34 400 165 38 smooth_sandstone')) { Call command @{command=$cmd} | Out-Null }
     if($Multiplier -gt 1) { Setting frame_generation dlss; Setting fg_multiplier $Multiplier }
     Call camera @{x=399.1;y=161.2;z=36.1;yaw=150;pitch=12} | Out-Null
@@ -43,6 +45,10 @@ try {
     CaptureSeries sunlight 24 150
     Call command @{command='time query minecraft:day'} | Out-Null
     Snapshot after
+    $after=Status
+    @{generated_delta=$after.plugins.reflexium.fg_generated_presents-$s.plugins.reflexium.fg_generated_presents;
+      requested_multiplier=$Multiplier;effective_multiplier=$after.plugins.reflexium.fg_effective_multiplier;
+      foreground=$after.focus.os_foreground;covered_by_oled_overlay=$true} | ConvertTo-Json | Set-Content "$evidence/generation.json"
 } finally {
     foreach($cmd in @('tick rate 20','tick freeze','gamerule minecraft:advance_time false','time set 9000')) { Call command @{command=$cmd} | Out-Null }
     Setting frame_generation off

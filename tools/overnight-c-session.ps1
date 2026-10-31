@@ -14,6 +14,11 @@ try {
     $stream.Write($bytes, 0, $bytes.Length)
 } finally { $stream.Dispose() }
 Write-Output "$(Get-Date -Format o) Acquired GPU lock"
+& "$root/gradlew.bat" build -x installReflexium --no-daemon --console=plain *> "$evidence/build-resume.log"
+if ($LASTEXITCODE -ne 0) {
+    Remove-Item -LiteralPath $lockPath
+    throw 'Full build failed before client launch'
+}
 $options = Get-Content "$root/run/options.txt"
 $options = $options -replace '^preferredGraphicsBackend:.*','preferredGraphicsBackend:"vulkan"' -replace '^soundCategory_master:.*','soundCategory_master:0.0' -replace '^exclusiveFullscreen:.*','exclusiveFullscreen:false'
 [IO.File]::WriteAllLines("$root/run/options.txt", $options)

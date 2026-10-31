@@ -44,6 +44,7 @@ try {
         Rejoin
         Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10} | Out-Null
         Call wait @{ms=10000} | Out-Null
+        if (((Owned).plugins.reflexium.pack -notmatch 'no shader pack drawing') -ne [bool]$pack) { throw 'Native reference pack state mismatch' }
         SaveJson "p$pack-native-pass$Pass" (Owned)
         Call screenshot @{path="$raw/p$pack-native-pass$Pass.png"} | Out-Null
         CaptureSequence "p$pack-native-pass$Pass-static" 0
