@@ -31,7 +31,7 @@ public abstract class VulkanViewportDiagnosticMixin {
 		if (!reflexium$diagnostic || !FrameProfiler.enabled()) return;
 		String extent = label.get() + " target=" + outputWidth + "x" + outputHeight
 				+ " viewport=0,0," + outputWidth + "," + outputHeight + " scissor=" + renderArea;
-		// ponytail: cap diagnostic labels per JVM; use an API trace for exhaustive long captures.
+		// Cap diagnostic labels per JVM; use an API trace for exhaustive long captures.
 		if (reflexium$seen.size() < 256 && reflexium$seen.add(extent)) {
 			ReflexiumClient.LOGGER.info("Viewport diagnostic: {}", extent);
 		}
