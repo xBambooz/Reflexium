@@ -72,3 +72,14 @@ Later the same message thread, Ryan added two requirements:
   earlier Reflexium test included it. Worker C (codex_codex_ryan) researches jitter, render resolution, mip bias,
   depth, temporal occlusion, Iris interplay and the Streamline device path, then fixes and quick-tests. Doc:
   `docs/validation/meshelium-2026-10-31.md`. The overnight matrices should include Meshelium once C lands.
+
+Worker results so far (lead-reviewed):
+
+- A `288ec4f` (worktree t3-c29af7ed): main-storage-only deferral, sign text before the hudless snapshot, name
+  tags in the UI layer. Pack text shading mismatch confirmed and left (deferred dark glyph luma about 2 vs pack
+  42). Follow-up running: storage reuse, skip empty layers, H2 depth discriminator, dark F5 head check.
+- B `5c70d80` (worktree t3-fec5c761): Euphoria 1.10.5 hashes, TAA kept defined after the resolve bypass; AO
+  stipple visibly reduced. Blocking finding: Iris `loadExternalShaderpack` writes in-use option values back to
+  the pack .txt, so Reflexium's overrides were persisted. Ryan's real file now holds `TAA=false TAA_DEFINE=0
+  TAA_JITTER=0 FXAA_DEFINE=-1 IMAGE_SHARPENING=0` (03:35:02), disabling the pack's TAA even with DLSS off.
+  Follow-up running: never persist overrides, repair files matching the full override set, fix the log text.
