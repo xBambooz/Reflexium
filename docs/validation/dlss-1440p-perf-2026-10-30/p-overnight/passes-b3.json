@@ -1,0 +1,488 @@
+[
+  {
+    "key": "b3-native-pass1",
+    "build": "b3",
+    "config": "native",
+    "pass": 1,
+    "visit": 1,
+    "label": "b3-native-pass1",
+    "artifact_sha256": "D6B8ED7E092998B6288127449E8C97BF30E49F38D4111218B40F41E2043F74EF",
+    "presentation": {
+      "topmost_overlay_covers_window": true,
+      "path": "composed",
+      "source": "Ryan via lead, 2026-10-31; not measured with PresentMon"
+    },
+    "bm_file": "b3-native-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.054911937005981855,
+      "gpu_range": 2
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "processesBefore": {
+      "checked": "2026-10-31T17:33:42.277Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "processesAfter": {
+      "checked": "2026-10-31T17:36:37.713Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_primary_borderless": true,
+        "focused": true,
+        "pack_expected": true,
+        "immediate": true,
+        "reflex_on": true,
+        "fg_off": true,
+        "render_distance_20": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 2560,
+        "h": 1440
+      },
+      "preset_hint": 0,
+      "evaluated_frames": [
+        0,
+        0
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 0,
+        "y": 0,
+        "width": 2561,
+        "height": 1440,
+        "placement": "display 1 'PG27AQDP' at 0,0",
+        "gui_width": 640,
+        "gui_height": 360,
+        "fullscreen": {
+          "allowed": true,
+          "requested": true,
+          "sdl_fullscreen": false,
+          "borderless": true,
+          "exclusive_fullscreen": false,
+          "display_id": 1,
+          "target_display_id": 1,
+          "on_target_display": true,
+          "display_width": 2560,
+          "display_height": 1440,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "b3-native-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 180.311,
+      "variance": 169.09,
+      "edges": 15122,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 12896,
+      "seconds": 90.08515299999941,
+      "avg_fps": 143.15344505215066,
+      "low1_fps": 92.43554770211674,
+      "low01_fps": 67.62732143786091
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 142.62231490949125,
+        "bm_low1_fps": 83.81288558944611,
+        "bm_low01_fps": 38.36150269608587,
+        "frames": 6424,
+        "seconds": 45.04234799999986,
+        "avg_fps": 142.62133936712223,
+        "low1_fps": 90.38373544680636,
+        "low01_fps": 59.0713976292679
+      },
+      {
+        "bm_avg_fps": 143.6866108211464,
+        "bm_low1_fps": 89.2758965088998,
+        "bm_low01_fps": 73.36071071826544,
+        "frames": 6472,
+        "seconds": 45.04280500000006,
+        "avg_fps": 143.68554533848396,
+        "low1_fps": 94.69752154732835,
+        "low01_fps": 76.2660158633313
+      }
+    ],
+    "avg_fps": 143.15344505215066,
+    "low1_fps": 92.43554770211674,
+    "low01_fps": 67.62732143786091
+  },
+  {
+    "key": "b3-q-k-pass1",
+    "build": "b3",
+    "config": "q-k",
+    "pass": 1,
+    "visit": 1,
+    "label": "b3-q-k-pass1",
+    "artifact_sha256": "D6B8ED7E092998B6288127449E8C97BF30E49F38D4111218B40F41E2043F74EF",
+    "presentation": {
+      "topmost_overlay_covers_window": true,
+      "path": "composed",
+      "source": "Ryan via lead, 2026-10-31; not measured with PresentMon"
+    },
+    "bm_file": "b3-q-k-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.08942664280584206,
+      "gpu_range": 0
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "processesBefore": {
+      "checked": "2026-10-31T17:37:08.919Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "processesAfter": {
+      "checked": "2026-10-31T17:40:29.172Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_primary_borderless": true,
+        "focused": true,
+        "pack_expected": true,
+        "immediate": true,
+        "reflex_on": true,
+        "fg_off": true,
+        "render_distance_20": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1707,
+        "h": 960
+      },
+      "preset_hint": 11,
+      "evaluated_frames": [
+        11827,
+        11876
+      ],
+      "status_line": "DLSS: Quality 1707x960 -> 2560x1440",
+      "window": {
+        "x": 0,
+        "y": 0,
+        "width": 2561,
+        "height": 1440,
+        "placement": "display 1 'PG27AQDP' at 0,0",
+        "gui_width": 640,
+        "gui_height": 360,
+        "fullscreen": {
+          "allowed": true,
+          "requested": true,
+          "sdl_fullscreen": false,
+          "borderless": true,
+          "exclusive_fullscreen": false,
+          "display_id": 1,
+          "target_display_id": 1,
+          "on_target_display": true,
+          "display_width": 2560,
+          "display_height": 1440,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "b3-q-k-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 180.604,
+      "variance": 154.339,
+      "edges": 7778,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 13153,
+      "seconds": 90.08190800000034,
+      "avg_fps": 146.01156094517836,
+      "low1_fps": 94.17143052823752,
+      "low01_fps": 67.96390593795418
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 146.08637806739293,
+        "bm_low1_fps": 81.96741215960566,
+        "bm_low01_fps": 50.36066541252537,
+        "frames": 6580,
+        "seconds": 45.04218899999994,
+        "avg_fps": 146.0852624191957,
+        "low1_fps": 90.23395202834985,
+        "low01_fps": 62.412511033640335
+      },
+      {
+        "bm_avg_fps": 145.93891080892277,
+        "bm_low1_fps": 94.76508794161971,
+        "bm_low01_fps": 74.76425876476543,
+        "frames": 6573,
+        "seconds": 45.03971900000005,
+        "avg_fps": 145.93785542933767,
+        "low1_fps": 98.49673095319464,
+        "low01_fps": 77.96836711962575
+      }
+    ],
+    "avg_fps": 146.01156094517836,
+    "low1_fps": 94.17143052823752,
+    "low01_fps": 67.96390593795418
+  }
+]
