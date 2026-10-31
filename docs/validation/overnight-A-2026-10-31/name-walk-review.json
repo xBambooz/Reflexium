@@ -1,0 +1,122 @@
+[
+    {
+        "label":  "current-present-names",
+        "arm":  "p0-native-walk",
+        "new_pig_id":  267,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-present-names",
+        "arm":  "p0-quality-walk",
+        "new_pig_id":  269,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  2
+    },
+    {
+        "label":  "current-present-names",
+        "arm":  "p0-ultra_performance-walk",
+        "new_pig_id":  272,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  2
+    },
+    {
+        "label":  "current-present-names",
+        "arm":  "p1-native-walk",
+        "new_pig_id":  275,
+        "samples":  16,
+        "first_z":  8.485665020783927,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.110420880158927,
+        "old_death_samples":  2
+    },
+    {
+        "label":  "current-present-names",
+        "arm":  "p1-quality-walk",
+        "new_pig_id":  277,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  2
+    },
+    {
+        "label":  "current-present-names",
+        "arm":  "p1-ultra_performance-walk",
+        "new_pig_id":  281,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  2
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p0-native-walk",
+        "new_pig_id":  229,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p0-quality-walk",
+        "new_pig_id":  232,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p0-ultra_performance-walk",
+        "new_pig_id":  234,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p1-native-walk",
+        "new_pig_id":  237,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p1-quality-walk",
+        "new_pig_id":  239,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    },
+    {
+        "label":  "current-absent-names",
+        "arm":  "p1-ultra_performance-walk",
+        "new_pig_id":  241,
+        "samples":  16,
+        "first_z":  8.5,
+        "last_z":  2.375244140625,
+        "z_delta":  -6.124755859375,
+        "old_death_samples":  0
+    }
+]
