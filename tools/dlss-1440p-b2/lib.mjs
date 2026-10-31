@@ -29,6 +29,7 @@ export const ps = command => execFileSync('powershell.exe', ['-NoProfile', '-Exe
 export function client(port, debugPort = 25790 + port - 25760) {
 	const token = () => fs.readFileSync(path.join(profile, '.agentharness-token'), 'utf8').trim();
 	const call = async (endpoint, params, timeout = 30000) => {
+		if(endpoint==='bm'){endpoint='reflexium';params={benchmark:'state',...params};}
 		const res = await fetch(`http://127.0.0.1:${port}/${endpoint}`, {
 			method: params ? 'POST' : 'GET',
 			headers: {Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json'},
@@ -144,6 +145,7 @@ export async function idleGate(client_, pid) {
 		}
 		await delay(2000);
 	}
+	save(`${evidence}/idle-failure-${Date.now()}.json`,{pid,samples,passed:false});
 	throw new Error('Title load did not settle');
 }
 

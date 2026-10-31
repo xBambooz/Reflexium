@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {spawn} from 'node:child_process';
 import {acquire,release,exclusive} from './lock.mjs';
 import {root,evidence,save,ps,delay,processInfo} from './lib.mjs';
 const run=root+'/run',port=25764;
@@ -12,7 +13,13 @@ try {
  opts=opts.replace(/^soundCategory_master:.*$/mg,'soundCategory_master:0.0').replace(/^preferredGraphicsBackend:.*$/mg,'preferredGraphicsBackend:"vulkan"').replace(/^fullscreen:.*$/mg,'fullscreen:false');
  fs.writeFileSync(run+'/options.txt',opts);
  process.env.MC_HARNESS_JVM_ARGS='["-XX:StackShadowPages=32"]';
- const result=JSON.parse(ps(`& 'C:/Users/Ryan/source/repos/mc-agent-harness/tools/launch.ps1' -Project '${root}' -RunDirectory '${run}' -Port ${port} -Monitor secondary -Width 1920 -Height 1080 -GradlePropertiesJson '{"rxDebug":"25794"}' -TimeoutSeconds 30 -Pending`));
+ const resultFile=evidence+'/absent/launch-result.json';
+ fs.mkdirSync(evidence+'/absent',{recursive:true});
+ if(fs.existsSync(resultFile))throw Error('Use a fresh absent launch output path');
+ const command=`& 'C:/Users/Ryan/source/repos/mc-agent-harness/tools/launch.ps1' -Project '${root}' -RunDirectory '${run}' -Port ${port} -Monitor secondary -Width 1920 -Height 1080 -GradlePropertiesJson '{"rxDebug":"25794"}' -TimeoutSeconds 30 -Pending | Set-Content -LiteralPath '${resultFile}'`;
+ const launcher=spawn('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-Command',command],{detached:true,stdio:'ignore',windowsHide:true,env:process.env});launcher.unref();
+ for(let i=0;i<60&&!fs.existsSync(resultFile);i++)await delay(1000);
+ const result=JSON.parse(fs.readFileSync(resultFile,'utf8').replace(/^\uFEFF/,''));
  save(evidence+'/absent/launch.json',result);
  const sessionPath=`C:/Users/Ryan/source/repos/mc-agent-harness/instances/${port}/session.json`;
  const session=JSON.parse(fs.readFileSync(sessionPath,'utf8').replace(/^\uFEFF/,''));

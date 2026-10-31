@@ -1,5 +1,6 @@
-﻿param([string]$OutputDirectory = "$PSScriptRoot/../../docs/validation/dlss-1440p-perf-2026-10-30/b3")
+param([string]$OutputDirectory = "$PSScriptRoot/../../docs/validation/dlss-1440p-perf-2026-10-30/b3")
 $ErrorActionPreference='Stop'
+New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $real="$env:APPDATA/ModrinthApp/profiles/Fabric 26.3"
 $copy="$env:APPDATA/ModrinthApp/profiles/Fabric 26.3 RxRound17"
@@ -13,7 +14,7 @@ function Inventory($dir) {
  })
 }
 $a=Inventory $real; $b=Inventory $copy
-$diff=@(Compare-Object ($a | ConvertTo-Json -Depth 5 | ConvertFrom-Json | ForEach-Object {"$($_.file)|$($_.id)|$($_.version)|$($_.sha256)"}) ($b | ForEach-Object {"$($_.file)|$($_.id)|$($_.version)|$($_.sha256)"}))
+$diff=@(Compare-Object ($a | ForEach-Object {"$($_.file)|$($_.id)|$($_.version)|$($_.sha256)"}) ($b | ForEach-Object {"$($_.file)|$($_.id)|$($_.version)|$($_.sha256)"}))
 @{real=$a;copy=$b;differences=$diff;captured=(Get-Date -Format o)} | ConvertTo-Json -Depth 8 | Set-Content "$OutputDirectory/mod-inventory.json"
 $targets=@("$copy/shaderpacks/ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5","$copy/shaderpacks/ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5.txt","$copy/config","$copy/options.txt",'C:/Users/Ryan/Documents/Benchmark Mod RxRound17/settings.json','C:/Users/Ryan/Documents/Benchmark Mod RxRound17/scenes/benchmark-route')
 $hashes=@(foreach($t in $targets){if(Test-Path -LiteralPath $t){Get-ChildItem -LiteralPath $t -File -Recurse | ForEach-Object {[pscustomobject]@{path=$_.FullName;size=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash}}}})

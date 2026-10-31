@@ -111,6 +111,24 @@ public final class DebugServer {
 				if (!method.getName().equals("handle")) return method.getName().equals("toString") ? "Reflexium debug endpoint" : null;
 				@SuppressWarnings("unchecked")
 				Map<String, String> params = (Map<String, String>) args[0].getClass().getMethod("params").invoke(args[0]);
+				if (params.containsKey("benchmark")) return call(() -> {
+					try {
+						if (params.containsKey("scene")) {
+							Class.forName("com.benchmarkmod.client.run.RunController").getMethod("start", String.class, String.class)
+									.invoke(null, params.get("scene"), params.getOrDefault("label", ""));
+						}
+						Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+						JsonObject result = new JsonObject();
+						for (String name : new String[] {"phase", "serverTick", "runIndex", "startedNanos"}) {
+							Object value = state.getClass().getMethod(name).invoke(state);
+							if (value instanceof Number number) result.addProperty(name, number);
+							else result.addProperty(name, value.toString());
+						}
+						return result;
+					} catch (ReflectiveOperationException e) {
+						throw new IllegalStateException("Benchmark Mod bridge unavailable", e);
+					}
+				});
 				if (params.containsKey("key")) return SetCommand.set(params);
 				if (params.containsKey("dh_targets")) return call(IrisCompat::dhTargets);
 				if (params.containsKey("frame_mark")) return StatusCommands.frameMark();

@@ -90,6 +90,7 @@ async function runPass(c, pid, config, pass, visit) {
 	}
 	await delay(12000);
 	const idle = await idleGate(c, pid);
+	save(`${evidence}/idle/${key}.json`,idle);
 
 	const genPlan = dhGeneratorPlan();
     const processesBefore = exclusive(pid);
@@ -205,8 +206,8 @@ async function main() {
     exclusive();
 	if(quick){
   const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json';
-  bmSettingsOriginal=fs.readFileSync(settings,'utf8');save(evidence+'/quick-bm-settings-original.json',JSON.parse(bmSettingsOriginal));
-  fs.writeFileSync(settings,JSON.stringify({...JSON.parse(bmSettingsOriginal),measuredRuns:1},null,2));
+  bmSettingsOriginal=fs.readFileSync(settings,'utf8');save(evidence+'/quick-bm-settings-original.json',JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')));
+  fs.writeFileSync(settings,JSON.stringify({...JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')),measuredRuns:1},null,2));
   process.env.RX_VIEWPORT_DIAGNOSTIC='1';process.env.RX_FOCUSABLE='1';
  }
  installJar();
