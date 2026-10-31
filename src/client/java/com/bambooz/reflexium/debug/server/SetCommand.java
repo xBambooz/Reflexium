@@ -40,7 +40,7 @@ final class SetCommand {
 			"jitter", "jitter_sign", "jitter_sign_x", "jitter_sign_y", "mv_debug", "object_motion", "object_static", "hand_motion",
 			"foliage_motion", "bob_view", "pack_hand_mask", "jitter_phases", "device_loss", "dlssg_fail",
 			"dlss_preset", "mip_bias_offset", "perf_uniforms", "perf_depth", "cloud_motion", "crosshair_defer",
-			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug",
+			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug", "omit_sign_text", "world_text_defer",
 			// Shader pack dev overrides
 			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters",
 			// Reflex diagnostics
@@ -54,6 +54,14 @@ final class SetCommand {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "world_text_defer" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.deferWorldText = on;
+			}
+			case "omit_sign_text" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.omitSignText = on;
+			}
 			case "crosshair_3d" -> {
 				// F3's axis crosshair, for composition-order captures; leaves the rest of the debug overlay alone.
 				boolean on = flag(value, true);

@@ -5,6 +5,10 @@ package com.bambooz.reflexium.debug;
  * the shipped behavior exactly, so nothing here changes rendering unless a debug command sets it.
  */
 public final class DebugSettings {
+	/** Dev diagnostic: omit sign glyphs, preserving the board and all other text. */
+	public static boolean omitSignText;
+	/** Runtime A/B of display world text; never saved as a player option. */
+	public static boolean deferWorldText = true;
 	private static volatile float jitterSignX = Float.NaN;
 	private static volatile float jitterSignY = Float.NaN;
 	private static volatile boolean jitterEnabled = true;

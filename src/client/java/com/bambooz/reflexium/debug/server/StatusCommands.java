@@ -11,6 +11,7 @@ import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.vulkan.VulkanLifecycle;
 import com.bambooz.reflexium.vulkan.VulkanSession;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -53,6 +54,21 @@ final class StatusCommands {
 		o.addProperty("drawn_projection_has_view_effects", info.projectionHasViewEffects());
 		o.addProperty("scene_depth_index", info.sceneDepthIndex());
 		if (mc.level != null) {
+			JsonArray named = new JsonArray();
+			for (var entity : mc.level.entitiesForRendering()) {
+				if (!entity.hasCustomName()) continue;
+				JsonObject e = new JsonObject();
+				e.addProperty("id", entity.getId());
+				e.addProperty("name", entity.getCustomName().getString());
+				e.addProperty("x", entity.getX()); e.addProperty("y", entity.getY()); e.addProperty("z", entity.getZ());
+				named.add(e);
+			}
+			o.add("named_entities", named);
+			if (mc.player != null) {
+				o.addProperty("player_name", mc.player.getName().getString());
+				o.addProperty("player_uuid", mc.player.getUUID().toString());
+				o.addProperty("player_skin_model", mc.player.getSkin().model().name());
+			}
 			var camera = mc.gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
 			o.addProperty("camera_bob", camera.entityRenderState.bob);
 			o.addProperty("camera_walk_distance", camera.entityRenderState.backwardsInterpolatedWalkDistance);
