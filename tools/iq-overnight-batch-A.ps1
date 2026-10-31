@@ -9,7 +9,8 @@ $jobs=@(
  @{Label='current-absent';Task='text';Jar=$current;NoNameMod=$true},
  @{Label='current-real-meshelium';Task='mesh';Jar=$current},
  @{Label='baseline398-mob-rerun';Task='fgmob';Jar=$oldFg},
- @{Label='current-mob-rerun';Task='fgmob';Jar=$current}
+ @{Label='current-mob-rerun';Task='fgmob';Jar=$current},
+ @{Label='current-real-meshelium-focused-fg';Task='meshfg';Jar=$current}
 )
 foreach($skin in @(0,1)){foreach($anim in @(0,1)){
  $jobs+=@{Label="hand-baseline-s${skin}a$anim";Task='hand';Jar=$oldHand;Skin=$skin;Animations=$anim}

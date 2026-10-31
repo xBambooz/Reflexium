@@ -1,4 +1,4 @@
-param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','fgmob','text','hand','mesh')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1,[switch]$WaitForP,[switch]$WaitForC,[int]$ResumeLockPid=0,[switch]$KeepSlot)
+param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','fgmob','text','hand','mesh','meshfg')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1,[switch]$WaitForP,[switch]$WaitForC,[int]$ResumeLockPid=0,[switch]$KeepSlot)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
@@ -32,7 +32,7 @@ while(!$resuming){
 $ev="$root/docs/validation/overnight-A-2026-10-31/$Label-session"
 New-Item -ItemType Directory -Force $ev|Out-Null
 try{
- if($Task -eq 'mesh'){
+ if($Task -in @('mesh','meshfg')){
   $runRoot=[IO.Path]::GetFullPath("$root/run")
   foreach($p in @("$root/run/mods","$root/run/mods-real","$root/run/mods-minimal")){if(![IO.Path]::GetFullPath($p).StartsWith($runRoot+'\')){throw 'mod move outside isolated run'}}
   if(Test-Path "$root/run/mods-minimal"){throw 'mod backup already exists'}
@@ -46,7 +46,7 @@ try{
    elseif($spec[1] -eq 1 -and $f.Name.EndsWith('.jar.disabled')){Move-Item -LiteralPath $f.FullName -Destination ($f.FullName -replace '\.disabled$','')}
   }
  }
- if($Task -eq 'mesh'){
+ if($Task -in @('mesh','meshfg')){
   $env:MC_HARNESS_PRODUCTION='1'
   Copy-Item -LiteralPath $Jar -Destination "$root/run/mods/Reflexium-overnight-A.jar"
  }
@@ -71,6 +71,7 @@ try{
  switch($Task){
   fg {& "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task fg -Label $Label -Interval 60000}
   fgmob {& "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task fg -Label $Label -Interval 60000 -Scenes @('mob')}
+  meshfg {& "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task fg -Label $Label -Interval 60000 -Scenes @('sign','mob')}
   text {
    & "$PSScriptRoot/iq-overnight-A.ps1" -Port $Port -Task signs -Label "$Label-signs"
    & "$PSScriptRoot/iq-overnight-light-A.ps1" -Port $Port -Label "$Label-thin" -ThinOnly
