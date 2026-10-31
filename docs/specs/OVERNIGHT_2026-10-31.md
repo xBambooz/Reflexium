@@ -110,3 +110,4 @@ Overnight workers (all on primary DISPLAY1 borderless fullscreen, shared lock):
   Mellow dither, Meshelium sequences/culling/FPS, sky-only reload attribution.
 
 - 09:30: P stopped on the Codex usage limit of the `codex` account (resets 12:41 PM) before any committed result; no client or lock left behind. The lead resumes P (and A if it stops the same way) after the reset, per Ryan's instruction to wait rather than switch providers.
+- 09:55: A and C also stopped on usage limits (resets 12:41 and 12:42 PM). Correction: P had committed acceptance tooling (`f33a45e`) and A a checkpoint (`6ec8139`) before stopping. Their already-started runner scripts keep using the GPU through the shared lock: C's mip pass 2 session (auto-quits at 38 minutes), A's `tools/iq-overnight-batch-A.ps1` (11 jobs, commits evidence per session) and P's `run.mjs b3 25770 validate`. The lead lets them run and resumes all three agents at 12:44 PM.
