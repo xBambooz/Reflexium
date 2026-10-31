@@ -35,6 +35,20 @@ try {
             Call capture_sequence @{dir="$raw/$name-static";count=24;interval_ms=250}|ConvertTo-Json -Depth 40|Set-Content "$dir/$name-static.json"
         }
     }
+    $mellowDir="$root/docs/validation/overnight-c-2026-10-31/mellow"
+    $mellowOptions="$root/run/shaderpacks/Mellow v3.4.1a.zip.txt"
+    [IO.File]::WriteAllText($mellowOptions,"SSAO=true`nDYNAMIC_SHADOWS=false`n")
+    Setting shader_pack 'Mellow v3.4.1a.zip'
+    Call quit @{}|Out-Null
+    Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
+    Call camera @{x=399.1;y=161.2;z=36.1;yaw=150;pitch=12}|Out-Null
+    Call wait @{ms=10000}|Out-Null
+    $s=Status
+    $s|ConvertTo-Json -Depth 40|Set-Content "$mellowDir/ssao-only.json"
+    if ($s.plugins.reflexium.pack -notlike '*Mellow v3.4.1a*') {throw 'SSAO-only Mellow pipeline failed'}
+    Call screenshot @{path="$raw/mellow-ssao-only.png"}|Out-Null
+    Call capture_sequence @{dir="$raw/mellow-ssao-only-static";count=12;interval_ms=200}|ConvertTo-Json -Depth 40|Set-Content "$mellowDir/ssao-only-static.json"
 } finally {
-    & "$PSScriptRoot/iq-followup-quit.ps1" -Port $Port | Out-File "$root/docs/validation/overnight-c-2026-10-31/quit-$Port.json"
+    try { Setting shader_pack 'ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5' }
+    finally { & "$PSScriptRoot/iq-followup-quit.ps1" -Port $Port | Out-File "$root/docs/validation/overnight-c-2026-10-31/quit-$Port.json" }
 }
