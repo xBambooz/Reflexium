@@ -1,5 +1,57 @@
 # Meshelium compatibility, worker C, 2026-10-31
 
+## Lead review follow-up
+
+The accepted sampler fix is unchanged. Automatic pack delegation is removed: `MesheliumCompat.debugDelegation` defaults false. The only remaining pack guard is explicitly opt-in through debug `/set?key=meshelium_delegation&value=on`; off returns to Meshelium's own pass checks. This switch is not persisted. The focused check asserts that the normal default does not delegate.
+
+Final command: `gradlew.bat build -x installReflexium --no-daemon --console=plain`. `BUILD SUCCESSFUL in 14s`, 25 actionable tasks, 22 executed and 3 up-to-date. Evidence: `run/evidence/review-final-build.txt`. No build ran while an owned client was alive.
+
+Two sessions only: port 25735, PID 93464 with Meshelium; port 25737, PID 161444 with the jar moved outside mods. Both used primary DISPLAY1, 2560x1440, borderless=true, fullscreen endpoint activate=1. All saved baseline statuses include window evidence. Both ownership-checked quits completed, foreground restoration was requested, and the GPU lock was released (`review-stop1.txt`, `review-stop2.txt`). The copied jar was restored. No profile or shared brain modification.
+
+### Smear isolation
+
+`tools/meshelium-review.ps1` reproduces the sequence. Each session starts shaderless at Ultra Performance, preset 12, same terrain pose as below, FG off and jitter on, with five seconds to settle. Then exactly one change at a time: tick freeze, jitter off, jitter on, FG on, FG off, tick unfreeze. Each has screenshots and full status at approximately one and five seconds after the change. Evidence directories are `run/evidence/review-mesh/` and `run/evidence/review-no-mesh/`. Summary status: `run/evidence/review-status-summary.json`.
+
+**Only jitter off reproduces the severe terrain distortion at both one and five seconds, in both sessions. Jitter on recovers by one second and remains clean at five seconds.** Tick freeze, FG on/off and tick unfreeze are clean at both capture times with and without Meshelium. This is not Meshelium-specific. No Meshelium history/culling workaround is justified by this sequence. The earlier disturbed image alone cannot establish which sub-second transition produced it.
+
+| Change | Mesh phase at 1s / 5s | Removed phase at 1s / 5s | Mesh reset count | Removed reset count | Visual at 1s / 5s |
+| --- | --- | --- | --- | --- | --- |
+| Settled baseline | 35 | 57 | 3 | 2 | Clean |
+| Tick freeze | 8 / 53 | 27 / 45 | 3 / 3 | 2 / 2 | Clean / clean |
+| Jitter off | 62 / 35 | 9 / 21 | 3 / 3 | 2 / 2 | Distorted / distorted |
+| Jitter on | 45 / 57 | 24 / 7 | 3 / 3 | 2 / 2 | Clean / clean |
+| FG on | 14 / 55 | 50 / 7 | 1 / 1 | 1 / 1 | Clean / clean |
+| FG off | 65 / 9 | 65 / 43 | 1 / 1 | 1 / 1 | Clean / clean |
+| Tick unfreeze | 67 / 55 | 73 / 30 | 1 / 1 | 1 / 1 | Clean / clean |
+
+Jitter phase continues advancing when disabled, but jitter_enabled=false and pixel offsets are zero. This is JitterSequence.advance's intentional diagnostic behavior: it removes the temporal sampling offsets DLSS relies on. Neither jitter toggle requests a history rebuild; the counters stay constant and the image recovers after sampling resumes. FG toggles rebuild the feature and clear/reset its counters, explaining the count falling to 1. Last reset reason is feature rebuild. These are counts within feature lifetime, not a monotonically increasing process counter. No accumulating resets or frozen jitter phase appeared.
+
+FG on here reproduces the prior test's `frame_generation=dlss` command. ReflexiumConfig.setFrameGeneration(DLSS) resets the multiplier to Auto, so the setup multiplier=3 does not survive that command. Both sessions report `rendered only (frame target 415 FPS, Auto output budget)`, status 0. Generated 3x presentation is still unverified; do not call this a generated-frame stress test.
+
+Direct image pairs for review:
+
+- [Mesh jitter off 5s](../../run/evidence/review-mesh/jitter-off-5s.png), [removed jitter off 5s](../../run/evidence/review-no-mesh/jitter-off-5s.png).
+- [Mesh recovered 1s](../../run/evidence/review-mesh/jitter-on-1s.png), [removed recovered 1s](../../run/evidence/review-no-mesh/jitter-on-1s.png).
+- [Mesh FG off 5s](../../run/evidence/review-mesh/fg-off-5s.png), [removed FG off 5s](../../run/evidence/review-no-mesh/fg-off-5s.png).
+
+### Euphoria delegation comparison
+
+Same x=200.5,y=110,z=150,yaw=94,pitch=10, render distance 20, FG off. Tested native 2560x1440 and DLSS Ultra Performance 853x480. First native delegated capture was too close to an Iris rebuild and had missing chunks. Retained as negative evidence (`pack-off-delegation-on.png`) but excluded from the settled comparison. Repeated native comparison after ten seconds for mode reload plus five seconds per override produced complete, correct terrain with either setting. DLSS captures also show correct terrain with either setting. No missing pack lighting, shadows or obvious deferred-data failure was visible when delegation was disabled.
+
+Rendered FPS uses the harness frame-count delta over roughly three seconds, without polling during the interval. Files `*-fps.json` record exact counts, elapsed seconds and rate. Single samples, no statistical performance claim:
+
+| Resolution | Forced delegation on | Delegation off, Meshelium chooses its path |
+| --- | --- | --- |
+| Native | 211.05 FPS (635 frames / 3.0082s) | 202.48 FPS (609 / 3.0077s) |
+| Ultra Performance | 309.12 FPS | 310.08 FPS |
+
+- Native: [delegated](../../run/evidence/review-mesh/repeat-pack-off-delegation-on.png), [delegation disabled](../../run/evidence/review-mesh/repeat-pack-off-delegation-off.png).
+- Ultra Performance: [delegated](../../run/evidence/review-mesh/pack-dlss-delegation-on.png), [delegation disabled](../../run/evidence/review-mesh/pack-dlss-delegation-off.png).
+
+Important evidence correction: an `armed()` message saying Meshelium is drawing is emitted before MainPassSuspension decides whether it can suspend this particular pass. `versions/mc26.3/common/src/main/java/com/deds/meshelium/vk/MainPassSuspension.java:135` requires one color attachment exactly equal to the main color view. It returns null for foreign Iris attachments, and MesheliumChunkRenderer then calls its delegate. Therefore the earlier armed log does not prove custom mesh fragments overwrite Iris gbuffers. The comparison establishes that allowing Meshelium's existing selection/fallback is visually correct here. Actual mesh task execution or acceleration inside the Iris pack path was not independently measured.
+
+Remaining limits: real-profile one-frame occlusion dips, actual 3x generated frames, other shader packs, other GPUs/versions, numerical depth/viewport captures, validation layers and sub-second history settling remain unverified. No extra client sessions were used to chase these beyond the requested quick review.
+
 ## Scope and artifacts
 
 Baseline branch in this checkout is `t3/meshelium-compatibility`, rather than the brief's `round6-validation`. No shared brain edits, profile edits, pushes or merges. No edits to worker A or B's owned render files.
@@ -26,24 +78,24 @@ Local evidence root: `C:/Users/Ryan/.t3/worktrees/Reflexium/t3-c5bf5f33/run/evid
 
 3. **Mip bias:** Real incompatibility. SodiumTerrainDrawer.imageInfo (1499-1506) extracts VulkanGpuSampler.vkSampler directly; pushDescriptors and pushDescriptorsTask write that sampler (1417, 4273). This bypasses FrontendRenderPass.setUniform and Reflexium's MaterialSamplerMixin, which normally handles u_BlockTex. The new ModifyVariable on ChunkRendererBase.draw replaces its atlasSampler argument with existing UpscalingRenderer.materialSampler using MaterialBinding.BLOCK_TEX. This covers owned solid, owned cutout and rung-1 draws at their common entry, preserving idempotence and disabled-upscaler behavior.
 
-4. **Depth and motion:** Shaderless mesh draws attach pass.getTarget().getDepthTextureView; TerrainDrawPipeline enables depth writes (678), and mesh terrain projects with the uploaded projection. No separate mesh-only depth target feeds DLSS. Reflexium sceneDepth and camera reprojection consume the main scene depth. Under a pack, Meshelium's own fragment path cannot populate pack-specific gbuffers merely by writing main depth. The new pack guard returns false before MainPassSuspension, leaving Sodium/Iris to draw its normal terrain and pack depth. Camera motion is suitable for static terrain; terrain is not an ObjectMotion entity replay.
+4. **Depth and motion:** Shaderless mesh draws attach pass.getTarget().getDepthTextureView; TerrainDrawPipeline enables depth writes (678), using the uploaded projection. Reflexium consumes scene depth for camera motion. A raw mesh fragment path cannot itself populate pack gbuffers, but that does not prove the mesh path actually runs in Iris passes. MainPassSuspension rejects foreign color attachments before drawing. Review runtime captures with forced delegation disabled are visually correct. No default pack override remains.
 
 5. **Temporal occlusion:** Cause of logged dips remains provisional. Real profile log line 19318 reports 248 -> 225 -> 249 drawn sections while input list stays 3889 in 38 regions, Phase B recorded, no missing buffer and no declines. It does not prove jitter caused the dip. Source phaseBSkipDecide compares raw model-view and projection plus extent every frame (4502-4507); jitter/resize therefore invalidates that optimization. Half-resolution occlusion independently validates pre-bob projection, so jitter can affect arm selection. No evidence establishes that Reflex pacing or DLSS-G causes a culling defect: generated presentations do not call the terrain draw path. No speculative global occlusion disable was added.
 
-6. **Iris pack active:** Meshelium's wantsDraw/draw have no Iris pack guard. It suspends Sodium's RenderPass and records a custom TerrainDrawPipeline and fragment shader, so the pack's gbuffers_terrain is bypassed. Ryan's profile log confirms Meshelium draws in this configuration. The fix intercepts wantsDraw before suspension whenever ShaderPacks.isDrawingPack() is true, including native-resolution pack use. The existing delegate renderer executes instead. This retains IrisCompat's pack projection, depth, material, and motion paths. It costs Meshelium mesh acceleration for pack terrain; no performance delta is claimed. Shaderless mesh rendering is restored when the pack is disabled, with transition logs.
+6. **Iris pack active, corrected by lead review:** wantsDraw/armed logging alone does not prove mesh draw commands execute. MainPassSuspension.suspend requires the exact main color attachment and a single color attachment; foreign Iris passes can fall back naturally to the delegate. The previous categorical claim that the pack gbuffers_terrain is skipped was unsupported and is withdrawn. Settled Euphoria captures are visually correct with forced delegation disabled, both native and Ultra Performance. Automatic pack delegation has therefore been removed. meshelium_delegation is retained only as an explicit debug override, default off. This run establishes correct visible pack terrain with Meshelium allowed to choose its own path, not a measured mesh-shader speedup inside Iris.
 
 7. **Vulkan device:** VulkanBackendMixin extends existing FeatureSet and wraps the existing VkDeviceCreateInfo; DeviceExtensions unions feature sets rather than replacing them. Streamline reserveQueues adjusts queue requirements on the existing create info, preserving pNext/features. Real profile log line 1412 reports DLSS ready, DLSS-G ready, max 6x, Reflex ready, PCL ready on RTX 5070, with subsequent Meshelium mesh terrain pipeline creation and draw. Thus mesh features survived that profile's Streamline startup. This is historical runtime evidence, not a fresh Vulkan validation run.
 
-8. **Other hooks:** GameRendererMixin projection/target swap, UpscalingRenderer scene depth and camera motion, DeferredEffects, FG hudless/UI capture and Reflex markers bracket scene/frame boundaries rather than individual terrain draws. Meshelium resumes the suspended main pass before entity/UI work. ObjectMotion captures moving entities; static chunk terrain only requires camera vectors. The identified terrain-specific exception is the sampler boundary in item 3. Pack-specific terrain buffers require item 6's fallback. No changes to UpscalingRenderer or GameRendererMixin were needed.
+8. **Other hooks:** GameRendererMixin, UpscalingRenderer, DeferredEffects, FG captures and Reflex markers bracket scene/frame boundaries. ObjectMotion captures moving entities; static chunks use camera vectors. The demonstrated terrain-specific exception is sampler bias (item 3). No normal-path projection, motion, occlusion or pacing defect was isolated in the controlled review sequence. No changes to UpscalingRenderer or GameRendererMixin were needed.
 
 ## Implementation and checks
 
-Optional mixin is gated in CompatMixinPlugin on Meshelium exactly `1.6.2+mc26.3` plus Sodium presence. @Pseudo and string target avoid optional class linkage without Meshelium. Unknown versions receive no assumed-compatible hooks. ShaderPacks.isDrawingPack distinguishes Iris installed from pack active.
+Optional mixin is gated in CompatMixinPlugin on Meshelium exactly `1.6.2+mc26.3` plus Sodium presence. @Pseudo and string target avoid optional class linkage without Meshelium. Unknown versions receive no assumed-compatible hooks. ShaderPacks.isDrawingPack distinguishes Iris installed from pack active. Normal pack behavior is unchanged after review: forced delegation now defaults off and the ABI check asserts that default.
 
 MesheliumCompatCheck is a plain main check registered in build. It reads the actual jar using ASM, verifies the sampler ABI, wantsDraw guard before suspension, and the delegate render call. It does not claim to execute a mixin or render an image.
 
 Command: `gradlew.bat build -x installReflexium --no-daemon --console=plain`.
-Final code build: `BUILD SUCCESSFUL in 12s`, 25 actionable tasks (19 executed, 6 up-to-date), including `Meshelium 1.6.2 sampler and pre-suspension delegation ABI checks passed`. Evidence: `run/evidence/build.txt`. Initial attempt failed solely because the existing Iris check expected its default filename; corrected the copied artifact name and reran all checks successfully. The ABI check skips when the optional jar is absent, but explicitly supplied missing jars fail. Override with `-Dreflexium.mesheliumJar=<path>`.
+Original code build: `BUILD SUCCESSFUL in 12s`, 25 actionable tasks (19 executed, 6 up-to-date), including `Meshelium 1.6.2 sampler and pre-suspension delegation ABI checks passed`. Evidence: `run/evidence/build.txt`. Initial attempt failed solely because the existing Iris check expected its default filename; corrected the copied artifact name and reran all checks successfully. The ABI check skips when the optional jar is absent, but explicitly supplied missing jars fail. Override with `-Dreflexium.mesheliumJar=<path>`.
 
 ## Runtime checks
 
@@ -73,7 +125,7 @@ DLSS-G was briefly selected in session 1. `status-mesh-fg.json` reports streamli
 
 ## Remaining unverified
 
-- Cause and reproducibility of the disturbed-history terrain image and real-profile one-frame visibility dips. Compatibility is not fully visually certified.
+- Historical one-frame visibility dips remain unexplained. The severe smear was reproduced by disabling jitter with and without Meshelium and recovered within one second after restoring jitter; see the lead review follow-up.
 - Actual DLSS-G 3x generated presentations, long temporal stability, motion and frame pacing under this combination.
 - Independent pack atlas bias measurement, numeric depth attachment capture and GPU viewport inspection. Source paths and clean DLSS status support these boundaries but do not replace instrumented captures.
 - Vulkan validation layers, other GPUs/versions, Meshelium without Sodium, other shader packs and sustained performance impact of pack delegation.
@@ -83,6 +135,6 @@ DLSS-G was briefly selected in session 1. `status-mesh-fg.json` reports streamli
 - Repeated static-camera sequences at Ultra Performance and Quality, shaderless and Euphoria, with Meshelium on/off. Compare stable terrain crops, jitter-on/off, dot/stipple presence and temporal luma difference at identical pose/time/weather.
 - Vulkan validation layer run if installed, including pack toggles, world rejoin and render-size transitions while occlusion history is populated.
 - Long culling continuity trace with mesh occlusion enabled/disabled, DLSS jitter enabled/disabled and DLSS-G off/3x. Count one-frame dips and correlate with scene mutations, raw projection, half-resolution arm and GPU pass stats before attributing a cause.
-- Measure pack fallback performance against Meshelium removed. Test high render distances where mesh acceleration's loss matters.
+- Longer, repeated pack performance captures if needed. The short diagnostic averages below do not establish an acceleration difference.
 - Meshelium without Sodium uses a separate TerrainDrawer and is outside this patch's exact profiled integration. Validate and add a separate interop path if that configuration is required.
 - Other Meshelium versions, other GPUs, shadow passes and packs beyond the exact Euphoria profile remain unverified.

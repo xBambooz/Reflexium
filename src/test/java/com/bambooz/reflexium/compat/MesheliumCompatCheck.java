@@ -10,6 +10,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 /** ABI check against the actual 1.6.2 jar, without loading optional mod classes. */
 public final class MesheliumCompatCheck {
 	public static void main(String[] args) throws Exception {
+		if (MesheliumCompat.debugDelegation || MesheliumCompat.delegateTerrain())
+			throw new AssertionError("Normal pack sessions must use Meshelium's own eligibility checks");
 		Path jar = Path.of(System.getProperty("reflexium.mesheliumJar", "run/mods/meshelium-1.6.2+mc26.3.jar"));
 		if (!Files.isRegularFile(jar)) {
 			if (System.getProperty("reflexium.mesheliumJar") != null) throw new AssertionError("Missing Meshelium jar: " + jar);

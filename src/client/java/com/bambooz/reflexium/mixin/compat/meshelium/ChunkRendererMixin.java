@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Mixin(targets = "com.deds.meshelium.sodium.MesheliumChunkRendererBase", remap = false)
 public abstract class ChunkRendererMixin {
-	// Decline before suspending the main pass, leaving Iris's terrain pipeline intact.
+	// Diagnostic only: force delegation before main-pass suspension when explicitly requested.
 	@Inject(method = "wantsDraw", at = @At("HEAD"), cancellable = true)
 	private void reflexium$packTerrain(CallbackInfoReturnable<Boolean> cir) {
 		if (MesheliumCompat.delegateTerrain()) cir.setReturnValue(false);
