@@ -123,6 +123,23 @@ public final class IrisCompatCheck {
 		if (!IrisOptionPersistence.prepare(directory, "intentional-off", off, off).equals(off)) throw new AssertionError("Queued user disable mistaken for leak");
 		IrisOptionPersistence.reset();
 		if (IrisOptionPersistence.forSave(properties) != properties) throw new AssertionError("Stale pack snapshot");
+		Path blocked = Files.createFile(directory.resolve("not-a-directory"));
+		if (!IrisOptionPersistence.prepare(blocked, "unwritable", explicit, off).equals(explicit)) throw new AssertionError("Record I/O failure changed user values");
+		var memoryOnly = IrisOptionPersistence.forSave(properties);
+		if (!memoryOnly.getProperty("TAA_DEFINE").equals("1") || memoryOnly.containsKey("TAA_JITTER")) throw new AssertionError("I/O failure lost session save protection");
+		IrisOptionPersistence.prepare(directory, "stale", explicit, off);
+		Path stale = directory.resolve(ComplementaryTemporalSource.sha256(List.of("stale")) + ".properties");
+		var staleRecord = new java.util.Properties();
+		try (var input = Files.newInputStream(stale)) { staleRecord.load(input); }
+		staleRecord.setProperty("override.TAA", "outdated");
+		try (var output = Files.newOutputStream(stale)) { staleRecord.store(output, null); }
+		if (!IrisOptionPersistence.prepare(directory, "stale", off, off).isEmpty()) throw new AssertionError("Stale record did not fall back to defaults for complete leak");
+		try (var input = Files.newInputStream(stale)) { staleRecord.clear(); staleRecord.load(input); }
+		if (!staleRecord.getProperty("override.TAA").equals("false") || staleRecord.containsKey("original.TAA_DEFINE")) throw new AssertionError("Stale record not rewritten");
+		staleRecord.setProperty("override.TAA", "outdated");
+		try (var output = Files.newOutputStream(stale)) { staleRecord.store(output, null); }
+		if (!IrisOptionPersistence.prepare(directory, "stale", partial, off).equals(partial)) throw new AssertionError("Stale record changed partial signature");
+		IrisOptionPersistence.reset();
 		try (var files = Files.list(directory)) { for (Path file : files.toList()) Files.delete(file); }
 		Files.delete(directory);
 		System.out.println("Iris user option persistence checks passed");
@@ -154,6 +171,16 @@ public final class IrisCompatCheck {
 				|| !result.get("TAA_JITTER").equals("0") || !result.get("FXAA_DEFINE").equals("-1")
 				|| !result.get("IMAGE_SHARPENING").equals("0")) throw new AssertionError("Effect sampling/filter ownership lost: " + result);
 		if (!saved.get("TAA_JITTER").equals("1")) throw new AssertionError("Saved options mutated");
+		if (IrisCompat.temporalOptionOverrides(pack, new Object(), saved) != saved || IrisCompat.temporalVerified())
+			throw new AssertionError("Reflective failure must keep user values and mark source-edited pack unmanaged");
+		// This game-free classpath has no Iris implementation. Restore lookup state after the public fallback check.
+		var broken = IrisCompat.class.getDeclaredField("broken"); broken.setAccessible(true);
+		var lookedUp = IrisCompat.class.getDeclaredField("lookedUp"); lookedUp.setAccessible(true);
+		boolean wasBroken = broken.getBoolean(null), wasLookedUp = lookedUp.getBoolean(null);
+		try {
+			if (IrisCompat.packOptionOverrides(new Object(), saved) != saved || IrisCompat.temporalVerified())
+				throw new AssertionError("Pack integration reflective failure escaped fallback");
+		} finally { broken.setBoolean(null, wasBroken); lookedUp.setBoolean(null, wasLookedUp); }
 		IrisCompat.onPackLoading();
 		if (IrisCompat.temporalVerified() || ComplementaryTemporalSource.applied()) throw new AssertionError("Stale pack evidence");
 		owner.setBoolean(null, false);

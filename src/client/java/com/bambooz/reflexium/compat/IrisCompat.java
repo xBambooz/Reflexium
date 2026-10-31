@@ -74,6 +74,7 @@ public final class IrisCompat {
 	private static volatile List<String> optionsOverridden = List.of();
 	/** One of the overridden options was the pack's temporal AA itself, not only FXAA or sharpening. */
 	private static volatile boolean optionsTaaRemoved;
+	private static boolean optionsUnmanaged, optionWarningLogged;
 
 	private static Method packInUse;
 	private static Method config;
@@ -207,10 +208,11 @@ public final class IrisCompat {
 		bslAaRemoved = false;
 		optionsOverridden = List.of();
 		optionsTaaRemoved = false;
+		optionsUnmanaged = false;
 	}
 	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
 	public static boolean temporalVerified() {
-		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved;
+		return !optionsUnmanaged && (jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved);
 	}
 	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
 	public static boolean packJitterRemoved() { return jitterRemoved; }
@@ -356,8 +358,8 @@ public final class IrisCompat {
 			optionsTaaRemoved = off.keySet().stream().anyMatch(key -> key.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
 			ReflexiumClient.LOGGER.info("Iris {}: compile options {} overridden; original user values restored at pack option save", name, optionsOverridden);
 			return result;
-		} catch (ReflectiveOperationException e) {
-			throw new IllegalStateException("Iris pack option set not readable", e);
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			return unmanagedOptions(values, e);
 		}
 	}
 
@@ -407,7 +409,19 @@ public final class IrisCompat {
 				ReflexiumClient.LOGGER.info("Iris {}: effective temporal compile values {}", name, diagnostic);
 			}
 			return effective;
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris pack options could not be protected", e); }
+		} catch (ReflectiveOperationException | RuntimeException e) { return unmanagedOptions(values, e); }
+	}
+
+	private static Map<String, String> unmanagedOptions(Map<String, String> values, Exception failure) {
+		optionsUnmanaged = true;
+		optionsOverridden = List.of();
+		optionsTaaRemoved = false;
+		IrisOptionPersistence.reset();
+		if (!optionWarningLogged) {
+			optionWarningLogged = true;
+			ReflexiumClient.LOGGER.warn("Iris pack option integration unavailable; keeping user values and reporting temporal sampling unmanaged", failure);
+		}
+		return values;
 	}
 
 	private static List<String> removeJitter(List<String> lines) {

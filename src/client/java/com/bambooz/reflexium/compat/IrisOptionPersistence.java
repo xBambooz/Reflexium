@@ -26,29 +26,40 @@ public final class IrisOptionPersistence {
     static Map<String, String> prepare(Path directory, String pack, Map<String, String> values, Map<String, String> overrides) {
         if (overrides.isEmpty()) { reset(); return values; }
         Path record = directory.resolve(ComplementaryTemporalSource.sha256(java.util.List.of(pack)) + ".properties");
+        Properties previous = new Properties();
+        boolean recorded = Files.exists(record);
+        if (recorded) {
+            try (var input = Files.newInputStream(record)) { previous.load(input); }
+            catch (IOException | IllegalArgumentException | SecurityException e) {
+                warn(pack, "read", "could not read original option record; using unrecorded recovery", e);
+                recorded = false;
+            }
+        }
+        if (recorded && (overrides.entrySet().stream().anyMatch(e -> !e.getValue().equals(previous.getProperty("override." + e.getKey())))
+                || previous.stringPropertyNames().stream().filter(key -> key.startsWith("override.")).count() != overrides.size())) {
+            warn(pack, "stale", "ignoring stale original option record; using unrecorded recovery", null);
+            recorded = false;
+        }
+        Map<String, String> originals = new HashMap<>(values);
+        boolean completeLeak = overrides.entrySet().stream().allMatch(e -> e.getValue().equals(values.get(e.getKey())));
+        if (completeLeak && !userChangesPending) {
+            for (String key : overrides.keySet()) {
+                String original = recorded ? previous.getProperty("original." + key) : null;
+                if (original == null) originals.remove(key); else originals.put(key, original);
+            }
+            if (loggedRepairs.add(pack)) ReflexiumClient.LOGGER.info(
+                    "Iris {}: repaired leaked Reflexium pack options {} using {}", pack,
+                    overrides.keySet().stream().sorted().toList(), recorded ? "recorded user values" : "pack defaults");
+        }
+        // Session save protection must survive an unwritable recovery record.
+        snapshot = new Snapshot(Set.copyOf(overrides.keySet()), Map.copyOf(originals));
+        Properties saved = new Properties();
+        saved.setProperty("pack", pack);
+        for (var entry : overrides.entrySet()) {
+            saved.setProperty("override." + entry.getKey(), entry.getValue());
+            if (originals.containsKey(entry.getKey())) saved.setProperty("original." + entry.getKey(), originals.get(entry.getKey()));
+        }
         try {
-            Properties previous = new Properties();
-            boolean recorded = Files.exists(record);
-            if (recorded) try (var input = Files.newInputStream(record)) { previous.load(input); }
-            Map<String, String> originals = new HashMap<>(values);
-            boolean completeLeak = overrides.entrySet().stream().allMatch(e -> e.getValue().equals(values.get(e.getKey())));
-            if (completeLeak && !userChangesPending) {
-                for (String key : overrides.keySet()) {
-                    if (recorded && !overrides.get(key).equals(previous.getProperty("override." + key)))
-                        throw new IllegalStateException("Iris option record does not match the loaded option set: " + pack);
-                    String original = recorded ? previous.getProperty("original." + key) : null;
-                    if (original == null) originals.remove(key); else originals.put(key, original);
-                }
-                if (loggedRepairs.add(pack)) ReflexiumClient.LOGGER.info(
-                        "Iris {}: repaired leaked Reflexium pack options {} using {}", pack,
-                        overrides.keySet().stream().sorted().toList(), recorded ? "recorded user values" : "pack defaults");
-            }
-            Properties saved = new Properties();
-            saved.setProperty("pack", pack);
-            for (var entry : overrides.entrySet()) {
-                saved.setProperty("override." + entry.getKey(), entry.getValue());
-                if (originals.containsKey(entry.getKey())) saved.setProperty("original." + entry.getKey(), originals.get(entry.getKey()));
-            }
             Files.createDirectories(directory);
             Path temp = Files.createTempFile(directory, "options-", ".tmp");
             try {
@@ -56,12 +67,15 @@ public final class IrisOptionPersistence {
                 try { Files.move(temp, record, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); }
                 catch (AtomicMoveNotSupportedException e) { Files.move(temp, record, StandardCopyOption.REPLACE_EXISTING); }
             } finally { Files.deleteIfExists(temp); }
-            snapshot = new Snapshot(Set.copyOf(overrides.keySet()), Map.copyOf(originals));
-            return originals;
-        } catch (IOException e) {
-            // Fail the load before compile overrides can escape without a durable original-value record.
-            throw new IllegalStateException("Could not protect Iris pack options for " + pack, e);
+        } catch (IOException | SecurityException e) {
+            warn(pack, "write", "could not write original option record; session save protection remains active", e);
         }
+        return originals;
+    }
+
+    private static final Set<String> loggedWarnings = new HashSet<>();
+    private static void warn(String pack, String kind, String message, Exception failure) {
+        if (loggedWarnings.add(kind + ":" + pack)) ReflexiumClient.LOGGER.warn("Iris {}: {}", pack, message, failure);
     }
 
     /** Shared Iris writer, used by startup, reload, pack switches and screen Apply/Done. */
