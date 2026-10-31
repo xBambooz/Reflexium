@@ -83,3 +83,10 @@ Worker results so far (lead-reviewed):
   the pack .txt, so Reflexium's overrides were persisted. Ryan's real file now holds `TAA=false TAA_DEFINE=0
   TAA_JITTER=0 FXAA_DEFINE=-1 IMAGE_SHARPENING=0` (03:35:02), disabling the pack's TAA even with DLSS off.
   Follow-up running: never persist overrides, repair files matching the full override set, fix the log text.
+- C `4704251` (worktree t3-c5bf5f33): Meshelium 1.6.2 pushes raw Vulkan descriptors, so the atlas sampler missed
+  Reflexium's LOD bias (fixed, 3/3 biased binds shaderless). Jitter reaches Meshelium (Sodium copies the jittered
+  projection after Reflexium's hook, verified in transformed bytecode). Meshelium has no Iris guard and draws pack
+  terrain with its own fragment path; C made it delegate to Sodium/Iris whenever a pack is on. Open: a severe
+  whole-terrain smear after tick freeze plus jitter/FG toggles with Meshelium only (`run/evidence/mesh-up-frozen.png`).
+  Follow-up running: isolate the smear toggle by toggle, and justify the pack delegation with Meshelium-drawn
+  versus delegated pack captures and FPS (remove it if Meshelium-drawn pack terrain is correct).
