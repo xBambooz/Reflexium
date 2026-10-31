@@ -1,0 +1,146 @@
+[
+    {
+        "sha256":  "8F1EAE486681A7EA2C3320D2BF3EC58818DD9BB124866F567508833103A21B47",
+        "file":  "thin-ignore0-085357160.png"
+    },
+    {
+        "sha256":  "DC71B6F0081F534E93EB504B5540AF9EFFE15F067085BC44A16C38609E278CE4",
+        "file":  "thin-ignore0-085357160_depth.png"
+    },
+    {
+        "sha256":  "EA9F1DB46CEFDA36C02EF9A22AD0B7F6C05AD32DB33EC2A277342286B1D812AF",
+        "file":  "thin-ignore0-085357160_final.png"
+    },
+    {
+        "sha256":  "F091C8B8D7EAAD8344CE4A59DF1E71F5306B6047A4AF30134D47541454B4D2F5",
+        "file":  "thin-ignore0-085357160_input.png"
+    },
+    {
+        "sha256":  "81755B70FD9C85866AF56ABB5CEF19C2C4B49E0D0E8CE624533D45F090C5D448",
+        "file":  "thin-ignore0-085357160_motion.png"
+    },
+    {
+        "sha256":  "993D7899CBDFFA6485501EE75A5BAB0B38630611A49AEFF2ADEBDC8E50863D7F",
+        "file":  "thin-ignore0-085357160_output.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore0-085357160_world_text.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore0-085357160_world_text_alpha.png"
+    },
+    {
+        "sha256":  "AFAC5D9CC051FFB372A2849151F726F5E29C32833FEDA5F97B1C85E317941863",
+        "file":  "thin-ignore0-085357160_world_text_depth.png"
+    },
+    {
+        "sha256":  "AA12855F9175DE560151EB1D6EA79857B4BFAD0381780A0D70EF2D511BBB4058",
+        "file":  "thin-ignore0-085407534.png"
+    },
+    {
+        "sha256":  "7E73FB8E68A1C1E757FF52037B140745B2793036283039D9F01131025F698B06",
+        "file":  "thin-ignore0-085407534_depth.png"
+    },
+    {
+        "sha256":  "8F969AE8BD969F72B87F0E4DA5C5B3FA5A909819818F4726C7F7F7CACC703100",
+        "file":  "thin-ignore0-085407534_final.png"
+    },
+    {
+        "sha256":  "457D1181ED7E14DDEFCBDE99D1228276921D666BB640BC420E3A3A9D136697D5",
+        "file":  "thin-ignore0-085407534_input.png"
+    },
+    {
+        "sha256":  "81755B70FD9C85866AF56ABB5CEF19C2C4B49E0D0E8CE624533D45F090C5D448",
+        "file":  "thin-ignore0-085407534_motion.png"
+    },
+    {
+        "sha256":  "1945AE81C84BA9F5F382A677A613929C2721799BF54A115CADEDC2BF61CA599D",
+        "file":  "thin-ignore0-085407534_output.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore0-085407534_world_text.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore0-085407534_world_text_alpha.png"
+    },
+    {
+        "sha256":  "B9488760BBECBD40F7CBB4FBC66A8AB361D6F9894F0F5D2ED3C1941B6FFD7753",
+        "file":  "thin-ignore0-085407534_world_text_depth.png"
+    },
+    {
+        "sha256":  "94C77008694B597C8816FA05A9FC8F393ECE53A5991FE2DE2124BAE697CB5193",
+        "file":  "thin-ignore1-085400410.png"
+    },
+    {
+        "sha256":  "D3C6F83EC2442D91D622399A96CB2271008E837AE45343695A3037BEC0D0C4D3",
+        "file":  "thin-ignore1-085400410_depth.png"
+    },
+    {
+        "sha256":  "13676BBEDFE06EF4187B5015925481454142AE118C04590E0BB3C17EBC7DF961",
+        "file":  "thin-ignore1-085400410_final.png"
+    },
+    {
+        "sha256":  "8B4523A2DDA9BBD98B4B3A1846E7A055DB7F0CC99DC21F8F97D7069FDCABEF3A",
+        "file":  "thin-ignore1-085400410_input.png"
+    },
+    {
+        "sha256":  "81755B70FD9C85866AF56ABB5CEF19C2C4B49E0D0E8CE624533D45F090C5D448",
+        "file":  "thin-ignore1-085400410_motion.png"
+    },
+    {
+        "sha256":  "BFE51AADF530092A7C78F968040060F85E209D2A09B0D84D71A49DF9C5D90529",
+        "file":  "thin-ignore1-085400410_output.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085400410_world_text.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085400410_world_text_alpha.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085400410_world_text_depth.png"
+    },
+    {
+        "sha256":  "1589C6B3D67001285CA0D630AF271934631C970434AEBDCD332A81166EF86B00",
+        "file":  "thin-ignore1-085404010.png"
+    },
+    {
+        "sha256":  "DFFFB563C7A4CBF67CBAE231E98E8DB813C97E3738E033F7E24AF489399489D7",
+        "file":  "thin-ignore1-085404010_depth.png"
+    },
+    {
+        "sha256":  "E286CB85CAAA3B674E027EE0FF674F36B525E79F534878C1CF83E6DFD1875D33",
+        "file":  "thin-ignore1-085404010_final.png"
+    },
+    {
+        "sha256":  "889882AD4C4E553F8AEA31995C21D7C8F387EEEA0187CCF14C7869E0368B8C1E",
+        "file":  "thin-ignore1-085404010_input.png"
+    },
+    {
+        "sha256":  "81755B70FD9C85866AF56ABB5CEF19C2C4B49E0D0E8CE624533D45F090C5D448",
+        "file":  "thin-ignore1-085404010_motion.png"
+    },
+    {
+        "sha256":  "E6E7FD8B4AC75462E24D2C1BF8FCDA931D2B1A69AAF9D83A0653C504A273547A",
+        "file":  "thin-ignore1-085404010_output.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085404010_world_text.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085404010_world_text_alpha.png"
+    },
+    {
+        "sha256":  "1DCE4AF4902AF12CB0A770A1CDEBFA4E04FCA3EA1780F7FD7E35203BA7F1349E",
+        "file":  "thin-ignore1-085404010_world_text_depth.png"
+    }
+]

@@ -1,0 +1,50 @@
+[
+    {
+        "requested_multiplier":  3,
+        "delta_generated":  330,
+        "before_real":  29634,
+        "label":  "current-low-rate",
+        "cap":  300000,
+        "pack":  0,
+        "before_generated":  2390,
+        "after_real":  29799,
+        "effective_multiplier":  3,
+        "after_generated":  2720
+    },
+    {
+        "requested_multiplier":  3,
+        "delta_generated":  338,
+        "before_real":  29863,
+        "label":  "current-low-rate",
+        "cap":  300000,
+        "pack":  1,
+        "before_generated":  2788,
+        "after_real":  30032,
+        "effective_multiplier":  3,
+        "after_generated":  3126
+    },
+    {
+        "requested_multiplier":  3,
+        "delta_generated":  1214,
+        "before_real":  31595,
+        "label":  "current-mid-rate",
+        "cap":  60000,
+        "pack":  0,
+        "before_generated":  3464,
+        "after_real":  32202,
+        "effective_multiplier":  3,
+        "after_generated":  4678
+    },
+    {
+        "requested_multiplier":  3,
+        "delta_generated":  1234,
+        "before_real":  32378,
+        "label":  "current-mid-rate",
+        "cap":  60000,
+        "pack":  1,
+        "before_generated":  4970,
+        "after_real":  32995,
+        "effective_multiplier":  3,
+        "after_generated":  6204
+    }
+]

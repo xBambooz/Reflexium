@@ -1,0 +1,306 @@
+[
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  50
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  16
+                           }
+                       ],
+        "scene":  "p0-wgc-hand-turn",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  4
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  28
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  34
+                           }
+                       ],
+        "scene":  "p0-wgc-hand-walk",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p0-wgc-mob",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  52
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  14
+                           }
+                       ],
+        "scene":  "p0-wgc-sign",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  66
+                           }
+                       ],
+        "scene":  "p1-wgc-hand-turn",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  35
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  3
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  28
+                           }
+                       ],
+        "scene":  "p1-wgc-hand-walk",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p1-wgc-mob",
+        "triplets":  66
+    },
+    {
+        "label":  "baseline398-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  63
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  3
+                           }
+                       ],
+        "scene":  "p1-wgc-sign",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p0-wgc-hand-turn",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  5
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  19
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  42
+                           }
+                       ],
+        "scene":  "p0-wgc-hand-walk",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p0-wgc-mob",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  66
+                           }
+                       ],
+        "scene":  "p0-wgc-sign",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p1-wgc-hand-turn",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  8
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  22
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  36
+                           }
+                       ],
+        "scene":  "p1-wgc-hand-walk",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  66
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  0
+                           }
+                       ],
+        "scene":  "p1-wgc-mob",
+        "triplets":  66
+    },
+    {
+        "label":  "current-corrected-mid-rate",
+        "phase_wins":  [
+                           {
+                               "phase":  0,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  1,
+                               "wins":  0
+                           },
+                           {
+                               "phase":  2,
+                               "wins":  66
+                           }
+                       ],
+        "scene":  "p1-wgc-sign",
+        "triplets":  66
+    }
+]

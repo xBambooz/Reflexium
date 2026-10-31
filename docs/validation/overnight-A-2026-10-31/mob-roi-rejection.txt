@@ -1,0 +1,1 @@
+Current low/mid-rate mob ROI 1120,450,320,180 contains hanging signs, not the pig. Reject it for moving-name visual claims. Baseline and follow-up runner use corrected ROI 1120,650,320,180. Current named positions remain in full status JSON.

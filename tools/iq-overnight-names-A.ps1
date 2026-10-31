@@ -1,4 +1,4 @@
-param([int]$Port,[string]$Label)
+param([int]$Port,[string]$Label,[switch]$GatesOnly)
 $ErrorActionPreference='Stop'
 . "$PSScriptRoot/iq-session.ps1" -Port $Port
 $root=Split-Path $PSScriptRoot
@@ -9,7 +9,7 @@ function Snap($name,[bool]$layers=$false){$s=Status;$s|ConvertTo-Json -Depth 40|
 Setting frame_generation off
 Setting bob_view 1
 foreach($c in @('gamemode creative @a','tick freeze','fill 194 150 0 207 150 30 stone','fill 194 151 4 207 155 10 air','fill 202 151 6 204 154 6 stone','kill @e[tag=rx_text_quick]','summon armor_stand 203.5 151 8 {Tags:["rx_text_quick"],CustomName:"Behind Wall",CustomNameVisible:1b,NoGravity:1b}','item replace entity @a weapon.mainhand with carrot')){Call command @{command=$c}|Out-Null}
-foreach($pack in @(0,1)){
+if(!$GatesOnly){foreach($pack in @(0,1)){
  Setting shaders $pack
  foreach($mode in @('native','quality','ultra_performance')){
   Setting upscaler $(if($mode -eq 'native'){'off'}else{'dlss'})
@@ -31,13 +31,22 @@ foreach($pack in @(0,1)){
   Call key @{name='key.togglePerspective';down=$true;ticks=1}|Out-Null
   Write-Output "Completed names $Label $name"
  }
-}
+}}
+Setting shaders 0
 Setting improved_transparency 1
 Call wait @{ms=2000}|Out-Null
 Snap oit-fallback
 Setting improved_transparency 0
 Call wait @{ms=2000}|Out-Null
 Snap oit-restored
+Setting shaders 0
+try{
+ Call command @{command='posteffect add @a minecraft:creeper'}|Out-Null
+ Call wait @{ms=2000}|Out-Null
+ Snap post-effect-fallback
+}finally{Call command @{command='posteffect clear @a'}|Out-Null}
+Call wait @{ms=2000}|Out-Null
+Snap post-effect-restored
 Call fullscreen @{fullscreen=0}|Out-Null
 Call window @{monitor='primary';x=0;y=0;width=1920;height=1080;behind=$false;activate=$true}|Out-Null
 Call wait @{ms=2000}|Out-Null
@@ -55,3 +64,11 @@ Call wait @{ms=2000}|Out-Null
 Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
 Call wait @{ms=3000}|Out-Null
 Snap world-restored
+Setting upscaler off
+Setting frame_generation dlss_multi
+Setting fg_multiplier 3
+Call wait @{ms=3000}|Out-Null
+Snap native-fg-before
+Call wait @{ms=3000}|Out-Null
+Snap native-fg-after
+Setting frame_generation off

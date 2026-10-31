@@ -1,0 +1,1 @@
+Initial native d4 arm rejected: first pan yaw 15.149985, last 29.999949. Overlapped initial FG runner. Raw retained at run/rejected-overlap-sign-d4. Rerun required.

@@ -7,6 +7,17 @@ import java.util.Locale;
 // Fixed-pose diagnostic only: dark glyphs are the common pixels below luma 60 in these oak-sign crops.
 public class WorldTextEvidence {
  public static void main(String[] a) throws Exception {
+  if(a[0].equals("alpha-luma")){
+   var n=ImageIO.read(new File(a[1]));var d=ImageIO.read(new File(a[2]));var alpha=ImageIO.read(new File(a[3]));
+   int x=Integer.parseInt(a[4]),y=Integer.parseInt(a[5]),w=Integer.parseInt(a[6]),h=Integer.parseInt(a[7]);
+   int count=0;double ns=0,ds=0;boolean bright=a[8].equals("bright");
+   for(int j=y;j<y+h;j++)for(int i=x;i<x+w;i++){
+    double dl=luma(d.getRGB(i,j));
+    if((alpha.getRGB(i,j)&255)>0 && (bright?dl>200:dl<60)){count++;ns+=luma(n.getRGB(i,j));ds+=dl;}
+   }
+   if(count==0)throw new AssertionError("empty alpha/color mask");
+   System.out.printf(Locale.ROOT,"{\"masked_pixels\":%d,\"native_mean_luma\":%.4f,\"deferred_mean_luma\":%.4f}%n",count,ns/count,ds/count);return;
+  }
   if(a[0].equals("alpha-pair")){
    var normal=ImageIO.read(new File(a[1]));var bypass=ImageIO.read(new File(a[2]));
    int nc=0,bc=0,added=0,lost=0,different=0;

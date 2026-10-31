@@ -1,4 +1,4 @@
-param([int]$Port=25740,[string]$Label='current-present',[ValidateSet('fg','signs')][string]$Task='fg')
+param([int]$Port=25740,[string]$Label='current-present',[ValidateSet('fg','signs')][string]$Task='fg',[int]$Interval=60000,[int[]]$Distances=@(4,8,16,24),[string[]]$Modes=@('native','native_aa','quality','ultra_performance'))
 $ErrorActionPreference='Stop'
 . "$PSScriptRoot/iq-session.ps1" -Port $Port
 $root=Split-Path $PSScriptRoot
@@ -30,28 +30,46 @@ if($Task -eq 'fg'){
  Setting quality ultra_performance
  Setting frame_generation dlss_multi
  Setting fg_multiplier 3
+ Setting reflex_interval_us $Interval
  foreach($pack in @(0,1)){
   Setting shaders $pack
   Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
   Call wait @{ms=10000}|Out-Null
   Snap "p$pack-before"
   $before=(Status).plugins.reflexium.fg_generated_presents
-  Call turn @{dyaw=15;ticks=100;async=$true}|Out-Null
-  & C:/Users/Ryan/source/repos/Reflexium/tools/wgc-capture/bin/Release/net10.0-windows10.0.26100.0/WgcCapture.exe --pid (Status).pid --out "$ev/p$pack-wgc-sign" --count 300 --seconds 4 --png true --every 1 --crop 1120,620,320,180 --min-interval-ms 0 | Set-Content "$ev/p$pack-wgc-result.json"
+  foreach($scene in @('sign','mob','hand-turn','hand-walk')){
+   Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
+   $crop='1120,620,320,180'
+   if($scene -eq 'mob'){
+    Call command @{command='tp @e[tag=rx_text_quick,type=pig] 200.5 151 26'}|Out-Null
+    Call command @{command='item replace entity @a weapon.mainhand with carrot'}|Out-Null
+    $crop='1120,650,320,180'
+   }else{Call command @{command='item replace entity @a weapon.mainhand with air'}|Out-Null}
+   if($scene.StartsWith('hand')){$crop='1750,950,320,180';Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=3}|Out-Null}
+   Call wait @{ms=2000}|Out-Null
+   try{
+    if($scene -eq 'hand-walk'){Call key @{name='key.forward';down=$true}|Out-Null}
+    elseif($scene -ne 'mob'){Call turn @{dyaw=15;ticks=100;async=$true}|Out-Null}
+    & C:/Users/Ryan/source/repos/Reflexium/tools/wgc-capture/bin/Release/net10.0-windows10.0.26100.0/WgcCapture.exe --pid (Status).pid --out "$ev/p$pack-wgc-$scene" --count 200 --seconds 5.5 --png true --every 1 --crop $crop --min-interval-ms 0 | Set-Content "$ev/p$pack-wgc-$scene-result.json"
+   }finally{Call key @{name='key.forward';down=$false}|Out-Null}
+   Snap "p$pack-$scene-after"
+  }
   Snap "p$pack-after"
   $delta=(Status).plugins.reflexium.fg_generated_presents-$before
   if($delta -le 0){throw 'no generated presents'}
   Write-Output "FG p$pack generated delta=$delta"
  }
  Setting frame_generation off
+ Setting reflex_interval_us -1
 }else{
  foreach($pack in @(0,1)){
   Setting shaders $pack
-  foreach($mode in @('native','dlaa','quality','ultra_performance')){
+  foreach($mode in $Modes){
    Setting upscaler $(if($mode -eq 'native'){'off'}else{'dlss'})
    if($mode -ne 'native'){Setting quality $mode}
-   foreach($d in @(4,8,16,24)){
+   foreach($d in $Distances){
     $name="p$pack-$mode-d$d"
+    if(Test-Path "$ev/$name-pan.json"){continue}
     Call camera @{x=200.5;y=151;z=(28-$d);yaw=0;pitch=0}|Out-Null
     Call wait @{ms=10000}|Out-Null
     Snap $name
