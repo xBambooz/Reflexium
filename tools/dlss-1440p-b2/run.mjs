@@ -65,7 +65,8 @@ function modeProof(spec, first, last, current, index) {
 		render_size: rx.render_size.w === expected.w && rx.render_size.h === expected.h,
 		evaluated_counter: active ? rx.evaluated_frames > firstRx.evaluated_frames : rx.evaluated_frames === firstRx.evaluated_frames,
 		preset_hint: spec.preset ? rx.dlss_preset_hint === spec.preset : true,
-		window_secondary: last.window.x === 2560 && last.window.width === (spec.w===1707 && !active?1707:2560) && last.window.height === (spec.w===1707 && !active?960:1440),
+		window_primary_borderless: last.window.x === 0 && last.window.width === 2560 && last.window.height === 1440 && last.window.fullscreen.borderless && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1,
+        focused: last.focus.os_foreground && last.focus.os_input_focus,
 		pack_expected: shaderless ? String(rx.pack).includes('no shader pack drawing') : String(rx.pack).includes('Euphoria'),
         immediate: rx.swapchain_present_mode === 'IMMEDIATE',
         reflex_on: rx.reflex_mode === 'ON',
@@ -82,7 +83,7 @@ async function runPass(c, pid, config, pass, visit) {
 	log(`pass ${key} (visit ${visit}) starting`);
 	await c.rx('frame_generation', 'off');
 	await c.rx('reflex_mode', 'on');
-    await c.call('window',{monitor:'secondary',x:0,y:0,width:config==='native-qsize'?1707:2560,height:config==='native-qsize'?960:1440,behind:true});
+    await c.call('fullscreen',{fullscreen:1,activate:1});
 	await c.rx('upscaler', spec.upscaler);
 	if (spec.preset) {
 		await c.rx('quality', spec.quality);
@@ -172,7 +173,7 @@ async function runPass(c, pid, config, pass, visit) {
 		backend_vulkan: result.environment.gpu.backend === 'Vulkan',
 		settle_ready: pair.every(r => r.settleRelease === 'ready' && !r.settleTimeout),
 	};
-	const valid = captured.mode.valid && content.content_valid && dhGate && idle.passed
+	const valid = !gateFlags.focus_lost && captured.mode.valid && content.content_valid && dhGate && idle.passed
 		&& !gateFlags.invalid && !gateFlags.load_timeout && gateFlags.backend_vulkan && gateFlags.settle_ready;
 	const record = {
 		key, build, config, pass, visit, label, bm_file: `${key}.bmresult.json.gz`,

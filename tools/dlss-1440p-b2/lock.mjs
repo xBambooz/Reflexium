@@ -5,11 +5,10 @@ let held=false;
 export async function acquire(purpose='capture') {
  for(;;) {
   const cooldown=evidence+'/last-release.json';
-  if(fs.existsSync(cooldown)){const remaining=300000-(Date.now()-JSON.parse(fs.readFileSync(cooldown)).time);if(remaining>0){console.log('GPU cooldown',Math.ceil(remaining/1000),'seconds');await delay(remaining);}}
+  if(fs.existsSync(cooldown)){const remaining=300000-(Date.now()-JSON.parse(fs.readFileSync(cooldown)).time);if(remaining>0){console.log('GPU cooldown',Math.ceil(remaining/1000),'seconds');await delay(Math.min(remaining,30000));continue;}}
 
   try {
-   ps(`$ErrorActionPreference='Stop'; New-Item -ItemType File -Path '${lock}' -ErrorAction Stop | Out-Null`);
-   fs.writeFileSync(lock,JSON.stringify({owner:'worker-B',pid:process.pid,started:new Date().toISOString(),purpose}));
+   fs.writeFileSync(lock,JSON.stringify({owner:'worker-P',pid:process.pid,started:new Date().toISOString(),purpose}),{flag:'wx'});
    held=true; save(`${evidence}/lock-acquired-${Date.now()}.json`,{pid:process.pid,time:new Date().toISOString(),purpose}); return;
   } catch(e) {
    if(!fs.existsSync(lock))throw e;
@@ -18,9 +17,9 @@ export async function acquire(purpose='capture') {
    const alive=ps(`if(Get-Process -Id ${Number(owner.pid)} -ErrorAction SilentlyContinue){'alive'}`)==='alive';
    const stale=!alive || Date.now()-Date.parse(owner.started)>3600000;
    save(`${evidence}/lock-check-${Date.now()}.json`,{checked:new Date().toISOString(),owner,alive,stale});
-   if(stale && fs.readFileSync(lock,'utf8').replace(/^\uFEFF/,'')===raw){fs.unlinkSync(lock);continue;}
+   // A foreign reservation is never removed automatically, even if its PID is gone.
    console.log(new Date().toISOString(),'waiting for GPU',owner.owner,owner.pid);
-   await delay(180000);
+   await delay(30000);
   }
  }
 }
