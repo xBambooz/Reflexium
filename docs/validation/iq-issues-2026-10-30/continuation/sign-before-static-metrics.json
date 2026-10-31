@@ -1,0 +1,164 @@
+[
+    {
+        "mode":  "native_aa",
+        "metrics":  {
+                        "mae":  7.966,
+                        "mse":  353.139,
+                        "psnr":  22.65,
+                        "detail_correlation":  0.8452,
+                        "laplacian_reference":  50.591,
+                        "laplacian_test":  31.811
+                    },
+        "distance":  4,
+        "roi":  [
+                    975,
+                    625,
+                    205,
+                    102
+                ]
+    },
+    {
+        "mode":  "quality",
+        "metrics":  {
+                        "mae":  8.072,
+                        "mse":  366.536,
+                        "psnr":  22.49,
+                        "detail_correlation":  0.8448,
+                        "laplacian_reference":  50.591,
+                        "laplacian_test":  31.589
+                    },
+        "distance":  4,
+        "roi":  [
+                    975,
+                    625,
+                    205,
+                    102
+                ]
+    },
+    {
+        "mode":  "ultra_performance",
+        "metrics":  {
+                        "mae":  9.483,
+                        "mse":  440.417,
+                        "psnr":  21.69,
+                        "detail_correlation":  0.7862,
+                        "laplacian_reference":  50.591,
+                        "laplacian_test":  29.411
+                    },
+        "distance":  4,
+        "roi":  [
+                    975,
+                    625,
+                    205,
+                    102
+                ]
+    },
+    {
+        "mode":  "native_aa",
+        "metrics":  {
+                        "mae":  14.515,
+                        "mse":  755.227,
+                        "psnr":  19.35,
+                        "detail_correlation":  0.8476,
+                        "laplacian_reference":  112.490,
+                        "laplacian_test":  59.054
+                    },
+        "distance":  8,
+        "roi":  [
+                    1127,
+                    672,
+                    103,
+                    51
+                ]
+    },
+    {
+        "mode":  "quality",
+        "metrics":  {
+                        "mae":  14.825,
+                        "mse":  775.291,
+                        "psnr":  19.24,
+                        "detail_correlation":  0.8468,
+                        "laplacian_reference":  112.490,
+                        "laplacian_test":  58.982
+                    },
+        "distance":  8,
+        "roi":  [
+                    1127,
+                    672,
+                    103,
+                    51
+                ]
+    },
+    {
+        "mode":  "ultra_performance",
+        "metrics":  {
+                        "mae":  19.415,
+                        "mse":  1096.205,
+                        "psnr":  17.73,
+                        "detail_correlation":  0.7332,
+                        "laplacian_reference":  112.490,
+                        "laplacian_test":  45.242
+                    },
+        "distance":  8,
+        "roi":  [
+                    1127,
+                    672,
+                    103,
+                    51
+                ]
+    },
+    {
+        "mode":  "native_aa",
+        "metrics":  {
+                        "mae":  22.626,
+                        "mse":  1351.896,
+                        "psnr":  16.82,
+                        "detail_correlation":  0.7570,
+                        "laplacian_reference":  137.590,
+                        "laplacian_test":  54.852
+                    },
+        "distance":  16,
+        "roi":  [
+                    1203,
+                    696,
+                    52,
+                    26
+                ]
+    },
+    {
+        "mode":  "quality",
+        "metrics":  {
+                        "mae":  21.104,
+                        "mse":  1237.481,
+                        "psnr":  17.21,
+                        "detail_correlation":  0.8022,
+                        "laplacian_reference":  137.590,
+                        "laplacian_test":  60.291
+                    },
+        "distance":  16,
+        "roi":  [
+                    1203,
+                    696,
+                    52,
+                    26
+                ]
+    },
+    {
+        "mode":  "ultra_performance",
+        "metrics":  {
+                        "mae":  27.189,
+                        "mse":  1833.137,
+                        "psnr":  15.50,
+                        "detail_correlation":  0.5233,
+                        "laplacian_reference":  137.590,
+                        "laplacian_test":  36.722
+                    },
+        "distance":  16,
+        "roi":  [
+                    1203,
+                    696,
+                    52,
+                    26
+                ]
+    }
+]

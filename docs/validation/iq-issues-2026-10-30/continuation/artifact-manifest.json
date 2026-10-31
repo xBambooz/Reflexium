@@ -1,0 +1,47 @@
+[
+    {
+        "path":  "C:\\Users\\Ryan\\AppData\\Local\\Temp\\rxA-continuation\\baseline-diagnostic.jar",
+        "sha256":  "6635D291836B7F0212E712E4B9C2832229D8E9CD45F7163E1A824632B73C8448",
+        "bytes":  4820906
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\mods\\iris-fabric-experimental-build-26.3.jar",
+        "sha256":  "566BD7515CC1CB41320A6761932093C1C3EE813FC8CBFD2077E3D128746DC1C2",
+        "bytes":  3252502
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\mods\\sodium-fabric-0.9.2+mc26.3.jar",
+        "sha256":  "87A5BB39F7E6E41106E77F122F82FC93F9D3BC0B6EBCB746B314172A446A287A",
+        "bytes":  1908068
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\mods\\skinlayers3d-fabric-1.11.4-mc26.3.jar",
+        "sha256":  "82450ED109221B571F60F6115C31A384F9CFB072DEB5135B11C16FEBCE672387",
+        "bytes":  1892299
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\mods\\notenoughanimations-fabric-1.12.6-mc26.3.jar",
+        "sha256":  "81539E3BB8D222AE3ED3046677FFE466DD6898EC2B75B78F8EB26CB1A43BE0C8",
+        "bytes":  1863579
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\mods\\perspectivenametag-fabric-1.2.0+26.2.jar",
+        "sha256":  "230598BCB543D17A05E4C6BCFB6803E087D7142B03B94F81E7C77E1A09270C73",
+        "bytes":  17744
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\src\\client\\resources\\natives\\windows-x86_64\\reflexium_sl.dll",
+        "sha256":  "A4CA9652728A0A36D3744DEA2CFD7514986475FBAE0D8E42BBE808E830F46193",
+        "bytes":  217600
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\native\\streamline\\bin\\x64\\sl.dlss_g.dll",
+        "sha256":  "3ED9538DF724993BEA8A050195A6A78B9C8C8A566D5B05ADE477AAB3C390E90F",
+        "bytes":  637056
+    },
+    {
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+        "sha256":  "1B6AA67A4EF8319774E3CD786EFA472AB3AEC0E8AE01A1B292299CA0CF54F8C1",
+        "role":  "final validated world-text jar"
+    }
+]
