@@ -229,7 +229,7 @@ export function capframexCsv(runs) {
 		const {t, ms} = run.frames;
 		for (let i = 0; i < ms.length; i++) {
 			const time = offset + t[i];
-			lines.push(`Minecraft.exe,0,0x0,Unknown,0,0,0,Hardware Composed: Independent Flip,0,${time.toFixed(6)},${ms[i].toFixed(4)},${ms[i].toFixed(4)},0,0,0,"Benchmark Mod synthetic frametime export"`);
+			lines.push(`Minecraft.exe,0,0x0,Unknown,0,0,0,Composed: Flip,0,${time.toFixed(6)},${ms[i].toFixed(4)},${ms[i].toFixed(4)},0,0,0,"Benchmark Mod synthetic frametime export; OLED overlay composed path supplied by owner"`);
 		}
 		if (ms.length) offset += t.at(-1) + ms.at(-1) / 1000;
 	}
