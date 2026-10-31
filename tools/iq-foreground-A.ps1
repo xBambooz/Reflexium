@@ -6,7 +6,7 @@ if($reservation.owner -ne 'worker-A-overnight'){throw 'Worker A GPU reservation 
 $s=Status
 $root=Split-Path $PSScriptRoot
 $process=Get-CimInstance Win32_Process -Filter "ProcessId=$($s.pid)"
-if($s.pid -ne $session.game_pid -or $s.game_directory -ne "$root\run" -or !$process.CommandLine.Contains($s.game_directory)){throw 'Foreground target ownership mismatch'}
+if($s.pid -ne $session.game_pid -or $reservation.pid -ne $s.pid -or $s.game_directory -ne "$root\run" -or !$process.CommandLine.Contains($s.game_directory)){throw 'Foreground target ownership mismatch'}
 # Same two-thread attachment used by worker P's focus.ps1 at c8b31c1.
 if(!('AForeground' -as [type])){Add-Type @'
 using System;

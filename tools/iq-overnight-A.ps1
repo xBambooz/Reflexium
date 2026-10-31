@@ -5,7 +5,7 @@ $root=Split-Path $PSScriptRoot
 $ev="$root/docs/validation/overnight-A-2026-10-31/$Label"
 New-Item -ItemType Directory -Force $ev|Out-Null
 if((Status).game_directory -ne "$root\run" -or (Get-Content C:/Users/Ryan/source/repos/Reflexium-gpu.lock|ConvertFrom-Json).owner -ne 'worker-A-overnight'){throw 'ownership'}
-function Snap($name){$s=Status;$s|ConvertTo-Json -Depth 40|Set-Content "$ev/$name.json";if($s.plugins.reflexium.last_error){throw 'render error'};if($s.plugins.reflexium.upscaler_effective -eq 'dlss' -and !$s.plugins.reflexium.upscaling_active){throw 'DLSS inactive'};Call screenshot @{path="$ev/$name.png"}|Out-Null}
+function Snap($name){$s=Status;$s|ConvertTo-Json -Depth 40|Set-Content "$ev/$name.json";if($s.plugins.reflexium.last_error){throw 'render error'};if($s.plugins.reflexium.upscaler_effective -eq 'dlss' -and !$s.plugins.reflexium.upscaling_active){throw 'DLSS inactive'};if(!$s.window.fullscreen.borderless -or $s.window.fullscreen.exclusive_fullscreen -or $s.window.fullscreen.display_id -ne 1){throw 'Primary borderless requirement failed'};Call screenshot @{path="$ev/$name.png"}|Out-Null}
 Setting exclusive_fullscreen 0
 Call fullscreen @{fullscreen=0}|Out-Null
 Call fullscreen @{fullscreen=1;activate=1}|Out-Null
@@ -42,6 +42,8 @@ if($Task -eq 'fg'){
    @{activation=($activation|ConvertFrom-Json);status=(Status)}|ConvertTo-Json -Depth 40|Set-Content "$ev/p$pack-focus-retry.json"
   }
   if(!(Status).focus.os_foreground -or !(Status).focus.os_input_focus){throw 'FG visual acquisition requires owned-window OS foreground and input focus'}
+  $actualPack=(Status).plugins.reflexium.pack
+  if(($pack -eq 1 -and $actualPack -notlike '*ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5*') -or ($pack -eq 0 -and $actualPack -notlike '*no shader pack drawing*')){throw "Wrong effective shader pack: $actualPack"}
   Snap "p$pack-before"
   $before=(Status).plugins.reflexium.fg_generated_presents
   foreach($scene in $Scenes){
