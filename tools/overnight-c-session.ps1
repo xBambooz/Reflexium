@@ -6,7 +6,7 @@ $evidence = "$root/docs/validation/overnight-c-2026-10-31"
 Set-Location $root
 while ($true) {
     try { $stream = [IO.File]::Open($lockPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None); break }
-    catch [IO.IOException] { Write-Output "$(Get-Date -Format o) GPU occupied, retrying in 60 seconds"; Start-Sleep 60 }
+    catch [IO.IOException] { Write-Output "$(Get-Date -Format o) GPU occupied, retrying in 10 seconds"; Start-Sleep 10 }
 }
 $started = [datetimeoffset]::Now
 try {
