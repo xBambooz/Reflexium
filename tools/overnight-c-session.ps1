@@ -23,6 +23,15 @@ $sessionFile = "C:/Users/Ryan/source/repos/mc-agent-harness/instances/$Port/sess
 do {
     Start-Sleep 5
     $session = Get-Content $sessionFile | ConvertFrom-Json
+    if (!$session.game_pid) {
+        try {
+            $status = Invoke-RestMethod "http://127.0.0.1:$Port/status" -Headers @{Authorization="Bearer $($session.token)"} -TimeoutSec 5
+            $client = Get-CimInstance Win32_Process -Filter "ProcessId=$($status.pid)"
+            if ($status.game_directory -ne $session.game_directory -or !$client.CommandLine.Contains($session.jar) -or !$client.CommandLine.Contains($session.game_directory)) { throw 'Pending launch ownership mismatch' }
+            $session | Add-Member game_pid $status.pid -Force
+            $session | ConvertTo-Json -Depth 10 | Set-Content $sessionFile
+        } catch { Write-Output 'Waiting for authenticated owned client status' }
+    }
 } until ($session.game_pid -or ([datetimeoffset]::Now - $started).TotalMinutes -gt 5)
 if (!$session.game_pid) { throw 'No owned game PID. Inspect launch before releasing GPU lock.' }
 Write-Output "Owned client PID $($session.game_pid), harness $Port"
