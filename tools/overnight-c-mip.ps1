@@ -37,8 +37,10 @@ Call command @{command='gamemode spectator @a'} | Out-Null
 Call command @{command='tick freeze'} | Out-Null
 try {
     foreach ($pack in $(if ($PackFilter -lt 0) {@(0,1)} else {@($PackFilter)})) {
-        Setting shaders $pack
         Setting upscaler off
+        Call wait @{ms=1000} | Out-Null
+        Setting shaders $pack
+        Call wait @{ms=1000} | Out-Null
         Rejoin
         Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10} | Out-Null
         Call wait @{ms=10000} | Out-Null
@@ -61,7 +63,9 @@ try {
                 $r=$before.plugins.reflexium
                 if ($r.upscaler_effective -ne 'dlss' -or !$r.upscaling_active -or $r.render_size.w -ge $r.display_size.w -or [math]::Abs($before.camera.yaw-90) -gt .001) { throw "mode/pose mismatch: $($r.status_line)" }
                 SaveJson "$name-before" $before
-                SaveJson "$name-input" (Call reflexium @{capture=$name;dir=$raw})
+                $inputCapture = Call reflexium @{capture=$name;dir=$raw}
+                SaveJson "$name-input" $inputCapture
+                if ($inputCapture.capture.pack_drawing -ne [bool]$pack) { throw "Pack state mismatch in $name" }
                 Call screenshot @{path="$raw/$name.png"} | Out-Null
                 CaptureSequence "$name-static" 0
                 CaptureSequence "$name-pan" 4
