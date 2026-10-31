@@ -176,7 +176,7 @@ async function runPass(c, pid, config, pass, visit) {
 	const valid = !gateFlags.focus_lost && captured.mode.valid && content.content_valid && dhGate && idle.passed
 		&& !gateFlags.invalid && !gateFlags.load_timeout && gateFlags.backend_vulkan && gateFlags.settle_ready;
 	const record = {
-		key, build, config, pass, visit, label, artifact_sha256:EXPECTED[build], bm_file: `${key}.bmresult.json.gz`,
+		key, build, config, pass, visit, label, artifact_sha256:EXPECTED[build], presentation:{topmost_overlay_covers_window:true,path:'composed',source:'Ryan via lead, 2026-10-31; not measured with PresentMon'}, bm_file: `${key}.bmresult.json.gz`,
 		idle: {cpu_cv: idle.cpu_cv, gpu_range: idle.gpu_range},
 		dh: {generator_plan: genPlan, before: {files: dhBefore.files}, crop: {files: dhCrop.files}, end: {files: dhEnd.files},
 			durable_unchanged_before_to_end: sameDurable(dhBefore, dhEnd), unchanged_crop_to_end: sameSnapshot(dhCrop, dhEnd),
