@@ -1,7 +1,19 @@
-param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','fgmob','text','hand','mesh')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1)
+param([int]$Port,[int]$DebugPort,[string]$Jar,[string]$Label,[ValidateSet('fg','fgmob','text','hand','mesh')][string]$Task,[switch]$NoNameMod,[int]$Skin=1,[int]$Animations=1,[switch]$WaitForP,[switch]$WaitForC)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock'
+foreach($requiredOwner in @($(if($WaitForC){'worker-C-overnight'}),$(if($WaitForP){'worker-P'}))){
+ if(!$requiredOwner){continue}
+ Write-Output "Scheduling gate: waiting for $requiredOwner to start and end before $Label"
+ $seen=$false
+ while($true){
+  $owner=$null
+  if(Test-Path $lock){try{$owner=(Get-Content $lock -Raw|ConvertFrom-Json).owner}catch{}}
+  if($owner -eq $requiredOwner){$seen=$true}
+  elseif($seen){break}
+  Start-Sleep -Seconds 2
+ }
+}
 while($true){
  try{
   $f=[IO.File]::Open($lock,'CreateNew','Write','None')
@@ -26,9 +38,14 @@ try{
    elseif($spec[1] -eq 1 -and $f.Name.EndsWith('.jar.disabled')){Move-Item -LiteralPath $f.FullName -Destination ($f.FullName -replace '\.disabled$','')}
   }
  }
+ if($Task -eq 'mesh'){$env:MC_HARNESS_PRODUCTION='1'}
  & "$PSScriptRoot/iq-overnight-launch-A.ps1" -Port $Port -DebugPort $DebugPort -Jar $Jar | ConvertTo-Json -Depth 20 | Set-Content "$ev/launch.json"
  . "$PSScriptRoot/iq-session.ps1" -Port $Port
- $s=Status
+ $s=$null
+ for($ready=0;$ready -lt 120 -and !$s;$ready++){
+  try{$s=Status}catch{Start-Sleep -Seconds 1}
+ }
+ if(!$s){throw 'client harness did not become ready'}
  if($s.game_directory -ne "$root\run"){throw 'wrong run directory'}
  $command=(Get-CimInstance Win32_Process -Filter "ProcessId=$($s.pid)").CommandLine
  $arguments=($command+(Get-Content "$root/build/loom-cache/argFiles/runClient" -Raw)).Replace('\','/')

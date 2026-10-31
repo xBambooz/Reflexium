@@ -7,7 +7,9 @@ $oldHand='C:/Users/Ryan/.t3/worktrees/Reflexium/rxA-baseline-6df62db/build/libs/
 $jobs=@(
  @{Label='baseline398-mid-rate';Task='fg';Jar=$oldFg},
  @{Label='current-absent';Task='text';Jar=$current;NoNameMod=$true},
- @{Label='current-real-meshelium';Task='mesh';Jar=$current}
+ @{Label='current-real-meshelium';Task='mesh';Jar=$current},
+ @{Label='baseline398-mob-rerun';Task='fgmob';Jar=$oldFg},
+ @{Label='current-mob-rerun';Task='fgmob';Jar=$current}
 )
 foreach($skin in @(0,1)){foreach($anim in @(0,1)){
  $jobs+=@{Label="hand-baseline-s${skin}a$anim";Task='hand';Jar=$oldHand;Skin=$skin;Animations=$anim}
@@ -18,7 +20,7 @@ if($startIndex -lt 0){throw "Unknown starting session: $StartAt"}
 $jobs=$jobs[$startIndex..($jobs.Count-1)]
 foreach($job in $jobs){
  Write-Output "START $($job.Label) $(Get-Date -Format o)"
- try{& "$PSScriptRoot/iq-overnight-session-A.ps1" @job -Port $port -DebugPort $debugPort}
+ try{& "$PSScriptRoot/iq-overnight-session-A.ps1" @job -Port $port -DebugPort $debugPort -WaitForC -WaitForP}
  catch{
   Write-Output "FAILED $($job.Label): $_"
   if(Test-Path 'C:/Users/Ryan/source/repos/Reflexium-gpu.lock'){

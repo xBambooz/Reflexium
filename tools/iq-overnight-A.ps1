@@ -41,10 +41,10 @@ if($Task -eq 'fg'){
    Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
    $crop='1120,620,320,180'
    if($scene -eq 'mob'){
-    Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=5}|Out-Null
-    Call command @{command='tp @e[tag=rx_text_quick,type=pig] 200.5 151 9'}|Out-Null
+    Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=0}|Out-Null
+    Call command @{command='tp @e[tag=rx_text_quick,type=pig] 200.5 151 16'}|Out-Null
     Call command @{command='item replace entity @a weapon.mainhand with carrot'}|Out-Null
-    $crop='1120,620,320,180'
+    $crop='1120,700,320,180'
    }else{Call command @{command='item replace entity @a weapon.mainhand with air'}|Out-Null}
    if($scene.StartsWith('hand')){$crop='1750,950,320,180';Call camera @{x=200.5;y=151;z=.5;yaw=0;pitch=3}|Out-Null}
    Call wait @{ms=$(if($scene -eq 'mob'){200}else{2000})}|Out-Null

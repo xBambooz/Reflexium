@@ -1,0 +1,462 @@
+[12:48:33] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.3 with Fabric Loader 0.19.5
+[12:48:33] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[12:48:33] [main/WARN] (FabricLoader/Resolution) Warnings were found!
+ - Mod 'AmbientEnvironment' (ambientenvironment) 26.3.2 recommends any version of fabric, which is missing!
+	 - You should install any version of fabric for the optimal experience.
+ - Mod 'Reese's Sodium Options' (reeses-sodium-options) 2.2.5+mc26.3 recommends version 0.4.2 or later of sodium-extra, which is missing!
+	 - You should install version 0.4.2 or later of sodium-extra for the optimal experience.
+ - Mod 'Remove Reloading Screen' (rrls) 5.2.8+mc.26.3 conflicts with version 1.6.18 or later of mod 'Dark Loading Screen' (dark-loading-screen), which is present with the following versions: 1.6.20!
+	 - While this won't prevent you from starting the game, the developer(s) of mod 'Remove Reloading Screen' (rrls) have found that this combination may cause issues. You should remove one of the mods or check for updates that resolve the issue.
+ - Mod 'Sounds' (sounds) 2.6.0 recommends any version of rsls, which is missing!
+	 - You should install any version of rsls for the optimal experience.
+[12:48:33] [main/INFO] (FabricLoader) Loading 255 mods:
+	- agentharness 1.0.0
+	- ambientenvironment 26.3.2
+	- ambientsounds 6.3.11
+	- armorposer 16.0.1
+	- asyncparticles 26.3.2.1
+	   \-- mixinsquared 0.3.7-beta.3
+	- audioplayer 2.5.1+26.3
+	   |-- admiral 0.4.10+26.2
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   |-- fabric-command-api-v2 3.1.2+fcdff87f02
+	   |-- fabric-lifecycle-events-v1 4.1.9+ffef5f6702
+	   \-- fabric-permission-api-v1 1.0.8+fcdff87f02
+	- axiom 6.1.5
+	   |-- com_moulberry_axiomclientapi-unobf 1.0.91
+	   \-- lattice 2.2.0
+	- badoptimizations 2.4.1
+	- benchmarkmod 1.0.0
+	- betterblockentities 1.4.0+mc26.3
+	- betterf3 20.0.0
+	- betterhitreg 1.0.8-BETA+26.3
+	- betterstats 5.8.0+fabric-26.3
+	- boatiview 0.0.11
+	- bobby 5.2.16+mc26.3
+	   |-- com_typesafe_config 1.4.2
+	   |-- io_leangen_geantyref_geantyref 1.3.13
+	   |-- org_spongepowered_configurate-core 4.1.2
+	   \-- org_spongepowered_configurate-hocon 4.1.2
+	- c2me 0.4.2-alpha.0.114+26.3
+	   |-- c2me-base 0.4.2-alpha.0.114+26.3
+	   |-- c2me-client-uncapvd 0.4.2-alpha.0.114+26.3
+	   |-- c2me-fixes-chunkio-threading-issues 0.4.2-alpha.0.114+26.3
+	   |-- c2me-fixes-general-threading-issues 0.4.2-alpha.0.114+26.3
+	   |-- c2me-fixes-worldgen-threading-issues 0.4.2-alpha.0.114+26.3
+	   |-- c2me-fixes-worldgen-vanilla-bugs 0.4.2-alpha.0.114+26.3
+	   |-- c2me-notickvd 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-allocs 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-chunkio 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-math 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-natives-math 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-scheduling 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-worldgen-general 0.4.2-alpha.0.114+26.3
+	   |-- c2me-opts-worldgen-vanilla 0.4.2-alpha.0.114+26.3
+	   |-- c2me-rewrites-chunk-serializer 0.4.2-alpha.0.114+26.3
+	   |-- c2me-rewrites-chunk-system 0.4.2-alpha.0.114+26.3
+	   |-- c2me-rewrites-chunkio 0.4.2-alpha.0.114+26.3
+	   |-- c2me-server-utils 0.4.2-alpha.0.114+26.3
+	   |-- c2me-threading-lighting 0.4.2-alpha.0.114+26.3
+	   |-- com_github_ben-manes_caffeine_caffeine 3.2.1
+	   |-- com_ibm_async_asyncutil 0.1.0
+	   |-- io_reactivex_rxjava3_rxjava 3.1.12
+	   |-- net_objecthunter_exp4j 0.4.8
+	   |-- org_jctools_jctools-core 4.0.5
+	   \-- org_reactivestreams_reactive-streams 1.0.4
+	- camerautils 1.1.2+26.3
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   |-- fabric-key-mapping-api-v1 2.0.8+3434d6d902
+	   \-- fabric-lifecycle-events-v1 4.1.9+ffef5f6702
+	- capes 1.5.10+26.3
+	- carpet 26.3+v260915
+	- centered-crosshair 1.6.0
+	- chat_heads 1.3.2
+	- cherishedworlds 18.0.0+26.3
+	   \-- spectrelib 0.23.0+26.3
+	        |-- com_electronwill_night-config_core 3.9.0
+	        \-- com_electronwill_night-config_toml 3.9.0
+	- cloth-config 26.3.159
+	   \-- cloth-basic-math 0.6.1
+	- continuity 3.0.1+26.3
+	- creativecore 2.14.24
+	   \-- net_neoforged_bus 7.2.0
+	- dark-loading-screen 1.6.20
+	- dynamic_fps 3.11.10
+	   |-- dynamic_fps_common 3.11.10
+	   \-- net_lostluma_battery 2.1.0
+	- easyplacefix 0.6.7
+	- eclipsestweakeroo 0.7.7-26.3
+	- entity_model_features 3.3.12
+	- entity_texture_features 7.2.6
+	- entityculling 1.11.3
+	   \-- trender 1.0.17
+	- essential-container 1.0.0
+	   \-- essential-loader 1.3.2
+	- euphoria_patcher 1.10.5-r5.9.3-fabric
+	- extremesoundmuffler 4.5
+	   \-- fiber 0.23.0-2
+	- fabric-api 0.165.0+26.3
+	   |-- fabric-advancement-api-v1 1.0.1+38c7a2d55d
+	   |-- fabric-api-lookup-api-v1 2.0.24+3434d6d95d
+	   |-- fabric-biome-api-v1 20.1.1+85210bca5d
+	   |-- fabric-block-api-v1 3.1.0+0ae6f9115d
+	   |-- fabric-block-getter-api-v2 2.0.9+3434d6d95d
+	   |-- fabric-content-registries-v0 15.0.6+74ed1ea55d
+	   |-- fabric-convention-tags-v2 4.10.5+187b64905d
+	   |-- fabric-crash-report-info-v1 1.0.7+fcdff87f5d
+	   |-- fabric-creative-tab-api-v1 5.0.22+fcdff87f5d
+	   |-- fabric-data-attachment-api-v1 2.2.33+b9b88df45d
+	   |-- fabric-data-generation-api-v1 27.4.2+187b64905d
+	   |-- fabric-debug-api-v1 1.0.5+5af7744b5d
+	   |-- fabric-dimensions-v1 5.1.20+5af7744b5d
+	   |-- fabric-entity-events-v1 6.0.4+3434d6d95d
+	   |-- fabric-events-interaction-v0 5.3.9+b9b88df45d
+	   |-- fabric-game-rule-api-v1 4.0.10+3434d6d95d
+	   |-- fabric-item-api-v1 14.8.0+d1c0d72b5d
+	   |-- fabric-loot-api-v3 4.0.9+4068fd645d
+	   |-- fabric-menu-api-v1 2.0.30+ed66f0a35d
+	   |-- fabric-message-api-v1 7.0.10+3434d6d95d
+	   |-- fabric-model-loading-api-v1 8.0.37+fcdff87f5d
+	   |-- fabric-networking-api-v1 6.4.0+a21c9eb65d
+	   |-- fabric-object-builder-api-v1 24.1.12+e2f63d3e5d
+	   |-- fabric-particles-v1 5.0.27+3434d6d95d
+	   |-- fabric-recipe-api-v1 10.0.11+b9b88df45d
+	   |-- fabric-registry-sync-v0 8.0.4+1ca9f6365d
+	   |-- fabric-renderer-api-v1 17.0.17+79385d0b5d
+	   |-- fabric-renderer-indigo 9.1.25+b9d63e335d
+	   |-- fabric-rendering-fluids-v1 6.0.6+3434d6d95d
+	   |-- fabric-rendering-v1 27.2.0+eb9fe70b5d
+	   |-- fabric-resource-conditions-api-v1 6.2.0+0d124ae85d
+	   |-- fabric-resource-loader-v0 3.3.27+4fc5413f5d
+	   |-- fabric-resource-loader-v1 3.1.0+5af7744b5d
+	   |-- fabric-screen-api-v1 5.2.4+48607d035d
+	   |-- fabric-serialization-api-v1 2.0.7+74ed1ea55d
+	   |-- fabric-sound-api-v1 2.0.7+3434d6d95d
+	   |-- fabric-tag-api-v1 2.1.11+fcdff87f5d
+	   |-- fabric-transfer-api-v1 8.0.25+fcdff87f5d
+	   \-- fabric-transitive-access-wideners-v1 8.1.17+e2f63d3e5d
+	- fabric-language-kotlin 1.14.2+kotlin.2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-reflect 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib-jdk7 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib-jdk8 2.4.21
+	   |-- org_jetbrains_kotlinx_atomicfu-jvm 0.33.0
+	   |-- org_jetbrains_kotlinx_kotlinx-coroutines-core-jvm 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-coroutines-jdk8 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-datetime-jvm 0.8.0
+	   |-- org_jetbrains_kotlinx_kotlinx-io-bytestring-jvm 0.9.1
+	   |-- org_jetbrains_kotlinx_kotlinx-io-core-jvm 0.9.1
+	   |-- org_jetbrains_kotlinx_kotlinx-serialization-cbor-jvm 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-serialization-core-jvm 1.11.0
+	   \-- org_jetbrains_kotlinx_kotlinx-serialization-json-jvm 1.11.0
+	- fabricloader 0.19.5
+	- fadeless 2.0.9-26.3
+	   \-- midnightlib 1.9.3
+	- ferritecore 9.0.0
+	- flashback 0.43.6
+	   |-- lattice 2.2.0
+	   \-- org_apache_commons_commons-math3 3.6.1
+	- floating_storage 0.8.0-test
+	- forcecloseworldloadingscreen 2.3.7
+	- forgeconfigapiport 26.3.1
+	- fzzy_config 0.7.7+fix3+26.3
+	   |-- blue_endless_jankson 1.2.3
+	   |-- fabric-permissions-api-v0 0.7.0
+	   \-- net_peanuuutz_tomlkt_tomlkt-jvm 0.3.7
+	- gammautils 3.2.2
+	- immediatelyfast 1.17.1+26.3
+	- invisibleframes 2.0.1+26.3
+	- iris 1.12.0-snapshot+mc26.3-local
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   |-- fabric-key-mapping-api-v1 2.0.8+3434d6d902
+	   |-- io_github_douira_glsl-transformer 3.0.0-pre3
+	   |-- org_anarres_jcpp 1.4.14
+	   \-- org_antlr_antlr4-runtime 4.13.1
+	- itemscroller 0.33.1
+	   \-- conditional-mixin 0.6.4
+	- ixeris 4.6.11+26.3-fabric
+	- java 25
+	- konkrete 1.11.1
+	- krypton 0.3.2
+	   \-- com_velocitypowered_velocity-native 3.4.0-SNAPSHOT
+	- libjf 26.3.1
+	   |-- libjf-base 26.3.1
+	   |    \-- fabric-lifecycle-events-v1 4.1.9+ffef5f6702
+	   |-- libjf-config-commands 26.3.1
+	   |    \-- fabric-command-api-v2 3.1.2+fcdff87f02
+	   |-- libjf-config-core-v2 26.3.1
+	   |-- libjf-config-network-v0 26.3.1
+	   |    \-- fabric-command-api-v2 3.1.2+fcdff87f02
+	   |-- libjf-config-ui-tiny 26.3.1
+	   |-- libjf-data-manipulation-v0 26.3.1
+	   |-- libjf-data-v0 26.3.1
+	   |-- libjf-mainhttp-v0 26.3.1
+	   |-- libjf-resource-pack-entry-widgets-v0 26.3.1
+	   |-- libjf-translate-v1 26.3.1
+	   |-- libjf-unsafe-v0 26.3.1
+	   \-- libjf-web-v1 26.3.1
+	        \-- fabric-command-api-v2 3.1.2+fcdff87f02
+	- litematica 0.29.1
+	   \-- conditional-mixin 0.6.4
+	- lithium 0.26.3+mc26.3
+	- malilib 0.30.2
+	   \-- conditional-mixin 0.6.4
+	- melody 1.0.17
+	- meshelium 1.6.2+mc26.3
+	- minecraft 26.3
+	- minihud 0.41.2
+	   \-- conditional-mixin 0.6.4
+	- mixinextras 0.5.5
+	- modernfix 5.27.20-build.2
+	- modmenu 21.0.0
+	- moreculling 1.9.0
+	- mousetweaks 2.31
+	- mru 1.0.44+26.3
+	- netprodis 2.0.0+26.1
+	- notenoughanimations 1.12.6
+	   \-- trender 1.0.17
+	- nuit 1.0.0-beta.6+mc26.3
+	- nuit_interop 1.0.0-beta.5+mc26.3
+	- omnisens 0.1.0+mc26.3
+	- particle_core 0.3.3+fix1+26.2
+	- particlerain 4.0.2
+	- peek 1.6.0+26.3
+	   \-- fabric-api-base 2.0.6+fcdff87f02
+	- perspectivenametag 1.2.0+26.2
+	   |-- icu_suc_kkw557_perspectivenametag-common 1.2.0+26.2
+	   \-- icu_suc_kkw557_perspectivenametag-core 1.2.0+26.2
+	- pickupnotifier 26.3.0
+	- pingwheel 1.12.2
+	- placeholder-api 3.2.0+26.3
+	- puzzleslib 26.3.17
+	- railoptimization 2.0
+	- raised 6.0.2
+	- reeses-sodium-options 2.2.5+mc26.3
+	- reflexium 1.2.0-alpha
+	- respackopts 26.3.0
+	   |-- dev_jfronny_muscript_muscript-all 2.1.1
+	   \-- dev_jfronny_muscript_muscript-json 2.1.1
+	- rrls 5.2.8+mc.26.3
+	- scalablelux 0.3.0-alpha.0.6+26.3
+	- screenshotgallery 2.1
+	   \-- net_hicham_screenshotgallery_common 2.1
+	- servermanager 1.1.0+26.3
+	   |-- com_twelvemonkeys_common_common-image 3.13.1
+	   |-- com_twelvemonkeys_common_common-io 3.13.1
+	   |-- com_twelvemonkeys_common_common-lang 3.13.1
+	   |-- com_twelvemonkeys_imageio_imageio-core 3.13.1
+	   |-- com_twelvemonkeys_imageio_imageio-metadata 3.13.1
+	   |-- com_twelvemonkeys_imageio_imageio-webp 3.13.1
+	   \-- libgui 18.0.1+26.3-rc-2
+	        |-- jankson 14.0.0+j1.2.3
+	        |    \-- blue_endless_jankson 1.2.3
+	        \-- libninepatch 1.2.0
+	- simplefog 2.0.15
+	- skinlayers3d 1.11.4
+	   |-- transition 1.0.27
+	   \-- trender 1.0.17
+	- smoothskies 2.12.2
+	- sodium 0.9.2+mc26.3
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   \-- fabric-lifecycle-events-v1 4.1.9+ffef5f6702
+	- sounds 2.6.0
+	- spark 1.10.187
+	   \-- fabric-permissions-api-v0 0.7.0
+	- subtle_effects 1.15.1-hotfix.1
+	   \-- com_moulberry_mixinconstraints 1.1.0
+	- symbol-chat 26.3-1.4.3
+	   \-- reconfigure 0.3.3
+	- syncmatica 0.3.20
+	- tcdcommons 5.8.0+fabric-26.3
+	- trade_cycling 1.0.23+26.3
+	- tweakermore 3.33.3-beta.1
+	   |-- conditional-mixin 0.6.4
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   \-- fabric-command-api-v2 3.1.2+fcdff87f02
+	- tweakeroo 0.30.1
+	   \-- conditional-mixin 0.6.4
+	- visuality 0.7.15+26.3
+	- voicechat 2.6.27+26.3
+	   |-- fabric-api-base 2.0.6+fcdff87f02
+	   |-- fabric-command-api-v2 3.1.2+fcdff87f02
+	   |-- fabric-key-mapping-api-v1 2.0.8+3434d6d902
+	   |-- fabric-lifecycle-events-v1 4.1.9+ffef5f6702
+	   |-- fabric-permission-api-v1 1.0.8+fcdff87f02
+	   \-- voicechat_api 2.6.27
+	- waveycapes 1.11.3
+	   |-- transition 1.0.27
+	   \-- trender 1.0.17
+	- windy 1.1.1+26.1
+	- worldedit 7.4.6+7648-00664b0
+	   \-- worldeditcui_protocol 4.0.3
+	- yet_another_config_lib_v3 3.9.7+26.3-fabric
+	   |-- org_quiltmc_parsers_gson 0.2.1
+	   \-- org_quiltmc_parsers_json 0.2.1
+	- zconfig 1.0.0+26.x
+	- zfastnoise 1.1.2+26.3
+	   \-- zfastnoise-ocl 1.0.0-beta.1+26.3
+[12:48:33] [main/INFO] (libjf) Starting unsafe init
+[12:48:33] [main/INFO] (libjf) LibJF unsafe init completed
+[12:48:33] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/Ryan/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'raised.refmap.json' for raised.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.scheduling.mixin
+[12:48:34] [main/INFO] (C2ME Config Updater) Updating config from 0 to 1
+[12:48:34] [main/INFO] (C2ME Config Updater) Updating config from 1 to 2
+[12:48:34] [main/INFO] (C2ME Config Updater) Updating config from 2 to 3
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.rewrites.chunk_serializer.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Disabling com.ishland.c2me.rewrites.chunk_serializer.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.threading.lighting.mixin
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'particlerain.refmap.json' for particlerain.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.rewrites.chunksystem.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.allocs.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.fixes.general.threading_issues.mixin
+[12:48:34] [main/INFO] (Sodium) Loaded configuration file for Sodium: 37 options available, 1 override(s) found
+[12:48:34] [main/INFO] (libjf) Discovered LibJF asm plugin in libjf-data-manipulation-v0
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'reeses-sodium-options.refmap.json' for reeses-sodium-options.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (Lithium) Loaded configuration file for Lithium: 170 options available, 1 override(s) found.
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.worldgen.general.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.notickvd.mixin
+[12:48:34] [main/INFO] (ModuleEntryPoint) CPU name: AMD Ryzen 7 7800X3D 8-Core Processor           
+[12:48:34] [main/INFO] (ModuleEntryPoint) Detected 8 available physical CPUs, 16 available logical CPUs
+[12:48:34] [main/INFO] (ModuleEntryPoint) Detected 8 available physical CPUs, 16 available logical CPUs
+[12:48:34] [main/INFO] (C2ME Config System) Global Executor Parallelism: 7 configured, 7 evaluated, 7 default evaluated
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'ixeris.mixins.refmap.json' for ixeris.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.math.mixin
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'yet_another_config_lib_v3.refmap.json' for yacl.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'yet_another_config_lib_v3.refmap.json' for yacl-fabric.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'common-common-refmap.json' for screenshotgallery-common.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris-fabric.refmap.json' for mixins.iris.fabric.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.vertexformat.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.bettermipmaps.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.compat.sodium.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.fixes.maxfpscrash.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.fixes.worldgen.threading_issues.mixin
+[12:48:34] [main/INFO] (axiom) Loading Mixin Plugin for Axiom/6.1.5
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.fixes.chunkio.threading_issues.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.fixes.worldgen.vanilla_bugs.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.client.uncapvd.mixin
+[12:48:34] [main/INFO] (C2ME Config System) Disabling config clientSideConfig.modifyMaxVDConfig.enabled: Incompatible with bobby@5.2.16+mc26.3 (*) (defined in c2me)
+[12:48:34] [main/INFO] (C2ME Modules Manager) Disabling com.ishland.c2me.client.uncapvd.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.base.mixin
+[12:48:34] [main/INFO] (ModernFix) Loaded configuration file for ModernFix 5.27.20-build.2: 67 options available, 5 override(s) found
+[12:48:34] [main/WARN] (ModernFix) Option 'mixin.perf.release_protochunks' overriden (by mods [c2me]) to 'false'
+[12:48:34] [main/WARN] (ModernFix) Option 'mixin.bugfix.paper_chunk_patches' overriden (by mods [c2me]) to 'false'
+[12:48:34] [main/WARN] (ModernFix) Option 'mixin.perf.cache_strongholds' overriden (by mods [c2me]) to 'false'
+[12:48:34] [main/WARN] (ModernFix) Option 'mixin.bugfix.chunk_deadlock' overriden (by mods [c2me]) to 'false'
+[12:48:34] [main/WARN] (ModernFix) Option 'mixin.perf.dynamic_dfu' overriden (by mods [litematica]) to 'false'
+[12:48:34] [main/INFO] (ModernFix) Applying Nashorn fix
+[12:48:34] [main/INFO] (ModernFix) Configuring Minecraft's max.bg.threads option with 13 threads
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'modernfix.refmap.json' for modernfix-fabric.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'modernfix.refmap.json' for modernfix-common.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'Ping-Wheel-refmap.json' for pingwheel.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'skinlayers3d.refmap.mixins.json' for skinlayers3d.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'ambientenvironment.refmap.json' for ambientenvironment.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'ambientenvironment.refmap.json' for ambientenvironment.fabric.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.natives_math.mixin
+[12:48:34] [main/INFO] (NativeLoader) Attempting to call native library. If your game crashes right after this point, native acceleration may not be available for your system.
+[12:48:34] [main/INFO] (NativeLoader) Detected maximum supported ISA target: ICL_AVX512
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.chunkio.mixin
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'extremesoundmuffler.refmap.json' for extremesoundmuffler.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/WARN] (FabricLoader/Mixin) Reference map 'entityculling.refmap.mixins.json' for entityculling.mixins.json could not be read. If this is a development environment you can ignore this message
+[12:48:34] [main/INFO] (BadOptimizations) Config version: 6
+[12:48:34] [main/INFO] (BadOptimizations) BadOptimizations is generating the config with default values
+[12:48:34] [main/INFO] (BadOptimizations) Generating config file version 6
+[12:48:34] [main/INFO] (BadOptimizations) Mod gammautils added a lightmap caching hook: io.github.sjouwer.gammautils.compat.BadOptimizationsHook
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.opts.worldgen.vanilla.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.rewrites.chunkio.mixin
+[12:48:34] [main/INFO] (C2ME Modules Manager) Initializing com.ishland.c2me.server.utils.mixin
+[12:48:34] [main/WARN] (tweakeroo) Disabled mixin 'fi.dy.masa.tweakeroo.mixin.block.MixinStructureBlockEntity_carpetBreaks' due to: 'conflicted/unsupported mod carpet@26.3+v260915 found'
+[12:48:34] [main/WARN] (tweakeroo) Disabled mixin 'fi.dy.masa.tweakeroo.mixin.network.MixinServerboundSetStructureBlockPacket_carpetBreaks' due to: 'conflicted/unsupported mod carpet@26.3+v260915 found'
+[12:48:34] [main/WARN] (tweakeroo) Disabled mixin 'fi.dy.masa.tweakeroo.mixin.fog.MixinGameRenderer_disableFog_sodiumBreaks' due to: 'conflicted/unsupported mod sodium@0.9.2+mc26.3 found'
+[12:48:34] [main/WARN] (tweakeroo) Disabled mixin 'fi.dy.masa.tweakeroo.mixin.freecam.MixinLevelRenderer_freeCam_sodiumBreaks' due to: 'conflicted/unsupported mod sodium@0.9.2+mc26.3 found'
+[12:48:34] [main/WARN] (tweakeroo) Disabled mixin 'fi.dy.masa.tweakeroo.mixin.render.MixinGameRenderer_ViewBob' due to: 'conflicted/unsupported mod iris@1.12.0-snapshot+mc26.3-local found'
+[12:48:34] [main/INFO] (eclipsestweakeroo) Tweakeroo compat enabled
+[12:48:35] [main/WARN] (Sodium) Force-disabling mixin 'features.render.world.sky.LevelRendererMixin' as rule 'mixin.features.render.world.sky' (added by mods [iris]) disables it and children
+[12:48:35] [main/INFO] (Lithium) Force-enabling mixin 'compat.worldedit.LevelChunkMixin' as rule 'mixin.compat.worldedit' (added by mods [lithium]) enables it
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: me/jellysquid/mods/sodium/client/render/chunk/DefaultChunkRenderer (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/chunk/DefaultChunkRenderer)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: me/jellysquid/mods/sodium/client/render/chunk/RenderSectionManager (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/chunk/RenderSectionManager)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: me/jellysquid/mods/sodium/client/render/SodiumWorldRenderer (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/SodiumWorldRenderer)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: net/strobel/inventive_inventory/features/sorting/SortingHandler (java.lang.ClassNotFoundException: net/strobel/inventive_inventory/features/sorting/SortingHandler)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: de/rubixdev/inventorio/player/InventorioScreenHandler (java.lang.ClassNotFoundException: de/rubixdev/inventorio/player/InventorioScreenHandler)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: net/blay09/mods/trashslot/client/deletion/DefaultDeletionProvider (java.lang.ClassNotFoundException: net/blay09/mods/trashslot/client/deletion/DefaultDeletionProvider)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: net/coderbot/iris/uniforms/WorldTimeUniforms (java.lang.ClassNotFoundException: net/coderbot/iris/uniforms/WorldTimeUniforms)
+[12:48:35] [main/WARN] (FabricLoader/Mixin) Error loading class: net/fabricmc/fabric/impl/client/rendering/SpecialGuiElementRegistryImpl (java.lang.ClassNotFoundException: net/fabricmc/fabric/impl/client/rendering/SpecialGuiElementRegistryImpl)
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Wrapping mixin service for asyncparticles.target-modifier.mixins.json so that we can modify target classes.
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_MixinParticles_LockRequired_Tick
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_Mixin_ReplaceRandom
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_MixinParticles_LockRequired_Extract
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_MixinParticles_LockProvider
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_MixinParticles_LightCacheNoRefresh
+[12:48:35] [main/INFO] (FabricLoader/asyncparticles-class-adjuster) Redirecting IClassBytecodeProvider#getClassNode for fun.qu_an.minecraft.asyncparticles.client.coremod.mixin_extension.class_adjuster.mixin.AsyncParticlesGenerated$fun$_qu_an$_minecraft$_asyncparticles$_client$_mixin$_conditional$_MixinAsyncTick_AsyncTickableParticleGroup
+[12:48:35] [main/INFO] (Sodium-GraphicsAdapterProbe) Searching for graphics cards...
+[12:48:35] [main/INFO] (Sodium-GraphicsAdapterProbe) Found graphics adapter: AdapterInfo{vendor=NVIDIA, description='NVIDIA GeForce RTX 5070', adapterType=0x0000231B, openglIcdFilePath='C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvoglv64.dll', openglIcdVersion=32.0.16.1742}
+[12:48:36] [main/WARN] (Sodium-Workarounds) Sodium has applied one or more workarounds to prevent crashes or other issues on your system: [NVIDIA_THREADED_OPTIMIZATIONS_BROKEN]
+[12:48:36] [main/WARN] (Sodium-Workarounds) This is not necessarily an issue, but it may result in certain features or optimizations being disabled. You can sometimes fix these issues by upgrading your graphics driver.
+[12:48:36] [main/INFO] (libjf) Registering config for libjf-translate-v1
+[12:48:36] [main/INFO] (libjf) Registering config for respackopts
+[12:48:36] [main/INFO] (libjf) Registering config for libjf-web-v1
+[12:48:36] [main/INFO] (EssentialLoader) Updating stage1 to version 13 from jar:file:/C:/Users/Ryan/.t3/worktrees/Reflexium/t3-de619d04/run/.fabric/processedMods/essential-loader-1.3.2-ee8364190873c568.jar!/gg/essential/loader/stage0/stage1.jar
+[12:48:36] [main/INFO] (EssentialLoaderBase) Updating Essential Loader (stage2) version 1.8.0 (fd9925651d7d2a7c4382209f86cf67c6) from jar:file:/C:/Users/Ryan/.t3/worktrees/Reflexium/t3-de619d04/run/mods/Essential_1-5-1_fabric_26-3.jar!/essential-loader-stage2-fabric-1.8.0.jar
+[12:48:36] [main/INFO] (EssentialLoaderBase) Starting Essential Loader (stage2) version 1.8.0 (fd9925651d7d2a7c4382209f86cf67c6) [stable]
+[12:48:36] [main/INFO] (LoaderLoggingUI) Downloading 51547KB of updates...
+[12:48:36] [main/INFO] (LoaderLoggingUI) 1KB / 51547KB (0%)
+[12:48:36] [main/ERROR] (FabricLoader) A mod crashed on startup!
+net.fabricmc.loader.impl.FormattedException: java.lang.RuntimeException: Could not execute entrypoint stage 'preLaunch' due to errors, provided by 'essential-loader' at 'gg.essential.loader.stage0.EssentialSetupPreLaunch'!
+	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:63)
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:158)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+Caused by: java.lang.RuntimeException: Could not execute entrypoint stage 'preLaunch' due to errors, provided by 'essential-loader' at 'gg.essential.loader.stage0.EssentialSetupPreLaunch'!
+	at net.fabricmc.loader.impl.FabricLoaderImpl.lambda$invokeEntrypoints$0(FabricLoaderImpl.java:413)
+	at net.fabricmc.loader.impl.util.ExceptionUtil.gatherExceptions(ExceptionUtil.java:33)
+	at net.fabricmc.loader.impl.FabricLoaderImpl.invokeEntrypoints(FabricLoaderImpl.java:411)
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:156)
+	... 3 more
+Caused by: net.fabricmc.loader.api.EntrypointException: Exception while loading entries for entrypoint 'preLaunch' provided by 'essential-loader'
+	at net.fabricmc.loader.impl.entrypoint.EntrypointContainerImpl.getEntrypoint(EntrypointContainerImpl.java:56)
+	at net.fabricmc.loader.impl.FabricLoaderImpl.invokeEntrypoints(FabricLoaderImpl.java:409)
+	... 4 more
+Caused by: net.fabricmc.loader.api.LanguageAdapterException: java.lang.reflect.InvocationTargetException
+	at net.fabricmc.loader.impl.util.DefaultLanguageAdapter.create(DefaultLanguageAdapter.java:63)
+	at net.fabricmc.loader.impl.entrypoint.EntrypointStorage$NewEntry.getOrCreate(EntrypointStorage.java:124)
+	at net.fabricmc.loader.impl.entrypoint.EntrypointContainerImpl.getEntrypoint(EntrypointContainerImpl.java:53)
+	... 5 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:74)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:483)
+	at net.fabricmc.loader.impl.util.DefaultLanguageAdapter.create(DefaultLanguageAdapter.java:61)
+	... 7 more
+Caused by: java.lang.RuntimeException: java.lang.reflect.InvocationTargetException
+	at knot//gg.essential.loader.stage0.EssentialSetupPreLaunch.<init>(EssentialSetupPreLaunch.java:22)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	... 10 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:74)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:483)
+	at knot//gg.essential.loader.stage0.EssentialSetupPreLaunch.loadStage1(EssentialSetupPreLaunch.java:37)
+	at knot//gg.essential.loader.stage0.EssentialSetupPreLaunch.<init>(EssentialSetupPreLaunch.java:20)
+	... 11 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:119)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at gg.essential.loader.stage1.EssentialLoaderBase.load(EssentialLoaderBase.java:293)
+	at gg.essential.loader.stage1.EssentialSetupPreLaunch.<init>(EssentialSetupPreLaunch.java:18)
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	... 15 more
+Caused by: java.lang.RuntimeException: Failed to remap Essential to dev mappings
+	at gg.essential.loader.stage2.EssentialLoader.addToClasspath(EssentialLoader.java:137)
+	at gg.essential.loader.stage2.EssentialLoaderBase.addToClasspath(EssentialLoaderBase.java:744)
+	at gg.essential.loader.stage2.EssentialLoader.addToClasspath(EssentialLoader.java:127)
+	at gg.essential.loader.stage2.EssentialLoaderBase.loadMod(EssentialLoaderBase.java:421)
+	at gg.essential.loader.stage2.EssentialLoaderBase.load(EssentialLoaderBase.java:133)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	... 19 more
+Caused by: java.lang.RuntimeException: Failed to find tiny mappings file.
+	at gg.essential.loader.stage2.RuntimeModRemapper.gatherRemapInputs(RuntimeModRemapper.java:36)
+	at gg.essential.loader.stage2.RuntimeModRemapper.remap(RuntimeModRemapper.java:54)
+	at gg.essential.loader.stage2.EssentialLoader.addToClasspath(EssentialLoader.java:135)
+	... 24 more
