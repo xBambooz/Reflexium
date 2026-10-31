@@ -1,0 +1,233 @@
+Iris loadExternalShaderpack:
+       302: invokestatic  #381                // Method tryReadConfigProperties:(Ljava/nio/file/Path;)Ljava/util/Optional;
+       305: invokedynamic #384,  0            // InvokeDynamic #1:apply:()Ljava/util/function/Function;
+       310: invokevirtual #388                // Method java/util/Optional.map:(Ljava/util/function/Function;)Ljava/util/Optional;
+       313: new           #392                // class java/util/HashMap
+       316: dup
+       317: invokespecial #394                // Method java/util/HashMap."<init>":()V
+       320: invokevirtual #395                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+       323: checkcast     #399                // class java/util/Map
+       326: astore        5
+       328: aload         5
+       330: getstatic     #401                // Field shaderPackOptionQueue:Ljava/util/Map;
+       333: invokeinterface #405,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+       338: invokestatic  #409                // Method clearShaderPackOptionQueue:()V
+       341: getstatic     #412                // Field resetShaderPackOptions:Z
+       344: ifeq          354
+       347: aload         5
+       349: invokeinterface #415,  1          // InterfaceMethod java/util/Map.clear:()V
+       354: iconst_0
+       355: putstatic     #412                // Field resetShaderPackOptions:Z
+       358: new           #418                // class net/irisshaders/iris/shaderpack/ShaderPack
+       361: dup
+       362: aload_3
+       363: aload         5
+       365: invokestatic  #420                // Method net/irisshaders/iris/gl/shader/StandardMacros.createStandardEnvironmentDefines:()Lcom/google/common/collect/ImmutableList;
+       368: iload         4
+       370: invokespecial #426                // Method net/irisshaders/iris/shaderpack/ShaderPack."<init>":(Ljava/nio/file/Path;Ljava/util/Map;Lcom/google/common/collect/ImmutableList;Z)V
+       373: putstatic     #429                // Field currentPack:Lnet/irisshaders/iris/shaderpack/ShaderPack;
+       376: getstatic     #429                // Field currentPack:Lnet/irisshaders/iris/shaderpack/ShaderPack;
+       379: invokevirtual #433                // Method net/irisshaders/iris/shaderpack/ShaderPack.getShaderPackOptions:()Lnet/irisshaders/iris/shaderpack/option/ShaderPackOptions;
+       382: invokevirtual #437                // Method net/irisshaders/iris/shaderpack/option/ShaderPackOptions.getOptionValues:()Lnet/irisshaders/iris/shaderpack/option/values/OptionValues;
+       385: invokeinterface #443,  1          // InterfaceMethod net/irisshaders/iris/shaderpack/option/values/OptionValues.mutableCopy:()Lnet/irisshaders/iris/shaderpack/option/values/MutableOptionValues;
+       390: astore        6
+       392: new           #449                // class java/util/Properties
+       395: dup
+       396: invokespecial #451                // Method java/util/Properties."<init>":()V
+       399: astore        7
+       401: aload         6
+       403: invokevirtual #452                // Method net/irisshaders/iris/shaderpack/option/values/MutableOptionValues.getBooleanValues:()Ljava/util/Map;
+       406: aload         7
+       408: invokedynamic #458,  0            // InvokeDynamic #2:accept:(Ljava/util/Properties;)Ljava/util/function/BiConsumer;
+       413: invokeinterface #462,  2          // InterfaceMethod java/util/Map.forEach:(Ljava/util/function/BiConsumer;)V
+       418: aload         6
+       420: invokevirtual #466                // Method net/irisshaders/iris/shaderpack/option/values/MutableOptionValues.getStringValues:()Ljava/util/Map;
+       423: aload         7
+       425: dup
+       426: invokestatic  #469                // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+       429: pop
+       430: invokedynamic #474,  0            // InvokeDynamic #3:accept:(Ljava/util/Properties;)Ljava/util/function/BiConsumer;
+       435: invokeinterface #462,  2          // InterfaceMethod java/util/Map.forEach:(Ljava/util/function/BiConsumer;)V
+       440: aload_2
+       441: aload         7
+       443: invokestatic  #475                // Method tryUpdateConfigPropertiesFile:(Ljava/nio/file/Path;Ljava/util/Properties;)V
+       446: goto          486
+       449: astore        6
+
+Iris shared properties writer:
+  private static void tryUpdateConfigPropertiesFile(java.nio.file.Path, java.util.Properties);
+    Code:
+         0: aload_1
+         1: invokevirtual #684                // Method java/util/Properties.isEmpty:()Z
+         4: ifeq          23
+         7: aload_0
+         8: iconst_0
+         9: anewarray     #333                // class java/nio/file/LinkOption
+        12: invokestatic  #374                // Method java/nio/file/Files.exists:(Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+        15: ifeq          22
+        18: aload_0
+        19: invokestatic  #685                // Method java/nio/file/Files.delete:(Ljava/nio/file/Path;)V
+        22: return
+        23: aload_0
+        24: iconst_0
+        25: anewarray     #668                // class java/nio/file/OpenOption
+        28: invokestatic  #689                // Method java/nio/file/Files.newOutputStream:(Ljava/nio/file/Path;[Ljava/nio/file/OpenOption;)Ljava/io/OutputStream;
+        31: astore_2
+        32: aload_1
+        33: aload_2
+        34: aconst_null
+        35: invokevirtual #693                // Method java/util/Properties.store:(Ljava/io/OutputStream;Ljava/lang/String;)V
+        38: aload_2
+        39: ifnull        71
+        42: aload_2
+        43: invokevirtual #697                // Method java/io/OutputStream.close:()V
+        46: goto          71
+        49: astore_3
+        50: aload_2
+        51: ifnull        69
+        54: aload_2
+        55: invokevirtual #697                // Method java/io/OutputStream.close:()V
+        58: goto          69
+        61: astore        4
+        63: aload_3
+        64: aload         4
+        66: invokevirtual #583                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        69: aload_3
+        70: athrow
+        71: goto          75
+        74: astore_2
+
+ShaderPackScreen Apply:
+  public void applyChanges();
+    Code:
+         0: aload_0
+         1: getfield      #407                // Field shaderPackList:Lnet/irisshaders/iris/gui/element/ShaderPackSelectionList;
+         4: invokevirtual #776                // Method net/irisshaders/iris/gui/element/ShaderPackSelectionList.getSelected:()Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
+         7: checkcast     #780                // class net/irisshaders/iris/gui/element/ShaderPackSelectionList$BaseEntry
+        10: astore_1
+        11: aload_0
+        12: getfield      #407                // Field shaderPackList:Lnet/irisshaders/iris/gui/element/ShaderPackSelectionList;
+        15: invokevirtual #551                // Method net/irisshaders/iris/gui/element/ShaderPackSelectionList.getTopButtonRow:()Lnet/irisshaders/iris/gui/element/ShaderPackSelectionList$TopButtonRowEntry;
+        18: getfield      #555                // Field net/irisshaders/iris/gui/element/ShaderPackSelectionList$TopButtonRowEntry.shadersEnabled:Z
+        21: istore_2
+        22: invokestatic  #782                // Method net/irisshaders/iris/Iris.getIrisConfig:()Lnet/irisshaders/iris/config/IrisConfig;
+        25: invokevirtual #786                // Method net/irisshaders/iris/config/IrisConfig.areShadersEnabled:()Z
+        28: istore_3
+        29: iload_2
+        30: iload_3
+        31: if_icmpeq     48
+        34: invokestatic  #791                // InterfaceMethod net/irisshaders/iris/api/v0/IrisApi.getInstance:()Lnet/irisshaders/iris/api/v0/IrisApi;
+        37: invokeinterface #796,  1          // InterfaceMethod net/irisshaders/iris/api/v0/IrisApi.getConfig:()Lnet/irisshaders/iris/api/v0/IrisApiConfig;
+        42: iload_2
+        43: invokeinterface #800,  2          // InterfaceMethod net/irisshaders/iris/api/v0/IrisApiConfig.setShadersEnabledAndApply:(Z)V
+        48: aload_1
+        49: instanceof    #806                // class net/irisshaders/iris/gui/element/ShaderPackSelectionList$ShaderPackEntry
+        52: ifeq          64
+        55: aload_1
+        56: checkcast     #806                // class net/irisshaders/iris/gui/element/ShaderPackSelectionList$ShaderPackEntry
+        59: astore        4
+        61: goto          65
+        64: return
+        65: aload_0
+        66: getfield      #407                // Field shaderPackList:Lnet/irisshaders/iris/gui/element/ShaderPackSelectionList;
+        69: aload         4
+        71: invokevirtual #808                // Method net/irisshaders/iris/gui/element/ShaderPackSelectionList.setApplied:(Lnet/irisshaders/iris/gui/element/ShaderPackSelectionList$ShaderPackEntry;)V
+        74: aload         4
+        76: invokevirtual #812                // Method net/irisshaders/iris/gui/element/ShaderPackSelectionList$ShaderPackEntry.getPackName:()Ljava/lang/String;
+        79: astore        5
+        81: aload         5
+        83: invokestatic  #815                // Method net/irisshaders/iris/Iris.getCurrentPackName:()Ljava/lang/String;
+        86: invokevirtual #818                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+        89: ifne          95
+        92: invokestatic  #824                // Method net/irisshaders/iris/Iris.clearShaderPackOptionQueue:()V
+        95: invokestatic  #782                // Method net/irisshaders/iris/Iris.getIrisConfig:()Lnet/irisshaders/iris/config/IrisConfig;
+        98: invokevirtual #827                // Method net/irisshaders/iris/config/IrisConfig.getShaderPackName:()Ljava/util/Optional;
+       101: aconst_null
+       102: invokevirtual #328                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+       105: checkcast     #819                // class java/lang/String
+       108: astore        6
+       110: aload         5
+       112: aload         6
+       114: invokevirtual #818                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       117: ifeq          137
+       120: invokestatic  #830                // Method net/irisshaders/iris/Iris.getShaderPackOptionQueue:()Ljava/util/Map;
+       123: invokeinterface #834,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+       128: ifeq          137
+       131: invokestatic  #837                // Method net/irisshaders/iris/Iris.shouldResetShaderPackOptionsOnNextReload:()Z
+       134: ifeq          159
+       137: invokestatic  #782                // Method net/irisshaders/iris/Iris.getIrisConfig:()Lnet/irisshaders/iris/config/IrisConfig;
+       140: aload         5
+       142: invokevirtual #840                // Method net/irisshaders/iris/config/IrisConfig.setShaderPackName:(Ljava/lang/String;)V
+       145: invokestatic  #791                // InterfaceMethod net/irisshaders/iris/api/v0/IrisApi.getInstance:()Lnet/irisshaders/iris/api/v0/IrisApi;
+       148: invokeinterface #796,  1          // InterfaceMethod net/irisshaders/iris/api/v0/IrisApi.getConfig:()Lnet/irisshaders/iris/api/v0/IrisApiConfig;
+       153: iload_2
+       154: invokeinterface #800,  2          // InterfaceMethod net/irisshaders/iris/api/v0/IrisApiConfig.setShadersEnabledAndApply:(Z)V
+       159: aload_0
+       160: invokevirtual #187                // Method refreshForChangedPack:()V
+       163: return
+
+  private void discardChanges();
+    Code:
+         0: invokestatic  #824                // Method net/irisshaders/iris/Iris.clearShaderPackOptionQueue:()V
+         3: return
+
+  private void openShaderPackFolder();
+    Code:
+         0: invokedynamic #843,  0            // InvokeDynamic #16:run:()Ljava/lang/Runnable;
+         5: invokestatic  #846                // Method java/util/concurrent/CompletableFuture.runAsync:(Ljava/lang/Runnable;)Ljava/util/concurrent/CompletableFuture;
+
+Export reads the saved properties file:
+  private static void lambda$exportSettingsButtonClicked$1(java.nio.file.Path);
+    Code:
+         0: new           #416                // class java/util/Properties
+         3: dup
+         4: invokespecial #418                // Method java/util/Properties."<init>":()V
+         7: astore_1
+         8: invokestatic  #349                // Method net/irisshaders/iris/Iris.getShaderpacksDirectory:()Ljava/nio/file/Path;
+        11: invokestatic  #353                // Method net/irisshaders/iris/Iris.getCurrentPackName:()Ljava/lang/String;
+        14: invokedynamic #357,  0            // InvokeDynamic #5:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        19: invokeinterface #361,  2          // InterfaceMethod java/nio/file/Path.resolve:(Ljava/lang/String;)Ljava/nio/file/Path;
+        24: astore_2
+        25: aload_2
+        26: iconst_0
+        27: anewarray     #419                // class java/nio/file/LinkOption
+        30: invokestatic  #421                // Method java/nio/file/Files.exists:(Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+        33: ifeq          90
+        36: aload_2
+        37: iconst_0
+        38: anewarray     #427                // class java/nio/file/OpenOption
+        41: invokestatic  #429                // Method java/nio/file/Files.newInputStream:(Ljava/nio/file/Path;[Ljava/nio/file/OpenOption;)Ljava/io/InputStream;
+        44: astore_3
+        45: aload_1
+        46: aload_3
+        47: invokevirtual #433                // Method java/util/Properties.load:(Ljava/io/InputStream;)V
+        50: aload_3
+        51: ifnull        86
+        54: aload_3
+        55: invokevirtual #437                // Method java/io/InputStream.close:()V
+        58: goto          86
+        61: astore        4
+        63: aload_3
+        64: ifnull        83
+        67: aload_3
+        68: invokevirtual #437                // Method java/io/InputStream.close:()V
+        71: goto          83
+        74: astore        5
+        76: aload         4
+        78: aload         5
+        80: invokevirtual #444                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        83: aload         4
+        85: athrow
+        86: goto          90
+        89: astore_3
+        90: aload_0
+        91: iconst_0
+        92: anewarray     #427                // class java/nio/file/OpenOption
+        95: invokestatic  #450                // Method java/nio/file/Files.newOutputStream:(Ljava/nio/file/Path;[Ljava/nio/file/OpenOption;)Ljava/io/OutputStream;
+        98: astore_3
+        99: aload_1
+       100: aload_3
+       101: aconst_null
+       102: invokevirtual #454                // Method java/util/Properties.store:(Ljava/io/OutputStream;Ljava/lang/String;)V
+       105: aload_3
+       106: ifnull        141

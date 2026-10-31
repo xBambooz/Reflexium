@@ -29,6 +29,8 @@ public final class IrisCompatCheck {
 	public static void main(String[] args) throws Exception {
 		abi(Path.of(System.getProperty("reflexium.irisJar", "run/mods/iris-fabric-experimental-build-26.3.jar")));
 		sources(Path.of("run/shaderpacks/" + PACK + ".zip"));
+		optionPersistence();
+		euphoria();
 		bsl(Path.of("run/shaderpacks/BSL_v10.1.8.zip"));
 		proxySwapchain();
 		depthOwnership();
@@ -91,6 +93,108 @@ public final class IrisCompatCheck {
 		}
 	}
 
+
+	private static void optionPersistence() throws Exception {
+		Path directory = Files.createTempDirectory("iris-user-options");
+		Map<String, String> off = Map.of("TAA", "false", "TAA_DEFINE", "0", "TAA_JITTER", "0", "FXAA_DEFINE", "-1", "IMAGE_SHARPENING", "0");
+		var repaired = IrisOptionPersistence.prepare(directory, "legacy", off, off);
+		if (!repaired.isEmpty()) throw new AssertionError("Complete legacy leak not repaired");
+		var properties = new java.util.Properties(); properties.putAll(off);
+		properties.setProperty("OTHER", "42");
+		var saved = IrisOptionPersistence.forSave(properties);
+		if (saved.size() != 1 || !saved.getProperty("OTHER").equals("42")) throw new AssertionError("Override saved or unrelated option lost");
+		IrisOptionPersistence.reset();
+		if (!IrisOptionPersistence.prepare(directory, "legacy", Map.of(), off).isEmpty()) throw new AssertionError("Reload introduced overrides");
+		var partial = Map.of("TAA", "false", "TAA_DEFINE", "0");
+		if (!IrisOptionPersistence.prepare(directory, "partial", partial, off).equals(partial)) throw new AssertionError("Partial match repaired");
+		var explicit = Map.of("TAA", "false", "TAA_DEFINE", "1", "FXAA_DEFINE", "1", "OTHER", "42");
+		IrisOptionPersistence.prepare(directory, "recorded", explicit, off);
+		var restored = IrisOptionPersistence.forSave(properties);
+		if (!restored.getProperty("TAA").equals("false") || !restored.getProperty("TAA_DEFINE").equals("1")
+				|| restored.containsKey("TAA_JITTER") || !restored.getProperty("FXAA_DEFINE").equals("1")) throw new AssertionError("User values/absence not restored");
+		IrisOptionPersistence.reset();
+		var leaked = new java.util.HashMap<>(off); leaked.put("OTHER", "42");
+		var recovered = IrisOptionPersistence.prepare(directory, "recorded", leaked, off);
+		if (!recovered.equals(explicit)) throw new AssertionError("Durable originals not recovered: " + recovered);
+		var changed = Map.of("TAA_DEFINE", "0", "FXAA_DEFINE", "0");
+		IrisOptionPersistence.prepare(directory, "recorded", changed, off);
+		if (!IrisOptionPersistence.forSave(properties).getProperty("FXAA_DEFINE").equals("0")) throw new AssertionError("Screen queued user change lost");
+		IrisOptionPersistence.userChangesPending(true);
+		if (!IrisOptionPersistence.prepare(directory, "intentional-off", off, off).equals(off)) throw new AssertionError("Queued user disable mistaken for leak");
+		IrisOptionPersistence.reset();
+		if (IrisOptionPersistence.forSave(properties) != properties) throw new AssertionError("Stale pack snapshot");
+		Path blocked = Files.createFile(directory.resolve("not-a-directory"));
+		if (!IrisOptionPersistence.prepare(blocked, "unwritable", explicit, off).equals(explicit)) throw new AssertionError("Record I/O failure changed user values");
+		var memoryOnly = IrisOptionPersistence.forSave(properties);
+		if (!memoryOnly.getProperty("TAA_DEFINE").equals("1") || memoryOnly.containsKey("TAA_JITTER")) throw new AssertionError("I/O failure lost session save protection");
+		IrisOptionPersistence.prepare(directory, "stale", explicit, off);
+		Path stale = directory.resolve(ComplementaryTemporalSource.sha256(List.of("stale")) + ".properties");
+		var staleRecord = new java.util.Properties();
+		try (var input = Files.newInputStream(stale)) { staleRecord.load(input); }
+		staleRecord.setProperty("override.TAA", "outdated");
+		try (var output = Files.newOutputStream(stale)) { staleRecord.store(output, null); }
+		if (!IrisOptionPersistence.prepare(directory, "stale", off, off).isEmpty()) throw new AssertionError("Stale record did not fall back to defaults for complete leak");
+		try (var input = Files.newInputStream(stale)) { staleRecord.clear(); staleRecord.load(input); }
+		if (!staleRecord.getProperty("override.TAA").equals("false") || staleRecord.containsKey("original.TAA_DEFINE")) throw new AssertionError("Stale record not rewritten");
+		staleRecord.setProperty("override.TAA", "outdated");
+		try (var output = Files.newOutputStream(stale)) { staleRecord.store(output, null); }
+		if (!IrisOptionPersistence.prepare(directory, "stale", partial, off).equals(partial)) throw new AssertionError("Stale record changed partial signature");
+		IrisOptionPersistence.reset();
+		try (var files = Files.list(directory)) { for (Path file : files.toList()) Files.delete(file); }
+		Files.delete(directory);
+		System.out.println("Iris user option persistence checks passed");
+	}
+
+	private static void euphoria() throws Exception {
+		String pack = PACK + " + EuphoriaPatches_1.10.5";
+		Path root = Path.of("run/shaderpacks/" + pack + "/shaders");
+		if (!Files.isDirectory(root)) throw new AssertionError("Euphoria fixture missing: " + root);
+		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
+		owner.setAccessible(true);
+		owner.setBoolean(null, true);
+		IrisCompat.onPackLoading();
+		var options = new TestOptions();
+		var saved = Map.of("TAA", "true", "TAA_DEFINE", "1", "TAA_JITTER", "1");
+		var fallback = IrisCompat.temporalOptionOverrides(pack, options, saved);
+		if (!fallback.get("TAA").equals("false") || !fallback.get("TAA_DEFINE").equals("0")) throw new AssertionError("Unknown resolve must disable TAA");
+		IrisCompat.onPackLoading();
+		for (String path : List.of("lib/antialiasing/jitter.glsl", ComplementaryTemporalSource.RESOLVE,
+				ComplementaryTemporalSource.FXAA, ComplementaryTemporalSource.SHARPEN)) {
+			Path file = root.resolve(path);
+			String source = Files.readString(file);
+			if (!IrisCompat.adapt(pack, file, source + "\n// modified").equals(source + "\n// modified")) throw new AssertionError("Unknown Euphoria source edited");
+			if (IrisCompat.adapt(pack, file, source).equals(source)) throw new AssertionError("Euphoria edit missing: " + path);
+		}
+		if (!IrisCompat.temporalVerified()) throw new AssertionError("Euphoria not verified");
+		var result = IrisCompat.temporalOptionOverrides(pack, options, saved);
+		if (!result.get("TAA").equals("true") || !result.get("TAA_DEFINE").equals("1")
+				|| !result.get("TAA_JITTER").equals("0") || !result.get("FXAA_DEFINE").equals("-1")
+				|| !result.get("IMAGE_SHARPENING").equals("0")) throw new AssertionError("Effect sampling/filter ownership lost: " + result);
+		if (!saved.get("TAA_JITTER").equals("1")) throw new AssertionError("Saved options mutated");
+		if (IrisCompat.temporalOptionOverrides(pack, new Object(), saved) != saved || IrisCompat.temporalVerified())
+			throw new AssertionError("Reflective failure must keep user values and mark source-edited pack unmanaged");
+		// This game-free classpath has no Iris implementation. Restore lookup state after the public fallback check.
+		var broken = IrisCompat.class.getDeclaredField("broken"); broken.setAccessible(true);
+		var lookedUp = IrisCompat.class.getDeclaredField("lookedUp"); lookedUp.setAccessible(true);
+		boolean wasBroken = broken.getBoolean(null), wasLookedUp = lookedUp.getBoolean(null);
+		try {
+			if (IrisCompat.packOptionOverrides(new Object(), saved) != saved || IrisCompat.temporalVerified())
+				throw new AssertionError("Pack integration reflective failure escaped fallback");
+		} finally { broken.setBoolean(null, wasBroken); lookedUp.setBoolean(null, wasLookedUp); }
+		IrisCompat.onPackLoading();
+		if (IrisCompat.temporalVerified() || ComplementaryTemporalSource.applied()) throw new AssertionError("Stale pack evidence");
+		owner.setBoolean(null, false);
+		if (IrisCompat.temporalOptionOverrides(pack, options, saved) != saved) throw new AssertionError("Native options changed");
+	}
+
+	public static final class TestOptions {
+		public TestOptions getOptionSet() { return this; }
+		public Map<String, Boolean> getBooleanOptions() { return Map.of("TAA", true); }
+		public Map<String, TestOptions> getStringOptions() { return Map.of("TAA_DEFINE", this, "TAA_JITTER", this, "FXAA_DEFINE", this, "IMAGE_SHARPENING", this); }
+		public TestOptions getOption() { return this; }
+		public List<String> getAllowedValues() { return List.of("-1", "0", "1"); }
+	}
+
 	private static void bsl(Path zip) throws Exception {
 		if (!Files.isRegularFile(zip)) { System.out.println("BSL source checks skipped: " + zip + " missing"); return; }
 		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
@@ -151,6 +255,21 @@ public final class IrisCompatCheck {
 		if (!Files.isRegularFile(jar)) throw new AssertionError("Supported Iris jar missing: " + jar);
 		try (ZipFile zip = new ZipFile(jar.toFile())) {
 			String version = new String(zip.getInputStream(zip.getEntry("fabric.mod.json")).readAllBytes());
+
+			ClassNode packCode = new ClassNode();
+			new ClassReader(zip.getInputStream(zip.getEntry("net/irisshaders/iris/shaderpack/ShaderPack.class")).readAllBytes()).accept(packCode, 0);
+			boolean graphBeforeOptions = false;
+			for (var method : packCode.methods) {
+				if (!method.name.equals("<init>")) continue;
+				boolean graph = false;
+				for (var instruction : method.instructions) {
+					if (!(instruction instanceof MethodInsnNode call) || !call.name.equals("<init>")) continue;
+					if (call.owner.endsWith("/include/IncludeGraph")) graph = true;
+					if (call.owner.endsWith("/option/ShaderPackOptions")) { if (!graph) throw new AssertionError("Options precede source adaptation"); graphBeforeOptions = true; }
+				}
+			}
+			if (!graphBeforeOptions) throw new AssertionError("IncludeGraph/options construction order missing");
+
 			if (!version.contains("\"" + IrisCompat.SUPPORTED + "\"")) throw new AssertionError("Jar is not " + IrisCompat.SUPPORTED);
 			require(zip, "net/irisshaders/iris/shaderpack/include/IncludeGraph", "readFile(Ljava/nio/file/Path;)Ljava/lang/String;");
 			require(zip, "net/irisshaders/iris/pathways/HandRenderer", "setupGlState", "renderSolid", "renderTranslucent");
@@ -169,7 +288,7 @@ public final class IrisCompatCheck {
 				}
 				if (!backup || !restore) throw new AssertionError("Hand capture boundaries missing: " + name);
 			}
-			require(zip, "net/irisshaders/iris/Iris", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
+			require(zip, "net/irisshaders/iris/Iris", "tryUpdateConfigPropertiesFile(Ljava/nio/file/Path;Ljava/util/Properties;)V", "loadExternalShaderpack(Ljava/lang/String;)Z", "getShaderPackOptionQueue()Ljava/util/Map;", "shouldResetShaderPackOptionsOnNextReload()Z", "loadShaderpack()V", "reload()V", "isPackInUseQuick()Z", "getIrisConfig");
 			require(zip, "net/irisshaders/iris/config/IrisConfig", "setShadersEnabled(Z)V", "save()V");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "normalNativeSampler", "specularNativeSampler");
 			require(zip, "net/irisshaders/iris/pipeline/IrisRenderingPipeline", "renderShadows", "beginLevelRendering", "beginTranslucents", "finalizeLevelRendering");
