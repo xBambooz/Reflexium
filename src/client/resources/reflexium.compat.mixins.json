@@ -10,7 +10,8 @@
 		"dh.IrisDhTerrainMixin",
 		"dh.IrisDhRenderGuardMixin",
 		"BetterF3ConfigMixin",
-		"BetterF3FpsMixin"
+		"BetterF3FpsMixin",
+		"MiniHudFpsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
