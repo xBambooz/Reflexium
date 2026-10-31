@@ -1,4 +1,4 @@
-﻿import {acquire,release,exclusive} from './lock.mjs';
+import {acquire,release,exclusive} from './lock.mjs';
 // One build's FPS session: `node tools/dlss-cost/run.mjs <baseline|fixed> <port>`.
 // Installs the build's jar into the copy profile only, launches it detached, then runs
 // visit 1 (native, CNN Q, Transformer Q), visit 2 (reverse order) and at most one extra pass per
@@ -6,7 +6,7 @@
 // Profiling stays off for every pass here (the copy proof runs separately).
 import fs from 'node:fs';
 import {
-	scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
+	root, scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
 	dhSnapshot, sameSnapshot, sameDurable, dhGeneratorPlan, logSize, dhLogSince, listResults, readResult,
 	capframexCsv, metrics, contentCheck, passKey,
 } from './lib.mjs';
@@ -32,7 +32,7 @@ const rows = shaderless ? ['native','q-k','q-e','up-l'] : ORDER;
 const group = shaderless ? 'shaderless' : build;
 let ownedPid=0, ownedClient=null;
 let sessionStarted=0;
-const jar = `${scratch}/${build}.jar`;
+const jar = `${root}/build/libs/${jarName}`;
 const passesFile = `${evidence}/passes-b2.json`;
 const passes = fs.existsSync(passesFile) ? JSON.parse(fs.readFileSync(passesFile,'utf8')) : [];
 const persist = () => save(`${evidence}/passes-${build}.json`, passes);
@@ -237,8 +237,3 @@ main().catch(error => {
     if(ownedPid){try{await quit(ownedClient,ownedPid);ownedPid=0;}catch(e){console.error('cleanup failed; reservation retained',e.message);}}
     if(!ownedPid)release();
 });
-
-
-
-
-

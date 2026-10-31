@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import {acquire,release,exclusive} from './lock.mjs';
 import {profile,evidence,save,launch,client,quit,delay,idleGate} from './lib.mjs';
 if (!process.argv.includes('--execute')) { console.log('DRY RUN: profile prepared; no lock, launch, or HTTP call. Later live run requires --execute.'); process.exit(0); }
@@ -28,4 +28,3 @@ try {
  }
  fs.copyFileSync(profile+'/logs/latest.log',evidence+'/spans/latest.log');
 } finally {if(c&&pid)await quit(c,pid);release();}
-

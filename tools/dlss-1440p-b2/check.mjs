@@ -1,4 +1,4 @@
-﻿import assert from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import {root,metrics,capframexCsv} from './lib.mjs';
 assert(root.endsWith('/t3-ab93aef4'));
 assert.equal(metrics([10,10,10]).avg_fps,100);

@@ -1,4 +1,4 @@
-﻿// Shared harness helpers for the DLSS cost measurement (docs/specs/DLSS_COST_PLAN.md).
+// Shared harness helpers for the DLSS cost measurement (docs/specs/DLSS_COST_PLAN.md).
 // Copies the round 17 method: detached javaw launch through tools/launch-modrinth-profile.ps1,
 // harness and debug ports per launch, title idle gate, Benchmark Mod route passes, proofs.
 import fs from 'node:fs';
@@ -242,4 +242,3 @@ export function contentCheck(files) {
 }
 
 export const passKey = (build, config, pass) => `${build}-${config}-pass${pass}`;
-

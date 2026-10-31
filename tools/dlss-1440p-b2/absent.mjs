@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import {acquire,release,exclusive} from './lock.mjs';
 import {root,evidence,save,ps,delay,processInfo} from './lib.mjs';
 const run=root+'/run',port=25764;
@@ -35,4 +35,3 @@ try {
  if(processInfo(pid))throw Error('Dev shutdown timed out');
  console.log('ABSENT SMOKE COMPLETE',pid);
 } finally {if(!pid || !processInfo(pid))release();}
-
