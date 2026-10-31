@@ -14,7 +14,7 @@ export const bmRoot = 'C:/Users/Ryan/Documents/Benchmark Mod RxRound17';
 export const resultsDir = bmRoot + '/results';
 export const sceneWorld = bmRoot + '/scenes/benchmark-route/world';
 export const prepWorld = profile + '/saves/Round17 Benchmark Preparation';
-export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/b2';
+export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/b3';
 export const scratch = root + '/build/dlss-1440p-b2';
 export const jarName = 'Reflexium-1.2.0-alpha-fabric-26.3.jar';
 export const PROTECTED_PID = 25084;
@@ -55,6 +55,8 @@ export function processInfo(pid) {
 
 // Detached launch via the repo launcher (Win32_Process.Create, javaw). Mirrors round 17's launch().
 export async function launch(port, label, jar) {
+	const listeners=ps(`@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in ${port},${25790+port-25760}}).Count`);
+	if(listeners!=='0')throw Error('Launch ports already listening');
 	const realMods=process.env.APPDATA+'/ModrinthApp/profiles/Fabric 26.3/mods/';
 	const irisName=fs.readdirSync(realMods).find(n=>/^iris.*\.jar$/.test(n));
 	const copyNames=fs.readdirSync(profile+'/mods').filter(n=>/^iris.*\.jar$/.test(n));

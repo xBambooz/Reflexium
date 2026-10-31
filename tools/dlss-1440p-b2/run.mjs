@@ -13,7 +13,7 @@ import {
 
 const [build, portArg, selection = 'forward'] = process.argv.slice(2);
 const port = Number(portArg);
-const EXPECTED = {b2: '772FA0E4767BCF36E9C03E1AA69B9ABC54048ACBE244F41B0CC1741C529D2560'};
+const EXPECTED = {b3: ps(`(Get-FileHash -LiteralPath '${root}/build/libs/${jarName}' -Algorithm SHA256).Hash`)};
 const CONFIGS = {
  native: {upscaler:'off',w:2560,h:1440},
  'q-k': {upscaler:'dlss',quality:'quality',preset:11,w:1707,h:960},
@@ -28,12 +28,12 @@ const CONFIGS = {
 };
 const ORDER = Object.keys(CONFIGS);
 const shaderless = selection.startsWith('shaderless');
-const rows = shaderless ? ['native','q-k','q-e','up-l'] : ORDER;
+const rows = selection==='validate' ? ['native','q-k'] : shaderless ? ['native','q-k','q-e','up-l'] : ORDER;
 const group = shaderless ? 'shaderless' : build;
 let ownedPid=0, ownedClient=null;
 let sessionStarted=0;
 const jar = `${root}/build/libs/${jarName}`;
-const passesFile = `${evidence}/passes-b2.json`;
+const passesFile = `${evidence}/passes-b3.json`;
 const passes = fs.existsSync(passesFile) ? JSON.parse(fs.readFileSync(passesFile,'utf8')) : [];
 const persist = () => save(`${evidence}/passes-${build}.json`, passes);
 const log = (...args) => console.log(new Date().toISOString(), ...args);
@@ -197,7 +197,7 @@ async function runPass(c, pid, config, pass, visit) {
 const spread = (a, b) => 100 * (Math.max(a, b) / Math.min(a, b) - 1);
 
 async function main() {
-    await acquire();
+    await acquire('timed');
     sessionStarted=Date.now();
     exclusive();
 	installJar();

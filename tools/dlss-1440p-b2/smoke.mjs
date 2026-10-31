@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import {acquire,release,exclusive} from './lock.mjs';
-import {profile,evidence,save,launch,client,quit,delay,idleGate} from './lib.mjs';
+import {profile,evidence,save,launch,client,quit,delay,idleGate,ps} from './lib.mjs';
 if (!process.argv.includes('--execute')) { console.log('DRY RUN: smoke prepared; no lock, launch, or HTTP call. Later live run requires --execute.'); process.exit(0); }
 await acquire();
 let pid,c;
@@ -24,7 +24,9 @@ try {
  await delay(12000);
  save(evidence+'/smoke/fg-off-status.json',await c.call('status'));
  await c.debugGet('/screenshot',{path:evidence+'/smoke/fg-off.png',gui:'1'});
- await c.rx('frame_generation','dlss'); await c.rx('fg_multiplier','3');
+ save(evidence+'/smoke/foreground-before.json',JSON.parse(ps(`Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class RxFocus{[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();}'; [RxFocus]::GetForegroundWindow().ToInt64() | ConvertTo-Json`)));
+ await c.call('window',{monitor:'secondary',x:0,y:0,width:2560,height:1440,activate:true});
+ await c.rx('frame_generation','dlss_multi'); await c.rx('fg_multiplier','3');
  const first=await c.call('status'); await delay(10000);
  const last=await c.call('status');
  save(evidence+'/smoke/fg-on-status.json',{first,last});
@@ -32,6 +34,8 @@ try {
  fs.copyFileSync(profile+'/logs/latest.log',evidence+'/smoke/latest.log');
  console.log('SMOKE CAPTURED',pid);
 } finally {
+ const f=evidence+'/smoke/foreground-before.json';
+ if(fs.existsSync(f)){const hwnd=JSON.parse(fs.readFileSync(f));ps(`Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class RxRestore{[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);}'; [RxRestore]::SetForegroundWindow([IntPtr]::new(${hwnd}))`);}
  if(c && pid) await quit(c,pid);
  release();
 }

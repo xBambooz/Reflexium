@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {root,metrics,capframexCsv} from './lib.mjs';
-assert(root.endsWith('/t3-ab93aef4'));
+assert.equal(root, (await import('node:url')).fileURLToPath(new URL('../../', import.meta.url)).replaceAll('\\','/').replace(/\/$/,''));
 assert.equal(metrics([10,10,10]).avg_fps,100);
 assert.equal(capframexCsv([{frames:{t:[0,0.01],ms:[10,10]}}]).trim().split('\n').length,3);
 console.log('B2 helper checks passed');
