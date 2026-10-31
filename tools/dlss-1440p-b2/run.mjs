@@ -228,7 +228,15 @@ async function main() {
 	if(process.argv.includes('--minihud'))await captureMiniHud(c,pid);
 	const visit1 = (selection.endsWith('reverse') || selection.startsWith('extra:')?[]:rows).map(cfg => [cfg, 1, 1]);
 	const visit2 = (selection.endsWith('reverse')?[...rows].reverse():[]).map(cfg => [cfg, 2, 2]);
-	for (const [cfg, pass, visit] of [...visit1, ...visit2]) await runPass(c, pid, cfg, pass, visit);
+	for (const [cfg, pass, visit] of [...visit1, ...visit2]) {
+		try{await runPass(c, pid, cfg, pass, visit);}
+		catch(error){
+			if(cfg!=='native' || !String(error).includes('TimeoutException'))throw error;
+			const key=passKey(group,cfg,pass);
+			save(`${evidence}/proofs/${key}-failure-${port}.json`,{key,valid:false,error:String(error),time:new Date().toISOString(),results:listResults()});
+			log(`native row INVALID after state timeout; continuing SR rows: ${error}`);
+		}
+	}
 	if(selection.startsWith('extra:')) {
 		const cfg=selection.slice(6);
 		if(!CONFIGS[cfg])throw Error('Unknown extra row '+cfg);
