@@ -31,7 +31,6 @@ import java.util.Set;
 public final class IrisCompat {
 	private static final String MOD_ID = "iris";
 	public static final String SUPPORTED = "1.12.0-snapshot+mc26.3-local";
-	private static final String PACK = "ComplementaryReimagined_r5.9.3";
 	/** lib/antialiasing/jitter.glsl, hashed with Vitrail's reader convention (LF lines, trailing empty line kept). */
 	private static final String JITTER = "lib/antialiasing/jitter.glsl";
 	private static final String JITTER_SHA256 = "60872f102a808d3f5a6e8a5c0391bb1fb149bb08abb262047cb27e05577d877b";
@@ -304,7 +303,7 @@ public final class IrisCompat {
 
 	static String adapt(String name, Path file, String source) {
 		if (!ownsTemporalSampling() || source == null) return source;
-		if (!PACK.equals(name) && !BSL.equals(name)) return source;
+		if (!ComplementaryTemporalSource.supports(name) && !BSL.equals(name)) return source;
 		String path = file.toString().replace('\\', '/');
 		int root = path.lastIndexOf("shaders/");
 		if (root < 0) return source;
@@ -338,9 +337,15 @@ public final class IrisCompat {
 	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
 	 */
 	public static Map<String, String> temporalOptionOverrides(Object packOptions, Map<String, String> values) {
+		return temporalOptionOverrides(currentPackName(), packOptions, values);
+	}
+
+	static Map<String, String> temporalOptionOverrides(String name, Object packOptions, Map<String, String> values) {
 		if (!ownsTemporalSampling() || values == null) return values;
-		String name = currentPackName();
-		if (PACK.equals(name) || BSL.equals(name)) return values;
+		if (BSL.equals(name)) return values;
+		// IncludeGraph reads and adapts sources before ShaderPackOptions is constructed.
+		// Keep effect sampling animated only when the reviewed full-scene resolve was bypassed.
+		boolean keepTaa = ComplementaryTemporalSource.supports(name) && ComplementaryTemporalSource.applied();
 		try {
 			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
 			Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
@@ -349,12 +354,14 @@ public final class IrisCompat {
 			for (Object key : booleans.keySet()) {
 				String option = (String) key;
 				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) continue;
+				if (keepTaa && option.equalsIgnoreCase("TAA")) continue;
 				result.put(option, "false");
 				overridden.add(option);
 			}
 			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
 			for (Map.Entry<?, ?> entry : strings.entrySet()) {
 				String option = (String) entry.getKey();
+				if (keepTaa && option.equalsIgnoreCase("TAA_DEFINE")) continue;
 				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
 				if (offValues == null) continue;
 				Object merged = entry.getValue();

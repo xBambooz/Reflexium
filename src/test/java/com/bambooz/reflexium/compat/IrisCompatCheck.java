@@ -29,6 +29,7 @@ public final class IrisCompatCheck {
 	public static void main(String[] args) throws Exception {
 		abi(Path.of(System.getProperty("reflexium.irisJar", "run/mods/iris-fabric-experimental-build-26.3.jar")));
 		sources(Path.of("run/shaderpacks/" + PACK + ".zip"));
+		euphoria();
 		bsl(Path.of("run/shaderpacks/BSL_v10.1.8.zip"));
 		proxySwapchain();
 		depthOwnership();
@@ -91,6 +92,47 @@ public final class IrisCompatCheck {
 		}
 	}
 
+
+	private static void euphoria() throws Exception {
+		String pack = PACK + " + EuphoriaPatches_1.10.5";
+		Path root = Path.of("run/shaderpacks/" + pack + "/shaders");
+		if (!Files.isDirectory(root)) throw new AssertionError("Euphoria fixture missing: " + root);
+		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
+		owner.setAccessible(true);
+		owner.setBoolean(null, true);
+		IrisCompat.onPackLoading();
+		var options = new TestOptions();
+		var saved = Map.of("TAA", "true", "TAA_DEFINE", "1", "TAA_JITTER", "1");
+		var fallback = IrisCompat.temporalOptionOverrides(pack, options, saved);
+		if (!fallback.get("TAA").equals("false") || !fallback.get("TAA_DEFINE").equals("0")) throw new AssertionError("Unknown resolve must disable TAA");
+		IrisCompat.onPackLoading();
+		for (String path : List.of("lib/antialiasing/jitter.glsl", ComplementaryTemporalSource.RESOLVE,
+				ComplementaryTemporalSource.FXAA, ComplementaryTemporalSource.SHARPEN)) {
+			Path file = root.resolve(path);
+			String source = Files.readString(file);
+			if (!IrisCompat.adapt(pack, file, source + "\n// modified").equals(source + "\n// modified")) throw new AssertionError("Unknown Euphoria source edited");
+			if (IrisCompat.adapt(pack, file, source).equals(source)) throw new AssertionError("Euphoria edit missing: " + path);
+		}
+		if (!IrisCompat.temporalVerified()) throw new AssertionError("Euphoria not verified");
+		var result = IrisCompat.temporalOptionOverrides(pack, options, saved);
+		if (!result.get("TAA").equals("true") || !result.get("TAA_DEFINE").equals("1")
+				|| !result.get("TAA_JITTER").equals("0") || !result.get("FXAA_DEFINE").equals("-1")
+				|| !result.get("IMAGE_SHARPENING").equals("0")) throw new AssertionError("Effect sampling/filter ownership lost: " + result);
+		if (!saved.get("TAA_JITTER").equals("1")) throw new AssertionError("Saved options mutated");
+		IrisCompat.onPackLoading();
+		if (IrisCompat.temporalVerified() || ComplementaryTemporalSource.applied()) throw new AssertionError("Stale pack evidence");
+		owner.setBoolean(null, false);
+		if (IrisCompat.temporalOptionOverrides(pack, options, saved) != saved) throw new AssertionError("Native options changed");
+	}
+
+	public static final class TestOptions {
+		public TestOptions getOptionSet() { return this; }
+		public Map<String, Boolean> getBooleanOptions() { return Map.of("TAA", true); }
+		public Map<String, TestOptions> getStringOptions() { return Map.of("TAA_DEFINE", this, "TAA_JITTER", this, "FXAA_DEFINE", this, "IMAGE_SHARPENING", this); }
+		public TestOptions getOption() { return this; }
+		public List<String> getAllowedValues() { return List.of("-1", "0", "1"); }
+	}
+
 	private static void bsl(Path zip) throws Exception {
 		if (!Files.isRegularFile(zip)) { System.out.println("BSL source checks skipped: " + zip + " missing"); return; }
 		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
@@ -151,6 +193,21 @@ public final class IrisCompatCheck {
 		if (!Files.isRegularFile(jar)) throw new AssertionError("Supported Iris jar missing: " + jar);
 		try (ZipFile zip = new ZipFile(jar.toFile())) {
 			String version = new String(zip.getInputStream(zip.getEntry("fabric.mod.json")).readAllBytes());
+
+			ClassNode packCode = new ClassNode();
+			new ClassReader(zip.getInputStream(zip.getEntry("net/irisshaders/iris/shaderpack/ShaderPack.class")).readAllBytes()).accept(packCode, 0);
+			boolean graphBeforeOptions = false;
+			for (var method : packCode.methods) {
+				if (!method.name.equals("<init>")) continue;
+				boolean graph = false;
+				for (var instruction : method.instructions) {
+					if (!(instruction instanceof MethodInsnNode call) || !call.name.equals("<init>")) continue;
+					if (call.owner.endsWith("/include/IncludeGraph")) graph = true;
+					if (call.owner.endsWith("/option/ShaderPackOptions")) { if (!graph) throw new AssertionError("Options precede source adaptation"); graphBeforeOptions = true; }
+				}
+			}
+			if (!graphBeforeOptions) throw new AssertionError("IncludeGraph/options construction order missing");
+
 			if (!version.contains("\"" + IrisCompat.SUPPORTED + "\"")) throw new AssertionError("Jar is not " + IrisCompat.SUPPORTED);
 			require(zip, "net/irisshaders/iris/shaderpack/include/IncludeGraph", "readFile(Ljava/nio/file/Path;)Ljava/lang/String;");
 			require(zip, "net/irisshaders/iris/pathways/HandRenderer", "setupGlState", "renderSolid", "renderTranslucent");

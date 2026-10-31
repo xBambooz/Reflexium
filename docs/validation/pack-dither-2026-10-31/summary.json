@@ -1,0 +1,149 @@
+{
+  "before": {
+    "pid": 209768,
+    "camera": {
+      "x": 399.1,
+      "y": 161.2,
+      "z": 36.1,
+      "yaw": 150.0,
+      "pitch": 12.0
+    },
+    "fullscreen": {
+      "allowed": true,
+      "requested": true,
+      "sdl_fullscreen": false,
+      "borderless": true,
+      "exclusive_fullscreen": false,
+      "display_id": 1,
+      "target_display_id": 1,
+      "on_target_display": true,
+      "display_width": 2560,
+      "display_height": 1440,
+      "covers_display": true
+    },
+    "foreground": true,
+    "render_size": {
+      "w": 853,
+      "h": 480
+    },
+    "display_size": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+    "model": "transformer",
+    "preset": 12,
+    "generation": "dlss_multi",
+    "multiplier": 3,
+    "real_frame_indices": [
+      10134,
+      10198,
+      10271,
+      10344,
+      10416,
+      10490,
+      10563,
+      10634
+    ],
+    "generated_present_delta": 1000,
+    "last_error": ""
+  },
+  "after": {
+    "pid": 195728,
+    "camera": {
+      "x": 399.1,
+      "y": 161.2,
+      "z": 36.1,
+      "yaw": 150.0,
+      "pitch": 12.0
+    },
+    "fullscreen": {
+      "allowed": true,
+      "requested": true,
+      "sdl_fullscreen": false,
+      "borderless": true,
+      "exclusive_fullscreen": false,
+      "display_id": 1,
+      "target_display_id": 1,
+      "on_target_display": true,
+      "display_width": 2560,
+      "display_height": 1440,
+      "covers_display": true
+    },
+    "foreground": true,
+    "render_size": {
+      "w": 853,
+      "h": 480
+    },
+    "display_size": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0)",
+    "model": "transformer",
+    "preset": 12,
+    "generation": "dlss_multi",
+    "multiplier": 3,
+    "real_frame_indices": [
+      11836,
+      11913,
+      11987,
+      12059,
+      12138,
+      12218,
+      12294,
+      12366
+    ],
+    "generated_present_delta": 1060,
+    "last_error": ""
+  },
+  "native": {
+    "pid": 175424,
+    "camera": {
+      "x": 399.1,
+      "y": 161.2,
+      "z": 36.1,
+      "yaw": 150.0,
+      "pitch": 12.0
+    },
+    "fullscreen": {
+      "allowed": true,
+      "requested": true,
+      "sdl_fullscreen": false,
+      "borderless": true,
+      "exclusive_fullscreen": false,
+      "display_id": 1,
+      "target_display_id": 1,
+      "on_target_display": true,
+      "display_width": 2560,
+      "display_height": 1440,
+      "covers_display": true
+    },
+    "foreground": true,
+    "render_size": {
+      "w": 2560,
+      "h": 1440
+    },
+    "display_size": {
+      "w": 2560,
+      "h": 1440
+    },
+    "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+    "model": "transformer",
+    "preset": 0,
+    "generation": "off",
+    "multiplier": 3,
+    "real_frame_indices": [
+      1037,
+      1269,
+      1492,
+      1684,
+      1868,
+      2046,
+      2223,
+      2399
+    ],
+    "generated_present_delta": 0,
+    "last_error": ""
+  }
+}
