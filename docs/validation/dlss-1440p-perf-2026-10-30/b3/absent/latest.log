@@ -1,0 +1,725 @@
+[02:27:38] [main/WARN] (FabricLoader/Knot) Class path entries reference missing files: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\build\classes\java\main - the game may not load properly!
+[02:27:38] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.3 with Fabric Loader 0.19.5
+[02:27:38] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[02:27:38] [main/WARN] (FabricLoader/Resolution) Warnings were found!
+ - Mod 'Reese's Sodium Options' (reeses-sodium-options) 2.2.5+mc26.3 recommends version 0.4.2 or later of sodium-extra, which is missing!
+	 - You should install version 0.4.2 or later of sodium-extra for the optimal experience.
+[02:27:38] [main/INFO] (FabricLoader) Loading 62 mods:
+	- agentharness 1.0.0
+	- betterf3 20.0.0
+	- cloth-config 26.3.159
+	   \-- cloth-basic-math 0.6.1
+	- fabric-api 0.162.0+26.3
+	   |-- fabric-advancement-api-v1 1.0.0+38c7a2d55d
+	   |-- fabric-api-base 2.0.6+fcdff87f5d
+	   |-- fabric-api-lookup-api-v1 2.0.24+3434d6d95d
+	   |-- fabric-biome-api-v1 20.1.0+c6aa69a85d
+	   |-- fabric-block-api-v1 3.1.0+0ae6f9115d
+	   |-- fabric-block-getter-api-v2 2.0.9+3434d6d95d
+	   |-- fabric-command-api-v2 3.1.2+fcdff87f5d
+	   |-- fabric-content-registries-v0 15.0.4+74ed1ea55d
+	   |-- fabric-convention-tags-v2 4.10.3+6b5b47fd5d
+	   |-- fabric-crash-report-info-v1 1.0.7+fcdff87f5d
+	   |-- fabric-creative-tab-api-v1 5.0.21+fcdff87f5d
+	   |-- fabric-data-attachment-api-v1 2.2.31+b9b88df45d
+	   |-- fabric-data-generation-api-v1 27.3.0+5be2453c5d
+	   |-- fabric-debug-api-v1 1.0.4+3434d6d95d
+	   |-- fabric-dimensions-v1 5.1.19+47f74c985d
+	   |-- fabric-entity-events-v1 6.0.4+3434d6d95d
+	   |-- fabric-events-interaction-v0 5.3.7+b9b88df45d
+	   |-- fabric-game-rule-api-v1 4.0.10+3434d6d95d
+	   |-- fabric-item-api-v1 14.7.0+cf6bc2db5d
+	   |-- fabric-key-mapping-api-v1 2.0.8+3434d6d95d
+	   |-- fabric-lifecycle-events-v1 4.1.9+ffef5f675d
+	   |-- fabric-loot-api-v3 4.0.8+4068fd645d
+	   |-- fabric-menu-api-v1 2.0.28+ed66f0a35d
+	   |-- fabric-message-api-v1 7.0.10+3434d6d95d
+	   |-- fabric-model-loading-api-v1 8.0.35+fcdff87f5d
+	   |-- fabric-networking-api-v1 6.3.9+b9b88df45d
+	   |-- fabric-object-builder-api-v1 24.1.10+3434d6d95d
+	   |-- fabric-particles-v1 5.0.25+3434d6d95d
+	   |-- fabric-permission-api-v1 1.0.8+fcdff87f5d
+	   |-- fabric-recipe-api-v1 10.0.9+b9b88df45d
+	   |-- fabric-registry-sync-v0 8.0.2+1ca9f6365d
+	   |-- fabric-renderer-api-v1 17.0.15+79385d0b5d
+	   |-- fabric-renderer-indigo 9.1.23+b9d63e335d
+	   |-- fabric-rendering-fluids-v1 6.0.6+3434d6d95d
+	   |-- fabric-rendering-v1 27.0.14+901a437c5d
+	   |-- fabric-resource-conditions-api-v1 6.2.0+0d124ae85d
+	   |-- fabric-resource-loader-v0 3.3.26+4fc5413f5d
+	   |-- fabric-resource-loader-v1 3.0.4+ba0d6c0d5d
+	   |-- fabric-screen-api-v1 5.2.4+48607d035d
+	   |-- fabric-serialization-api-v1 2.0.7+74ed1ea55d
+	   |-- fabric-sound-api-v1 2.0.7+3434d6d95d
+	   |-- fabric-tag-api-v1 2.1.10+fcdff87f5d
+	   |-- fabric-transfer-api-v1 8.0.25+fcdff87f5d
+	   \-- fabric-transitive-access-wideners-v1 8.1.16+52268a0e5d
+	- fabricloader 0.19.5
+	- iris 1.12.0-snapshot+mc26.3-local
+	   |-- io_github_douira_glsl-transformer 3.0.0-pre3
+	   |-- org_anarres_jcpp 1.4.14
+	   \-- org_antlr_antlr4-runtime 4.13.1
+	- java 25
+	- minecraft 26.3
+	- mixinextras 0.5.5
+	- modmenu 21.0.0
+	   \-- placeholder-api 3.2.0+26.3
+	- reeses-sodium-options 2.2.5+mc26.3
+	- reflexium 1.2.0-alpha
+	- sodium 0.9.2+mc26.3
+[02:27:38] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/C:/Users/Ryan/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris-fabric.refmap.json' for mixins.iris.fabric.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.vertexformat.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.bettermipmaps.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.compat.sodium.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'iris.refmap.json' for mixins.iris.fixes.maxfpscrash.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/WARN] (FabricLoader/Mixin) Reference map 'reeses-sodium-options.refmap.json' for reeses-sodium-options.mixins.json could not be read. If this is a development environment you can ignore this message
+[02:27:38] [main/INFO] (Sodium) Loaded configuration file for Sodium: 37 options available, 1 override(s) found
+[02:27:39] [main/WARN] (Sodium) Force-disabling mixin 'features.render.world.sky.LevelRendererMixin' as rule 'mixin.features.render.world.sky' (added by mods [iris]) disables it and children
+[02:27:39] [main/WARN] (FabricLoader/Mixin) Error loading class: dynamic_fps/impl/DynamicFPSMod (java.lang.ClassNotFoundException: dynamic_fps/impl/DynamicFPSMod)
+[02:27:39] [main/INFO] (Sodium-GraphicsAdapterProbe) Searching for graphics cards...
+[02:27:39] [main/INFO] (Sodium-GraphicsAdapterProbe) Found graphics adapter: AdapterInfo{vendor=NVIDIA, description='NVIDIA GeForce RTX 5070', adapterType=0x0000231B, openglIcdFilePath='C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvoglv64.dll', openglIcdVersion=32.0.16.1742}
+[02:27:39] [main/WARN] (Sodium-Workarounds) Sodium has applied one or more workarounds to prevent crashes or other issues on your system: [NVIDIA_THREADED_OPTIMIZATIONS_BROKEN]
+[02:27:39] [main/WARN] (Sodium-Workarounds) This is not necessarily an issue, but it may result in certain features or optimizations being disabled. You can sometimes fix these issues by upgrading your graphics driver.
+[02:27:39] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[02:27:40] [Datafixer Bootstrap #0/INFO] (Minecraft) 307 Datafixer optimizations took 228 milliseconds
+[02:27:43] [Render thread/INFO] (Minecraft) Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+[02:27:43] [Render thread/INFO] (Minecraft) Setting user: Player470
+[02:27:43] [Render thread/INFO] (Reflexium) Reflexium loaded (Reflex: On, Vitrail: not installed, Aperture: not installed)
+[02:27:43] [Render thread/WARN] (Reflexium) Reflexium debug server listening on http://127.0.0.1:25794/ (dev only)
+[02:27:43] [Render thread/INFO] (Mod Menu/Update Checker) Checking mod updates...
+[02:27:43] [Render thread/INFO] (Indigo) [Indigo] Different rendering plugin detected; not applying Indigo.
+[02:27:43] [Render thread/INFO] (Harness) Agent harness listening on 127.0.0.1:25764 (authenticated, opt-in)
+[02:27:43] [Download-2/ERROR] (Minecraft) Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:168)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:451)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:118)
+	... 5 more
+[02:27:43] [ModMenu/Update Checker/Fabric Loader/INFO] (Mod Menu/Update Checker) Update available for 'fabricloader@0.19.5'
+[02:27:43] [Render thread/INFO] (betterf3) [BetterF3] Loading...
+[02:27:43] [Download-3/INFO] (Mod Menu/Update Checker) Update available for 'fabric-api@0.162.0+26.3', (-> 0.165.0+26.3)
+[02:27:43] [Render thread/INFO] (betterf3) [BetterF3] All done!
+[02:27:43] [Render thread/INFO] (Sodium) Setting exclusive fullscreen to true by default, as the user is using a language that likely does not need an IME.
+[02:27:43] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.4.3-snapshot
+[02:27:43] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App name: Minecraft
+[02:27:43] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App version: 26.3
+[02:27:43] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App ID: com.mojang.minecraft
+[02:27:43] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: SDL revision: SDL-3.4.14-62f10da
+[02:27:44] [Render thread/INFO] (Reflexium) [Streamline] [02-27-44][streamline][info][tid:188636][0s:000ms:612us]pluginManager.cpp:430[setHostSDKVersion] Streamline v2.14.16.b742680bf - built on Wed Sep 30 11:45:07 2026 - host SDK v2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:639us]ota.cpp:406[parseServerManifest] OTA feature sdk_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:652us]ota.cpp:406[parseServerManifest] OTA feature common_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:664us]ota.cpp:406[parseServerManifest] OTA feature deepdvc_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:675us]ota.cpp:406[parseServerManifest] OTA feature dlss_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:798us]ota.cpp:406[parseServerManifest] OTA feature dlss_d_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:810us]ota.cpp:406[parseServerManifest] OTA feature dlss_g_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:816us]ota.cpp:406[parseServerManifest] OTA feature nis_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:822us]ota.cpp:406[parseServerManifest] OTA feature nvperf_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:829us]ota.cpp:406[parseServerManifest] OTA feature pcl_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:000ms:835us]ota.cpp:406[parseServerManifest] OTA feature reflex_0 version 2.14.16
+[02-27-44][streamline][info][tid:188636][0s:119ms:401us]ota.cpp:832[getNVDAArchitecture] Found NVIDIA GPUs, [000000D141AFDD10]: 1
+[02-27-44][streamline][info][tid:188636][0s:120ms:296us]ota.cpp:838[getNVDAArchitecture] Found GPU 0, arch=0x1b0
+[02-27-44][streamline][info][tid:188636][0s:120ms:397us]ota.cpp:242[invokeNGXUpdater] Invoking NGX Updater: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe -cmsid 0 -feature sl_sdk_0 -api update -type zip -gpuarch 0x1B0 -bootstrap
+[02-27-44][streamline][info][tid:188636][0s:120ms:437us]pluginManager.cpp:545[findPlugins] Looking for plugins in C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline ...
+[02-27-44][streamline][info][tid:188636][0s:120ms:505us]pluginManager.cpp:1048[loadPlugins] eLoadDownloadedPlugins flag not passed to preferences, OTA'd plugins will not be loaded!
+[02-27-44][streamline][info][tid:188636][0s:126ms:694us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline\
+[02-27-44][streamline][info][tid:188636][0s:126ms:843us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[02-27-44][streamline][info][tid:188636][0s:126ms:888us]commonInterface.cpp:165[getSystemCaps] Enumerating up to 8 adapters but only one of them can be used to create a device - no mGPU support in this SDK
+[02-27-44][streamline][info][tid:188636][0s:127ms:371us]commonInterface.cpp:287[getSystemCaps] >-----------------------------------------
+[02-27-44][streamline][info][tid:188636][0s:127ms:377us]commonInterface.cpp:290[getSystemCaps] NVIDIA driver 617.42
+[02-27-44][streamline][info][tid:188636][0s:127ms:914us]commonInterface.cpp:315[getSystemCaps] Adapter 0 architecture 0x1b0 implementation 0x5 revision 0xa1 - bit 0x1 - LUID 0.50936
+[02-27-44][streamline][info][tid:188636][0s:127ms:921us]commonInterface.cpp:321[getSystemCaps] -----------------------------------------<
+[02-27-44][streamline][info][tid:188636][0s:127ms:997us]commonEntry.cpp:2124[updateEmbeddedJSON] Detected Windows OS version 10.0.26300
+[02-27-44][streamline][info][tid:188636][0s:128ms:064us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.common' - version 2.14.16.b742680bf PRODUCTION - id 4294967295 - priority 0 - adapter mask 0x1 - interposer 'no'
+[02-27-44][streamline][info][tid:188636][0s:132ms:718us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline\
+[02-27-44][streamline][info][tid:188636][0s:132ms:860us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[02-27-44][streamline][info][tid:188636][0s:164ms:839us]commonEntry.cpp:1042[getNGXFeatureRequirements] Native VK OFA feature supported on this device!
+[02-27-44][streamline][warn][tid:188636][0s:382ms:840us]commonEntry.cpp:1093[getNGXFeatureRequirements] ngxResult not implemented
+[02-27-44][streamline][warn][tid:188636][0s:382ms:866us]dlssEntry.cpp:208[updateEmbeddedJSON] Failed to obtain DLSS min spec requirements from NGX, using SL defaults
+[02-27-44][streamline][info][tid:188636][0s:382ms:903us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeDepth' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[02-27-44][streamline][info][tid:188636][0s:382ms:912us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeMotionVectors' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[02-27-44][streamline][info][tid:188636][0s:382ms:919us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeScalingInputColor' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[02-27-44][streamline][info][tid:188636][0s:382ms:925us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeScalingOutputColor' life-cycle 'ResourceLifecycle::eValidUntilEvaluate' for feature `kFeatureDLSS`
+[02-27-44][streamline][info][tid:188636][0s:382ms:992us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.dlss' - version 2.14.16.b742680bf PRODUCTION - id 0 - priority 100 - adapter mask 0x1 - interposer 'no'
+[02-27-44][streamline][info][tid:188636][0s:387ms:967us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline\
+[02-27-44][streamline][info][tid:188636][0s:388ms:112us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[02-27-44][streamline][info][tid:188636][0s:397ms:908us]commonEntry.cpp:1042[getNGXFeatureRequirements] Native VK OFA feature supported on this device!
+[02-27-44][streamline][warn][tid:188636][0s:402ms:436us]commonEntry.cpp:1093[getNGXFeatureRequirements] ngxResult not implemented
+[02-27-44][streamline][warn][tid:188636][0s:402ms:459us]dlss_gEntry.cpp:143[updateEmbeddedJSON] Failed to obtain DLSS-G min spec requirements from NGX, using SL defaults
+[02-27-44][streamline][info][tid:188636][0s:402ms:471us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeDepth' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[02-27-44][streamline][info][tid:188636][0s:402ms:482us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeMotionVectors' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[02-27-44][streamline][info][tid:188636][0s:402ms:492us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeHUDLessColor' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[02-27-44][streamline][info][tid:188636][0s:402ms:502us]commonEntry.cpp:1457[updateCommonEmbeddedJSONConfig] Registering required tag 'kBufferTypeUIColorAndAlpha' life-cycle 'ResourceLifecycle::eValidUntilPresent' for feature `kFeatureDLSS_G`
+[02-27-44][streamline][info][tid:188636][0s:402ms:594us]dlss_gEntry.cpp:339[updateEmbeddedJSON] Successfully set environment variable required by the Vulkan driver.
+[02-27-44][streamline][info][tid:188636][0s:402ms:677us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.dlss_g' - version 2.14.16.b742680bf PRODUCTION - id 1000 - priority 1000 - adapter mask 0x1 - interposer 'no'
+[02-27-44][streamline][info][tid:188636][0s:407ms:034us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline\
+[02-27-44][streamline][info][tid:188636][0s:407ms:153us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[02-27-44][streamline][info][tid:188636][0s:407ms:212us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.pcl' - version 2.14.16.b742680bf PRODUCTION - id 4 - priority 2 - adapter mask 0x1 - interposer 'no'
+[02-27-44][streamline][info][tid:188636][0s:411ms:510us]plugin.cpp:94[isAppDenylisted] Plugin path: C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline\
+[02-27-44][streamline][info][tid:188636][0s:411ms:641us]plugin.cpp:110[isAppDenylisted] Plugin is not from OTA - denylist does not apply
+[02-27-44][streamline][info][tid:188636][0s:411ms:712us]pluginManager.cpp:907[mapPlugins] Loaded plugin 'sl.reflex' - version 2.14.16.b742680bf PRODUCTION - id 3 - priority 100 - adapter mask 0x1 - interposer 'no'
+[02-27-44][streamline][info][tid:188636][0s:411ms:760us]pluginManager.cpp:1190[loadPlugins] Plugin execution order based on priority:
+[02-27-44][streamline][info][tid:188636][0s:411ms:767us]pluginManager.cpp:1193[loadPlugins] P0 - sl.common
+[02-27-44][streamline][info][tid:188636][0s:411ms:773us]pluginManager.cpp:1193[loadPlugins] P2 - sl.pcl
+[02-27-44][streamline][info][tid:188636][0s:411ms:779us]pluginManager.cpp:1193[loadPlugins] P100 - sl.dlss
+[02-27-44][streamline][info][tid:188636][0s:411ms:786us]pluginManager.cpp:1193[loadPlugins] P100 - sl.reflex
+[02-27-44][streamline][info][tid:188636][0s:411ms:791us]pluginManager.cpp:1193[loadPlugins] P1000 - sl.dlss_g
+Streamline initialized, manual Vulkan hooking
+[02:27:44] [Render thread/INFO] (Reflexium) Streamline 0.0.0 (SL 2.14.16) loaded; instance [VK_KHR_external_memory_capabilities, VK_KHR_external_semaphore_capabilities, VK_KHR_get_physical_device_properties2], device [VK_KHR_push_descriptor, VK_KHR_timeline_semaphore, VK_KHR_external_semaphore_win32, VK_KHR_maintenance4, VK_KHR_external_memory_win32, VK_NVX_image_view_handle, VK_NV_low_latency2, VK_NV_optical_flow, VK_NVX_binary_import, VK_EXT_buffer_device_address, VK_KHR_external_semaphore], features12 [bufferDeviceAddress, timelineSemaphore, descriptorIndexing], features13 [synchronization2]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [EXT MultiDraw]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [AMD Buffer Marker]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Iris tessellation shaders]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Wireframe]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Calibrated Timestamps]
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Iris graphics pipeline libraries]
+[02:27:44] [Render thread/INFO] (Minecraft) Optional FeatureSet [NV Diagnostic Checkpoint] supported but device condition failed and will not be enabled
+[02:27:44] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Iris geometry shaders]
+[02:27:44] [Render thread/INFO] (Reflexium) Enabling device extensions: VK_NV_low_latency2, VK_KHR_present_id, VK_NVX_image_view_handle, VK_NVX_binary_import, VK_KHR_timeline_semaphore, VK_KHR_external_semaphore_win32, VK_KHR_maintenance4, VK_KHR_external_memory_win32, VK_NV_optical_flow, VK_KHR_external_semaphore
+[02:27:44] [Render thread/INFO] (Reflexium) Reserved Streamline queues 1..3 in Vulkan family 0
+[02:27:44] [Render thread/INFO] (Reflexium) Vulkan device NVIDIA GeForce RTX 5070 (1.4.351 NVIDIA 617.42): low_latency2=true, present_id=true
+[02:27:45] [Render thread/INFO] (Reflexium) [Streamline] [02-27-44][streamline][info][tid:188636][0s:601ms:358us]pluginManager.cpp:1393[initializePlugins] Initializing plugins - api 0.0.1 - application ID 100721531
+[02-27-44][streamline][info][tid:188636][0s:602ms:001us]generic.cpp:112[initNsightActivity] NSight SDK activity not detected (6)!
+[02-27-44][streamline][info][tid:188636][0s:602ms:043us]commonEntry.cpp:1568[slOnPluginStartup] At least one plugin requires NGX, trying to initialize ...
+[02-27-44][streamline][info][tid:188636][0s:602ms:090us]commonEntry.cpp:1368[ngxLog] [Unknown(32764)] [2026-10-31 02:27:44] [NGXSafeInitializeLog:150] App logging hooks successfully initialized
+
+[02-27-44][streamline][info][tid:188636][0s:602ms:097us]commonEntry.cpp:1369[ngxLog] [Unknown(32764)] [2026-10-31 02:27:44] [NGXLoadLibrary:328] Loaded NGXCore from path (vulkan-1.dll)
+
+[02-27-44][streamline][info][tid:188636][0s:602ms:160us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSafeInitializeLog:139] App logging hooks successfully initialized
+
+[02-27-44][streamline][info][tid:188636][0s:602ms:167us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadLibrary:34] Loaded library from path (vulkan-1.dll)
+
+[02-27-44][streamline][info][tid:188636][0s:602ms:784us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXCheckArchitectureSupport:229] Found matching adapter with NVAPI physical GPU handle: 0x100 and LUID: { 0x0, 0xc6f8 }
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:457us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXGetPathUsingQAI:475] Checking for path to NGX using QueryAdapterInfo
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:498us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXGetPathUsingQAI:512] Path to driverStore found using QAI: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:507us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXGetPath:1046] using path for models: C:\ProgramData\NVIDIA\NGX\models
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:514us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXGetPath:1046] using path for models: C:\ProgramData\NVIDIA\NGX\models
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:520us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [CreateSecurityDescriptor:94] security attributes generated successfully
+
+[02-27-44][streamline][info][tid:188636][0s:609ms:529us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [CreateFolderWithACEs:154] using generated security descriptor for creating folder at: C:\ProgramData\NVIDIA\NGX\models
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:120us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [ModifyExistingFolderDACL:211] updated access control list for NGX cache (NGX cache should now be usable by all authenticated users)
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:139us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXCreateModelsFolder:1073] model folder created: C:\ProgramData\NVIDIA\NGX\models
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:190us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [dlss]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:210us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658702=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:218us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658701=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:224us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9FEB50=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:230us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9FF4BC=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:236us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9FD524=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:242us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DF510=1.3.106
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:248us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9CB0B8=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:254us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9E26B0=2.1.28
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:260us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D48D0=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:266us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E99B5EC=1.2.109
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:272us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DFA64=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:278us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9FD6C0=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:284us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9CF688=2.2.15
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:290us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D6F08=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:296us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9BF564=2.1.201
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:303us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DB4F4=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:309us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D2F5C=1.2.110
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:314us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D7388=1.0.108
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:320us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9F5618=2.1.29
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:326us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DAE68=1.2.109
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:358us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D8C54=1.2.109
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:366us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D3EF0=2.1.28
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:373us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9FACDC=2.1.201
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:379us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_F7361DC=2.1.28
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:385us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9C3560=2.1.201
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:391us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9B0430=2.1.28
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:397us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:402us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_sdk_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:409us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:415us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_common_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:421us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:427us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_deepdvc_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:432us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:438us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:444us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:450us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_d_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:456us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:461us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_g_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:467us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:473us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_nis_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:479us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:484us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_deepdvc_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:495us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:501us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_nvperf_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:508us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:514us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_afx_bnr_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:520us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:526us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_pcl_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:531us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:537us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_ar_gw_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:543us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:548us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_reflex_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:554us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:560us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_sdk_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:567us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:573us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_afx_stdvoice_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:579us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.7
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:585us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_g_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:591us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:596us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_vfx_rl_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:602us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:608us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_common_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:613us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:619us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:625us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:630us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_nis_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:636us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:642us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_dlss_d_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:647us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:654us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_nvperf_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:660us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:666us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_pcl_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:672us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:677us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [sl_reflex_override_0]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:683us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=2.14.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:688us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [dlisp]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:694us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9CF688=2.1.15
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:700us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=310.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:706us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D8C54=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:712us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9D2F5C=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:717us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DF510=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:723us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E99B5EC=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:729us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_B9DAE68=0.0.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:734us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:740us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.7
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:746us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [dlss_override]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:751us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:757us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_vfx_gs_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:763us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:769us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_ar_fd_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:774us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:781us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_afx_rec_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:787us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:793us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_afx_bnrrec_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:800us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.5
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:805us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [nvbcast_vfx_lld_v0_9]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:811us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=0.9.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:816us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [dlssg]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:822us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:828us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [dlssd]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:834us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658700=310.9.16
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:839us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1145] [vsr]
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:845us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXLoadConfig:1151] app_E658703=1.6.0
+
+[02-27-44][streamline][info][tid:188636][0s:622ms:851us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::LoadMappingFileData:222] Member file in JSON file is not array, invalid data
+
+[02-27-44][streamline][info][tid:188636][0s:625ms:336us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [LaunchNGXUpdater:363] starting C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe with command line - C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe -api update -gpuarch 352
+
+[02-27-44][streamline][info][tid:188636][0s:625ms:355us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [LaunchNGXUpdater:364] process for NGX Updater created successfully
+
+[02-27-44][streamline][info][tid:188636][0s:697ms:606us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXDRSInit:182] NvAPI_DRS_FindApplicationByName -166
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:308us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXInitContext:245] called from module sl.common.dll at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:327us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dldenoiser, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:349us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:356us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:363us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dldenoiser.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:371us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXReportStatusFeedback:1103] Override shared memory was opened successfully
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:404us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXReportStatusFeedback:1115] Override shared memory was mapped successfully
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:412us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlss, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:419us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:425us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:432us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlss.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:438us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlinpainting, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:444us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:450us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:456us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlinpainting.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:463us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlisr, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:470us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:476us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:481us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlisr.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:488us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlslowmo, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:494us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:500us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:517us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlslowmo.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:524us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlvsr, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:530us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:551us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:557us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlvsr.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:563us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlcolorize, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:569us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:579us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:585us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlcolorize.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:592us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlstyletransfer, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:598us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:604us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:610us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlstyletransfer.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:616us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlvdenoiser, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:622us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:628us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:634us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlvdenoiser.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:655us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlisp, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:661us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:667us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:673us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlisp.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:680us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlresolve, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:686us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:693us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:699us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlresolve.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:706us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssg, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:712us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:718us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:724us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssg.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:730us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature deepdvc, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:736us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:742us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:748us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_deepdvc.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:755us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssd, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:761us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:767us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:773us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssd.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:779us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature truehdr, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:785us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:792us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:798us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_truehdr.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:804us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature latewarp, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:810us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:816us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:822us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_latewarp.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:828us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature vsr, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:833us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:839us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:845us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_vsr.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:852us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature fgx, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:858us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:864us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:870us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_fgx.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:876us]commonEntry.cpp:1368[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXContextDenyListData::IsFeatureDenied:676] Feature dlssnr, denial value 0 for Cms ID e658702
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:882us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:890us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [`anonymous-namespace'::SnippetLocationInfo::load:716] Module not found at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+
+[02-27-44][streamline][info][tid:188636][0s:701ms:896us]commonEntry.cpp:1369[ngxLog] [Unknown(32765)] [2026-10-31 02:27:44] [NGXSecureLoadFeature:1286] warning: ModuleName - nvngx_dlssnr.dll doesn't exist in any of the search paths!
+
+[02-27-44][streamline][info][tid:188636][0s:702ms:065us]commonEntry.cpp:1694[slOnPluginStartup] NGX loaded - app id 100721531 - application data path C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\streamline
+[02-27-44][streamline][info][tid:188636][0s:702ms:088us]commonEntry.cpp:1754[slOnPluginStartup] At least one plugin requires DRS, trying to initialize ...
+[02-27-45][streamline][info][tid:236536][0s:797ms:264us]ota.cpp:144[execThreadProc] execThreadProc: C:\WINDOWS\System32\DriverStore\FileRepository\nvmdi.inf_amd64_075f7377158a2f30\nvngx_update.exe -cmsid 0 -feature sl_sdk_0 -api update -type zip -gpuarch 0x1B0 -bootstrap
+[02-27-45][streamline][info][tid:188636][0s:817ms:531us]commonEntry.cpp:1762[slOnPluginStartup] DRS loaded - app id 100721531
+[02-27-45][streamline][info][tid:188636][0s:817ms:558us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.common:slSetData:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:567us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.common:slGetData:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:574us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.common:slAllocateResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:581us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.common:slFreeResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:590us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.common:slEvaluateFeature:0x7ff9f013a0c0
+[02-27-45][streamline][info][tid:188636][0s:817ms:597us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.common:slSetTag:0x7ff9f0138ba0
+[02-27-45][streamline][info][tid:188636][0s:817ms:604us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.common:slSetTagForFrame:0x7ff9f0138d10
+[02-27-45][streamline][info][tid:188636][0s:817ms:611us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.common:slSetConsts:0x7ff9f0139ba0
+[02-27-45][streamline][info][tid:188636][0s:817ms:617us]pluginManager.cpp:1290[processPluginHooks] Hook sl.common:slHookVkPresent:before - OK
+[02-27-45][streamline][info][tid:188636][0s:817ms:626us]pluginManager.cpp:1290[processPluginHooks] Hook sl.common:slHookVkAfterPresent:after - OK
+[02-27-45][streamline][warn][tid:188636][0s:817ms:634us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:CmdBindPipeline is NOT supported, plugin will not function properly
+[02-27-45][streamline][warn][tid:188636][0s:817ms:640us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:CmdBindDescriptorSets is NOT supported, plugin will not function properly
+[02-27-45][streamline][warn][tid:188636][0s:817ms:647us]pluginManager.cpp:1272[processPluginHooks] Hook sl.common:Vulkan:BeginCommandBuffer is NOT supported, plugin will not function properly
+[02-27-45][streamline][info][tid:188636][0s:817ms:654us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChain:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:660us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChainForHwnd:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:666us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookCreateSwapChainForCoreWindow:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:672us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookResizeSwapChainPre:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:678us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookPresent:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:684us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookAfterPresent:after - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:690us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookPresent1:before - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:701us]pluginManager.cpp:1266[processPluginHooks] Hook sl.common:slHookAfterPresent:after - skipped
+[02-27-45][streamline][info][tid:188636][0s:817ms:740us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.pcl:slSetData:0x7ffa034cb850
+[02-27-45][streamline][info][tid:188636][0s:817ms:747us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.pcl:slGetData:0x7ffa034cb860
+[02-27-45][streamline][info][tid:188636][0s:817ms:753us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.pcl:slAllocateResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:760us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.pcl:slFreeResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:766us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.pcl:slEvaluateFeature:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:773us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.pcl:slSetTag:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:784us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.pcl:slSetTagForFrame:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:791us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.pcl:slSetConsts:0x0
+[02-27-45][streamline][info][tid:188636][0s:817ms:801us]pluginManager.cpp:1251[processPluginHooks] Plugin 'sl.pcl' has no registered hooks
+[02-27-45][streamline][error][tid:188636][0s:817ms:807us]dlssEntry.cpp:943[slOnPluginStartup] NGX indicates DLSSContext is not available - DLSSContext cannot run
+[02-27-45][streamline][info][tid:188636][0s:818ms:017us]pluginManager.cpp:1499[mapPluginCallbacks] Callback sl.reflex:slSetData:0x7ff9fe67bae0
+[02-27-45][streamline][info][tid:188636][0s:818ms:025us]pluginManager.cpp:1500[mapPluginCallbacks] Callback sl.reflex:slGetData:0x7ff9fe67c450
+[02-27-45][streamline][info][tid:188636][0s:818ms:032us]pluginManager.cpp:1501[mapPluginCallbacks] Callback sl.reflex:slAllocateResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:038us]pluginManager.cpp:1502[mapPluginCallbacks] Callback sl.reflex:slFreeResources:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:044us]pluginManager.cpp:1503[mapPluginCallbacks] Callback sl.reflex:slEvaluateFeature:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:052us]pluginManager.cpp:1504[mapPluginCallbacks] Callback sl.reflex:slSetTag:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:062us]pluginManager.cpp:1505[mapPluginCallbacks] Callback sl.reflex:slSetTagForFrame:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:068us]pluginManager.cpp:1506[mapPluginCallbacks] Callback sl.reflex:slSetConsts:0x0
+[02-27-45][streamline][info][tid:188636][0s:818ms:074us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkCreateSwapchainKHRBefore:before - OK
+[02-27-45][streamline][info][tid:188636][0s:818ms:081us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkCreateSwapchainKHRAfter:after - OK
+[02-27-45][streamline][info][tid:188636][0s:818ms:086us]pluginManager.cpp:1290[processPluginHooks] Hook sl.reflex:slHookVkDestroySwapchainKHRBefore:before - OK
+[02-27-45][streamline][info][tid:188636][0s:818ms:888us]dlfgDrs.cpp:41[readSingleDRSKey] Read DRS key 11041231 = 0x8416747 from global profile
+[02-27-45][streamline][info][tid:188636][0s:820ms:212us]dlss_gEntry.cpp:1440[slOnPluginStartup] Host SDK version: 2.14.16, platform: Vulkan (VSync with FG: not supported)
+[02-27-45][streamline][error][tid:188636][0s:820ms:231us]dlss_gEntry.cpp:1485[slOnPluginStartup] NGX indicates DLSS-G is not available - DLSS-G cannot run
+present pointers: interposerExport=00007FF9F0926E20 deviceQuery=00007FF9F0926E20 driver=00007FFA0EA19CF0
+feature 0 unsupported 32
+feature 1000 unsupported 32
+device set: dlss=0 dlssg=0 maxGenerated=0 reflex=1 pcl=1
+[02:27:45] [Render thread/INFO] (Reflexium) Streamline device: Streamline: DLSS unavailable, DLSS-G unavailable, Reflex ready, PCL ready (NVIDIA GeForce RTX 5070), version 0.0.0 (SL 2.14.16)
+[02:27:45] [Render thread/WARN] (Reflexium) Reflexium: DLSS Frame Generation is unavailable on this GPU or driver; using rendered frames.
+[02:27:45] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[02:27:45] [Render thread/INFO] (Reflexium) Reflex: Streamline tokens and PCL markers
+[02:27:45] [Render thread/INFO] (Reflexium) DLSS: downloading DLSS runtime (0.0 MB)
+[02:27:45] [Render thread/INFO] (Reflexium) FSR 3.1 Vulkan runtime loaded on NVIDIA GeForce RTX 5070
+[02:27:45] [Render thread/INFO] (Reflexium) Streamline frame generation: Streamline: DLSS unavailable, DLSS-G unavailable, Reflex ready, PCL ready
+[02:27:45] [Render thread/INFO] (Iris) Debug functionality is disabled.
+[02:27:45] [Render thread/INFO] (Iris) Shaders are disabled because enableShaders is set to false in iris.properties
+[02:27:45] [Render thread/INFO] (Minecraft) Using graphics backend Vulkan, using drivers: 1.4.351 NVIDIA 617.42
+[02:27:45] [Render thread/INFO] (Minecraft) Using graphics device: NVIDIA GeForce RTX 5070 (NVIDIA)
+[02:27:45] [Render thread/INFO] (Minecraft) Using graphics device extensions: VK_KHR_pipeline_library (D), VK_KHR_dynamic_rendering (D), VK_KHR_compute_shader_derivatives (D), VK_EXT_shader_subgroup_partitioned (D), VK_EXT_calibrated_timestamps (D), VK_KHR_synchronization2 (D), VK_NV_compute_shader_derivatives (D), VK_EXT_multi_draw (D), VK_AMD_buffer_marker (D), VK_EXT_vertex_attribute_divisor (D), VK_EXT_graphics_pipeline_library (D), VK_KHR_win32_surface (I), VK_KHR_swapchain (D), VK_KHR_surface (I), VK_KHR_push_descriptor (D), VK_EXT_debug_utils (I)
+[02:27:45] [Render thread/INFO] (Harness) Agent harness: SDL window activation hints disabled
+[02:27:45] [Render thread/INFO] (Minecraft) Created window using SDL video driver: windows
+[02:27:45] [Render thread/INFO] (Harness) Agent harness window placed: display 2 'XF250Q' at 2560,0 (hwnd 1011484382, foreground now 63374344, activated false)
+[02:27:45] [Render thread/INFO] (Reflexium) Vulkan surface formats: 44/0, 50/0, 37/0, 43/0, 64/0
+[02:27:45] [Render thread/INFO] (Iris) Hardware information:
+[02:27:45] [Render thread/INFO] (Iris) CPU: 16x AMD Ryzen 7 7800X3D 8-Core Processor 
+[02:27:45] [Render thread/INFO] (Iris) GPU: NVIDIA GeForce RTX 5070 (Vulkan 1.4.351 NVIDIA 617.42)
+[02:27:45] [Render thread/INFO] (Iris) OS: Windows 11 (10.0)
+[02:27:45] [Render thread/WARN] (Iris) Pair already assigned: minecraft:pipeline/armor_translucent
+[02:27:45] [Download-3/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[02:27:45] [Download-3/ERROR] (Minecraft) Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:204)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[02:27:45] [Render thread/INFO] (Minecraft) Reloading ResourceManager: vanilla, vanilla, betterf3, cloth-config, fabric-advancement-api-v1, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, iris, modmenu, placeholder-api, reeses-sodium-options, reflexium, sodium
+[02:27:45] [Render thread/INFO] (Reflexium) Reflex mode: Off (Streamline)
+[02:27:45] [Worker-Main-8/INFO] (Minecraft) Found unifont_all_no_pua-17.0.01.hex, loading
+[02:27:45] [Worker-Main-12/INFO] (Minecraft) Found unifont_pua-17.0.01.hex, loading
+[02:27:46] [Worker-Main-12/INFO] (Minecraft) Found unifont_jp_patch-17.0.01.hex, loading
+[02:27:46] [Render thread/INFO] (Reflexium) Swapchain created: 8 images (requested 8, surface 2..8), present mode IMMEDIATE, 1920x1080
+[02:27:46] [Render thread/INFO] (Reflexium) Reflex: Off (requested On) (Streamline), latency report ready | Reflex latency: waiting for Streamline data
+[02:27:46] [Render thread/INFO] (Reflexium) Reflex mode: On (Streamline)
+[02:27:46] [Render thread/INFO] (Minecraft) OpenAL initialized on device OpenAL Soft on Headphones (2- Arctis Nova Pro)
+[02:27:46] [Render thread/INFO] (Minecraft) Sound engine started
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[02:27:46] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[02:27:47] [Reflexium DLSS runtime/INFO] (Reflexium) DLSS runtime 310.9.1 installed (56.2 MB) at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\nvngx_dlss.dll
+[02:27:47] [Render thread/INFO] (Iris) Creating pipeline for dimension minecraft:overworld
+[02:27:47] [Render thread/INFO] (Reflexium) DLSS: prerequisites met (nvngx_dlss.dll)
+[02:27:47] [Download-1/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[02:27:47] [Download-1/ERROR] (Minecraft) Couldn't connect to realms
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:354)
+	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[02:27:47] [Reflexium DLSS runtime/INFO] (Reflexium) DLSS runtime 310.9.1 installed (7.1 MB) at C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\run\reflexium\nvngx_dlssg.dll
+[02:27:51] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.2, GPU 0.1
+[02:27:56] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:01] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:06] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.2, GPU 0.1
+[02:28:11] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.4 ms, sim 0.0, submit 0.3, GPU 0.1
+[02:28:16] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.4 ms, sim 0.0, submit 0.2, GPU 0.1
+[02:28:21] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.2 ms, sim 0.0, submit 0.2, GPU 0.1
+[02:28:26] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.4 ms, sim 0.0, submit 0.2, GPU 0.1
+[02:28:31] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.2 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:36] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:41] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.3 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:46] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.2 ms, sim 0.0, submit 0.1, GPU 0.1
+[02:28:51] [Render thread/INFO] (Reflexium) Reflex: On (requested On) (Streamline), latency report ready | Reflex render latency: 0.2 ms, sim 0.0, submit 0.2, GPU 0.1

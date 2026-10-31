@@ -1,0 +1,15 @@
+{
+  "checked": "2026-10-31T05:31:32.256Z",
+  "processes": {
+    "ProcessId": 195044,
+    "ParentProcessId": 184524,
+    "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+  },
+  "idleDaemons": [
+    {
+      "pid": 195044,
+      "state": "2026-10-31T01:30:10.295-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [a2705fe3-ddb7-4ef7-aeea-c86e965e7b58 port:53456, addresses:[localhost/127.0.0.1]]"
+    }
+  ],
+  "exclusive": true
+}
