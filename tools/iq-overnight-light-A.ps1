@@ -9,9 +9,10 @@ Setting shaders 1
 Call command @{command='tick freeze'}|Out-Null
 Call command @{command='kill @e[tag=rx_text_quick]'}|Out-Null
 Call command @{command='kill @e[tag=rx_overnight_pig]'}|Out-Null
-Call command @{command='execute positioned 200.5 151 28 run kill @e[type=!minecraft:player,distance=..32]'}|Out-Null
+Call command @{command='execute positioned 200.5 151 28 run kill @e[type=!minecraft:player,distance=..128]'}|Out-Null
 Call command @{command='tick step 40'}|Out-Null
 Call wait @{ms=2500}|Out-Null
+if(@((Status).plugins.reflexium.named_entities).Count -gt 0){throw 'named entities remain; sign-only diagnostic would be ambiguous'}
 Call command @{command='time set noon'}|Out-Null
 Call camera @{x=200.5;y=151;z=20;yaw=0;pitch=0}|Out-Null
 if(!$ThinOnly){foreach($shade in @(0,1)){

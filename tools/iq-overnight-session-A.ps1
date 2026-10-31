@@ -72,6 +72,15 @@ try{
   }
   $l=Get-Content $lock|ConvertFrom-Json
   if($l.owner -ne 'worker-A-overnight'){throw 'lock owner changed'}
+  # Keep CPU-heavy evidence compression inside the GPU reservation, away from timed workers.
+  try{
+   Write-Output "Checkpointing completed evidence for $Label"
+   & git -C $root add -A -- docs/validation/overnight-A-2026-10-31 docs/validation/iq-issues-2026-10-30.md tools/iq-overnight-A.ps1 tools/iq-overnight-session-A.ps1 tools/iq-overnight-hand-A.ps1 tools/iq-overnight-names-A.ps1 tools/iq-overnight-light-A.ps1 tools/WgcPeriodEvidence.java *> "$root/run/overnight-stage-$Port.log"
+   if($LASTEXITCODE -ne 0){throw "git add failed, see run/overnight-stage-$Port.log"}
+   & git -C $root commit -qm "Checkpoint overnight A $Label evidence" *> "$root/run/overnight-commit-$Port.log"
+   if($LASTEXITCODE -ne 0){throw "git commit failed, see run/overnight-commit-$Port.log"}
+   & git -C $root rev-parse HEAD | Set-Content "$ev/checkpoint-sha.txt"
+  }catch{$_|Out-String|Set-Content "$ev/checkpoint-error.txt"}
   Remove-Item -LiteralPath $lock
   "Exited PID $($s.pid) and released lock"|Set-Content "$ev/released.txt"
  }catch{$_|Out-String|Set-Content "$ev/cleanup-error.txt";throw}

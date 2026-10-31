@@ -1,0 +1,18 @@
+{
+    "label":  "baseline398-mid-rate",
+    "phase_wins":  [
+                       {
+                           "phase":  0,
+                           "wins":  5
+                       },
+                       {
+                           "phase":  1,
+                           "wins":  1
+                       },
+                       {
+                           "phase":  2,
+                           "wins":  60
+                       }
+                   ],
+    "pack":  0
+}

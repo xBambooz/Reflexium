@@ -1,3 +1,4 @@
+param([string]$StartAt='baseline398-mid-rate',[int]$Port=25742,[int]$DebugPort=25572)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot
 $current="$root/build/libs/Reflexium-1.2.0-alpha-fabric-26.3.jar"
@@ -12,7 +13,9 @@ foreach($skin in @(0,1)){foreach($anim in @(0,1)){
  $jobs+=@{Label="hand-baseline-s${skin}a$anim";Task='hand';Jar=$oldHand;Skin=$skin;Animations=$anim}
  $jobs+=@{Label="hand-current-s${skin}a$anim";Task='hand';Jar=$current;Skin=$skin;Animations=$anim}
 }}
-$port=25742;$debugPort=25572
+$startIndex=[Array]::FindIndex([object[]]$jobs,[Predicate[object]]{param($job) $job.Label -eq $StartAt})
+if($startIndex -lt 0){throw "Unknown starting session: $StartAt"}
+$jobs=$jobs[$startIndex..($jobs.Count-1)]
 foreach($job in $jobs){
  Write-Output "START $($job.Label) $(Get-Date -Format o)"
  try{& "$PSScriptRoot/iq-overnight-session-A.ps1" @job -Port $port -DebugPort $debugPort}

@@ -1,0 +1,154 @@
+[
+    {
+        "arm":  "p0-native-d16-pan",
+        "count":  26,
+        "first_yaw":  0.15,
+        "last_yaw":  14.999986,
+        "upscaler":  "off",
+        "quality":  "ultra_performance",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  false,
+        "nodes":  0,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native-d24-pan",
+        "count":  26,
+        "first_yaw":  0.0,
+        "last_yaw":  14.999986,
+        "upscaler":  "off",
+        "quality":  "ultra_performance",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  false,
+        "nodes":  0,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native-d4-pan",
+        "count":  26,
+        "first_yaw":  15.149985,
+        "last_yaw":  29.999949,
+        "upscaler":  "off",
+        "quality":  "ultra_performance",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  false,
+        "nodes":  0,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native-d8-pan",
+        "count":  26,
+        "first_yaw":  0.15,
+        "last_yaw":  14.999986,
+        "upscaler":  "off",
+        "quality":  "ultra_performance",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  false,
+        "nodes":  0,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native_aa-d16-pan",
+        "count":  26,
+        "first_yaw":  0.0,
+        "last_yaw":  14.999986,
+        "upscaler":  "dlss",
+        "quality":  "native_aa",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  true,
+        "nodes":  34,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native_aa-d24-pan",
+        "count":  26,
+        "first_yaw":  0.0,
+        "last_yaw":  14.999986,
+        "upscaler":  "dlss",
+        "quality":  "native_aa",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  true,
+        "nodes":  34,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native_aa-d4-pan",
+        "count":  26,
+        "first_yaw":  0.0,
+        "last_yaw":  14.999986,
+        "upscaler":  "dlss",
+        "quality":  "native_aa",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  true,
+        "nodes":  32,
+        "error":  ""
+    },
+    {
+        "arm":  "p0-native_aa-d8-pan",
+        "count":  26,
+        "first_yaw":  0.0,
+        "last_yaw":  14.999986,
+        "upscaler":  "dlss",
+        "quality":  "native_aa",
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "deferred":  true,
+        "nodes":  32,
+        "error":  ""
+    }
+]
