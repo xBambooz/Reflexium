@@ -342,10 +342,10 @@ public final class ObjectMotion {
 	}
 
 	/**
-	 * Hand and held item quads that are the visible hand surface and moved since last frame. Positions are
-	 * compared in eye space, so a camera turn that carries the hand along produces no vector.
+	 * Hand and held item quads with continuous history. Even a stationary hand must overwrite world
+	 * reprojection underneath it: its zero eye-space velocity is independent of the camera's motion.
 	 */
-	int prepareHandDraws(boolean reset, boolean projectionChanged) {
+	int prepareHandDraws(boolean reset) {
 		for (Slot slot : handTrack.slots) slot.draw = false;
 		int total = 0;
 		if (!reset && handSeen && handTrack.frame == frame && handTrack.hadPrevious) {
@@ -356,7 +356,7 @@ public final class ObjectMotion {
 						|| slot.signature != slot.previousSignature || total + slot.count > MAX_VERTICES) {
 					continue;
 				}
-				if (handMoving(slot, projectionChanged)) {
+				if (handContinuous(slot)) {
 					slot.draw = true;
 					total += slot.count;
 				}
@@ -366,8 +366,7 @@ public final class ObjectMotion {
 		return total;
 	}
 
-	private boolean handMoving(Slot slot, boolean projectionChanged) {
-		boolean moving = drawStatic || projectionChanged;
+	private boolean handContinuous(Slot slot) {
 		for (int v = 0, n = slot.count * 3; v < n; v += 3) {
 			slot.view.transformPosition(slot.positions[v], slot.positions[v + 1], slot.positions[v + 2], scratchNow);
 			slot.previousView.transformPosition(slot.previous[v], slot.previous[v + 1], slot.previous[v + 2], scratchBefore);
@@ -375,9 +374,8 @@ public final class ObjectMotion {
 			float dy = scratchNow.y - scratchBefore.y;
 			float dz = scratchNow.z - scratchBefore.z;
 			if (!Float.isFinite(dx + dy + dz) || dx * dx + dy * dy + dz * dz > TELEPORT_BLOCKS * TELEPORT_BLOCKS) return false;
-			moving |= Math.abs(dx) > STATIC_EPSILON || Math.abs(dy) > STATIC_EPSILON || Math.abs(dz) > STATIC_EPSILON;
 		}
-		return moving;
+		return true;
 	}
 
 	/** Eye-space position now and last frame per vertex, matching {@link #writeVertices}. */

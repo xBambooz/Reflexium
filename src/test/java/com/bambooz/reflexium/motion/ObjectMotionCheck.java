@@ -118,7 +118,7 @@ public final class ObjectMotionCheck {
 			check(current(motion).model == root, "model-part identity survives a new Model.Simple wrapper");
 			var capture = new ObjectMotion.Capture(SINK, current(motion), motion, true);
 			for (int v = 0; v < 4; v++) capture.addVertex(frame * .05f + v % 2, v / 2, -.5f, -1, v % 2, v / 2, 0, 0, 0, 1, 0);
-			check(motion.prepareHandDraws(false, false) == (frame == 0 ? 0 : 4), "wrapped model-part hand history");
+			check(motion.prepareHandDraws(false) == (frame == 0 ? 0 : 4), "wrapped model-part hand history");
 			motion.endFrame();
 		}
 	}
@@ -202,11 +202,11 @@ public final class ObjectMotionCheck {
 		// Vanilla's hand modelview is the camera rotation.
 		Matrix4f view = new Matrix4f().rotationY(0.4f);
 		handFrame(motion, view, 0.0f, 4, 0);
-		check(motion.prepareHandDraws(false, false) == 0, "first hand frame has no history");
+		check(motion.prepareHandDraws(false) == 0, "first hand frame has no history");
 		motion.endFrame();
 		// Swing: the model-space position changes while the view is unchanged.
 		handFrame(motion, view, 0.05f, 4, 0);
-		check(motion.prepareHandDraws(false, false) == 4, "swinging hand is drawn");
+		check(motion.prepareHandDraws(false) == 4, "swinging hand is drawn");
 		FloatBuffer out = FloatBuffer.allocate(28);
 		motion.writeHandVertices(out);
 		Vector3f expectedNow = view.transformPosition(new Vector3f(0.05f, 0, -0.5f), new Vector3f());
@@ -229,30 +229,35 @@ public final class ObjectMotionCheck {
 		motion.enterHand(turned);
 		Node node = new Node(TYPE); motion.onSubmit(node); motion.leaveContext();
 		motion.observe(List.of(node)).iterator().next();
-		VertexConsumer capture = new ObjectMotion.Capture(SINK, current(motion), motion, true);
+		VertexConsumer capture = motion.capture(SINK, RenderTypes.entityTranslucent(
+				Identifier.withDefaultNamespace("textures/entity/player/wide/steve.png")));
 		for (int i = 0; i < 4; i++) {
 			Vector3f p = carry.transformPosition(new Vector3f(0.05f + i % 4 * 0.1f, i / 2 % 2 * 0.1f, -0.5f), new Vector3f());
 			capture.addVertex(p.x, p.y, p.z, -1, i % 4, i % 4, 0, 0, 0, 1, 0);
 		}
-		check(motion.prepareHandDraws(false, false) == 0, "camera rotation alone is no hand motion");
+		check(motion.prepareHandDraws(false) == 4, "screen-fixed hand overwrites camera motion with zero velocity");
+		out.clear();
+		motion.writeHandVertices(out);
+		for (int v = 0; v < 4; v++) for (int axis = 0; axis < 3; axis++) {
+			check(near(out.get(v * 7 + axis), out.get(v * 7 + 3 + axis)), "screen-fixed hand emits equal eye-space positions");
+		}
 		motion.endFrame();
 		// New topology (an item swap changes UVs) must not be matched against the previous item.
 		handFrame(motion, turned, 0.0f, 4, 3);
-		check(motion.prepareHandDraws(false, false) == 0, "changed item has no stale hand history");
+		check(motion.prepareHandDraws(false) == 0, "changed item has no stale hand history");
 		motion.endFrame();
 		handFrame(motion, turned, 0.0f, 4, 3);
-		check(motion.prepareHandDraws(false, false) == 0, "static item adds no draw");
-		check(motion.prepareHandDraws(false, true) == 4, "a changed hand projection needs vectors even with static vertices");
+		check(motion.prepareHandDraws(false) == 4, "static item overwrites world reprojection");
 		motion.endFrame();
 		handFrame(motion, turned, 0.04f, 4, 3);
-		check(motion.prepareHandDraws(true, false) == 0, "history reset draws no hand vectors");
-		check(motion.prepareHandDraws(false, false) == 4, "moving again after the reset check");
+		check(motion.prepareHandDraws(true) == 0, "history reset draws no hand vectors");
+		check(motion.prepareHandDraws(false) == 4, "moving again after the reset check");
 		motion.discardHistory();
-		check(motion.prepareHandDraws(false, false) == 0, "a camera cut discards hand history");
+		check(motion.prepareHandDraws(false) == 0, "a camera cut discards hand history");
 		motion.endFrame();
 		motion.beginFrame(true, false); motion.endFrame();
 		handFrame(motion, turned, 0.0f, 4, 3);
-		check(motion.prepareHandDraws(false, false) == 0, "a frame without the hand drops its history");
+		check(motion.prepareHandDraws(false) == 0, "a frame without the hand drops its history");
 		motion.endFrame();
 		motion.beginFrame(false, false);
 		check(motion.handVertices() == 0, "disabled capture clears hand state");

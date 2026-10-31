@@ -101,7 +101,7 @@ public final class ObjectVelocityPass implements AutoCloseable {
 	 */
 	public int renderHand(ObjectMotion motion, RenderTarget target, GpuTextureView worldDepth, GpuTextureView handDepth,
 			Matrix4f currentJittered, Matrix4f current, Matrix4f previous, boolean reset) {
-		int vertices = motion.prepareHandDraws(reset, !current.equals(previous, 1.0e-6f));
+		int vertices = motion.prepareHandDraws(reset);
 		return vertices == 0 ? 0 : draw(motion, target, worldDepth, handDepth, currentJittered, current, previous, vertices, true);
 	}
 
