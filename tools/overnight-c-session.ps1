@@ -28,7 +28,7 @@ do {
             $status = Invoke-RestMethod "http://127.0.0.1:$Port/status" -Headers @{Authorization="Bearer $($session.token)"} -TimeoutSec 5
             $client = Get-CimInstance Win32_Process -Filter "ProcessId=$($status.pid)"
             if ($status.game_directory -ne $session.game_directory -or !$client.CommandLine.Contains($session.jar) -or !$client.CommandLine.Contains($session.game_directory)) { throw 'Pending launch ownership mismatch' }
-            $session | Add-Member game_pid $status.pid -Force
+            $session | Add-Member -NotePropertyName game_pid -NotePropertyValue $status.pid -Force
             $session | ConvertTo-Json -Depth 10 | Set-Content $sessionFile
         } catch { Write-Output 'Waiting for authenticated owned client status' }
     }
