@@ -90,3 +90,21 @@ Worker results so far (lead-reviewed):
   whole-terrain smear after tick freeze plus jitter/FG toggles with Meshelium only (`run/evidence/mesh-up-frozen.png`).
   Follow-up running: isolate the smear toggle by toggle, and justify the pack delegation with Meshelium-drawn
   versus delegated pack captures and FPS (remove it if Meshelium-drawn pack terrain is correct).
+
+## Integrated state, 2026-10-31 08:20
+
+Merged into `round6-validation`: A `c73d62d` (storage reuse, empty layers skipped, H2 depth self-occlusion
+rejected at 65 degrees with identical 326-pixel coverage, dark F5 head is native), C `505e617` (smear was the
+jitter-off debug mode with and without Meshelium; Meshelium delegates pack terrain by itself, so forced
+delegation is diagnostic-only `meshelium_delegation`; pack FPS 309 vs 310), B `fcb3f5b` (overrides restored at
+Iris's shared `tryUpdateConfigPropertiesFile`, leaked files with the complete override set repaired to pack
+defaults, bookkeeping failures never stop a pack load). Merge head `907a143`; `build installReflexium` passed all
+checks; Testing Instance jar SHA-256 `6B40061CBA29FC5E874621FE13F5FDE1E6D8BC41B9D3A62D3C82F0D1B10748DA`.
+Ryan's real profile still has `4F5CCE82`; he installs the new jar himself. Main checkout `run/mods` now holds the
+snapshot Iris (old `DE1ECDEB` jar moved to `run/mods-disabled`) and `run/shaderpacks` the Euphoria fixture.
+
+Overnight workers (all on primary DISPLAY1 borderless fullscreen, shared lock):
+- P (codex): Testing Instance acceptance launch, idle-gate fix, full 1440p FPS matrix, MiniHUD FG-on.
+- A (codex): sign, name tag, white-hand and generated-frame matrices, plus Meshelium present pass.
+- C (codex_codex_ryan): IrisCompatCheck fixture skip, mip shimmer A/B, full dither checks, live persistence,
+  Mellow dither, Meshelium sequences/culling/FPS, sky-only reload attribution.
