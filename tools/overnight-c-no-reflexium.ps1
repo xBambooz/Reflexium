@@ -19,6 +19,9 @@ try {
     if ([IO.Path]::GetFullPath($launch.project) -ne [IO.Path]::GetFullPath('C:/Users/Ryan/source/repos/mc-agent-harness/examples/empty-project') -or $s.plugins.reflexium -or (Get-ChildItem "$root/run/mods" -Filter '*reflexium*.jar')) {throw 'Reflexium absence control not established'}
     @{project=$launch.project;reflexium_plugin_present=[bool]$s.plugins.reflexium;reflexium_jar_present=$false}|ConvertTo-Json|Set-Content "$dir/absence-control.json"
     if (!$s.world_loaded) {Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null}
+    Call command @{command='gamemode spectator @a'}|Out-Null
+    Call command @{command='tick freeze'}|Out-Null
+    Call command @{command='time set 9000'}|Out-Null
     Call wait @{ms=10000}|Out-Null
     Call fullscreen @{fullscreen=1;activate=1}|Out-Null
     Call window @{monitor='primary';x=0;y=0;width=2561;height=1440}|Out-Null
@@ -37,6 +40,8 @@ try {
         if ($pipelinesAfter -le $pipelinesBefore) {throw 'Reload key did not create a new Iris pipeline; control inconclusive'}
         Call quit @{}|Out-Null
         Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
+        Call command @{command='gamemode spectator @a'}|Out-Null
+        Call command @{command='tick freeze'}|Out-Null
         Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10}|Out-Null
         Call wait @{ms=10000}|Out-Null
         Snapshot "rejoin-$arm"

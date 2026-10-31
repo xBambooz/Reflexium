@@ -18,6 +18,7 @@ try {
     Setting vsync 0
     Call quit @{}|Out-Null
     Call join @{world='Reflexium Vitrail Smoke';timeout_s=120}|Out-Null
+    Call command @{command='gamemode spectator @a'}|Out-Null
     Call command @{command='tick freeze'}|Out-Null
     Call camera @{x=200.5;y=110;z=150;yaw=90;pitch=10}|Out-Null
     foreach($mode in @('native','ultra')) {
