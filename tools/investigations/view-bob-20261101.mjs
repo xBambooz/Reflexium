@@ -25,18 +25,29 @@ if(mode==='acquire'){
  if(JSON.parse(await fs.readFile(lock,'utf8')).owner!==owner)throw Error('Not own GPU lock');
  await fs.unlink(lock);console.log('released');
 }else if(mode==='status')console.log(JSON.stringify(await tool('mc_status',{port})));
+else if(mode==='set')console.log(JSON.stringify(await set(process.argv[4],process.argv[5])));
 else if(mode==='call')console.log(JSON.stringify(await call(process.argv[4],JSON.parse(process.argv[5]??'{}'))));
 else if(mode==='setup'){
  await call('join',{world:'Reflexium Vitrail Smoke',timeout_s:120});
  for(const command of ['gamemode survival @a','tick unfreeze','time set 6000','weather clear'])await call('command',{command});
  await set('shader_pack','ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5');
- for(const [k,v] of Object.entries({upscaler:'dlss',quality:'ultra_performance',dlss_model:'transformer',dlss_preset:12,frame_generation:'off',smart_reflex:0,reflex_interval_us:16667}))await set(k,v);
+ for(const [k,v] of Object.entries({upscaler:'dlss',quality:'ultra_performance',dlss_model:'transformer',dlss_preset:12,frame_generation:'off',reflex_interval_us:16667}))await set(k,v);
  await call('wait',{ms:5000});console.log('setup');
+}else if(mode==='fg'){
+ await fs.mkdir(out,{recursive:true});
+ await set('quality','ultra_performance');await set('bob_view',1);
+ await set('frame_generation','dlss');await set('fg_multiplier',3);
+ await call('camera',{x:200.5,y:151,z:1.5,yaw:0,pitch:3});await call('wait',{ms:2000});
+ await call('key',{name:'key.forward',down:true});
+ try{console.log(JSON.stringify(await call('reflexium',{fg_capture:1,dir:path.join(out,process.argv[4])})));}
+ finally{await call('key',{name:'key.forward',down:false});await set('frame_generation','off');}
 }else if(mode==='capture'){
  await fs.mkdir(out,{recursive:true});const label=process.argv[4];
- for(const quality of ['ultra_performance','quality'])for(const bob of (label==='before'?[1]:[1,0])){
+ for(const quality of ['ultra_performance','quality'])for(const bob of (label.startsWith('before')?[1]:[1,0])){
   await set('quality',quality);await set('bob_view',bob);
   await call('camera',{x:200.5,y:151,z:1.5,yaw:0,pitch:3});await call('wait',{ms:1500});
+  const state=await call('reflexium');
+  if(!state.upscaling_active||state.evaluated_frames===0)throw Error('No active upscaling: '+JSON.stringify(state));
   await call('key',{name:'key.forward',down:true});
   try{
    for(let i=0;i<5;i++){
