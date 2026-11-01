@@ -1,0 +1,26 @@
+[
+    {
+        "arm":  "p0-quality-wall",
+        "covered":  4350,
+        "partial":  4350,
+        "opaque":  0
+    },
+    {
+        "arm":  "p0-ultra_performance-wall",
+        "covered":  4350,
+        "partial":  4350,
+        "opaque":  0
+    },
+    {
+        "arm":  "p1-quality-wall",
+        "covered":  4350,
+        "partial":  4350,
+        "opaque":  0
+    },
+    {
+        "arm":  "p1-ultra_performance-wall",
+        "covered":  4350,
+        "partial":  4350,
+        "opaque":  0
+    }
+]

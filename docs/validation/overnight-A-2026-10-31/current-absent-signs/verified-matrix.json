@@ -1,0 +1,546 @@
+[
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native_aa-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native_aa-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native_aa-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-native_aa-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-quality-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-quality-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-quality-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-quality-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-ultra_performance-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-ultra_performance-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-ultra_performance-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "static_count":  3,
+        "arm":  "p0-ultra_performance-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+        "static_count":  3,
+        "arm":  "p1-native-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+        "static_count":  3,
+        "arm":  "p1-native-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+        "static_count":  3,
+        "arm":  "p1-native-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+        "static_count":  3,
+        "arm":  "p1-native-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  0,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-native_aa-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-native_aa-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-native_aa-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-native_aa-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  2560,
+                       "h":  1440
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-quality-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-quality-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-quality-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-quality-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  1707,
+                       "h":  960
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-ultra_performance-d16",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-ultra_performance-d24",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-ultra_performance-d4",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.0
+    },
+    {
+        "last_yaw":  14.999986,
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "static_count":  3,
+        "arm":  "p1-ultra_performance-d8",
+        "pan_count":  26,
+        "display":  {
+                        "w":  2560,
+                        "h":  1440
+                    },
+        "render":  {
+                       "w":  853,
+                       "h":  480
+                   },
+        "nodes":  34,
+        "first_yaw":  0.15
+    }
+]

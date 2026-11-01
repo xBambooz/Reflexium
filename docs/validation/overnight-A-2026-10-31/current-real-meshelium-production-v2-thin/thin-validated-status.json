@@ -1,0 +1,38 @@
+[
+    {
+        "file":  "thin-ignore0-132749813.json",
+        "named":  0,
+        "nodes":  16,
+        "prepared":  true,
+        "error":  "",
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "jitter":  24
+    },
+    {
+        "file":  "thin-ignore0-132759721.json",
+        "named":  0,
+        "nodes":  16,
+        "prepared":  true,
+        "error":  "",
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "jitter":  37
+    },
+    {
+        "file":  "thin-ignore1-132753115.json",
+        "named":  0,
+        "nodes":  16,
+        "prepared":  true,
+        "error":  "",
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "jitter":  3
+    },
+    {
+        "file":  "thin-ignore1-132756402.json",
+        "named":  0,
+        "nodes":  16,
+        "prepared":  true,
+        "error":  "",
+        "pack":  "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: FXAA_DEFINE=-1, IMAGE_SHARPENING=0, TAA_JITTER=0)",
+        "jitter":  56
+    }
+]

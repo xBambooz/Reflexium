@@ -1,0 +1,722 @@
+[
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.08388667000000001,
+        "edge_energy_ratio":  0.72135125472518713
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.1892481,
+        "edge_energy_ratio":  0.40760501417540629
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.17987386,
+        "edge_energy_ratio":  0.592653786282856
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.26414271,
+        "edge_energy_ratio":  0.40794894309881408
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.21954593,
+        "edge_energy_ratio":  0.606459202937044
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.27929617,
+        "edge_energy_ratio":  0.45182440977641763
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.1055704,
+        "edge_energy_ratio":  0.66276514034957479
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.2829053,
+        "edge_energy_ratio":  0.48257992756317736
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.23892001,
+        "edge_energy_ratio":  0.54496205251951746
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.22774781,
+        "edge_energy_ratio":  0.47281440405981356
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.16620634,
+        "edge_energy_ratio":  0.60267535727994181
+    },
+    {
+        "pack":  0,
+        "roi":  "glyphs",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.31819675,
+        "edge_energy_ratio":  0.46037338473932532
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.51268937,
+        "edge_energy_ratio":  1.6991329937603419
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.62145633999999994,
+        "edge_energy_ratio":  0.89184309828232911
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.4991439,
+        "edge_energy_ratio":  1.7762921406877106
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.57613717,
+        "edge_energy_ratio":  0.88067911875216343
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.43304765,
+        "edge_energy_ratio":  1.7871446304040097
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.43546658000000005,
+        "edge_energy_ratio":  1.0992054357923795
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.52832805,
+        "edge_energy_ratio":  1.6039607962023863
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.54420468999999994,
+        "edge_energy_ratio":  0.89037639222446918
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.49300672999999995,
+        "edge_energy_ratio":  1.6833226389279736
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.61849839,
+        "edge_energy_ratio":  0.89089262747444486
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.48547405,
+        "edge_energy_ratio":  1.7018325637284979
+    },
+    {
+        "pack":  0,
+        "roi":  "bookshelf",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.508518,
+        "edge_energy_ratio":  0.94988160429672264
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.11509763,
+        "edge_energy_ratio":  1.9977378847951792
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.23395165,
+        "edge_energy_ratio":  1.053912282424464
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.37104269,
+        "edge_energy_ratio":  1.8072718660193523
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.6889935,
+        "edge_energy_ratio":  0.6125208801694354
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.32962964,
+        "edge_energy_ratio":  1.5320901508073155
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.70552701,
+        "edge_energy_ratio":  0.675907372717727
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.25608678,
+        "edge_energy_ratio":  2.0408781052728964
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.3542114,
+        "edge_energy_ratio":  1.0132885100282321
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.35414454,
+        "edge_energy_ratio":  2.0760654060962009
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.47050384,
+        "edge_energy_ratio":  0.962988175309037
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.38796268,
+        "edge_energy_ratio":  1.5434875752320154
+    },
+    {
+        "pack":  0,
+        "roi":  "glass",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.71520317,
+        "edge_energy_ratio":  0.51658544398902961
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.11430879999999999,
+        "edge_energy_ratio":  0.63805067567403917
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.25010245999999997,
+        "edge_energy_ratio":  0.39821196139755011
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.059808859999999991,
+        "edge_energy_ratio":  0.51868112184534731
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.10129832999999999,
+        "edge_energy_ratio":  0.43708674247647339
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.13861395999999998,
+        "edge_energy_ratio":  0.64998457810128973
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.24477688,
+        "edge_energy_ratio":  0.50076692812115153
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.21383089,
+        "edge_energy_ratio":  0.57288562921151887
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.27939137999999997,
+        "edge_energy_ratio":  0.43569491687375661
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.17776269,
+        "edge_energy_ratio":  0.54433762652823892
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.1816984,
+        "edge_energy_ratio":  0.47844007670958327
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.06763398,
+        "edge_energy_ratio":  0.68351812620874819
+    },
+    {
+        "pack":  1,
+        "roi":  "glyphs",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.18380921,
+        "edge_energy_ratio":  0.51711762001932982
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.50131726,
+        "edge_energy_ratio":  1.6285576714474084
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.5367496,
+        "edge_energy_ratio":  0.92108873785222067
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.50281387,
+        "edge_energy_ratio":  1.6891462735109193
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.52020707,
+        "edge_energy_ratio":  0.96692128952146927
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.47256403,
+        "edge_energy_ratio":  1.8842142998140894
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.43843542,
+        "edge_energy_ratio":  1.1430029398448693
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.53210152,
+        "edge_energy_ratio":  1.7247263587771438
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.48522991000000004,
+        "edge_energy_ratio":  1.0346409384525104
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.50561243,
+        "edge_energy_ratio":  1.79947638691006
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.56695323,
+        "edge_energy_ratio":  1.0309814755754778
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.50643121,
+        "edge_energy_ratio":  1.8810031567796506
+    },
+    {
+        "pack":  1,
+        "roi":  "bookshelf",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.49805739,
+        "edge_energy_ratio":  1.0762436137920968
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  28,
+        "generated_frame":  84,
+        "real_frame":  86,
+        "generated_phase":  0,
+        "ac3_delta":  0.10059691999999998,
+        "edge_energy_ratio":  1.884695222807335
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  28,
+        "generated_frame":  85,
+        "real_frame":  86,
+        "generated_phase":  1,
+        "ac3_delta":  0.22165042000000001,
+        "edge_energy_ratio":  0.64393301698033256
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  29,
+        "generated_frame":  87,
+        "real_frame":  89,
+        "generated_phase":  0,
+        "ac3_delta":  0.31722614,
+        "edge_energy_ratio":  1.5255630715728996
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  29,
+        "generated_frame":  88,
+        "real_frame":  89,
+        "generated_phase":  1,
+        "ac3_delta":  0.54628623999999992,
+        "edge_energy_ratio":  0.52260672259921193
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  30,
+        "generated_frame":  90,
+        "real_frame":  92,
+        "generated_phase":  0,
+        "ac3_delta":  0.44544885999999995,
+        "edge_energy_ratio":  1.1128936107667438
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  30,
+        "generated_frame":  91,
+        "real_frame":  92,
+        "generated_phase":  1,
+        "ac3_delta":  0.68780500999999994,
+        "edge_energy_ratio":  0.545725661485263
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  31,
+        "generated_frame":  93,
+        "real_frame":  95,
+        "generated_phase":  0,
+        "ac3_delta":  0.11729541999999998,
+        "edge_energy_ratio":  2.4453721437347187
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  31,
+        "generated_frame":  94,
+        "real_frame":  95,
+        "generated_phase":  1,
+        "ac3_delta":  0.41271694999999997,
+        "edge_energy_ratio":  0.75022308409612481
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  32,
+        "generated_frame":  96,
+        "real_frame":  98,
+        "generated_phase":  0,
+        "ac3_delta":  0.20071469000000003,
+        "edge_energy_ratio":  1.8236387129957794
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  32,
+        "generated_frame":  97,
+        "real_frame":  98,
+        "generated_phase":  1,
+        "ac3_delta":  0.18681150000000002,
+        "edge_energy_ratio":  0.67113057884356886
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  33,
+        "generated_frame":  99,
+        "real_frame":  101,
+        "generated_phase":  0,
+        "ac3_delta":  0.3456599,
+        "edge_energy_ratio":  1.4322243575795468
+    },
+    {
+        "pack":  1,
+        "roi":  "glass",
+        "triplet":  33,
+        "generated_frame":  100,
+        "real_frame":  101,
+        "generated_phase":  1,
+        "ac3_delta":  0.65871397,
+        "edge_energy_ratio":  0.45995536785919655
+    }
+]

@@ -1,0 +1,44 @@
+[
+    {
+        "arm":  "p0-native-firstperson",
+        "first_nodes":  0,
+        "F5_nodes":  0,
+        "first_error":  "",
+        "F5_error":  ""
+    },
+    {
+        "arm":  "p0-quality-firstperson",
+        "first_nodes":  4,
+        "F5_nodes":  6,
+        "first_error":  "",
+        "F5_error":  ""
+    },
+    {
+        "arm":  "p0-ultra_performance-firstperson",
+        "first_nodes":  4,
+        "F5_nodes":  6,
+        "first_error":  "",
+        "F5_error":  ""
+    },
+    {
+        "arm":  "p1-native-firstperson",
+        "first_nodes":  0,
+        "F5_nodes":  0,
+        "first_error":  "",
+        "F5_error":  ""
+    },
+    {
+        "arm":  "p1-quality-firstperson",
+        "first_nodes":  4,
+        "F5_nodes":  6,
+        "first_error":  "",
+        "F5_error":  ""
+    },
+    {
+        "arm":  "p1-ultra_performance-firstperson",
+        "first_nodes":  4,
+        "F5_nodes":  6,
+        "first_error":  "",
+        "F5_error":  ""
+    }
+]

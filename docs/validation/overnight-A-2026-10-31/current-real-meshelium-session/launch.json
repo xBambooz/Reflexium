@@ -1,0 +1,1 @@
+"{\r\n    \"ok\":  true,\r\n    \"pending\":  true,\r\n    \"port\":  25754,\r\n    \"session\":  \"C:\\\\Users\\\\Ryan\\\\source\\\\repos\\\\mc-agent-harness\\\\instances\\\\25754\\\\session.json\",\r\n    \"launcher_pid\":  149176,\r\n    \"note\":  \"Still booting. Poll mc_status until it responds.\"\r\n}"

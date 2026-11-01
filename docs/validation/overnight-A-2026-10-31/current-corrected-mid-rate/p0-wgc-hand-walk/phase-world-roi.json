@@ -1,0 +1,18 @@
+{
+    "label":  "current-corrected-mid-rate",
+    "phase_wins":  [
+                       {
+                           "phase":  0,
+                           "wins":  3
+                       },
+                       {
+                           "phase":  1,
+                           "wins":  0
+                       },
+                       {
+                           "phase":  2,
+                           "wins":  63
+                       }
+                   ],
+    "pack":  0
+}
