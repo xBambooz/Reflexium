@@ -38,11 +38,10 @@ public final class ReflexiumConfigScreen extends OptionsSubScreen {
 
 		boolean reflexSupported = ReflexController.get().isSupported();
 		var reflexButton = DropdownButton.create(this, Component.translatable("reflexium.option.reflex_mode"),
-				ReflexController.get()::mode, List.of(ReflexMode.values()), ReflexMode::label, mode -> {
+				ReflexController.get()::mode, ReflexiumOptions.reflexModes(FrameGenerationRenderer.get().needsReflex()), ReflexMode::label, mode -> {
 					ReflexController.get().setMode(mode);
 				});
-		// Frame generation requires Reflex: the effective mode is forced On while DLSS-G is requested.
-		reflexButton.active = reflexSupported && !FrameGenerationRenderer.get().needsReflex();
+		reflexButton.active = reflexSupported;
 		list.addBig(reflexButton);
 
 		list.addHeader(Component.translatable("reflexium.group.upscaling"));

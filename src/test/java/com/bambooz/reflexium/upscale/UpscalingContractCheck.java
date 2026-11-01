@@ -33,6 +33,7 @@ public final class UpscalingContractCheck {
 		cloudReprojection();
 		cameraMetadata();
 		viewBobReprojection();
+		reflexChoices();
 		historyCuts();
 		modelPresets();
 		captureCancellation();
@@ -231,6 +232,14 @@ public final class UpscalingContractCheck {
 			points++;
 		}
 		check(points >= 3, "enough visible reference points exercised the check");
+	}
+
+	private static void reflexChoices() {
+		var all = com.bambooz.reflexium.gui.ReflexiumOptions.reflexModes(false);
+		var fg = com.bambooz.reflexium.gui.ReflexiumOptions.reflexModes(true);
+		check(all.equals(List.of(com.bambooz.reflexium.reflex.ReflexMode.values())), "Reflex Off available without NVIDIA FG");
+		check(fg.equals(List.of(com.bambooz.reflexium.reflex.ReflexMode.ON, com.bambooz.reflexium.reflex.ReflexMode.ON_BOOST)),
+				"NVIDIA FG permits On and Boost only");
 	}
 
 	private static void viewBobReprojection() {
