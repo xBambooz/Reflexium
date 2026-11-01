@@ -1,0 +1,166 @@
+[
+    {
+        "label":  "before",
+        "first_frame":  24,
+        "last_frame":  65,
+        "real_phase":  0,
+        "generated_delta":  116,
+        "real_delta":  58,
+        "aggregates":  [
+                           {
+                               "roi_axis_real":  "bookshelf/x/True",
+                               "n":  14,
+                               "energy":  131.3633110714286,
+                               "ac3":  -0.36633435714285717
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/y/True",
+                               "n":  14,
+                               "energy":  46.761225571428568,
+                               "ac3":  -0.12884042857142858
+                           },
+                           {
+                               "roi_axis_real":  "glass/x/True",
+                               "n":  14,
+                               "energy":  238.40236814285714,
+                               "ac3":  -0.12350535714285714
+                           },
+                           {
+                               "roi_axis_real":  "glass/y/True",
+                               "n":  14,
+                               "energy":  26.830630214285716,
+                               "ac3":  -0.22149749999999999
+                           },
+                           {
+                               "roi_axis_real":  "chain/x/True",
+                               "n":  14,
+                               "energy":  101.79709357142856,
+                               "ac3":  -0.087697
+                           },
+                           {
+                               "roi_axis_real":  "chain/y/True",
+                               "n":  14,
+                               "energy":  46.818789285714296,
+                               "ac3":  -0.024797857142857142
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/x/False",
+                               "n":  28,
+                               "energy":  103.54975207142856,
+                               "ac3":  -0.41102035714285723
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/y/False",
+                               "n":  28,
+                               "energy":  32.831191857142862,
+                               "ac3":  -0.13718589285714283
+                           },
+                           {
+                               "roi_axis_real":  "glass/x/False",
+                               "n":  28,
+                               "energy":  164.44460196428568,
+                               "ac3":  -0.17453378571428568
+                           },
+                           {
+                               "roi_axis_real":  "glass/y/False",
+                               "n":  28,
+                               "energy":  20.421739321428568,
+                               "ac3":  -0.24607289285714282
+                           },
+                           {
+                               "roi_axis_real":  "chain/x/False",
+                               "n":  28,
+                               "energy":  77.918305964285722,
+                               "ac3":  -0.09984525000000001
+                           },
+                           {
+                               "roi_axis_real":  "chain/y/False",
+                               "n":  28,
+                               "energy":  31.913202892857132,
+                               "ac3":  -0.046030785714285712
+                           }
+                       ]
+    },
+    {
+        "label":  "after",
+        "first_frame":  24,
+        "last_frame":  65,
+        "real_phase":  2,
+        "generated_delta":  114,
+        "real_delta":  57,
+        "aggregates":  [
+                           {
+                               "roi_axis_real":  "bookshelf/x/False",
+                               "n":  28,
+                               "energy":  117.09640849999998,
+                               "ac3":  -0.3930798214285714
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/y/False",
+                               "n":  28,
+                               "energy":  95.491116785714283,
+                               "ac3":  -0.3407619642857142
+                           },
+                           {
+                               "roi_axis_real":  "glass/x/False",
+                               "n":  28,
+                               "energy":  167.22223885714288,
+                               "ac3":  -0.12473175
+                           },
+                           {
+                               "roi_axis_real":  "glass/y/False",
+                               "n":  28,
+                               "energy":  27.319980250000004,
+                               "ac3":  -0.31492628571428571
+                           },
+                           {
+                               "roi_axis_real":  "chain/x/False",
+                               "n":  28,
+                               "energy":  91.968922321428565,
+                               "ac3":  -0.0924729285714286
+                           },
+                           {
+                               "roi_axis_real":  "chain/y/False",
+                               "n":  28,
+                               "energy":  54.57500246428571,
+                               "ac3":  -0.19392296428571429
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/x/True",
+                               "n":  14,
+                               "energy":  151.2687067857143,
+                               "ac3":  -0.3473905
+                           },
+                           {
+                               "roi_axis_real":  "bookshelf/y/True",
+                               "n":  14,
+                               "energy":  124.53373164285713,
+                               "ac3":  -0.30736457142857143
+                           },
+                           {
+                               "roi_axis_real":  "glass/x/True",
+                               "n":  14,
+                               "energy":  252.5587823571428,
+                               "ac3":  -0.05359042857142856
+                           },
+                           {
+                               "roi_axis_real":  "glass/y/True",
+                               "n":  14,
+                               "energy":  45.614882142857134,
+                               "ac3":  -0.27531014285714278
+                           },
+                           {
+                               "roi_axis_real":  "chain/x/True",
+                               "n":  14,
+                               "energy":  131.23376157142857,
+                               "ac3":  -0.079480214285714293
+                           },
+                           {
+                               "roi_axis_real":  "chain/y/True",
+                               "n":  14,
+                               "energy":  76.519644857142865,
+                               "ac3":  -0.16049407142857142
+                           }
+                       ]
+    }
+]

@@ -1,0 +1,236 @@
+[
+    {
+        "name":  "still-0",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  50,
+                       "phases":  72,
+                       "x_px":  -0.203125,
+                       "y_px":  0.36419755,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.203125,
+                       "sent_y_px":  0.36419755,
+                       "ndc_x":  -0.0006347656,
+                       "ndc_y":  0.0020233197
+                   },
+        "reset":  false,
+        "frame_time_ms":  4.7561,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    },
+    {
+        "name":  "still-1",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  45,
+                       "phases":  72,
+                       "x_px":  0.203125,
+                       "y_px":  -0.41358024,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  0.203125,
+                       "sent_y_px":  -0.41358024,
+                       "ndc_x":  0.0006347656,
+                       "ndc_y":  -0.002297668
+                   },
+        "reset":  false,
+        "frame_time_ms":  6.88,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    },
+    {
+        "name":  "still-2",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  37,
+                       "phases":  72,
+                       "x_px":  0.140625,
+                       "y_px":  -0.11728394,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  0.140625,
+                       "sent_y_px":  -0.11728394,
+                       "ndc_x":  0.0004394531,
+                       "ndc_y":  -0.00065157743
+                   },
+        "reset":  false,
+        "frame_time_ms":  5.3897,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    },
+    {
+        "name":  "still-3",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  33,
+                       "phases":  72,
+                       "x_px":  0.015625,
+                       "y_px":  -0.2654321,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  0.015625,
+                       "sent_y_px":  -0.2654321,
+                       "ndc_x":  4.8828126E-05,
+                       "ndc_y":  -0.0014746228
+                   },
+        "reset":  false,
+        "frame_time_ms":  6.537,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    },
+    {
+        "name":  "still-4",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  36,
+                       "phases":  72,
+                       "x_px":  -0.359375,
+                       "y_px":  -0.45061728,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.359375,
+                       "sent_y_px":  -0.45061728,
+                       "ndc_x":  -0.0011230469,
+                       "ndc_y":  -0.0025034293
+                   },
+        "reset":  false,
+        "frame_time_ms":  6.3258,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    },
+    {
+        "name":  "still-5",
+        "camera":  {
+                       "x":  200.5,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  200.5,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  34,
+                       "phases":  72,
+                       "x_px":  -0.234375,
+                       "y_px":  0.06790125,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.234375,
+                       "sent_y_px":  0.06790125,
+                       "ndc_x":  -0.0007324219,
+                       "ndc_y":  0.00037722918
+                   },
+        "reset":  false,
+        "frame_time_ms":  5.3606,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  false,
+        "projection_effects":  false
+    }
+]

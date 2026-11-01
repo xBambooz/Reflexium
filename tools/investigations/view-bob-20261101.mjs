@@ -57,4 +57,22 @@ else if(mode==='setup'){
   }finally{await call('key',{name:'key.forward',down:false});}
   console.log(`${label}-${quality}-bob${bob}`);
  }
+}else if(mode==='hill-check'){
+ await call('command',{command:'gamemode spectator @a'});
+ await call('camera',{x:200.5,y:110,z:150,yaw:90,pitch:10});await call('wait',{ms:3000});
+ const dir=path.join(root,'build/validation/view-bob-followup');await fs.mkdir(dir,{recursive:true});
+ console.log(JSON.stringify(await call('screenshot',{path:path.join(dir,'hill-check.png')})));
+}else if(mode==='hill'){
+ const label=process.argv[4],dir=path.join(root,'build/validation/view-bob-followup',label+'-hill');await fs.mkdir(dir,{recursive:true});
+ await set('frame_generation','off');await set('quality','ultra_performance');await set('bob_view',1);
+ await call('command',{command:'fill 160 109 149 201 109 151 minecraft:barrier'});
+ await call('command',{command:'gamemode survival @a'});
+ for(const motion of ['still','walk']){
+  await call('camera',{x:200.5,y:110,z:150,yaw:90,pitch:10});await call('wait',{ms:2000});
+  if(motion==='walk')await call('key',{name:'key.forward',down:true});
+  try{for(let i=0;i<6;i++){
+   await call('reflexium',{capture:motion+'-'+i,dir,extras:1});await call('wait',{ms:100});
+  }}finally{await call('key',{name:'key.forward',down:false});}
+  console.log(label+' hill '+motion);
+ }
 }else throw Error('Unknown command');
