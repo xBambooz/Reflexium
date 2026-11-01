@@ -172,10 +172,11 @@ Status includes `evaluated_frames` (must advance to prove the upscaler ran), `pa
 `object_vertices_captured`, `object_vertices_drawn`, tracked entity counts, `mip_bias` and
 `reactive_mask`. Vertex counts report geometry submitted to the velocity pass, not the number of
 fragments that passed its depth test. A nonzero count alone does not prove correct velocities.
-`drawn_projection_has_view_effects`, `scene_depth_index`, `camera_bob`, `camera_walk_distance` and
+`drawn_projection_has_view_effects`, `drawn_view_has_view_effects`, `scene_depth_index`, `camera_bob`, `camera_walk_distance` and
 `bob_view_state` show whether the drawn projection contains view effects and which Iris depth target
-was used. The 2026-10-23 walking smear was a hand coverage mask problem, not a missing bob in the
-camera matrices; see [the report](validation/pack-fg-bob-2026-10-23.md).
+was used. The view diagnostic compares the projection-upload view with the level-draw view, where
+Iris applies view effects. A clean projection does not exclude view bob. The October 23 hand-mask
+defect was separate; its camera exclusion was withdrawn in [the report](validation/pack-fg-bob-2026-10-23.md).
 
 The `observed` object holds what the last frame actually did, separate from the requested settings:
 

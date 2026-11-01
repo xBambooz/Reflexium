@@ -28,6 +28,7 @@ public final class CaptureAnalysis {
 			case "metrics" -> metrics(args);
 			case "stability" -> stability(args);
 			case "capture-check" -> captureCheck(args);
+			case "drawn-view-check" -> captureCheck(args);
 			case "motion-stats" -> motionStats(args);
 			case "glyph-diff" -> glyphDiff(args);
 			case "registered-stability" -> registeredStability(args);
@@ -496,17 +497,29 @@ public final class CaptureAnalysis {
 		BufferedImage motion = read(pathOf(meta, "motion"));
 		BufferedImage depth = read(pathOf(meta, "depth"));
 		double[] currentToPrevious = numberArray(meta, "current_to_previous");
+		boolean drawn = a[0].equals("drawn-view-check");
+		double[] inverseDrawn = drawn ? inverse(numberArray(meta, "drawn_world_view_projection")) : null;
+		double[] previousDrawn = drawn ? numberArray(meta, "previous_drawn_world_view_projection") : null;
+		double dx = drawn ? number(meta, "x") - number(meta, "previous_x") : 0;
+		double dy = drawn ? number(meta, "y") - number(meta, "previous_y") : 0;
+		double dz = drawn ? number(meta, "z") - number(meta, "previous_z") : 0;
 		double jx = number(meta, "ndc_x"), jy = number(meta, "ndc_y");		int w = motion.getWidth(), h = motion.getHeight();
 		List<Double> residuals = new ArrayList<>();
 		int step = Math.max(8, w / 160);
 		int skippedBackground = 0;
 		for (int y = step; y < h - step; y += step) {
 			for (int x = step; x < w - step; x += step) {
+				// Static range geometry, excluding the hand, sky edges and nearby animated plants.
+				if (drawn && (x < w / 4 || x >= w * 3 / 4 || y < h / 3 || y >= h * 2 / 3)) continue;
 				double d = depthAt(depth, x, y);
 				if (d <= 0.0) { skippedBackground++; continue; }
 				double ndcX = (x + 0.5) / w * 2.0 - 1.0;
 				double ndcY = screenshotNdcY(y, h);
 				double[] prev = mul(currentToPrevious, ndcX, ndcY, d, 1.0);
+				if (drawn) {
+					double[] world = mul(inverseDrawn, ndcX - jx, ndcY - jy, d, 1);
+					prev = mul(previousDrawn, world[0] + dx * world[3], world[1] + dy * world[3], world[2] + dz * world[3], world[3]);
+				}
 				if (prev[3] == 0) continue;
 				double px = prev[0] / prev[3], py = prev[1] / prev[3];
 				double expectedX = (px - (ndcX - jx)) * 0.5 * w;

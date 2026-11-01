@@ -94,10 +94,20 @@ this is not a BSL-only source path. Third person (no first-person hand, F1-equiv
 on was clean (`cmp-comp-third.png`). Disabling only the hand mask fixed the wall
 (`cmp-comp-nomask.png`), which localized the cause to hand coverage.
 
+Correction, 2026-11-01: the following projection observations do not exclude missing view effects
+from camera history. Iris moves bob into `viewRotationMatrix` immediately before invoking
+`LevelRenderer.render`, after Reflexium's projection-upload history capture. A depth/self-matrix
+check cannot independently validate that timing. The hand-mask A/B below remains evidence for
+that separate defect; it does not establish that all world-bob smear was fixed.
+
 The world projection did not contain view bob during these frames. Status
 `drawn_projection_has_view_effects` was false, the projection translation column was zero, and
-`capture-check` matched the scene depth against that unjittered projection. The camera matrices were
-therefore not the source, and reconstructing bob into them made the image worse (reverted).
+`capture-check` matched the scene depth against that unjittered projection. The original inference
+that camera matrices were therefore not the source is withdrawn. Reconstructing bob reportedly
+made the image worse (reverted), but that is not a test of capturing the actual late view.
+The preserved October 23 checkpoints `8ebc7448`, `b79eb5b9`, and `9559299c` contain synthetic bob
+diagnostics, not a retained corrective reconstruction with matched evidence. Its precise failure
+cause cannot be recovered from those changes. See the November 1 validation report for current limits.
 
 ### Root cause
 

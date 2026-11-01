@@ -52,6 +52,7 @@ final class StatusCommands {
 		o.addProperty("transient_motion_uniforms", upscaling.usesTransientUniforms());
 		o.addProperty("direct_scene_depth", upscaling.usesDirectDepth());
 		o.addProperty("drawn_projection_has_view_effects", info.projectionHasViewEffects());
+		o.addProperty("drawn_view_has_view_effects", info.viewHasViewEffects());
 		o.addProperty("scene_depth_index", info.sceneDepthIndex());
 		if (mc.level != null) {
 			JsonArray named = new JsonArray();

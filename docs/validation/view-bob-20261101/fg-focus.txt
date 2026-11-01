@@ -1,0 +1,1 @@
+[06-21-39][streamline][info][tid:29288][85s:406ms:098us]dlfgPresent.cpp:2549[shouldInterpolate] DLSS-G disabled: window not focused

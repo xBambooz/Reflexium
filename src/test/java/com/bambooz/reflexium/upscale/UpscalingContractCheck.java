@@ -32,6 +32,7 @@ public final class UpscalingContractCheck {
 		independentReprojection();
 		cloudReprojection();
 		cameraMetadata();
+		viewBobReprojection();
 		historyCuts();
 		modelPresets();
 		captureCancellation();
@@ -230,6 +231,37 @@ public final class UpscalingContractCheck {
 			points++;
 		}
 		check(points >= 3, "enough visible reference points exercised the check");
+	}
+
+	private static void viewBobReprojection() {
+		Matrix4f projection = new Matrix4f().setPerspective(1.2f, 16f / 9f, 1024, 0.05f, true);
+		Matrix4f view = new Matrix4f().rotateY(0.3f);
+		Matrix4f before = new Matrix4f().translate(0.02f, -0.03f, 0).rotateX(0.01f);
+		Matrix4f after = new Matrix4f().translate(-0.04f, -0.09f, 0).rotateX(0.035f);
+		var camera = new net.minecraft.client.renderer.state.level.CameraRenderState();
+		camera.projectionMatrix.set(projection);
+		camera.viewRotationMatrix.set(view);
+		CameraHistory history = new CameraHistory();
+		history.recordLevel(projection, projection, camera);
+		history.recordDrawnView(new Matrix4f(before).mul(view));
+		history.promote(true);
+		Matrix4f jittered = new Matrix4f().translation(0.001f, -0.002f, 0).mul(projection);
+		history.recordLevel(projection, jittered, camera);
+		history.recordDrawnView(new Matrix4f(after).mul(view));
+		check(history.currentViewHasViewEffects && !history.currentProjectionHasViewEffects, "Iris bob is in view");
+		Vector4f point = new Vector4f(0.4f, 0.2f, -6f, 1);
+		Vector4f current = history.currentJittered.transform(new Vector4f(point));
+		Vector4f expected = new Matrix4f(projection).mul(before).mul(view).transform(new Vector4f(point));
+		Vector4f reprojected = DlssMath.reprojection(history.previousUnjittered, history.currentJittered, 0, 0, 0).transform(current);
+		near(reprojected.x / reprojected.w, expected.x / expected.w, "bob previous drawn x");
+		near(reprojected.y / reprojected.w, expected.y / expected.w, "bob previous drawn y");
+		check(history.currentUnjittered.equals(new Matrix4f(projection).mul(after).mul(view), EPS), "bob in view matches bob in projection");
+		check(history.currentJittered.equals(new Matrix4f(jittered).mul(after).mul(view), EPS), "jitter preserved with bob");
+		// Shaderless: the view has not changed at draw time, so the second capture is identical.
+		history.recordLevel(new Matrix4f(projection).mul(after), new Matrix4f(jittered).mul(after), camera);
+		Matrix4f original = new Matrix4f(history.currentJittered);
+		history.recordDrawnView(view);
+		check(!history.currentViewHasViewEffects && history.currentJittered.equals(original), "shaderless draw capture unchanged");
 	}
 
 	// 7. FSR planes and FOV come from the pure projection, not the bobbed one.
