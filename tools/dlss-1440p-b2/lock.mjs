@@ -1,26 +1,27 @@
 ﻿import fs from 'node:fs';
 import {ps,save,evidence,delay} from './lib.mjs';
 const lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock';
-let held=false;
+let held=false, lastCheck=0;
 export async function acquire(purpose='capture') {
  for(;;) {
   const cooldown=evidence+'/last-release.json';
-  if(fs.existsSync(cooldown)){const remaining=300000-(Date.now()-JSON.parse(fs.readFileSync(cooldown)).time);if(remaining>0){console.log('GPU cooldown',Math.ceil(remaining/1000),'seconds');await delay(remaining);}}
+  if(fs.existsSync(cooldown)){const remaining=300000-(Date.now()-JSON.parse(fs.readFileSync(cooldown)).time);if(remaining>0){console.log('GPU cooldown',Math.ceil(remaining/1000),'seconds');await delay(Math.min(remaining,30000));continue;}}
 
   try {
-   ps(`$ErrorActionPreference='Stop'; New-Item -ItemType File -Path '${lock}' -ErrorAction Stop | Out-Null`);
-   fs.writeFileSync(lock,JSON.stringify({owner:'worker-B',pid:process.pid,started:new Date().toISOString(),purpose}));
+   fs.writeFileSync(lock,JSON.stringify({owner:'worker-P',pid:process.pid,started:new Date().toISOString(),purpose}),{flag:'wx'});
    held=true; save(`${evidence}/lock-acquired-${Date.now()}.json`,{pid:process.pid,time:new Date().toISOString(),purpose}); return;
   } catch(e) {
    if(!fs.existsSync(lock))throw e;
    const raw=fs.readFileSync(lock,'utf8').replace(/^\uFEFF/,'');
    let owner;try{owner=JSON.parse(raw);}catch{await delay(1000);continue;}
-   const alive=ps(`if(Get-Process -Id ${Number(owner.pid)} -ErrorAction SilentlyContinue){'alive'}`)==='alive';
-   const stale=!alive || Date.now()-Date.parse(owner.started)>3600000;
-   save(`${evidence}/lock-check-${Date.now()}.json`,{checked:new Date().toISOString(),owner,alive,stale});
-   if(stale && fs.readFileSync(lock,'utf8').replace(/^\uFEFF/,'')===raw){fs.unlinkSync(lock);continue;}
-   console.log(new Date().toISOString(),'waiting for GPU',owner.owner,owner.pid);
-   await delay(180000);
+   if(Date.now()-lastCheck>=30000){
+    lastCheck=Date.now();
+    save(`${evidence}/lock-check-${lastCheck}.json`,{checked:new Date().toISOString(),owner});
+    console.log(new Date().toISOString(),'waiting for GPU',owner.owner,owner.pid);
+   }
+   // Foreign reservations are never removed automatically.
+
+   await delay(1000);
   }
  }
 }

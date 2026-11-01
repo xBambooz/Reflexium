@@ -1,5 +1,18 @@
 import assert from 'node:assert/strict';
-import {root,metrics,capframexCsv} from './lib.mjs';
+import {root,metrics,capframexCsv,benchmarkState} from './lib.mjs';
+let stateCalls=0;
+assert.deepEqual(await benchmarkState({call:async(endpoint,params)=>{
+ assert.equal(endpoint,'bm');assert.deepEqual(params,{});
+ if(++stateCalls<3)throw Error('TimeoutException: null');
+ return {phase:'FINISHED'};
+}}),{phase:'FINISHED'});
+assert.equal(stateCalls,3);
+stateCalls=0;
+await assert.rejects(benchmarkState({call:async()=>{stateCalls++;throw Error('TimeoutException: null');}}));
+assert.equal(stateCalls,3);
+stateCalls=0;
+await assert.rejects(benchmarkState({call:async()=>{stateCalls++;throw Error('Wrong client');}}));
+assert.equal(stateCalls,1);
 assert.equal(root, (await import('node:url')).fileURLToPath(new URL('../../', import.meta.url)).replaceAll('\\','/').replace(/\/$/,''));
 assert.equal(metrics([10,10,10]).avg_fps,100);
 assert.equal(capframexCsv([{frames:{t:[0,0.01],ms:[10,10]}}]).trim().split('\n').length,3);

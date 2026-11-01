@@ -1,0 +1,309 @@
+{
+  "file": "C:\\Users\\Ryan\\Documents\\Benchmark Mod RxOvernightP\\results\\2026-10\\2026-10-31_12-43-40_benchmark-route_5zhtlc.bmresult.json.gz",
+  "label": "dlss-cost-validation-native-pass",
+  "flags": {
+    "focusLost": false,
+    "debugOrChatOpen": false,
+    "invalid": false,
+    "loadTimeout": false,
+    "firstCapture": true,
+    "gpuClockDrift": false,
+    "renderDistanceMismatch": true,
+    "gpuUsageAvailable": false,
+    "chunkStatsAvailable": false,
+    "legacy": false
+  },
+  "runs": [
+    {
+      "keys": [
+        "index",
+        "focusLost",
+        "debugOrChatOpen",
+        "settleTimeout",
+        "settleSeconds",
+        "settleRelease",
+        "uptimeStartMs",
+        "uptimeEndMs",
+        "compilationStartMs",
+        "compilationEndMs",
+        "wallStartMs",
+        "wallEndMs",
+        "youngPauses",
+        "mixedPauses",
+        "fullPauses",
+        "sensors",
+        "summary",
+        "frames",
+        "ticks",
+        "gc",
+        "heap",
+        "allocation",
+        "cpu",
+        "gpu",
+        "chunks",
+        "progress"
+      ],
+      "summary": {
+        "avgFps": 139.2247915862716,
+        "avgFrameMs": 7.182628816365245,
+        "p1Fps": 99.1630630493164,
+        "low1Fps": 81.10915235197214,
+        "p01Fps": 75.70996856689453,
+        "low01Fps": 60.31738970703846,
+        "stdDevMs": 0.9309912122904983,
+        "refreshCoverage": 0,
+        "averageTps": 20.003434415441035,
+        "p99Ms": 10.08440007044431,
+        "p999Ms": 13.20830029293219,
+        "hardware": {
+          "gpuClockMhz": 3164,
+          "gpuTempC": 56.47727272727273,
+          "gpuPowerW": 219.98459105058149,
+          "cpuClockMhz": 4158.835227272727,
+          "cpuTempC": 0
+        },
+        "stutters": {
+          "spikes": 3,
+          "over33": 0,
+          "over50": 0,
+          "over100": 0
+        },
+        "mspt": {
+          "avg": 3.6756033381399646,
+          "p99": 15.734000205993652,
+          "max": 22.947200775146484,
+          "over50": 0
+        },
+        "gc": {
+          "pauses": 12,
+          "youngPauses": 0,
+          "mixedPauses": 0,
+          "fullPauses": 0,
+          "unclassifiedPauses": 12,
+          "totalPauseMs": 1,
+          "maxPauseMs": 1,
+          "pausePercent": 0.0022201370050434002,
+          "heapMinMb": 1392.832275390625,
+          "heapAvgMb": 5717.749887028096,
+          "heapMaxMb": 10674.6943359375,
+          "committedAvgMb": 8915.652173913044,
+          "allocMbPerSec": 426.6596452579942
+        },
+        "stutterCauses": {
+          "gc": 0,
+          "server": 0,
+          "chunks": 0,
+          "unknown": 0
+        },
+        "runVariation": {
+          "avgFpsCv": 0,
+          "low1FpsCv": 0,
+          "metrics": {}
+        }
+      },
+      "settleRelease": "ready",
+      "settleTimeout": false,
+      "metrics": {
+        "frames": 6271,
+        "seconds": 45.042557999999985,
+        "avg_fps": 139.22388688493228,
+        "low1_fps": 87.01933901215097,
+        "low01_fps": 66.22735852180536
+      }
+    },
+    {
+      "keys": [
+        "index",
+        "focusLost",
+        "debugOrChatOpen",
+        "settleTimeout",
+        "settleSeconds",
+        "settleRelease",
+        "uptimeStartMs",
+        "uptimeEndMs",
+        "compilationStartMs",
+        "compilationEndMs",
+        "wallStartMs",
+        "wallEndMs",
+        "youngPauses",
+        "mixedPauses",
+        "fullPauses",
+        "sensors",
+        "summary",
+        "frames",
+        "ticks",
+        "gc",
+        "heap",
+        "allocation",
+        "cpu",
+        "gpu",
+        "chunks",
+        "progress"
+      ],
+      "summary": {
+        "avgFps": 142.18910806781938,
+        "avgFrameMs": 7.032887494610586,
+        "p1Fps": 105.23546600341797,
+        "low1Fps": 80.97210271255656,
+        "p01Fps": 79.489990234375,
+        "low01Fps": 38.16305920570396,
+        "stdDevMs": 0.9351561806417177,
+        "refreshCoverage": 0.003978408959289226,
+        "averageTps": 20.00193385934508,
+        "p99Ms": 9.502499850834706,
+        "p999Ms": 12.580200312662205,
+        "hardware": {
+          "gpuClockMhz": 3154.5116279069766,
+          "gpuTempC": 59.95348837209303,
+          "gpuPowerW": 226.77518551848655,
+          "cpuClockMhz": 4155.924418604651,
+          "cpuTempC": 0
+        },
+        "stutters": {
+          "spikes": 1,
+          "over33": 1,
+          "over50": 0,
+          "over100": 0
+        },
+        "mspt": {
+          "avg": 3.30212352781264,
+          "p99": 12.677200317382812,
+          "max": 24.200000762939453,
+          "over50": 0
+        },
+        "gc": {
+          "pauses": 8,
+          "youngPauses": 0,
+          "mixedPauses": 0,
+          "fullPauses": 0,
+          "unclassifiedPauses": 8,
+          "totalPauseMs": 1,
+          "maxPauseMs": 1,
+          "pausePercent": 0.002219970461636524,
+          "heapMinMb": 1457.1837158203125,
+          "heapAvgMb": 6103.5837205211565,
+          "heapMaxMb": 10777.51953125,
+          "committedAvgMb": 11288,
+          "allocMbPerSec": 431.57932937976926
+        },
+        "stutterCauses": {
+          "gc": 0,
+          "server": 0,
+          "chunks": 0,
+          "unknown": 0
+        },
+        "runVariation": {
+          "avgFpsCv": 0,
+          "low1FpsCv": 0,
+          "metrics": {}
+        }
+      },
+      "settleRelease": "ready",
+      "settleTimeout": false,
+      "metrics": {
+        "frames": 6405,
+        "seconds": 45.04595699999984,
+        "avg_fps": 142.18812134460865,
+        "low1_fps": 88.57751432118484,
+        "low01_fps": 57.79177623024243
+      }
+    },
+    {
+      "keys": [
+        "index",
+        "focusLost",
+        "debugOrChatOpen",
+        "settleTimeout",
+        "settleSeconds",
+        "settleRelease",
+        "uptimeStartMs",
+        "uptimeEndMs",
+        "compilationStartMs",
+        "compilationEndMs",
+        "wallStartMs",
+        "wallEndMs",
+        "youngPauses",
+        "mixedPauses",
+        "fullPauses",
+        "sensors",
+        "summary",
+        "frames",
+        "ticks",
+        "gc",
+        "heap",
+        "allocation",
+        "cpu",
+        "gpu",
+        "chunks",
+        "progress"
+      ],
+      "summary": {
+        "avgFps": 143.0713298854119,
+        "avgFrameMs": 6.989520547554258,
+        "p1Fps": 108.30950927734375,
+        "low1Fps": 91.41185600085944,
+        "p01Fps": 82.39540100097656,
+        "low01Fps": 79.16590774952394,
+        "stdDevMs": 0.8070662613881109,
+        "refreshCoverage": 0,
+        "averageTps": 20.00423156839791,
+        "p99Ms": 9.232799656024115,
+        "p999Ms": 12.136599711289078,
+        "hardware": {
+          "gpuClockMhz": 3149.181818181818,
+          "gpuTempC": 61.27272727272727,
+          "gpuPowerW": 228.7188869823109,
+          "cpuClockMhz": 4160.207386363636,
+          "cpuTempC": 0
+        },
+        "stutters": {
+          "spikes": 0,
+          "over33": 0,
+          "over50": 0,
+          "over100": 0
+        },
+        "mspt": {
+          "avg": 3.0371285278709825,
+          "p99": 11.8681001663208,
+          "max": 21.42329978942871,
+          "over50": 0
+        },
+        "gc": {
+          "pauses": 8,
+          "youngPauses": 0,
+          "mixedPauses": 0,
+          "fullPauses": 0,
+          "unclassifiedPauses": 8,
+          "totalPauseMs": 0,
+          "maxPauseMs": 0,
+          "pausePercent": 0,
+          "heapMinMb": 1458.534423828125,
+          "heapAvgMb": 5680.4582246579,
+          "heapMaxMb": 10632.2451171875,
+          "committedAvgMb": 11290.186335403727,
+          "allocMbPerSec": 429.75748461346296
+        },
+        "stutterCauses": {
+          "gc": 0,
+          "server": 0,
+          "chunks": 0,
+          "unknown": 0
+        },
+        "runVariation": {
+          "avgFpsCv": 0,
+          "low1FpsCv": 0,
+          "metrics": {}
+        }
+      },
+      "settleRelease": "ready",
+      "settleTimeout": false,
+      "metrics": {
+        "frames": 6444,
+        "seconds": 45.040816999999876,
+        "avg_fps": 143.07022894367165,
+        "low1_fps": 96.03466851533402,
+        "low01_fps": 79.79678418959716
+      }
+    }
+  ]
+}

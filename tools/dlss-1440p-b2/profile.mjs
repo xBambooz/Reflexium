@@ -7,9 +7,9 @@ let pid,c;
 try {
  exclusive(); pid=await launch(25763,'b2-spans'); c=client(25763);
  save(evidence+'/spans/title-idle.json',await idleGate(c,pid));
- await c.call('window',{monitor:'secondary',x:0,y:0,width:2560,height:1440,behind:true});
+ await c.call('fullscreen',{fullscreen:1,activate:1});
  await c.rx('shader_pack','ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5');
- await c.rx('vsync','0'); await c.rx('reflex_mode','on'); await c.rx('frame_generation','off');
+ await c.rx('shaders','1'); await c.rx('vsync','0'); await c.rx('reflex_mode','on'); await c.rx('frame_generation','off');
  await c.call('join',{world:'Round17 Benchmark Preparation',timeout_s:120},150000);
  await c.call('camera',{x:180.5,y:121.61999988555908,z:60.5,yaw:60,pitch:20});
  await c.call('command',{command:'time set 6000'}); await c.call('command',{command:'weather clear'});

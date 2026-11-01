@@ -9,12 +9,12 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 
 export const root = fileURLToPath(new URL('../../', import.meta.url)).replaceAll('\\', '/').replace(/\/$/, '');
-export const profile = process.env.APPDATA + '/ModrinthApp/profiles/Fabric 26.3 RxRound17';
-export const bmRoot = 'C:/Users/Ryan/Documents/Benchmark Mod RxRound17';
+export const profile = process.env.APPDATA + '/ModrinthApp/profiles/Fabric 26.3 RxOvernightP';
+export const bmRoot = 'C:/Users/Ryan/Documents/Benchmark Mod RxOvernightP';
 export const resultsDir = bmRoot + '/results';
 export const sceneWorld = bmRoot + '/scenes/benchmark-route/world';
 export const prepWorld = profile + '/saves/Round17 Benchmark Preparation';
-export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/b3';
+export const evidence = root + '/docs/validation/dlss-1440p-perf-2026-10-30/p-overnight';
 export const scratch = root + '/build/dlss-1440p-b2';
 export const jarName = 'Reflexium-1.2.0-alpha-fabric-26.3.jar';
 export const PROTECTED_PID = 25084;
@@ -29,6 +29,7 @@ export const ps = command => execFileSync('powershell.exe', ['-NoProfile', '-Exe
 export function client(port, debugPort = 25790 + port - 25760) {
 	const token = () => fs.readFileSync(path.join(profile, '.agentharness-token'), 'utf8').trim();
 	const call = async (endpoint, params, timeout = 30000) => {
+		if(endpoint==='bm') timeout=150000;
 		if(endpoint==='bm'){endpoint='reflexium';params={benchmark:'state',...params};}
 		const res = await fetch(`http://127.0.0.1:${port}/${endpoint}`, {
 			method: params ? 'POST' : 'GET',
@@ -54,6 +55,18 @@ export function processInfo(pid) {
 	return JSON.parse(ps(`Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}' | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`) || 'null');
 }
 
+// World unload can block the render-thread bridge beyond its fixed 30-second server timeout.
+// Retry only state reads; repeating a start request could launch a second benchmark.
+export async function benchmarkState(c) {
+	for(let attempt=1;attempt<=3;attempt++){
+		try{return await c.call('bm',{});}
+		catch(error){
+			if(attempt===3 || !String(error).includes('TimeoutException'))throw error;
+			console.log(new Date().toISOString(),`benchmark state read timed out; retry ${attempt}/2`);
+		}
+	}
+}
+
 // Detached launch via the repo launcher (Win32_Process.Create, javaw). Mirrors round 17's launch().
 export async function launch(port, label, jar) {
 	const listeners=ps(`@(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object {$_.LocalPort -in ${port},${25790+port-25760}}).Count`);
@@ -62,7 +75,7 @@ export async function launch(port, label, jar) {
 	const irisName=fs.readdirSync(realMods).find(n=>/^iris.*\.jar$/.test(n));
 	const copyNames=fs.readdirSync(profile+'/mods').filter(n=>/^iris.*\.jar$/.test(n));
 	const hash=f=>createHash('sha256').update(fs.readFileSync(f)).digest('hex');
-	if(!irisName || copyNames.length!==1 || hash(realMods+irisName)!==hash(profile+'/mods/'+copyNames[0]))
+	if(!irisName || copyNames.length!==1 || hash(realMods+irisName)!==hash(profile+'/mods/'+copyNames[0]) || hash(profile+'/mods/'+copyNames[0])!=='566bd7515cc1cb41320a6761932093c1c3ee813fc8cbfd2077e3d128746dc1c2')
 		throw Error('Iris copy differs from real profile. Stage the matching jar in RxRound17 while closed before measurement.');
 	const dhJar=profile+'/mods/DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar';
 	if(fs.existsSync(dhJar))fs.renameSync(dhJar,dhJar+'.disabled');
@@ -75,17 +88,19 @@ export async function launch(port, label, jar) {
 		.replace(/^preferredGraphicsBackend:.*$/mg, 'preferredGraphicsBackend:"vulkan"')
 		.replace(/^soundCategory_master:.*$/mg, 'soundCategory_master:0.0')
 		.replace(/^fullscreen:.*$/mg, 'fullscreen:false'));
-	const template = '-Dreflexium.viewportDiagnostic='+(process.env.RX_VIEWPORT_DIAGNOSTIC==='1')+'\n'+fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
+	const template = '-Dagentharness.fullscreen=true\n-Dreflexium.viewportDiagnostic='+(process.env.RX_VIEWPORT_DIAGNOSTIC==='1')+'\n'+fs.readFileSync(process.env.TEMP + '/opencode/round17-profile.args', 'utf8')
+		.replaceAll('Fabric 26.3 RxRound17','Fabric 26.3 RxOvernightP')
+		.replace(/-Dagentharness.monitor=\w+/, '-Dagentharness.monitor=primary')
 		.replace(/-Dagentharness.port=\d+/, '-Dagentharness.port=' + port)
-        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable='+(process.env.RX_FOCUSABLE==='1'))
+        .replace(/-Dagentharness.width=\d+/, '-Dagentharness.width=2560').replace(/-Dagentharness.height=\d+/, '-Dagentharness.height=1440').replace(/-Dagentharness.focusable=true/, '-Dagentharness.focusable='+true)
 		.replace(/-Dreflexium.debugPort=\d+/, '-Dreflexium.debugPort=' + (25790 + port - 25760))
 		.replace('build/validation/round17/hs_err', 'build/dlss-cost/hs_err');
 	const args = process.env.TEMP + '/opencode/' + label + '.args';
 	fs.writeFileSync(args, template);
-	const result = JSON.parse(ps(`& '${root}/tools/launch-modrinth-profile.ps1' -Profile 'Fabric 26.3 RxRound17' -JavaArgsFile '${args}' -HarnessJar '${profile}/agentharness-1.0.0.jar'`));
+	const result = JSON.parse(ps(`& '${root}/tools/launch-modrinth-profile.ps1' -Profile 'Fabric 26.3 RxOvernightP' -JavaArgsFile '${args}' -HarnessJar '${profile}/agentharness-1.0.0.jar'`));
 	const info = processInfo(result.pid);
 	save(`${evidence}/launch-${label}.json`, {pid:result.pid,port,debug_port:25790+port-25760,info,started:new Date().toISOString()});
-	if (info.Name !== 'javaw.exe' || !info.CommandLine.includes('agentharness-1.0.0.jar') || !info.CommandLine.includes('Fabric 26.3 RxRound17') || result.pid === PROTECTED_PID)
+	if (info.Name !== 'javaw.exe' || !info.CommandLine.includes('agentharness-1.0.0.jar') || !info.CommandLine.includes('Fabric 26.3 RxOvernightP') || result.pid === PROTECTED_PID)
 		throw new Error('Launch ownership or console mismatch: ' + label);
 	const client_ = client(port);
 	for (let i = 0; i < 120; i++) {
@@ -93,6 +108,12 @@ export async function launch(port, label, jar) {
 			const status = await client_.call('status', undefined, 3000);
 			if (status.pid !== result.pid || path.resolve(status.game_directory) !== path.resolve(profile)) throw new Error('Session ownership mismatch');
 			if (status.screen.includes('Title')) {
+                save(`${evidence}/foreground-${result.pid}.json`,status.focus);
+                await client_.rx('exclusive_fullscreen','0');
+                await client_.call('fullscreen',{fullscreen:0});
+                await client_.call('fullscreen',{fullscreen:1,activate:1});
+                const focused=await client_.call('status');
+                if(!focused.focus.os_foreground)save(`${evidence}/focus-${result.pid}.json`,JSON.parse(ps(`& '${root}/tools/dlss-1440p-b2/focus.ps1' -Hwnd ${focused.focus.hwnd}`)));
 				save(path.join(scratch, 'launches', label + '-title.json'), status);
 				return result.pid;
 			}
@@ -107,11 +128,15 @@ export async function launch(port, label, jar) {
 export async function quit(client_, pid) {
 	const status = await client_.call('status');
 	const info = processInfo(pid);
-	if (status.pid !== pid || path.resolve(status.game_directory) !== path.resolve(profile) || !info?.CommandLine.includes('agentharness-1.0.0.jar') || !info.CommandLine.includes('Fabric 26.3 RxRound17') || pid === PROTECTED_PID)
+	if (status.pid !== pid || path.resolve(status.game_directory) !== path.resolve(profile) || !info?.CommandLine.includes('agentharness-1.0.0.jar') || !info.CommandLine.includes('Fabric 26.3 RxOvernightP') || pid === PROTECTED_PID)
 		throw new Error('Shutdown ownership mismatch');
 	await client_.call('quit', {exit: true});
 	for (let i = 0; i < 60; i++) {
-		if (!processInfo(pid)) return;
+		if (!processInfo(pid)) {
+            const f=JSON.parse(fs.readFileSync(`${evidence}/foreground-${pid}.json`));
+            save(`${evidence}/foreground-restored-${pid}.json`,{previous:f.foreground_hwnd,result:ps(`Add-Type 'using System;using System.Runtime.InteropServices;public class PFocus{[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);}';[PFocus]::SetForegroundWindow([IntPtr]::new(${f.foreground_hwnd}))`)});
+            return;
+        }
 		await delay(1000);
 	}
 	throw new Error('Owned shutdown timed out');
@@ -129,7 +154,7 @@ export async function idleGate(client_, pid) {
 		status = await client_.call('status');
 	}
 	if (status.world_loaded || !status.screen.includes('Title')) throw new Error('Idle gate requires title: ' + status.screen);
-	const samples = [];
+	const samples = [], windows = [];
 	for (let i = 0; i < 75; i++) {
 		const cpu = Number(ps(`(Get-Process -Id ${pid}).TotalProcessorTime.TotalMilliseconds`));
 		const gpu = ps('& nvidia-smi --query-gpu=utilization.gpu,clocks.gr,power.draw --format=csv,noheader,nounits');
@@ -141,11 +166,12 @@ export async function idleGate(client_, pid) {
 			const cv = Math.sqrt(rates.reduce((a, b) => a + (b - mean) ** 2, 0) / rates.length) / mean;
 			const gs = last.map(s => Number(s.gpu.split(',')[0]));
 			const gpuRange = Math.max(...gs) - Math.min(...gs);
-			if (cv < 0.10 && gpuRange <= 5) return {samples: last, cpu_cv: cv, gpu_range: gpuRange, passed: true};
+			windows.push({cpu_cv:cv,gpu_range:gpuRange});
+            if (cv < 0.10 && gpuRange <= 5) return {samples, windows, cpu_cv: cv, gpu_range: gpuRange, passed: true};
 		}
 		await delay(2000);
 	}
-	save(`${evidence}/idle-failure-${Date.now()}.json`,{pid,samples,passed:false});
+	save(`${evidence}/idle-failure-${Date.now()}.json`,{pid,samples,windows,status:await client_.call('status'),passed:false});
 	throw new Error('Title load did not settle');
 }
 
@@ -218,7 +244,7 @@ export function capframexCsv(runs) {
 		const {t, ms} = run.frames;
 		for (let i = 0; i < ms.length; i++) {
 			const time = offset + t[i];
-			lines.push(`Minecraft.exe,0,0x0,Unknown,0,0,0,Hardware Composed: Independent Flip,0,${time.toFixed(6)},${ms[i].toFixed(4)},${ms[i].toFixed(4)},0,0,0,"Benchmark Mod synthetic frametime export"`);
+			lines.push(`Minecraft.exe,0,0x0,Unknown,0,0,0,Composed: Flip,0,${time.toFixed(6)},${ms[i].toFixed(4)},${ms[i].toFixed(4)},0,0,0,"Benchmark Mod synthetic frametime export; OLED overlay composed path supplied by owner"`);
 		}
 		if (ms.length) offset += t.at(-1) + ms.at(-1) / 1000;
 	}

@@ -6,10 +6,11 @@ import {acquire,release,exclusive} from './lock.mjs';
 // Profiling stays off for every pass here (the copy proof runs separately).
 import fs from 'node:fs';
 import {quickCaptures} from './quick-capture.mjs';
+import {captureMiniHud} from './minihud-p.mjs';
 import {
 	root, scratch, evidence, profile, jarName, sceneWorld, delay, save, ps, client, launch, quit, idleGate,
 	dhSnapshot, sameSnapshot, sameDurable, dhGeneratorPlan, logSize, dhLogSince, listResults, readResult,
-	capframexCsv, metrics, contentCheck, passKey,
+	capframexCsv, metrics, contentCheck, passKey, benchmarkState,
 } from './lib.mjs';
 
 const [build, portArg, selection = 'forward'] = process.argv.slice(2);
@@ -27,7 +28,7 @@ const CONFIGS = {
  'b-e': {upscaler:'dlss',quality:'balanced',preset:5,w:1485,h:835},
  'p-e': {upscaler:'dlss',quality:'performance',preset:5,w:1280,h:720},
  'up-e': {upscaler:'dlss',quality:'ultra_performance',preset:5,w:853,h:480},
- 'native-qsize': {upscaler:'off',w:1707,h:960},
+ 'native-qsize': {upscaler:'off',w:1707,h:960,windowed:true},
 };
 const ORDER = Object.keys(CONFIGS);
 const shaderless = selection.startsWith('shaderless');
@@ -65,7 +66,10 @@ function modeProof(spec, first, last, current, index) {
 		render_size: rx.render_size.w === expected.w && rx.render_size.h === expected.h,
 		evaluated_counter: active ? rx.evaluated_frames > firstRx.evaluated_frames : rx.evaluated_frames === firstRx.evaluated_frames,
 		preset_hint: spec.preset ? rx.dlss_preset_hint === spec.preset : true,
-		window_secondary: last.window.x === 2560 && last.window.width === (spec.w===1707 && !active?1707:2560) && last.window.height === (spec.w===1707 && !active?960:1440),
+		window_expected: last.window.x === 0 && !last.window.fullscreen.exclusive_fullscreen && last.window.fullscreen.display_id === 1 && (spec.windowed
+			? last.window.width===spec.w && last.window.height===spec.h && !last.window.fullscreen.borderless && !last.window.fullscreen.requested
+			: [2560,2561].includes(last.window.width) && last.window.height===1440 && last.window.fullscreen.borderless),
+        focused: last.focus.os_foreground && last.focus.os_input_focus,
 		pack_expected: shaderless ? String(rx.pack).includes('no shader pack drawing') : String(rx.pack).includes('Euphoria'),
         immediate: rx.swapchain_present_mode === 'IMMEDIATE',
         reflex_on: rx.reflex_mode === 'ON',
@@ -77,12 +81,15 @@ function modeProof(spec, first, last, current, index) {
 
 async function runPass(c, pid, config, pass, visit) {
 	const spec = CONFIGS[config];
-	if(Date.now()-sessionStarted>43*60000) throw Error('GPU session time limit reached');
+	if(Date.now()-sessionStarted>35*60000) throw Error('GPU session time limit reached');
 	const key = passKey(group, config, pass);
 	log(`pass ${key} (visit ${visit}) starting`);
 	await c.rx('frame_generation', 'off');
 	await c.rx('reflex_mode', 'on');
-    await c.call('window',{monitor:'secondary',x:0,y:0,width:config==='native-qsize'?1707:2560,height:config==='native-qsize'?960:1440,behind:true});
+    if(spec.windowed){
+        await c.call('fullscreen',{fullscreen:0});
+        await c.call('window',{monitor:'primary',x:0,y:0,width:spec.w,height:spec.h,activate:true});
+    }else await c.call('fullscreen',{fullscreen:1,activate:1});
 	await c.rx('upscaler', spec.upscaler);
 	if (spec.preset) {
 		await c.rx('quality', spec.quality);
@@ -97,9 +104,9 @@ async function runPass(c, pid, config, pass, visit) {
 	const dhBefore = dhSnapshot(sceneWorld);
 	const logOffset = logSize();
 	const before = new Set(listResults());
-	const label = 'dlss-cost-' + key;
+	const label = key;
 	for (let i = 0; i < 360; i++) {
-		const state = await c.call('bm', {});
+		const state = await benchmarkState(c);
 		if (['IDLE', 'FINISHED', 'ABORTED'].includes(state.phase)) break;
 		await delay(1000);
 	}
@@ -109,7 +116,7 @@ async function runPass(c, pid, config, pass, visit) {
 	fs.mkdirSync(`${evidence}/crops`, {recursive: true});
 	let captured = null, everMeasuring = false, dhCrop = null, dhEnd = null;
 	for (let count = 0; count < 480; count++) {
-		const state = await c.call('bm', {});
+		const state = await benchmarkState(c);
 		if (state.phase === 'MEASURING') {
 			everMeasuring = true;
 			const index = Number(state.runIndex);
@@ -124,9 +131,10 @@ async function runPass(c, pid, config, pass, visit) {
 				dhCrop = dhSnapshot(sceneWorld);
 				await delay(250);
 				const last = await c.call('status');
-				const current = await c.call('bm', {});
+				const current = await benchmarkState(c);
 				const mode = modeProof(spec, first, last, current, index);
 				captured = {index, first, last, shot, bm: current, mode};
+				save(`${evidence}/proofs/${key}-capture.json`,captured);
 				log(`pass ${key} crop taken, mode proof ${mode.valid}`);
 				// Leave the render thread alone until this measured run finishes (round 17).
 				await delay(23000);
@@ -172,10 +180,10 @@ async function runPass(c, pid, config, pass, visit) {
 		backend_vulkan: result.environment.gpu.backend === 'Vulkan',
 		settle_ready: pair.every(r => r.settleRelease === 'ready' && !r.settleTimeout),
 	};
-	const valid = captured.mode.valid && content.content_valid && dhGate && idle.passed
+	const valid = !gateFlags.focus_lost && captured.mode.valid && content.content_valid && dhGate && idle.passed
 		&& !gateFlags.invalid && !gateFlags.load_timeout && gateFlags.backend_vulkan && gateFlags.settle_ready;
 	const record = {
-		key, build, config, pass, visit, label, bm_file: `${key}.bmresult.json.gz`,
+		key, build, config, pass, visit, label, artifact_sha256:EXPECTED[build], presentation:{topmost_overlay_covers_window:true,path:'composed',source:'Ryan via lead, 2026-10-31; not measured with PresentMon'}, bm_file: `${key}.bmresult.json.gz`,
 		idle: {cpu_cv: idle.cpu_cv, gpu_range: idle.gpu_range},
 		dh: {generator_plan: genPlan, before: {files: dhBefore.files}, crop: {files: dhCrop.files}, end: {files: dhEnd.files},
 			durable_unchanged_before_to_end: sameDurable(dhBefore, dhEnd), unchanged_crop_to_end: sameSnapshot(dhCrop, dhEnd),
@@ -205,7 +213,7 @@ async function main() {
     sessionStarted=Date.now();
     exclusive();
 	if(quick){
-  const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json';
+  const settings=process.env.USERPROFILE+'/Documents/Benchmark Mod RxOvernightP/settings.json';
   bmSettingsOriginal=fs.readFileSync(settings,'utf8');save(evidence+'/quick-bm-settings-original.json',JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')));
   fs.writeFileSync(settings,JSON.stringify({...JSON.parse(bmSettingsOriginal.replace(/^\uFEFF/,'')),measuredRuns:1},null,2));
   process.env.RX_VIEWPORT_DIAGNOSTIC='1';process.env.RX_FOCUSABLE='1';
@@ -222,9 +230,18 @@ async function main() {
     await c.rx('shaders',shaderless?'0':'1');
 	await delay(12000);
 
+	if(process.argv.includes('--minihud'))await captureMiniHud(c,pid);
 	const visit1 = (selection.endsWith('reverse') || selection.startsWith('extra:')?[]:rows).map(cfg => [cfg, 1, 1]);
 	const visit2 = (selection.endsWith('reverse')?[...rows].reverse():[]).map(cfg => [cfg, 2, 2]);
-	for (const [cfg, pass, visit] of [...visit1, ...visit2]) await runPass(c, pid, cfg, pass, visit);
+	for (const [cfg, pass, visit] of [...visit1, ...visit2]) {
+		try{await runPass(c, pid, cfg, pass, visit);}
+		catch(error){
+			if(cfg!=='native' || !String(error).includes('TimeoutException'))throw error;
+			const key=passKey(group,cfg,pass);
+			save(`${evidence}/proofs/${key}-failure-${port}.json`,{key,valid:false,error:String(error),time:new Date().toISOString(),results:listResults()});
+			log(`native row INVALID after state timeout; continuing SR rows: ${error}`);
+		}
+	}
 	if(selection.startsWith('extra:')) {
 		const cfg=selection.slice(6);
 		if(!CONFIGS[cfg])throw Error('Unknown extra row '+cfg);
@@ -245,6 +262,7 @@ main().catch(error => {
 	console.error('RUN FAILED', error.stack || error);
 	process.exitCode = 1;
 }).finally(async()=>{
+    if(fs.existsSync(profile+'/logs/latest.log'))fs.copyFileSync(profile+'/logs/latest.log',`${evidence}/client-${port}-${selection.replaceAll(':','-')}.log`);
     if(ownedPid){try{await quit(ownedClient,ownedPid);ownedPid=0;}catch(e){console.error('cleanup failed; reservation retained',e.message);}}
-    if(!ownedPid){if(bmSettingsOriginal!==null)fs.writeFileSync(process.env.USERPROFILE+'/Documents/Benchmark Mod RxRound17/settings.json',bmSettingsOriginal);release();}
+    if(!ownedPid){if(bmSettingsOriginal!==null)fs.writeFileSync(process.env.USERPROFILE+'/Documents/Benchmark Mod RxOvernightP/settings.json',bmSettingsOriginal);release();}
 });

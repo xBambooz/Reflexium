@@ -1,0 +1,11 @@
+{
+  "checked": "2026-10-31T13:02:46.853Z",
+  "owner": {
+    "pid": 199256,
+    "purpose": "IQ current-absent",
+    "owner": "worker-A-overnight",
+    "started": "2026-10-31T09:02:15.5807423-04:00"
+  },
+  "alive": true,
+  "stale": false
+}

@@ -1,0 +1,11 @@
+{
+  "checked": "2026-10-31T12:51:41.762Z",
+  "owner": {
+    "pid": 182488,
+    "purpose": "IQ preparation and session",
+    "owner": "worker-A-overnight",
+    "started": "2026-10-31T08:21:34.3670145-04:00"
+  },
+  "alive": true,
+  "stale": false
+}
