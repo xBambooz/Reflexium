@@ -8,6 +8,8 @@ import java.io.*;
 public class WorldTextLevelsFit {
     static final String[] MODELS = {"levels", "constant", "varying", "varying_constant"};
     static final int[] RADII = {2, 4, 8};
+    // Neutral models use shared coefficients and fixed tint fractions, never per-channel lift fits.
+    static double neutralYMax;
     record Sample(double[] local, double[] text, double[] nativeRgb, int x, int y) {}
     record Group(String id, String state, String kind, int width, List<Sample> samples,
                  BufferedImage nativeImage, BufferedImage before) {}
@@ -19,6 +21,13 @@ public class WorldTextLevelsFit {
     static BufferedImage read(Path p) throws IOException { var im=ImageIO.read(p.toFile()); if(im==null)throw new IOException("unreadable "+p);return im; }
     static double[] features(Sample s, int c, String model) {
         double l=s.local[c], t=s.text[c];
+        if(model.startsWith("neutral_")){
+            double y=.2126*s.local[0]+.7152*s.local[1]+.0722*s.local[2];
+            double tint=Double.parseDouble(model.substring(model.lastIndexOf('_')+1));
+            double hue=y>0?1+tint*(l/y-1):1;
+            double q=y*y/(2*neutralYMax),mix=model.contains("white")?1-t:1;
+            return new double[]{(y-q)*hue*mix,q*hue*mix,t};
+        }
         return switch(model) {
             case "levels" -> new double[]{l,t};
             case "constant" -> new double[]{l,t,1};
@@ -40,6 +49,16 @@ public class WorldTextLevelsFit {
         double[] out=new double[n];for(int i=0;i<n;i++)out[i]=a[i][n];return out;
     }
     static double[][] fit(List<Group> groups, String model) {
+        if(model.startsWith("neutral_")){
+            var a=new double[3][3];var b=new double[3];
+            for(var g:groups)for(var s:g.samples){
+                var x=new double[3];double target=0;double[] channelWeight={.2126,.7152,.0722};
+                for(int c=0;c<3;c++){double[] f=features(s,c,model);target+=channelWeight[c]*s.nativeRgb[c];for(int i=0;i<3;i++)x[i]+=channelWeight[c]*f[i];}
+                double w=1./g.samples.size();
+                for(int i=0;i<3;i++){b[i]+=w*x[i]*target;for(int j=0;j<3;j++)a[i][j]+=w*x[i]*x[j];}
+            }
+            double[] weights=nonnegativeFit(a,b);return new double[][]{weights,weights,weights};
+        }
         var out=new double[3][];
         for(int c=0;c<3;c++){
             int n=features(groups.getFirst().samples.getFirst(),c,model).length;
@@ -52,6 +71,21 @@ public class WorldTextLevelsFit {
             out[c]=solve(a,b);
         }
         return out;
+    }
+    static double[] nonnegativeFit(double[][] a,double[] b) {
+        double best=Double.POSITIVE_INFINITY;double[] result=null;
+        for(int mask=0;mask<8;mask++){
+            int n=Integer.bitCount(mask);var ids=new int[n];int pos=0;
+            for(int i=0;i<3;i++)if((mask&(1<<i))!=0)ids[pos++]=i;
+            var sub=new double[n][n];var target=new double[n];
+            for(int i=0;i<n;i++){target[i]=b[ids[i]];for(int j=0;j<n;j++)sub[i][j]=a[ids[i]][ids[j]];}
+            double[] solved=n>0?solve(sub,target):new double[0],candidate=new double[3];boolean valid=true;
+            for(int i=0;i<n;i++){if(solved[i]<-1e-8)valid=false;candidate[ids[i]]=Math.max(0,solved[i]);}
+            if(!valid)continue;double cost=0;
+            for(int i=0;i<3;i++){cost-=2*candidate[i]*b[i];for(int j=0;j<3;j++)cost+=candidate[i]*a[i][j]*candidate[j];}
+            if(cost<best){best=cost;result=candidate;}
+        }
+        if(result==null)throw new AssertionError("no nonnegative fit");return result;
     }
     static double[] predict(Sample s, String model, double[][] weights) {
         var out=new double[3];for(int c=0;c<3;c++){double[] x=features(s,c,model);for(int j=0;j<x.length;j++)out[c]+=x[j]*weights[c][j];out[c]=encoded(out[c]);}return out;
@@ -83,7 +117,7 @@ public class WorldTextLevelsFit {
             boolean old=state.startsWith("original");Path dir=destination(root).resolve("inputs");
             var nativeIm=read(dir.resolve(state+"_native.png"));var before=read(dir.resolve(state+"_before.png"));
             var alpha=read(dir.resolve(state+"_alpha.png"));var text=read(dir.resolve(state+"_text.png"));var scene=read(dir.resolve(state+"_scene.png"));
-            int w=scene.getWidth(),h=scene.getHeight(),fullWidth=old?2560:1920,r=(int)Math.round(radius*fullWidth/1920.);
+            int w=scene.getWidth(),h=scene.getHeight(),fullWidth=old?2560:1920,fullHeight=old?1440:1080,r=(int)Math.round(radius*fullHeight/1080.);
             if(nativeIm.getWidth()!=w || before.getWidth()!=w || alpha.getWidth()!=w || text.getWidth()!=w)throw new AssertionError("mismatched image size");
             var sums=integral(scene);
             int[][] rois=old?new int[][]{{1330,668,120,60},{1120,668,120,60},{1330,510,120,60},{1120,510,120,60}}
@@ -115,7 +149,7 @@ public class WorldTextLevelsFit {
         if(d<1e-9)return 0;double h=mx==r?(g-b)/d:mx==g?(b-r)/d+2:(r-g)/d+4;
         return (h*60+360)%360;
     }
-    static void score(PrintWriter csv,Group g,String model,int radius,String split,double[][] weights,Path crops) throws IOException {
+    static double[] score(PrintWriter csv,Group g,String model,int radius,String split,double[][] weights,Path crops) throws IOException {
         double err=0,beforeErr=0;var nm=new double[3];var pm=new double[3];
         BufferedImage out=null;
         if(crops!=null){out=new BufferedImage(g.before.getWidth(),g.before.getHeight(),BufferedImage.TYPE_INT_RGB);var graphics=out.createGraphics();try{graphics.drawImage(g.before,0,0,null);}finally{graphics.dispose();}}
@@ -127,6 +161,7 @@ public class WorldTextLevelsFit {
         double hn=hue(nm),hp=hue(pm),he=Math.abs(hn-hp);he=Math.min(he,360-he);
         csv.printf(Locale.ROOT,"%s,%d,%s,%s,%d,%.6f,%.6f,%.4f,%.4f,%.4f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.6f,%.6f%n",model,radius,split,g.id,count,beforeErr/count,err/count,hn,hp,he,nm[0]*255,nm[1]*255,nm[2]*255,pm[0]*255,pm[1]*255,pm[2]*255,saturation(nm),saturation(pm));
         if(crops!=null)ImageIO.write(out,"png",crops.resolve(g.id+".png").toFile());
+        return new double[]{err/count,Math.abs(saturation(nm)-saturation(pm))};
     }
     static void selfCheck() {
         assert Math.abs(encoded(linear(.5))-.5)<1e-12;
@@ -134,6 +169,43 @@ public class WorldTextLevelsFit {
         var im=new BufferedImage(3,3,BufferedImage.TYPE_INT_RGB);for(int y=0;y<3;y++)for(int j=0;j<3;j++)im.setRGB(j,y,0xffffff);
         assert Math.abs(integral(im)[0][3][3]-9)<1e-10;
         assert Math.abs(hue(new double[]{.8,.4,.2})-20)<1e-10;
+        var nn=nonnegativeFit(new double[][]{{1,0,0},{0,1,0},{0,0,1}},new double[]{-1,2,3});
+        assert nn[0]==0&&Math.abs(nn[1]-2)<1e-8&&Math.abs(nn[2]-3)<1e-8;
+    }
+    static void neutral(Path root) throws IOException {
+        var groups=load(root,8);Path dest=destination(root).resolve("neutral");Files.createDirectories(dest);
+        neutralYMax=groups.stream().flatMap(g->g.samples.stream()).mapToDouble(s->.2126*s.local[0]+.7152*s.local[1]+.0722*s.local[2]).max().orElseThrow();
+        try(var csv=new PrintWriter(dest.resolve("scores.csv").toFile());var coef=new PrintWriter(dest.resolve("coefficients.txt").toFile());var summary=new PrintWriter(dest.resolve("summary.csv").toFile());var gates=new PrintWriter(dest.resolve("gates.csv").toFile())){
+            csv.println("model,radius1080,split,group,pixels,before_luma_mae,predicted_luma_mae,native_hue,predicted_hue,hue_error,native_R,native_G,native_B,predicted_R,predicted_G,predicted_B,native_saturation,predicted_saturation");
+            summary.println("model,mean_mae,dark_fail,glow_fail,saturation_fail");gates.println("model,group,luma_mae,luma_limit,saturation_gap_pp,pass");
+            coef.println("Ymax="+neutralYMax+"; coefficient order: derivative_at_zero, derivative_at_Ymax, text_weight_or_white_point");
+            for(double tint:new double[]{0,.1,.2,.35,.5,.75,1})for(String type:new String[]{"add","white"}){
+                String model="neutral_"+type+"_"+tint;
+                int darkFail=0,glowFail=0,satFail=0,count=0;double error=0;
+                for(String held:new String[]{"day","shade","night","original"}){
+                    var train=groups.stream().filter(g->!g.state.startsWith("original")&&!g.state.equals(held)&&g.kind.startsWith("standing")).toList();
+                    var weights=fit(train,model);double a=weights[0][0],b=weights[0][1];
+                    coef.println(model+" held="+held+" endpoints="+Arrays.toString(weights[0])+" k0="+a+" k1="+((b-a)/(2*neutralYMax)));
+                    for(int i=0;i<=1000;i++){double y=neutralYMax*i/1000.,lift=a*y+(b-a)*y*y/(2*neutralYMax),derivative=a+(b-a)*y/neutralYMax;if(lift<-1e-10||derivative<-1e-10)throw new AssertionError("invalid lift");}
+                    boolean preview=type.equals("white")&&(tint==0||tint==.5);
+                    Path previews=preview?dest.resolve("previews").resolve(model):null;if(preview)Files.createDirectories(previews);
+                    for(var g:groups)if(held.equals("original")?g.state.startsWith("original"):g.state.equals(held)){
+                        var metrics=score(csv,g,model,8,held.equals("original")?"resolution_holdout":"leave_state_out",weights,previews);
+                        boolean glow=g.kind.endsWith("glow");double limit=glow?constantFloor(g)+2:8;
+                        boolean lumaPass=metrics[0]<=limit,saturationPass=glow||metrics[1]<=.08;
+                        if(!lumaPass){if(glow)glowFail++;else darkFail++;}if(!saturationPass)satFail++;
+                        error+=metrics[0];count++;
+                        gates.printf(Locale.ROOT,"%s,%s,%.6f,%.6f,%.6f,%s%n",model,g.id,metrics[0],limit,metrics[1]*100,lumaPass&&saturationPass);
+                    }
+                }
+                summary.printf(Locale.ROOT,"%s,%.6f,%d,%d,%d%n",model,error/count,darkFail,glowFail,satFail);
+            }
+        }
+        System.out.println("Wrote "+dest);
+    }
+    static double constantFloor(Group g) {
+        double[] values=g.samples.stream().mapToDouble(s->{var p=s.nativeRgb.clone();for(int c=0;c<3;c++)p[c]=encoded(p[c]);return luma(p);}).sorted().toArray();
+        double median=values[values.length/2],error=0;for(double value:values)error+=Math.abs(value-median);return error/values.length;
     }
     static void nativeStatistics(Path dest,List<Group> groups) throws IOException {
         try(var out=new PrintWriter(dest.resolve("native-statistics.csv").toFile())){
@@ -149,6 +221,7 @@ public class WorldTextLevelsFit {
     public static void main(String[] args) throws Exception {
         selfCheck();if(args.length==1 && args[0].equals("--self-check")){System.out.println("offline fit checks passed");return;}
         if(args[0].equals("--prepare")){prepare(Path.of(args[1]),Path.of(args[2]));return;}
+        if(args[0].equals("--neutral")){neutral(Path.of(args[1]));return;}
         Path root=Path.of(args[0]),dest=destination(root);Files.createDirectories(dest);
         try(var csv=new PrintWriter(dest.resolve("scores.csv").toFile());var coefficients=new PrintWriter(dest.resolve("coefficients.txt").toFile())){
             csv.println("model,radius1080,split,group,pixels,before_luma_mae,predicted_luma_mae,native_hue,predicted_hue,hue_error,native_R,native_G,native_B,predicted_R,predicted_G,predicted_B,native_saturation,predicted_saturation");

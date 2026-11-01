@@ -2,6 +2,8 @@
 
 No rendering fix is shipped. The color mismatch is reproduced and its material path is identified, but no generic correction was validated safely. The goal remains unmet. Existing sharpness, main-storage filtering, sign-before-hudless ordering, name-tag UI ordering and shaderless rendering are unchanged. There is no fix commit hash; the evidence commit contains this report and the capture driver.
 
+Latest offline follow-up: [neutral lift under the revised gate](world-text-neutral-levels-2026-11-01.md). Separate white-point and neutral/tinted monotonic fits still fail held-out hanging-sign and saturation limits. No GPU implementation followed.
+
 ## Cause
 
 Verified against the local Complementary Reimagined r5.9.3 + Euphoria Patches 1.10.5 fixture and Iris snapshot SHA-256 `566BD7515CC1CB41320A6761932093C1C3EE813FC8CBFD2077E3D128746DC1C2`.

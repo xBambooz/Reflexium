@@ -1,5 +1,7 @@
 # Offline local-scene text levels, 2026-11-01
 
+This report records the original strict gate. Lead review revised the glowing limit to each group's optimal-constant MAE plus 2 and added an 8-point dark saturation tolerance. The neutral-lift follow-up is in [world-text-neutral-levels-2026-11-01.md](world-text-neutral-levels-2026-11-01.md); it also fails, with no GPU work or runtime implementation.
+
 **Step 1 fails. No rendering implementation, GPU acquisition, client launch or Gradle build was performed.** All twelve tested model/window combinations fail at least one held-out group at the required MAE of 8. No shader, DeferredWorldText, debug setting, status or name-tag path changed. The lead's overlay was not touched. No push or merge.
 
 The initial report rejected neighborhood sampling without testing it. That was premature. Local scene light does predict much of the dark lift, but these fits do not meet the requested luma and hue bar.

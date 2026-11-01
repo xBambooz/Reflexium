@@ -1,0 +1,15 @@
+model,mean_mae,dark_fail,glow_fail,saturation_fail
+neutral_add_0.0,10.219041,4,2,3
+neutral_white_0.0,8.728765,1,2,3
+neutral_add_0.1,10.219095,4,2,3
+neutral_white_0.1,8.728703,1,2,3
+neutral_add_0.2,10.219319,4,2,3
+neutral_white_0.2,8.728540,1,2,3
+neutral_add_0.35,10.219968,4,2,3
+neutral_white_0.35,8.728100,1,2,3
+neutral_add_0.5,10.220988,4,2,3
+neutral_white_0.5,8.727439,1,2,2
+neutral_add_0.75,10.223574,4,2,5
+neutral_white_0.75,8.725883,1,2,5
+neutral_add_1.0,10.227299,4,2,7
+neutral_white_1.0,8.723742,1,2,8
