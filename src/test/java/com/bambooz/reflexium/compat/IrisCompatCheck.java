@@ -154,6 +154,21 @@ public final class IrisCompatCheck {
 			System.out.println("Euphoria source checks skipped: " + root + " missing; supply -Preflexium.euphoriaFixture=<shaders directory> to require them");
 			return;
 		}
+		WorldTextPackSource.reset();
+		var levelSources = List.of("program/gbuffers_block.glsl", "lib/materials/specificMaterials/others/signText.glsl",
+				"lib/lighting/mainLighting.glsl", "program/composite5.glsl", "lib/colors/tonemaps.glsl");
+		for (String path : levelSources) {
+			if (WorldTextPackSource.verified()) throw new AssertionError("incomplete source set accepted");
+			String source = Files.readString(root.resolve(path));
+			if (!IrisCompat.adapt("renamed fixture", root.resolve(path), source).equals(source))
+				throw new AssertionError("identity observation changed source");
+		}
+		if (!WorldTextPackSource.verified()) throw new AssertionError("renamed exact source rejected");
+		Path material = root.resolve(levelSources.get(1));
+		IrisCompat.adapt("renamed fixture", material, Files.readString(material) + "\n// changed");
+		if (WorldTextPackSource.verified()) throw new AssertionError("modified sign source accepted");
+		WorldTextPackSource.reset();
+		if (WorldTextPackSource.verified()) throw new AssertionError("source reset retained old evidence");
 		var owner = IrisCompat.class.getDeclaredField("temporalOwner");
 		owner.setAccessible(true);
 		owner.setBoolean(null, true);

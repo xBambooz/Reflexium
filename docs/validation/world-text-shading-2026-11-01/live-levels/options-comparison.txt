@@ -1,0 +1,7 @@
+Real options, read only, 2026-11-01:
+AAA_THIS_IS_A_EUPHORIA_PATCHES_SETTINGS_FILE=true
+AAB_FOR_EUPHORIA_PATCHES_VERSION_1_10_5=true
+Fixture: no .txt option overrides.
+No bloom, tonemap, exposure, color grading or profile overrides differ. Both use source defaults.
+Fixture runtime reports HIGH.
+Real profile was not written.

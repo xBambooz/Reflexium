@@ -203,6 +203,7 @@ public final class IrisCompat {
 		if (!temporalReload) configurationEpoch++;
 		BslFoliageMotion.reset();
 		ComplementaryTemporalSource.reset();
+		WorldTextPackSource.reset();
 		IrisOptionPersistence.reset();
 		jitterRemoved = false;
 		bslAaRemoved = false;
@@ -305,13 +306,14 @@ public final class IrisCompat {
 	}
 
 	static String adapt(String name, Path file, String source) {
-		if (!ownsTemporalSampling() || source == null) return source;
-		if (!ComplementaryTemporalSource.supports(name) && !BSL.equals(name)) return source;
+		if (source == null) return null;
 		String path = file.toString().replace('\\', '/');
 		int root = path.lastIndexOf("shaders/");
 		if (root < 0) return source;
 		String rel = path.substring(root + "shaders/".length());
 		List<String> lines = List.of(source.replace("\r\n", "\n").split("\n", -1));
+		WorldTextPackSource.observe(rel, lines);
+		if (!ownsTemporalSampling() || !ComplementaryTemporalSource.supports(name) && !BSL.equals(name)) return source;
 		List<String> result = lines;
 		if (BSL.equals(name)) {
 			String foliage = BslFoliageMotion.adapt(rel, source);
