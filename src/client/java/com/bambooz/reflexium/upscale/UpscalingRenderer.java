@@ -961,6 +961,9 @@ public final class UpscalingRenderer {
 		o.addProperty("world_text_nodes", DeferredWorldText.captured);
 		o.addProperty("world_text_fallback_nodes", DeferredWorldText.fallback);
 		o.addProperty("world_text_prepared", DeferredWorldText.prepared());
+		o.addProperty("world_text_pack_levels", DebugSettings.worldTextPackLevels);
+		o.addProperty("world_text_pack_levels_source_verified", com.bambooz.reflexium.compat.WorldTextPackSource.verified());
+		o.addProperty("world_text_pack_levels_applied", DeferredWorldText.packLevelsApplied);
 		o.addProperty("world_text_limitation", DeferredWorldText.limitation);
 		o.addProperty("omit_sign_text", DebugSettings.omitSignText);
 		o.addProperty("requested_preset", builtPreset);

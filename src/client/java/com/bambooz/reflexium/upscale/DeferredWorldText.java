@@ -3,6 +3,7 @@ package com.bambooz.reflexium.upscale;
 import com.bambooz.reflexium.compat.IrisCompat;
 import com.bambooz.reflexium.compat.ShaderPacks;
 import com.bambooz.reflexium.compat.VitrailCompat;
+import com.bambooz.reflexium.compat.WorldTextPackSource;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.mixin.GameRendererAccessor;
@@ -49,6 +50,7 @@ public final class DeferredWorldText {
 	private static final Vector4f CLEAR = new Vector4f(0, 0, 0, 0);
 	private static ProjectionMatrixBuffer projectionBuffer;
 	private static TextureTarget layer, signLayer;
+	private static TextureTarget sceneSnapshot;
 	private static SubmitNodeStorage mainStorage;
 	private static boolean signScope;
 	private static int scope, signCount, nameCount;
@@ -57,15 +59,22 @@ public final class DeferredWorldText {
 	private static boolean enabled, signPrepared, namePrepared, depthChecked, depthAvailable;
 	public static int captured, fallback;
 	public static String limitation = "";
-	private static final RenderPipeline COMPOSITE = RenderPipeline.builder()
-			.withLocation(Identifier.fromNamespaceAndPath("reflexium", "pipeline/world_text_composite"))
+	public static boolean packLevelsApplied;
+	private static final RenderPipeline COMPOSITE = pipeline(false), PACK_COMPOSITE = pipeline(true);
+	private static RenderPipeline pipeline(boolean levels) {
+		var layout = BindGroupLayout.builder().withUniform("TextLayer", UniformType.COMBINED_IMAGE_SAMPLER);
+		if (levels) layout.withUniform("SceneColor", UniformType.COMBINED_IMAGE_SAMPLER);
+		var builder = RenderPipeline.builder()
+			.withLocation(Identifier.fromNamespaceAndPath("reflexium", levels ? "pipeline/world_text_pack_levels" : "pipeline/world_text_composite"))
 			.withVertexShader("core/screenquad")
 			.withFragmentShader(Identifier.fromNamespaceAndPath("reflexium", "core/world_text_composite"))
 			.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
 			.withCull(false)
-			.withBindGroupLayout(BindGroupLayout.builder().withUniform("TextLayer", UniformType.COMBINED_IMAGE_SAMPLER).build())
-			.withColorTargetState(new ColorTargetState(Optional.of(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA), GpuFormat.RGBA8_UNORM, ColorTargetState.WRITE_ALL))
-			.build();
+			.withBindGroupLayout(layout.build())
+			.withColorTargetState(new ColorTargetState(Optional.of(BlendFunction.TRANSLUCENT_PREMULTIPLIED_ALPHA), GpuFormat.RGBA8_UNORM, ColorTargetState.WRITE_ALL));
+		if (levels) builder.withShaderDefine("PACK_LEVELS");
+		return builder.build();
+	}
 
 	public static void clear() {
 		finish();
@@ -80,6 +89,7 @@ public final class DeferredWorldText {
 
 	public static void begin(GameRenderer renderer) {
 		captured = 0; fallback = 0; limitation = "";
+		packLevelsApplied = false;
 		var upscaling = UpscalingRenderer.get();
 		if (!DebugSettings.deferWorldText || !upscaling.isUpscalingRequestedThisFrame()) return;
 		var fg = FrameGenerationRenderer.get();
@@ -190,15 +200,28 @@ public final class DeferredWorldText {
 	}
 
 	/** The layer is already occluded and premultiplied. Never depth-test it against the cleared UI depth. */
-	public static void composite(RenderTarget target) { if (namePrepared) composite(target, layer); }
-	public static void compositeSigns(RenderTarget target) { if (signPrepared) composite(target, signLayer); }
+	public static void composite(RenderTarget target) { if (namePrepared) composite(target, layer, false); }
+	public static void compositeSigns(RenderTarget target) {
+		if (signPrepared) composite(target, signLayer, DebugSettings.worldTextPackLevels && IrisCompat.isDrawingPack() && WorldTextPackSource.verified());
+	}
 
-	private static void composite(RenderTarget target, RenderTarget layer) {
+	private static void composite(RenderTarget target, RenderTarget layer, boolean packLevels) {
+		if (packLevels) {
+			if (sceneSnapshot == null || sceneSnapshot.width != target.width || sceneSnapshot.height != target.height) {
+				UpscalingRenderer.get().waitForGpu();
+				if (sceneSnapshot != null) sceneSnapshot.destroyBuffers();
+				sceneSnapshot = new TextureTarget("Reflexium text-free scene", target.width, target.height, GpuFormat.RGBA8_UNORM, null);
+			}
+			// One snapshot per sign layer, before any glyphs composite. Never sample a color attachment being written.
+			RenderSystem.getDevice().createCommandEncoder().copyTextureToTexture(target.getColorTexture(), sceneSnapshot.getColorTexture(), 0, 0, 0, 0, 0, target.width, target.height);
+		}
 		try (var pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
 				() -> "Reflexium composite world text", target.getColorTextureView(), Optional.empty())) {
-			pass.setPipeline(RenderSystem.getCompiledPipeline(COMPOSITE));
+			pass.setPipeline(RenderSystem.getCompiledPipeline(packLevels ? PACK_COMPOSITE : COMPOSITE));
 			pass.setUniform("TextLayer", layer.getColorTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
+			if (packLevels) pass.setUniform("SceneColor", sceneSnapshot.getColorTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			pass.draw(3, 1, 0, 0);
+			if (packLevels) packLevelsApplied = true;
 		}
 	}
 
@@ -206,6 +229,8 @@ public final class DeferredWorldText {
 		clear();
 		if (layer != null) layer.destroyBuffers();
 		if (signLayer != null) signLayer.destroyBuffers();
+		if (sceneSnapshot != null) sceneSnapshot.destroyBuffers();
+		sceneSnapshot = null;
 		signLayer = null;
 		layer = null;
 		if (projectionBuffer != null) projectionBuffer.close();

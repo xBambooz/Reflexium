@@ -9,6 +9,8 @@ public final class DebugSettings {
 	public static boolean omitSignText;
 	/** Runtime A/B of display world text; never saved as a player option. */
 	public static boolean deferWorldText = true;
+	/** Fixed Euphoria sign-level fit. Default off until the live visual acceptance checks pass. */
+	public static boolean worldTextPackLevels;
 	private static volatile float jitterSignX = Float.NaN;
 	private static volatile float jitterSignY = Float.NaN;
 	private static volatile boolean jitterEnabled = true;
