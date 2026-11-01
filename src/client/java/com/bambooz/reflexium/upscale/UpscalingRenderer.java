@@ -375,6 +375,11 @@ public final class UpscalingRenderer {
 		return jittered;
 	}
 
+	/** Called inside LevelRenderer.render, after Iris's call-site view effects. */
+	public void recordLevelDrawView(CameraRenderState camera) {
+		if (swapped || motionOnly) history.recordDrawnView(camera.viewRotationMatrix);
+	}
+
 	/** Jitters the first-person hand projection the same way, so DLSS sees consistent sampling. */
 	public Matrix4f jitterHudProjection(Matrix4f projection) {
 		if (!swapped && !motionOnly) return projection;
@@ -887,7 +892,7 @@ public final class UpscalingRenderer {
 	public record DebugInfo(boolean active, String builtUpscaler, int jitterIndex, float jitterX, float jitterY,
 			float jitterSignX, float jitterSignY, int renderWidth, int renderHeight, int displayWidth, int displayHeight,
 			String lastError, int capturedVertices, int drawnVertices, int entities, int blockEntities, float mipBias, boolean reactiveMask,
-			long evaluatedFrames, boolean packHandMask, boolean projectionHasViewEffects, int sceneDepthIndex) {
+			long evaluatedFrames, boolean packHandMask, boolean projectionHasViewEffects, boolean viewHasViewEffects, int sceneDepthIndex) {
 	}
 
 	public DebugInfo debugInfo() {
@@ -898,7 +903,7 @@ public final class UpscalingRenderer {
 				upscaling ? renderWidth : windowWidth, upscaling ? renderHeight : windowHeight, windowWidth, windowHeight, lastError,
 				ObjectMotion.get().capturedVertices(), ObjectMotion.get().drawnVertices(), ObjectMotion.get().trackedEntities(),
 				ObjectMotion.get().trackedBlockEntities(), mipBias, false, evaluatedFrames, packHandCaptured,
-				history.currentProjectionHasViewEffects, IrisCompat.lastDepthIndex());
+				history.currentProjectionHasViewEffects, history.currentViewHasViewEffects, IrisCompat.lastDepthIndex());
 	}
 
 	/**
@@ -925,6 +930,7 @@ public final class UpscalingRenderer {
 		o.addProperty("primary_depth_source", irisOpaqueDepthApplied
 				? "iris_target_" + IrisCompat.lastDepthIndex() : worldDepthCaptured ? "vanilla_world" : "not_captured");
 		o.addProperty("drawn_projection_has_view_effects", history.currentProjectionHasViewEffects);
+		o.addProperty("drawn_view_has_view_effects", history.currentViewHasViewEffects);
 		if (foliageMotionApplied) {
 			o.addProperty("bsl_previous_time", BslFoliageMotion.previousTime());
 			o.addProperty("bsl_current_time", BslFoliageMotion.currentTime());
