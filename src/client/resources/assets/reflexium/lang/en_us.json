@@ -6,7 +6,7 @@
   "reflexium.group.reflex": "NVIDIA Reflex",
   "reflexium.group.upscaling": "Upscaling and Anti-Aliasing",
   "reflexium.option.reflex_mode": "NVIDIA Reflex",
-  "reflexium.option.reflex_mode.tooltip": "Reduces input latency by starting each frame just in time for the GPU. On + Boost also keeps GPU clocks high when CPU-bound. Frame generation requires Reflex and forces it On.",
+  "reflexium.option.reflex_mode.tooltip": "Reduces input latency. On + Boost keeps GPU clocks high when CPU-bound. Off is unavailable while NVIDIA frame generation is on.",
   "reflexium.option.upscaler": "Upscaler",
   "reflexium.option.upscaler.tooltip": "Renders the world at a lower resolution and upscales it to display resolution. FSR works on any GPU, DLSS needs an NVIDIA RTX GPU. Auto keeps native rendering without shaders; with a shader pack it uses DLSS when available, otherwise FSR.\n\nAt high FPS, light shaders or no shaders, DLSS can be slower. Choose Off for maximum FPS.",
   "reflexium.option.quality": "Upscaling Quality",

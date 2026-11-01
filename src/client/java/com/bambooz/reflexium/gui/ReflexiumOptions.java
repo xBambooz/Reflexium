@@ -32,10 +32,19 @@ public final class ReflexiumOptions {
 				"reflexium.option.reflex_mode",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.reflex_mode.tooltip")),
 				(caption, value) -> value.label(),
-				new OptionInstance.Enum<>(List.of(ReflexMode.values()), MODE_CODEC),
+				new OptionInstance.AltEnum<>(reflexModes(false), reflexModes(true),
+						() -> FrameGenerationRenderer.get().needsReflex(), (option, value) -> {
+							option.set(value);
+							// The button may display a forced value without changing the stored preference.
+							if (ReflexiumConfig.get().reflexMode() != value) ReflexController.get().setMode(value);
+						}, MODE_CODEC),
 				MODE_CODEC,
-				ReflexiumConfig.get().reflexMode(),
+				ReflexController.get().mode(),
 				value -> ReflexController.get().setMode(value));
+	}
+
+	public static List<ReflexMode> reflexModes(boolean requiresReflex) {
+		return requiresReflex ? List.of(ReflexMode.ON, ReflexMode.ON_BOOST) : List.of(ReflexMode.values());
 	}
 
 	public static OptionInstance<Boolean> postUpscaleParticles() {
