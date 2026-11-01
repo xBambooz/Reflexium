@@ -1,0 +1,14 @@
+[
+    {
+        "Path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\mods\\iris-fabric-experimental-build-26.3.jar",
+        "Hash":  "566BD7515CC1CB41320A6761932093C1C3EE813FC8CBFD2077E3D128746DC1C2"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\mods\\meshelium-1.6.2+mc26.3.jar",
+        "Hash":  "F39419AE68E7EDB9B336A52F4CE94CCA2DFB8C4A443652E6A9EF8FB63641C400"
+    },
+    {
+        "Path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\mods\\sodium-fabric-0.9.2+mc26.3.jar",
+        "Hash":  "87A5BB39F7E6E41106E77F122F82FC93F9D3BC0B6EBCB746B314172A446A287A"
+    }
+]

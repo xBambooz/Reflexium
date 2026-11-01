@@ -31,6 +31,7 @@ public final class CaptureAnalysis {
 			case "motion-stats" -> motionStats(args);
 			case "glyph-diff" -> glyphDiff(args);
 			case "registered-stability" -> registeredStability(args);
+			case "continuity" -> continuity(args);
 			case "ui-compose" -> uiCompose(args);
 			case "layer-compose" -> uiCompose(args);
 			case "hdr-preview" -> hdrPreview(args);
@@ -104,6 +105,39 @@ public final class CaptureAnalysis {
 	}
 
 	private static double pixelLuma(int p) { return .2126 * ((p >> 16) & 255) + .7152 * ((p >> 8) & 255) + .0722 * (p & 255); }
+
+	/** continuity <x> <y> <w> <h> <TSV: image TAB yaw>, fixed camera only. Counts sampled outliers, not uncaptured frames. */
+	private static void continuity(String[] args) throws Exception {
+		int x=Integer.parseInt(args[1]), y=Integer.parseInt(args[2]), w=Integer.parseInt(args[3]), h=Integer.parseInt(args[4]);
+		List<double[]> frames=new ArrayList<>();
+		double yaw=Double.NaN;
+		for (String line : Files.readAllLines(Path.of(args[5]))) {
+			if (line.isBlank()) continue;
+			String[] fields=line.split("\t");
+			double currentYaw=Double.parseDouble(fields[1]);
+			if (!Double.isNaN(yaw) && Math.abs(currentYaw-yaw)>0.001) throw new IllegalArgumentException("continuity requires fixed yaw");
+			yaw=currentYaw;
+			BufferedImage image=read(fields[0]);
+			double[] values=new double[w*h];
+			for (int j=0;j<h;j++) for(int i=0;i<w;i++) values[j*w+i]=pixelLuma(image.getRGB(x+i,y+j));
+			frames.add(values);
+		}
+		if (frames.size()<3) throw new IllegalArgumentException("three samples required");
+		List<Integer> candidates=new ArrayList<>();
+		for(int i=1;i<frames.size()-1;i++) if (sampledDip(frames.get(i-1),frames.get(i),frames.get(i+1))) candidates.add(i);
+		System.out.printf(Locale.ROOT,"{\"samples\":%d,\"one_sample_candidates\":%s,\"all_rendered_frames_verified\":false}%n",frames.size(),candidates);
+	}
+
+	private static boolean sampledDip(double[] before,double[] current,double[] after) {
+		int changed=0;
+		double restored=0;
+		for(int i=0;i<before.length;i++) {
+			double a=current[i]-before[i], b=current[i]-after[i];
+			if(Math.abs(a)>20 && Math.abs(b)>20 && a*b>0) changed++;
+			restored+=Math.abs(before[i]-after[i]);
+		}
+		return changed>before.length*0.15 && restored/before.length<1.5;
+	}
 
 	/** ui-compose <flipped hudless> <unflipped UI RGB> <encoded alpha> <final> <x> <y> <w> <h>. */
 	private static void uiCompose(String[] args) throws Exception {
@@ -281,6 +315,10 @@ public final class CaptureAnalysis {
 	}
 
 	private static void decoderCheck() {
+		if (!sampledDip(new double[]{100,100},new double[]{200,200},new double[]{100,100})
+				|| sampledDip(new double[]{100,100},new double[]{101,101},new double[]{100,100})
+				|| sampledDip(new double[]{100,100},new double[]{200,200},new double[]{200,200}))
+			throw new AssertionError("sampled terrain dip, small noise and persistent cut controls");
 		for (double[] pixel : new double[][]{{10, 20}, {1280, 720}, {2500, 1400}}) {
 			double[] mapped = rotatedPixel(pixel[0], pixel[1], 2560, 1440, Math.toRadians(70), 90, 90, 10);
 			if (Math.hypot(mapped[0] - pixel[0], mapped[1] - pixel[1]) > 1e-8) throw new AssertionError("rotation identity");

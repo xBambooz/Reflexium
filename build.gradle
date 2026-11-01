@@ -138,7 +138,7 @@ assertionChecks.each { name, main ->
 		}
 		mainClass = main
 		workingDir = projectDir
-		for (property in ["reflexium.irisJar", "reflexium.dhJar", "reflexium.mesheliumJar"]) {
+		for (property in ["reflexium.irisJar", "reflexium.dhJar", "reflexium.mesheliumJar", "reflexium.euphoriaFixture"]) {
 			if (providers.gradleProperty(property).isPresent()) systemProperty property, providers.gradleProperty(property).get()
 		}
 	}

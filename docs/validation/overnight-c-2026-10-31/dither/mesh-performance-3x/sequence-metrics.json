@@ -1,0 +1,30 @@
+[
+    {
+        "sequence":  "static",
+        "metrics":  {
+                        "frames":  12,
+                        "registered_mean_luma_change":  0.277467
+                    }
+    },
+    {
+        "sequence":  "pan",
+        "metrics":  {
+                        "frames":  24,
+                        "registered_mean_luma_change":  0.310314
+                    }
+    },
+    {
+        "sequence":  "cut",
+        "metrics":  {
+                        "frames":  12,
+                        "registered_mean_luma_change":  0.103900
+                    }
+    },
+    {
+        "sequence":  "sunlight",
+        "metrics":  {
+                        "frames":  24,
+                        "registered_mean_luma_change":  0.296798
+                    }
+    }
+]
