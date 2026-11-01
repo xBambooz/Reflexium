@@ -29,6 +29,7 @@ public final class CaptureAnalysis {
 			case "stability" -> stability(args);
 			case "capture-check" -> captureCheck(args);
 			case "drawn-view-check" -> captureCheck(args);
+			case "terrain-temporal" -> terrainTemporal(args);
 			case "motion-stats" -> motionStats(args);
 			case "glyph-diff" -> glyphDiff(args);
 			case "registered-stability" -> registeredStability(args);
@@ -103,6 +104,51 @@ public final class CaptureAnalysis {
 		}
 		if (frames < 2) throw new IllegalArgumentException("two frames required");
 		System.out.printf(Locale.ROOT, "{\"frames\":%d,\"registered_mean_luma_change\":%.6f}%n", frames, residual / ((frames - 1.0) * w * h));
+	}
+
+	/** Depth-register captured outputs using actual drawn views, including bob and camera translation. */
+	private static void terrainTemporal(String[] args) throws Exception {
+		int x0=Integer.parseInt(args[1]), y0=Integer.parseInt(args[2]), rw=Integer.parseInt(args[3]), rh=Integer.parseInt(args[4]);
+		BufferedImage previous=null, previousDepth=null;
+		String previousMeta=null;
+		double error=0, sharp=0;long samples=0, sharpSamples=0;
+		for(int frame=5;frame<args.length;frame++) {
+			String meta=Files.readString(Path.of(args[frame]));
+			BufferedImage image=read(pathOf(meta,"output")), depth=read(pathOf(meta,"depth"));
+			int w=image.getWidth(),h=image.getHeight();
+			double[] inv=inverse(numberArray(meta,"drawn_world_view_projection"));
+			double[] prev=previousMeta==null?null:numberArray(previousMeta,"drawn_world_view_projection");
+			double jx=number(meta,"ndc_x"),jy=number(meta,"ndc_y");
+			double dx=prev==null?0:number(meta,"x")-number(previousMeta,"x");
+			double dy=prev==null?0:number(meta,"y")-number(previousMeta,"y");
+			double dz=prev==null?0:number(meta,"z")-number(previousMeta,"z");
+			for(int y=y0;y<y0+rh;y++)for(int x=x0;x<x0+rw;x++) {
+				double center=pixelLuma(image.getRGB(x,y));
+				sharp+=Math.abs(4*center-pixelLuma(image.getRGB(x-1,y))-pixelLuma(image.getRGB(x+1,y))-pixelLuma(image.getRGB(x,y-1))-pixelLuma(image.getRGB(x,y+1)));sharpSamples++;
+				if(prev==null)continue;
+				double nx=(x+.5)/w*2-1,ny=1-(y+.5)/h*2;
+				int ix=(int)((nx+jx+1)*.5*depth.getWidth()),iy=(int)((1-ny-jy)*.5*depth.getHeight());
+				if(ix<0||iy<0||ix>=depth.getWidth()||iy>=depth.getHeight())continue;
+				double d=depthAt(depth,ix,iy);if(d<=0)continue;
+				double[] p=mul(inv,nx,ny,d,1),q=mul(prev,p[0]+dx*p[3],p[1]+dy*p[3],p[2]+dz*p[3],p[3]);
+				if(q[3]<=0)continue;
+				double px=(q[0]/q[3]+1)*.5*w-.5,py=(1-q[1]/q[3])*.5*h-.5;
+				int sx=(int)Math.floor(px),sy=(int)Math.floor(py);
+				if(sx<0||sy<0||sx>=w-1||sy>=h-1)continue;
+				int pdx=(int)(((px+.5)/w+number(previousMeta,"ndc_x")*.5)*previousDepth.getWidth());
+				int pdy=(int)(((py+.5)/h-number(previousMeta,"ndc_y")*.5)*previousDepth.getHeight());
+				if(pdx<0||pdy<0||pdx>=previousDepth.getWidth()||pdy>=previousDepth.getHeight())continue;
+				double pd=depthAt(previousDepth,pdx,pdy);
+				if(Math.abs(pd-q[2]/q[3])>Math.max(pd*.025,2.0/16777215))continue;
+				double fx=px-sx,fy=py-sy;
+				double a=pixelLuma(previous.getRGB(sx,sy))*(1-fx)+pixelLuma(previous.getRGB(sx+1,sy))*fx;
+				double b=pixelLuma(previous.getRGB(sx,sy+1))*(1-fx)+pixelLuma(previous.getRGB(sx+1,sy+1))*fx;
+				error+=Math.abs(center-a*(1-fy)-b*fy);samples++;
+			}
+			previous=image;previousDepth=depth;previousMeta=meta;
+		}
+		if(samples==0)throw new IllegalArgumentException("no registered terrain samples");
+		System.out.printf(Locale.ROOT,"{\"samples\":%d,\"registered_luma_mae\":%.6f,\"laplacian_l1\":%.6f}%n",samples,error/samples,sharp/sharpSamples);
 	}
 
 	private static double pixelLuma(int p) { return .2126 * ((p >> 16) & 255) + .7152 * ((p >> 8) & 255) + .0722 * (p & 255); }

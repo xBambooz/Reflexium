@@ -1,0 +1,197 @@
+[
+    {
+        "name":  "walk-1",
+        "camera":  {
+                       "x":  197.54338626353135,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  197.56496970913403,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  47,
+                       "phases":  72,
+                       "x_px":  0.453125,
+                       "y_px":  0.25308645,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  0.453125,
+                       "sent_y_px":  0.25308645,
+                       "ndc_x":  0.0014160157,
+                       "ndc_y":  0.0014060359
+                   },
+        "reset":  false,
+        "frame_time_ms":  5.2032,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  true,
+        "projection_effects":  false
+    },
+    {
+        "name":  "walk-2",
+        "camera":  {
+                       "x":  194.30553237529801,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  194.32711828700351,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  38,
+                       "phases":  72,
+                       "x_px":  -0.109375,
+                       "y_px":  0.21604937,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.109375,
+                       "sent_y_px":  0.21604937,
+                       "ndc_x":  -0.00034179687,
+                       "ndc_y":  0.0012002743
+                   },
+        "reset":  false,
+        "frame_time_ms":  6.2843,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  true,
+        "projection_effects":  false
+    },
+    {
+        "name":  "walk-3",
+        "camera":  {
+                       "x":  190.7006859519936,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  190.72658904123185,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  44,
+                       "phases":  72,
+                       "x_px":  -0.296875,
+                       "y_px":  0.43827158,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.296875,
+                       "sent_y_px":  0.43827158,
+                       "ndc_x":  -0.00092773436,
+                       "ndc_y":  0.002434842
+                   },
+        "reset":  false,
+        "frame_time_ms":  5.371,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  true,
+        "projection_effects":  false
+    },
+    {
+        "name":  "walk-4",
+        "camera":  {
+                       "x":  187.17354876699946,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  187.19945185623772,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  47,
+                       "phases":  72,
+                       "x_px":  0.453125,
+                       "y_px":  0.25308645,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  0.453125,
+                       "sent_y_px":  0.25308645,
+                       "ndc_x":  0.0014160157,
+                       "ndc_y":  0.0014060359
+                   },
+        "reset":  false,
+        "frame_time_ms":  6.1544,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  true,
+        "projection_effects":  false
+    },
+    {
+        "name":  "walk-5",
+        "camera":  {
+                       "x":  183.88817375251784,
+                       "y":  111.61999988555908,
+                       "z":  150.0,
+                       "previous_x":  183.9140768417561,
+                       "previous_y":  111.61999988555908,
+                       "previous_z":  150.0,
+                       "orientation_xyzw":  [
+                                                -0.061628412,
+                                                0.70441604,
+                                                0.061628412,
+                                                0.70441604
+                                            ]
+                   },
+        "jitter":  {
+                       "index":  40,
+                       "phases":  72,
+                       "x_px":  -0.421875,
+                       "y_px":  -0.006172836,
+                       "sign_x":  1.0,
+                       "sign_y":  1.0,
+                       "sent_x_px":  -0.421875,
+                       "sent_y_px":  -0.006172836,
+                       "ndc_x":  -0.0013183594,
+                       "ndc_y":  -3.429353E-05
+                   },
+        "reset":  false,
+        "frame_time_ms":  5.348,
+        "sizes":  {
+                      "render_w":  640,
+                      "render_h":  360,
+                      "display_w":  1920,
+                      "display_h":  1080
+                  },
+        "view_effects":  true,
+        "projection_effects":  false
+    }
+]
