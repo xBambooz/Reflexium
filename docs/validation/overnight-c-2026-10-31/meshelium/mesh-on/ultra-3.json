@@ -1,0 +1,12 @@
+{
+    "frames_from":  489605,
+    "frames_to":  492325,
+    "intervals":  2719,
+    "mean_ms":  1.84,
+    "p50_ms":  1.99,
+    "p99_ms":  2.544,
+    "avg_fps":  543.537,
+    "low_1pct_fps":  388.041,
+    "low_0_1pct_fps":  382.975,
+    "ok":  true
+}

@@ -28,6 +28,17 @@ public final class FrameProfilerCheck {
 				|| span.get("gpu_samples").getAsLong() != 0) throw new AssertionError(span);
 		span = FrameProfiler.command("reset").getAsJsonObject("spans").getAsJsonObject("evaluate");
 		if (span.get("cpu_samples").getAsLong() != 0) throw new AssertionError("reset counters");
+		long world = FrameProfiler.start(FrameProfiler.WORLD, null);
+		if (!FrameProfiler.inWorld()) throw new AssertionError("world wait attribution");
+		for (int i = 0; i < 2; i++) {
+			long wait = FrameProfiler.start(FrameProfiler.WORLD_FENCE, null);
+			FrameProfiler.end(FrameProfiler.WORLD_FENCE, wait, null);
+		}
+		FrameProfiler.end(FrameProfiler.WORLD, world, null);
+		if (FrameProfiler.inWorld()) throw new AssertionError("world scope closed");
+		span = FrameProfiler.command("status").getAsJsonObject("spans").getAsJsonObject("world_fence_wait");
+		if (Math.abs(span.get("cpu_us_per_world_frame").getAsDouble() - 2 * span.get("cpu_us").getAsDouble()) > .0001)
+			throw new AssertionError("repeat-call time must be summed per frame");
 		FrameProfiler.command("off");
 		System.out.println("Frame profiler CPU/disabled/reset checks passed");
 	}

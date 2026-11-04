@@ -1,9 +1,6 @@
 package com.bambooz.reflexium.gui;
 
-import com.bambooz.reflexium.compat.IrisCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
-import com.bambooz.reflexium.config.ShadowDistanceCap;
-import com.bambooz.reflexium.config.ShadowResolutionCap;
 import com.bambooz.reflexium.upscale.dlss.DlssModel;
 import com.bambooz.reflexium.framegen.FrameGeneration;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
@@ -26,20 +23,6 @@ public final class ReflexiumOptions {
 			Codec.STRING.xmap(value -> ReflexMode.parse(value, ReflexMode.OFF), ReflexMode::serializedName);
 	private static final Codec<UpscaleQuality> DLSS_CODEC =
 			Codec.STRING.xmap(value -> UpscaleQuality.parse(value, UpscaleQuality.QUALITY), UpscaleQuality::serializedName);
-	private static final Codec<ShadowResolutionCap> RESOLUTION_CAP_CODEC =
-			Codec.STRING.xmap(value -> {
-				for (ShadowResolutionCap cap : ShadowResolutionCap.values()) {
-					if (cap.serializedName().equalsIgnoreCase(value)) return cap;
-				}
-				return ShadowResolutionCap.OFF;
-			}, ShadowResolutionCap::serializedName);
-	private static final Codec<ShadowDistanceCap> DISTANCE_CAP_CODEC =
-			Codec.STRING.xmap(value -> {
-				for (ShadowDistanceCap cap : ShadowDistanceCap.values()) {
-					if (cap.serializedName().equalsIgnoreCase(value)) return cap;
-				}
-				return ShadowDistanceCap.OFF;
-			}, ShadowDistanceCap::serializedName);
 
 	private ReflexiumOptions() {
 	}
@@ -49,10 +32,19 @@ public final class ReflexiumOptions {
 				"reflexium.option.reflex_mode",
 				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.reflex_mode.tooltip")),
 				(caption, value) -> value.label(),
-				new OptionInstance.Enum<>(List.of(ReflexMode.values()), MODE_CODEC),
+				new OptionInstance.AltEnum<>(reflexModes(false), reflexModes(true),
+						() -> FrameGenerationRenderer.get().needsReflex(), (option, value) -> {
+							option.set(value);
+							// The button may display a forced value without changing the stored preference.
+							if (ReflexiumConfig.get().reflexMode() != value) ReflexController.get().setMode(value);
+						}, MODE_CODEC),
 				MODE_CODEC,
-				ReflexiumConfig.get().reflexMode(),
+				ReflexController.get().mode(),
 				value -> ReflexController.get().setMode(value));
+	}
+
+	public static List<ReflexMode> reflexModes(boolean requiresReflex) {
+		return requiresReflex ? List.of(ReflexMode.ON, ReflexMode.ON_BOOST) : List.of(ReflexMode.values());
 	}
 
 	public static OptionInstance<Boolean> postUpscaleParticles() {
@@ -107,48 +99,10 @@ public final class ReflexiumOptions {
 				ReflexiumConfig.get().fsrSharpness(), ReflexiumConfig.get()::setFsrSharpness);
 	}
 
-	public static OptionInstance<ShadowResolutionCap> packShadowResolutionCap() {
-		return new OptionInstance<>("reflexium.option.pack_shadow_resolution_cap",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.pack_shadow_resolution_cap.tooltip")),
-				(caption, value) -> value.label(),
-				new OptionInstance.Enum<>(List.of(ShadowResolutionCap.values()), RESOLUTION_CAP_CODEC),
-				RESOLUTION_CAP_CODEC,
-				ShadowResolutionCap.fromValue(ReflexiumConfig.get().packShadowResolutionCap()),
-				ReflexiumOptions::setPackShadowResolutionCap);
-	}
-
-	public static OptionInstance<ShadowDistanceCap> packShadowDistanceCap() {
-		return new OptionInstance<>("reflexium.option.pack_shadow_distance_cap",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.pack_shadow_distance_cap.tooltip")),
-				(caption, value) -> value.label(),
-				new OptionInstance.Enum<>(List.of(ShadowDistanceCap.values()), DISTANCE_CAP_CODEC),
-				DISTANCE_CAP_CODEC,
-				ShadowDistanceCap.fromValue(ReflexiumConfig.get().packShadowDistanceCap()),
-				ReflexiumOptions::setPackShadowDistanceCap);
-	}
-
-	public static void setPackShadowResolutionCap(ShadowResolutionCap value) {
-		setPackShadowResolutionCap(value.value());
-	}
-
-	public static void setPackShadowResolutionCap(int value) {
-		ReflexiumConfig.get().setPackShadowResolutionCap(value);
-		IrisCompat.reloadForOptionChange();
-	}
-
-	public static void setPackShadowDistanceCap(ShadowDistanceCap value) {
-		setPackShadowDistanceCap(value.value());
-	}
-
-	public static void setPackShadowDistanceCap(int value) {
-		ReflexiumConfig.get().setPackShadowDistanceCap(value);
-		IrisCompat.reloadForOptionChange();
-	}
-
 	public static OptionInstance<FrameGeneration> frameGeneration() {
 		Codec<FrameGeneration> codec = Codec.STRING.xmap(v -> FrameGeneration.parse(v, ReflexiumConfig.DEFAULT_FRAME_GENERATION), FrameGeneration::serializedName);
 		return new OptionInstance<>("reflexium.option.frame_generation",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.frame_generation.tooltip")),
+				OptionInstance.cachedConstantTooltip(gateTooltip("reflexium.option.frame_generation.tooltip")),
 				(caption, value) -> value.label(), new OptionInstance.Enum<>(List.of(FrameGeneration.values()), codec),
 				ReflexiumConfig.get().frameGeneration(), ReflexiumOptions::setFrameGeneration);
 	}
@@ -159,10 +113,18 @@ public final class ReflexiumOptions {
 	public static OptionInstance<Integer> frameGenerationMultiplier() {
 		int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 		return new OptionInstance<>("reflexium.option.fg_multiplier",
-				OptionInstance.cachedConstantTooltip(Component.translatable("reflexium.option.fg_multiplier.tooltip")),
+				OptionInstance.cachedConstantTooltip(gateTooltip("reflexium.option.fg_multiplier.tooltip")),
 				(caption, value) -> Component.literal(value == 0 ? "Auto" : value + "x"),
 				new OptionInstance.Enum<>(IntStream.concat(IntStream.of(0), IntStream.rangeClosed(2, maximum)).boxed().toList(), Codec.INT),
 				Math.min(maximum, ReflexiumConfig.get().frameGenerationMultiplier()), ReflexiumOptions::setFrameGenerationMultiplier);
+	}
+
+	/** The tooltip plus the hardware/runtime reason when this adapter cannot offer the option. */
+	public static Component gateTooltip(String key) {
+		Component tooltip = Component.translatable(key);
+		var gate = FrameGenerationRenderer.get().gate();
+		if (gate.reasonKey().isEmpty()) return tooltip;
+		return tooltip.copy().append("\n\n").append(Component.translatable(gate.reasonKey()));
 	}
 	public static void addFrameGeneration(OptionsList list) {
 		list.addBig(frameGeneration());

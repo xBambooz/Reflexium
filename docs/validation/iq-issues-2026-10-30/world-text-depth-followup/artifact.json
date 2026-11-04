@@ -1,0 +1,9 @@
+{
+  "jar": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-c29af7ed\\build\\libs\\Reflexium-1.2.0-alpha-fabric-26.3.jar",
+  "sha256": "300cf027741925c8cf9dea9ef35fe79edd7801b27357f17fe613fad7c3834655",
+  "jar_matches_dev_classes": [
+    "com/bambooz/reflexium/upscale/DeferredWorldText.class",
+    "com/bambooz/reflexium/debug/server/SetCommand.class"
+  ],
+  "iris_sha256": "566bd7515cc1cb41320a6761932093c1c3ee813fc8cbfd2077e3d128746dc1c2"
+}

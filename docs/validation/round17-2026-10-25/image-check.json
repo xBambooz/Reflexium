@@ -1,0 +1,458 @@
+﻿[
+    {
+        "key":  "full-dh-BSL-native",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  124.87715880903232,
+                     "variance":  1169.4211620799524,
+                     "edges":  9884,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  125.0224442951376,
+                      "variance":  1164.7964431312612,
+                      "edges":  9710,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  1,
+                            "aligned":  1,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  1,
+                             "aligned":  1,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.98800284183120268,
+                       "aligned":  0.98800284183120268,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-dh-BSL-performance",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  125.83397795141046,
+                     "variance":  1186.121151963891,
+                     "edges":  11246,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  125.68637395487647,
+                      "variance":  1198.5127073856202,
+                      "edges":  11122,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.98200679163498938,
+                            "aligned":  0.98200679163498938,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.98113200279698487,
+                             "aligned":  0.98113200279698487,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.991693130901171,
+                       "aligned":  0.991693130901171,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-dh-BSL-quality",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  125.09071607291054,
+                     "variance":  1137.2962648578614,
+                     "edges":  10418,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  125.16171115624391,
+                      "variance":  1134.5278227115614,
+                      "edges":  10420,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.99123108268972882,
+                            "aligned":  0.99123108268972882,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.991598327782325,
+                             "aligned":  0.991598327782325,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.991070808112659,
+                       "aligned":  0.991070808112659,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-dh-Mellow-native",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  114.56115931596914,
+                     "variance":  1403.6108619981642,
+                     "edges":  12934,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  114.56559082985846,
+                      "variance":  1403.9778068645155,
+                      "edges":  12931,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  1,
+                            "aligned":  1,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  1,
+                             "aligned":  1,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99953892587535376,
+                       "aligned":  0.99953892587535376,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-dh-Mellow-performance",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  113.28146366667073,
+                     "variance":  1202.899205129801,
+                     "edges":  11662,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  113.32687071875237,
+                      "variance":  1204.8274011425601,
+                      "edges":  11691,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.96386601576241715,
+                            "aligned":  0.96386601576241715,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.9611208781341305,
+                             "aligned":  0.9611208781341305,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99747326953169968,
+                       "aligned":  0.99747326953169968,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-dh-Mellow-quality",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  113.5372206319466,
+                     "variance":  1158.0517132976565,
+                     "edges":  11303,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  113.51765485069356,
+                      "variance":  1154.577588933118,
+                      "edges":  11376,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.97233114561986589,
+                            "aligned":  0.97233114561986589,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.97271166324469893,
+                             "aligned":  0.97271166324469893,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99854838005394386,
+                       "aligned":  0.99854838005394386,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-BSL-native",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  147.42841334027028,
+                     "variance":  855.29101423576139,
+                     "edges":  382,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  147.57874383332933,
+                      "variance":  843.48286285605718,
+                      "edges":  365,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  1,
+                            "aligned":  1,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  1,
+                             "aligned":  1,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99804671085468355,
+                       "aligned":  0.99804671085468355,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-BSL-performance",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  147.55679387501797,
+                     "variance":  834.36938191806257,
+                     "edges":  377,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  147.68426770140744,
+                      "variance":  823.66034740594478,
+                      "edges":  390,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.99952499703109043,
+                            "aligned":  0.99952499703109043,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.99953732364939107,
+                             "aligned":  0.99953732364939107,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.9981072859245822,
+                       "aligned":  0.9981072859245822,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-BSL-quality",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  147.49164354165643,
+                     "variance":  853.65045479285618,
+                     "edges":  270,
+                     "content_valid":  true
+                 },
+        "right":  {
+                      "mean_luma":  147.58260314929174,
+                      "variance":  845.52425239870354,
+                      "edges":  287,
+                      "content_valid":  true
+                  },
+        "left_native":  {
+                            "direct":  0.998307292328711,
+                            "aligned":  0.998307292328711,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  0.99821973811690046,
+                             "aligned":  0.99821973811690046,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99825208469565174,
+                       "aligned":  0.99825208469565174,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-Mellow-native",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  175.91762463879263,
+                     "variance":  0.94558453748686588,
+                     "edges":  0,
+                     "content_valid":  false
+                 },
+        "right":  {
+                      "mean_luma":  175.91796167351495,
+                      "variance":  0.94547247813534341,
+                      "edges":  0,
+                      "content_valid":  false
+                  },
+        "left_native":  {
+                            "direct":  1,
+                            "aligned":  1,
+                            "shift_x":  0,
+                            "shift_y":  0,
+                            "valid":  true
+                        },
+        "right_native":  {
+                             "direct":  1,
+                             "aligned":  1,
+                             "shift_x":  0,
+                             "shift_y":  0,
+                             "valid":  true
+                         },
+        "repeat":  {
+                       "direct":  0.99982993849668444,
+                       "aligned":  0.99982993849668444,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-Mellow-performance",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  175.55866515266294,
+                     "variance":  0.49266795008225017,
+                     "edges":  0,
+                     "content_valid":  false
+                 },
+        "right":  {
+                      "mean_luma":  175.5993898575193,
+                      "variance":  0.53269144317528117,
+                      "edges":  0,
+                      "content_valid":  false
+                  },
+        "left_native":  {
+                            "direct":  0.085865313845960009,
+                            "aligned":  0.60615048160750107,
+                            "shift_x":  4,
+                            "shift_y":  2,
+                            "valid":  false
+                        },
+        "right_native":  {
+                             "direct":  0.11174558663215367,
+                             "aligned":  0.58993773360536594,
+                             "shift_x":  4,
+                             "shift_y":  2,
+                             "valid":  false
+                         },
+        "repeat":  {
+                       "direct":  0.93755700986710366,
+                       "aligned":  0.93755700986710366,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    },
+    {
+        "key":  "full-no-dh-Mellow-quality",
+        "width":  640,
+        "height":  180,
+        "left":  {
+                     "mean_luma":  175.92707788530947,
+                     "variance":  0.482770265549334,
+                     "edges":  0,
+                     "content_valid":  false
+                 },
+        "right":  {
+                      "mean_luma":  175.92742986100384,
+                      "variance":  0.54634361104035634,
+                      "edges":  0,
+                      "content_valid":  false
+                  },
+        "left_native":  {
+                            "direct":  0.32558828794020339,
+                            "aligned":  0.33582576826296295,
+                            "shift_x":  -2,
+                            "shift_y":  2,
+                            "valid":  false
+                        },
+        "right_native":  {
+                             "direct":  0.30467372243866453,
+                             "aligned":  0.31182026518011524,
+                             "shift_x":  -2,
+                             "shift_y":  0,
+                             "valid":  false
+                         },
+        "repeat":  {
+                       "direct":  0.92711374991259243,
+                       "aligned":  0.92711374991259243,
+                       "shift_x":  0,
+                       "shift_y":  0,
+                       "valid":  true
+                   }
+    }
+]

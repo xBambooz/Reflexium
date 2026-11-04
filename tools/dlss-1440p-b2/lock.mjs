@@ -1,0 +1,45 @@
+﻿import fs from 'node:fs';
+import {ps,save,evidence,delay} from './lib.mjs';
+const lock='C:/Users/Ryan/source/repos/Reflexium-gpu.lock';
+let held=false, lastCheck=0;
+export async function acquire(purpose='capture') {
+ for(;;) {
+  const cooldown=evidence+'/last-release.json';
+  if(fs.existsSync(cooldown)){const remaining=300000-(Date.now()-JSON.parse(fs.readFileSync(cooldown)).time);if(remaining>0){console.log('GPU cooldown',Math.ceil(remaining/1000),'seconds');await delay(Math.min(remaining,30000));continue;}}
+
+  try {
+   fs.writeFileSync(lock,JSON.stringify({owner:'worker-P',pid:process.pid,started:new Date().toISOString(),purpose}),{flag:'wx'});
+   held=true; save(`${evidence}/lock-acquired-${Date.now()}.json`,{pid:process.pid,time:new Date().toISOString(),purpose}); return;
+  } catch(e) {
+   if(!fs.existsSync(lock))throw e;
+   const raw=fs.readFileSync(lock,'utf8').replace(/^\uFEFF/,'');
+   let owner;try{owner=JSON.parse(raw);}catch{await delay(1000);continue;}
+   if(Date.now()-lastCheck>=30000){
+    lastCheck=Date.now();
+    save(`${evidence}/lock-check-${lastCheck}.json`,{checked:new Date().toISOString(),owner});
+    console.log(new Date().toISOString(),'waiting for GPU',owner.owner,owner.pid);
+   }
+   // Foreign reservations are never removed automatically.
+
+   await delay(1000);
+  }
+ }
+}
+export function release(){
+ if(held && fs.existsSync(lock) && JSON.parse(fs.readFileSync(lock,'utf8')).pid===process.pid){fs.unlinkSync(lock);held=false;save(evidence+'/last-release.json',{time:Date.now(),pid:process.pid});}
+}
+export function exclusive(own=0){
+ const all=JSON.parse(ps("@(Get-CimInstance Win32_Process | Where-Object {$_.Name -match '^javaw?\\.exe$'} | Select-Object ProcessId,ParentProcessId,CommandLine) | ConvertTo-Json -Compress")||'[]');
+ const census=Array.isArray(all)?all:[all];
+ const idleDaemons=[];
+ const others=census.filter(p=>{
+  if(p.ProcessId===own)return false;
+  if(/GradleDaemon/.test(p.CommandLine)){
+   const state=ps(`Get-ChildItem '${process.env.USERPROFILE.replaceAll('\\','/')}/.gradle/daemon/*/daemon-${p.ProcessId}.out.log' -ErrorAction SilentlyContinue | Get-Content | Select-String 'Marking the daemon as (idle|busy)' | Select-Object -Last 1 | ForEach-Object {$_.Line}`);
+   if(state.includes('Marking the daemon as idle')){idleDaemons.push({pid:p.ProcessId,state});return false;}
+  }
+  return true;
+ });
+ if(others.length) throw Error('Other Java workload: '+JSON.stringify(others.map(p=>p.ProcessId)));
+ return {checked:new Date().toISOString(),processes:all,idleDaemons,exclusive:true};
+}

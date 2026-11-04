@@ -1,0 +1,11 @@
+{
+  "pid": 163392,
+  "port": 25762,
+  "debug_port": 25792,
+  "info": {
+    "ProcessId": 163392,
+    "Name": "javaw.exe",
+    "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxRound17/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxRound17\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+  },
+  "started": "2026-10-31T06:50:05.312Z"
+}

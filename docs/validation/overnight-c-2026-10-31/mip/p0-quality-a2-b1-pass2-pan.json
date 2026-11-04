@@ -1,0 +1,434 @@
+[
+    {
+        "frame":  467500,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  31,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_000.png",
+        "evaluated":  29151,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  90.0,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  467676,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  15,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_001.png",
+        "evaluated":  29327,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  90.680016,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  467851,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  30,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_002.png",
+        "evaluated":  29502,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  91.32003,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468026,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  13,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_003.png",
+        "evaluated":  29677,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  91.960045,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468200,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  27,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_004.png",
+        "evaluated":  29851,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  92.60006,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468373,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  8,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_005.png",
+        "evaluated":  30024,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  93.240074,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468545,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  20,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_006.png",
+        "evaluated":  30196,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  93.88009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468718,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  1,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_007.png",
+        "evaluated":  30369,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  468894,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  17,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_008.png",
+        "evaluated":  30545,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469071,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  2,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_009.png",
+        "evaluated":  30722,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469248,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  19,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_010.png",
+        "evaluated":  30899,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469425,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  4,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_011.png",
+        "evaluated":  31076,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469603,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  22,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_012.png",
+        "evaluated":  31254,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469780,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  7,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_013.png",
+        "evaluated":  31431,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  469956,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  23,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_014.png",
+        "evaluated":  31607,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  470133,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  8,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_015.png",
+        "evaluated":  31784,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  470310,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  25,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_016.png",
+        "evaluated":  31961,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  470487,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  10,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_017.png",
+        "evaluated":  32138,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  470664,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  27,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_018.png",
+        "evaluated":  32315,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  470841,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  12,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_019.png",
+        "evaluated":  32492,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  471018,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  29,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_020.png",
+        "evaluated":  32669,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  471195,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  14,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_021.png",
+        "evaluated":  32846,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  471372,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  31,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_022.png",
+        "evaluated":  33023,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  471549,
+        "render_size":  {
+                            "w":  1707,
+                            "h":  960
+                        },
+        "last_error":  "",
+        "jitter_index":  16,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-quality-a2-b1-pass2-pan\\frame_023.png",
+        "evaluated":  33200,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    }
+]

@@ -1,7 +1,6 @@
 package com.bambooz.reflexium.compat;
 
 import com.bambooz.reflexium.ReflexiumClient;
-import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -12,6 +11,7 @@ import net.minecraft.client.Minecraft;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,6 @@ import java.util.Set;
 public final class IrisCompat {
 	private static final String MOD_ID = "iris";
 	public static final String SUPPORTED = "1.12.0-snapshot+mc26.3-local";
-	private static final String PACK = "ComplementaryReimagined_r5.9.3";
 	/** lib/antialiasing/jitter.glsl, hashed with Vitrail's reader convention (LF lines, trailing empty line kept). */
 	private static final String JITTER = "lib/antialiasing/jitter.glsl";
 	private static final String JITTER_SHA256 = "60872f102a808d3f5a6e8a5c0391bb1fb149bb08abb262047cb27e05577d877b";
@@ -60,15 +59,22 @@ public final class IrisCompat {
 	 */
 	private static final Set<String> TEMPORAL_OPTIONS = Set.of("TAA", "TAA_ENABLED", "ENABLE_TAA",
 			"TAA_ENABLE", "USE_TAA", "TEMPORAL_AA", "TEMPORAL_ANTIALIASING", "TEMPORAL_ANTI_ALIASING", "TAAU", "TAA_UPSCALING",
-			"FXAA", "FXAA_ENABLED", "ENABLE_FXAA", "USE_FXAA", "IMAGE_SHARPENING", "CONTRAST_ADAPTATIVE_SHARPENING",
-			"CONTRAST_ADAPTIVE_SHARPENING");
-	/** Value options and their off value (Complementary family: TAA_DEFINE 0, FXAA_DEFINE -1); used only if the pack lists it. */
+			"FXAA", "FXAA_ENABLED", "ENABLE_FXAA", "USE_FXAA", "SMAA", "SMAA_ENABLED", "ENABLE_SMAA", "USE_SMAA",
+			"IMAGE_SHARPENING", "CONTRAST_ADAPTATIVE_SHARPENING", "CONTRAST_ADAPTIVE_SHARPENING");
+	/**
+	 * Value options and their off value (Complementary family: TAA_DEFINE 0, FXAA_DEFINE -1, Mellow:
+	 * TAA_MODE 0). Matching is by option name so any pack exposing one of these names needs no code change.
+	 * Packs with a fixed jitter in their shader source and no option to turn it off are not covered; the
+	 * reviewed BSL/Complementary source edits remain the only exact-source policy.
+	 */
 	private static final Map<String, List<String>> TEMPORAL_VALUE_OPTIONS = Map.of("TAA_DEFINE", List.of("0"),
+			"TAA_JITTER", List.of("0"), "TAA_MODE", List.of("0", "-1"),
 			"FXAA_DEFINE", List.of("-1", "0"), "IMAGE_SHARPENING", List.of("0"),
 			"SHARPENING", List.of("0", "0.0", "0.00"), "SHARPEN", List.of("0"));
 	private static volatile List<String> optionsOverridden = List.of();
 	/** One of the overridden options was the pack's temporal AA itself, not only FXAA or sharpening. */
 	private static volatile boolean optionsTaaRemoved;
+	private static boolean optionsUnmanaged, optionWarningLogged;
 
 	private static Method packInUse;
 	private static Method config;
@@ -130,8 +136,17 @@ public final class IrisCompat {
 	private static Field renderTargetsField;
 	private static Method depthView;
 
-	/** Terrain seen through a blended surface owns the primary SR vector and depth. */
+	private static volatile int lastDepthIndex = -1;
+	/** Index the most recent frame used: 1 is pre-translucent, then 2 (no hand) and 0 (final) as fallbacks. */
+	public static int lastDepthIndex() { return lastDepthIndex; }
+
+	/**
+	 * Terrain seen through a blended surface owns the primary SR vector and depth. Iris exposes index 1 as
+	 * the pre-translucent copy; packs or loader revisions that do not allocate it fall back to the no-hand
+	 * and final views rather than failing the whole upscaler. All indices are generic Iris target slots.
+	 */
 	public static GpuTextureView opaqueDepth(int width, int height) {
+		lastDepthIndex = -1;
 		if (!isDrawingPack()) return null;
 		try {
 			Object manager = Class.forName("net.irisshaders.iris.Iris").getMethod("getPipelineManager").invoke(null);
@@ -141,11 +156,15 @@ public final class IrisCompat {
 				renderTargetsField.setAccessible(true);
 				depthView = Class.forName("net.irisshaders.iris.targets.RenderTargets").getMethod("getDepthTextureView", int.class);
 			}
-			var view = (GpuTextureView) depthView.invoke(renderTargetsField.get(pipeline), 1);
-			if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height)
-				throw new IllegalStateException("Iris pre-translucent depth does not match the current frame");
-			return view;
-		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris pre-translucent depth unavailable", e); }
+			Object targets = renderTargetsField.get(pipeline);
+			for (int index : new int[] {1, 2, 0}) {
+				var view = (GpuTextureView) depthView.invoke(targets, index);
+				if (view == null || view.isClosed() || view.getWidth(0) != width || view.getHeight(0) != height) continue;
+				lastDepthIndex = index;
+				return view;
+			}
+			return null;
+		} catch (ReflectiveOperationException e) { throw new IllegalStateException("Iris scene depth unavailable", e); }
 	}
 
 	public static boolean isLoaded() {
@@ -184,14 +203,17 @@ public final class IrisCompat {
 		if (!temporalReload) configurationEpoch++;
 		BslFoliageMotion.reset();
 		ComplementaryTemporalSource.reset();
+		WorldTextPackSource.reset();
+		IrisOptionPersistence.reset();
 		jitterRemoved = false;
 		bslAaRemoved = false;
 		optionsOverridden = List.of();
 		optionsTaaRemoved = false;
+		optionsUnmanaged = false;
 	}
 	/** Reflexium removed this pack's temporal filters; other packs keep their own TAA and jitter. */
 	public static boolean temporalVerified() {
-		return jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved;
+		return !optionsUnmanaged && (jitterRemoved && ComplementaryTemporalSource.applied() || bslAaRemoved || optionsTaaRemoved);
 	}
 	/** The reviewed pack's projection jitter is out of the loaded source; Reflexium's offset is the only one. */
 	public static boolean packJitterRemoved() { return jitterRemoved; }
@@ -228,6 +250,33 @@ public final class IrisCompat {
 		}
 	}
 
+	/** Debug harness: switch to another shader pack file in the shaderpacks directory and reload it. */
+	public static void debugSetShaderPack(String pack) {
+		if (!isSupportedVersion() || !lookUp()) throw new IllegalStateException("Supported Iris is not available");
+		if (pack == null || pack.isBlank()) throw new IllegalArgumentException("Shader pack name is required");
+		try {
+			Object options = config.invoke(null);
+			options.getClass().getMethod("setShaderPackName", String.class).invoke(options, packFileName(pack));
+			options.getClass().getMethod("setShadersEnabled", boolean.class).invoke(options, true);
+			options.getClass().getMethod("save").invoke(options);
+			reloadPack(false);
+		} catch (ReflectiveOperationException e) {
+			throw new IllegalStateException("Could not switch Iris shader pack to " + pack, e);
+		}
+	}
+
+	/**
+	 * Iris stores the shaderpacks entry as the file name it has to open, so a bare pack name resolves to a
+	 * missing file and every later reload fails. Accept either form for the dev harness.
+	 */
+	private static String packFileName(String pack) {
+		Path folder = FabricLoader.getInstance().getGameDir().resolve("shaderpacks");
+		Path direct = folder.resolve(pack);
+		if (pack.endsWith(".zip") || Files.isRegularFile(direct)) return pack;
+		Path zipped = folder.resolve(pack + ".zip");
+		return Files.isRegularFile(zipped) ? pack + ".zip" : pack;
+	}
+
 	/** Debug and config changes to pack option overrides need the pack compiled again. */
 	public static void reloadForOptionChange() { reloadPack(false); }
 
@@ -257,13 +306,14 @@ public final class IrisCompat {
 	}
 
 	static String adapt(String name, Path file, String source) {
-		if (!ownsTemporalSampling() || source == null) return source;
-		if (!PACK.equals(name) && !BSL.equals(name)) return source;
+		if (source == null) return null;
 		String path = file.toString().replace('\\', '/');
 		int root = path.lastIndexOf("shaders/");
 		if (root < 0) return source;
 		String rel = path.substring(root + "shaders/".length());
 		List<String> lines = List.of(source.replace("\r\n", "\n").split("\n", -1));
+		WorldTextPackSource.observe(rel, lines);
+		if (!ownsTemporalSampling() || !ComplementaryTemporalSource.supports(name) && !BSL.equals(name)) return source;
 		List<String> result = lines;
 		if (BSL.equals(name)) {
 			String foliage = BslFoliageMotion.adapt(rel, source);
@@ -288,98 +338,92 @@ public final class IrisCompat {
 
 	/**
 	 * ShaderPackOptions construction, after the option set is parsed: switch the pack's own temporal AA toggles off
-	 * while Reflexium owns temporal sampling. The returned copy feeds only this compile; Iris saves its option file
-	 * from the user's properties, so saved settings are kept. The reviewed packs keep their exact source edits.
+	 * while Reflexium owns temporal sampling. The returned copy feeds compilation; IrisOptionPersistence restores
+	 * user values at Iris's shared properties writer. The reviewed packs keep their exact source edits.
 	 */
 	public static Map<String, String> temporalOptionOverrides(Object packOptions, Map<String, String> values) {
-		if (!ownsTemporalSampling() || values == null) return values;
-		String name = currentPackName();
-		if (PACK.equals(name) || BSL.equals(name)) return values;
+		return temporalOptionOverrides(currentPackName(), packOptions, values);
+	}
+
+	static Map<String, String> temporalOptionOverrides(String name, Object packOptions, Map<String, String> values) {
+		if (!ownsTemporalSampling() || values == null || BSL.equals(name)) return values;
 		try {
-			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
-			Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+			Map<String, String> off = temporalOffValues(packOptions);
+			// IncludeGraph applies the resolve bypass before ShaderPackOptions construction.
+			if (ComplementaryTemporalSource.supports(name) && ComplementaryTemporalSource.applied()) {
+				off.keySet().removeIf(key -> key.equalsIgnoreCase("TAA") || key.equalsIgnoreCase("TAA_DEFINE"));
+			}
+			if (off.isEmpty()) return values;
 			Map<String, String> result = new HashMap<>(values);
-			List<String> overridden = new ArrayList<>();
-			for (Object key : booleans.keySet()) {
-				String option = (String) key;
-				if (!TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) continue;
-				result.put(option, "false");
-				overridden.add(option);
-			}
-			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
-			for (Map.Entry<?, ?> entry : strings.entrySet()) {
-				String option = (String) entry.getKey();
-				List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
-				if (offValues == null) continue;
-				Object merged = entry.getValue();
-				Object stringOption = merged.getClass().getMethod("getOption").invoke(merged);
-				List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
-				for (String off : offValues) {
-					if (!allowed.contains(off)) continue;
-					result.put(option, off);
-					overridden.add(option + "=" + off);
-					break;
-				}
-			}
-			if (overridden.isEmpty()) return values;
-			optionsOverridden = List.copyOf(overridden);
-			optionsTaaRemoved = overridden.stream().anyMatch(option -> option.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
-			ReflexiumClient.LOGGER.info("Iris {}: pack options {} switched off while upscaling (saved options unchanged)", name, overridden);
+			result.putAll(off);
+			optionsOverridden = off.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).sorted().toList();
+			optionsTaaRemoved = off.keySet().stream().anyMatch(key -> key.toUpperCase(Locale.ROOT).matches(".*(TAA|TEMPORAL).*"));
+			ReflexiumClient.LOGGER.info("Iris {}: compile options {} overridden; original user values restored at pack option save", name, optionsOverridden);
 			return result;
 		} catch (ReflectiveOperationException | RuntimeException e) {
-			ReflexiumClient.LOGGER.warn("Iris pack option set not readable; pack temporal AA stays as configured", e);
-			return values;
+			return unmanagedOptions(values, e);
 		}
 	}
 
-	/**
-	 * Pack option values for one compile: the temporal AA overrides, then the opt-in shadow caps. Shadow map size and
-	 * distance do not shrink with render resolution, so a cap is the only way to trade them for frame time while
-	 * upscaling; with both caps at 0 (the default) the pack's own values are never touched.
-	 */
+	private static Map<String, String> temporalOffValues(Object packOptions) throws ReflectiveOperationException {
+		Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+		Map<String, String> off = new HashMap<>();
+		Map<?, ?> booleans = (Map<?, ?>) set.getClass().getMethod("getBooleanOptions").invoke(set);
+		for (Object key : booleans.keySet()) {
+			String option = (String) key;
+			if (TEMPORAL_OPTIONS.contains(option.toUpperCase(Locale.ROOT))) off.put(option, "false");
+		}
+		Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
+		for (Map.Entry<?, ?> entry : strings.entrySet()) {
+			String option = (String) entry.getKey();
+			List<String> offValues = TEMPORAL_VALUE_OPTIONS.get(option.toUpperCase(Locale.ROOT));
+			if (offValues == null) continue;
+			Object stringOption = entry.getValue().getClass().getMethod("getOption").invoke(entry.getValue());
+			List<?> allowed = (List<?>) stringOption.getClass().getMethod("getAllowedValues").invoke(stringOption);
+			for (String value : offValues) {
+				if (allowed.contains(value)) { off.put(option, value); break; }
+			}
+		}
+		return off;
+	}
+
+	/** Capture user values before adding compile overrides, including on native loads for legacy repair. */
 	public static Map<String, String> packOptionOverrides(Object packOptions, Map<String, String> values) {
-		return shadowCaps(packOptions, temporalOptionOverrides(packOptions, values));
-	}
-
-	private static Map<String, String> shadowCaps(Object packOptions, Map<String, String> values) {
-		var config = ReflexiumConfig.get();
-		if (!ownsTemporalSampling() || values == null || config.packShadowResolutionCap() <= 0 && config.packShadowDistanceCap() <= 0) return values;
+		String name = currentPackName();
+		if (name == null || values == null || BSL.equals(name)) return temporalOptionOverrides(name, packOptions, values);
 		try {
-			Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
-			Map<?, ?> strings = (Map<?, ?>) set.getClass().getMethod("getStringOptions").invoke(set);
-			Map<String, String> result = new HashMap<>(values);
-			List<String> capped = new ArrayList<>();
-			capOption(strings, result, capped, "shadowMapResolution", config.packShadowResolutionCap());
-			capOption(strings, result, capped, "shadowDistance", config.packShadowDistanceCap());
-			if (capped.isEmpty()) return values;
-			ReflexiumClient.LOGGER.info("Iris {}: shadow options capped while upscaling {} (saved options unchanged)", currentPackName(), capped);
-			return result;
-		} catch (ReflectiveOperationException | RuntimeException e) {
-			ReflexiumClient.LOGGER.warn("Iris pack shadow options not readable; shadows stay as configured", e);
-			return values;
-		}
+			Map<String, String> originals = IrisOptionPersistence.prepare(
+					Minecraft.getInstance().gameDirectory.toPath().resolve("reflexium/iris-options"), name, values, temporalOffValues(packOptions));
+			Map<String, String> effective = temporalOptionOverrides(name, packOptions, originals);
+			if (System.getProperty("reflexium.debugPort") != null) {
+				Object set = packOptions.getClass().getMethod("getOptionSet").invoke(packOptions);
+				Map<String, String> diagnostic = new java.util.TreeMap<>();
+				for (String kind : List.of("getBooleanOptions", "getStringOptions")) {
+					Map<?, ?> options = (Map<?, ?>) set.getClass().getMethod(kind).invoke(set);
+					for (String key : temporalOffValues(packOptions).keySet()) {
+						Object merged = options.get(key);
+						if (merged == null) continue;
+						Object option = merged.getClass().getMethod("getOption").invoke(merged);
+						String fallback = String.valueOf(option.getClass().getMethod("getDefaultValue").invoke(option));
+						diagnostic.put(key, effective.getOrDefault(key, fallback));
+					}
+				}
+				ReflexiumClient.LOGGER.info("Iris {}: effective temporal compile values {}", name, diagnostic);
+			}
+			return effective;
+		} catch (ReflectiveOperationException | RuntimeException e) { return unmanagedOptions(values, e); }
 	}
 
-	private static void capOption(Map<?, ?> strings, Map<String, String> result, List<String> capped,
-			String name, int cap) throws ReflectiveOperationException {
-		Object merged = strings.get(name);
-		if (cap <= 0 || merged == null) return;
-		Object option = merged.getClass().getMethod("getOption").invoke(merged);
-		List<?> allowed = (List<?>) option.getClass().getMethod("getAllowedValues").invoke(option);
-		String current = result.getOrDefault(name, (String) option.getClass().getMethod("getDefaultValue").invoke(option));
-		if (Double.parseDouble(current) <= cap) return;
-		String best = null;
-		double bestValue = Double.NEGATIVE_INFINITY, smallestValue = Double.POSITIVE_INFINITY;
-		String smallest = null;
-		for (Object entry : allowed) {
-			double value = Double.parseDouble((String) entry);
-			if (value <= cap && value > bestValue) { bestValue = value; best = (String) entry; }
-			if (value < smallestValue) { smallestValue = value; smallest = (String) entry; }
+	private static Map<String, String> unmanagedOptions(Map<String, String> values, Exception failure) {
+		optionsUnmanaged = true;
+		optionsOverridden = List.of();
+		optionsTaaRemoved = false;
+		IrisOptionPersistence.reset();
+		if (!optionWarningLogged) {
+			optionWarningLogged = true;
+			ReflexiumClient.LOGGER.warn("Iris pack option integration unavailable; keeping user values and reporting temporal sampling unmanaged", failure);
 		}
-		String chosen = best != null ? best : smallest;
-		if (chosen == null) return;
-		result.put(name, chosen);
-		capped.add(name + "=" + chosen);
+		return values;
 	}
 
 	private static List<String> removeJitter(List<String> lines) {

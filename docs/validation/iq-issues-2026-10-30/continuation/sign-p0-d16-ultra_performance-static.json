@@ -1,0 +1,354 @@
+{
+  "frames": [
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11236,
+      "frames": 383833,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_000.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 22583,
+        "jitter_index": 26,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    },
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11246,
+      "frames": 384084,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_001.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 22834,
+        "jitter_index": 58,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    },
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11257,
+      "frames": 384357,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_002.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 23107,
+        "jitter_index": 39,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    },
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11267,
+      "frames": 384614,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_003.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 23364,
+        "jitter_index": 4,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    },
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11277,
+      "frames": 384871,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_004.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 23621,
+        "jitter_index": 42,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    },
+    {
+      "pid": 214760,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11288,
+      "frames": 385124,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 12,
+        "yaw": 0,
+        "pitch": 0
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\signs\\sign-p0-d16-ultra_performance-static\\frame_005.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 80807722,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 23874,
+        "jitter_index": 3,
+        "frame_generation": "off",
+        "fg_multiplier": 0,
+        "fg_generated_presents": 0,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, no shader pack drawing",
+        "camera_bob": 0,
+        "camera_walk_distance": 0
+      },
+      "observed": {
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 0,
+        "hand_vertices_captured": 0
+      }
+    }
+  ],
+  "ok": true,
+  "full_metadata": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\metadata-full\\sign-p0-d16-ultra_performance-static.json"
+}

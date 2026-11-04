@@ -14,6 +14,8 @@ import org.joml.Quaternionf;
  * of a completed scene promotes all of them together. Render thread only.
  */
 final class CameraHistory {
+	// Dev-only A/B of the former projection-upload capture timing. Never persisted.
+	private static final boolean EARLY_VIEW_HISTORY = Boolean.getBoolean("reflexium.debug.earlyViewHistory");
 	// Physical lens from the projection Minecraft built before view bob, damage tilt and nausea.
 	float cameraNear = 0.05f, cameraFar = 1024f, cameraFov = 1.22f;
 	/** Far plane given to the upscalers; extends past {@link #cameraFar} when Distant Horizons draws farther. */
@@ -24,6 +26,11 @@ final class CameraHistory {
 	/** The projection drawn this frame, including view effects, before jitter. */
 	final Matrix4f currentProjection = new Matrix4f();
 	final Matrix4f physicalProjection = new Matrix4f();
+	/** View bob, damage tilt or nausea changed the drawn projection this frame. */
+	boolean currentProjectionHasViewEffects;
+	boolean currentViewHasViewEffects;
+	private final Matrix4f jitteredProjection = new Matrix4f(), recordedView = new Matrix4f();
+	private final Matrix4f drawnUnjittered = new Matrix4f(), previousDrawnUnjittered = new Matrix4f();
 	/** View-projection with and without this frame's jitter, and last frame's unjittered one. */
 	final Matrix4f currentJittered = new Matrix4f();
 	final Matrix4f currentUnjittered = new Matrix4f();
@@ -45,11 +52,15 @@ final class CameraHistory {
 
 	/** The level projection about to be drawn, its jittered copy, and the camera it was built for. */
 	void recordLevel(Matrix4f projection, Matrix4f jittered, CameraRenderState camera) {
+		recordedView.set(camera.viewRotationMatrix);
+		jitteredProjection.set(jittered);
+		currentViewHasViewEffects = false;
 		currentUnjittered.set(projection).mul(camera.viewRotationMatrix);
 		currentProjection.set(projection);
 		// View bob, damage tilt and nausea were multiplied into the drawn projection. The physical camera
 		// planes and field of view come from the matrix Minecraft built before those effects.
 		physicalProjection.set(camera.projectionMatrix);
+		currentProjectionHasViewEffects = !projection.equals(physicalProjection, 1.0e-6f);
 		DlssMath.CameraMetadata physical = DlssMath.cameraMetadata(physicalProjection);
 		if (physical.valid()) {
 			cameraNear = physical.near();
@@ -61,6 +72,15 @@ final class CameraHistory {
 		currentJittered.set(jittered).mul(camera.viewRotationMatrix);
 		currentCamera = camera.pos;
 		currentOrientation.set(camera.orientation);
+	}
+
+	/** Iris applies bob to the view after the projection upload. Capture the actual level draw view. */
+	void recordDrawnView(Matrix4fc view) {
+		currentViewHasViewEffects = !recordedView.equals(view, 1.0e-6f);
+		drawnUnjittered.set(currentProjection).mul(view);
+		if (EARLY_VIEW_HISTORY) return;
+		currentUnjittered.set(currentProjection).mul(view);
+		currentJittered.set(jitteredProjection).mul(view);
 	}
 
 	/** Camera translation since the previous frame, in world units. */
@@ -76,6 +96,7 @@ final class CameraHistory {
 
 	/** A cut: the previous frame becomes this frame, so reprojection describes no motion. */
 	void restart() {
+		previousDrawnUnjittered.set(drawnUnjittered);
 		previousUnjittered.set(currentUnjittered);
 		previousDepthTransform.set(depthTransform);
 		previousCamera = currentCamera;
@@ -85,6 +106,7 @@ final class CameraHistory {
 
 	/** A completed scene becomes the previous frame. History only continues from frames with captured world depth. */
 	void promote(boolean worldDepthCaptured) {
+		previousDrawnUnjittered.set(drawnUnjittered);
 		previousUnjittered.set(currentUnjittered);
 		previousDepthTransform.set(depthTransform);
 		previousCamera = currentCamera;
@@ -112,6 +134,10 @@ final class CameraHistory {
 		matrices.add("current_to_previous", floats(currentToPrevious));
 		matrices.add("physical_projection", floats(physicalProjection));
 		matrices.add("drawn_projection", floats(currentProjection));
+		matrices.addProperty("drawn_projection_has_view_effects", currentProjectionHasViewEffects);
+		matrices.addProperty("drawn_view_has_view_effects", currentViewHasViewEffects);
+		matrices.add("drawn_world_view_projection", floats(drawnUnjittered));
+		matrices.add("previous_drawn_world_view_projection", floats(previousDrawnUnjittered));
 		matrices.add("upscaler_depth_transform", floats(depthTransform));
 		matrices.addProperty("hand_projection_present", haveHandProjection);
 		matrices.add("hand_projection_jittered", floats(handProjectionJittered));

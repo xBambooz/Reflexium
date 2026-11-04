@@ -1,0 +1,31 @@
+{
+  "pack": {
+    "signs": {
+      "last_error": "",
+      "upscaling_active": true,
+      "drawn_view_has_view_effects": false,
+      "drawn_projection_has_view_effects": false,
+      "world_text_nodes": 8,
+      "world_text_prepared": true,
+      "world_text_limitation": "",
+      "world_text_pack_levels": false,
+      "world_text_pack_levels_source_verified": true,
+      "world_text_pack_levels_applied": false,
+      "reflex_mode": "ON"
+    },
+    "walking": {
+      "last_error": "",
+      "upscaling_active": true,
+      "drawn_view_has_view_effects": true,
+      "drawn_projection_has_view_effects": false,
+      "world_text_nodes": 8,
+      "world_text_prepared": true,
+      "world_text_limitation": "",
+      "world_text_pack_levels": false,
+      "world_text_pack_levels_source_verified": true,
+      "world_text_pack_levels_applied": false,
+      "reflex_mode": "ON"
+    }
+  },
+  "client_left": false
+}

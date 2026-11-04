@@ -19,7 +19,7 @@ public abstract class HandDrawMixin {
 	@WrapMethod(method = "submit")
 	private void reflexium$handMask(@Coerce Object half, Operation<Void> original) {
 		UpscalingRenderer renderer = UpscalingRenderer.get();
-		boolean capture = renderer.isUpscalingThisFrame() && VitrailCompat.isDrawingPack();
+		boolean capture = (renderer.isUpscalingThisFrame() || renderer.isFrameGenerationOnly()) && VitrailCompat.isDrawingPack();
 		if (capture) {
 			renderer.capturePackHandBefore();
 		}

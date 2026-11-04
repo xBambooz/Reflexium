@@ -1,0 +1,39 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+Fabric Loom: 1.18.2
+
+> Task :compileJava NO-SOURCE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileClientJava UP-TO-DATE
+> Task :processClientResources UP-TO-DATE
+> Task :clientClasses UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+
+> Task :irisCompatCheck FAILED
+[08:23:06] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to lib/antialiasing/jitter.glsl
+[08:23:06] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/composite6.glsl
+[08:23:06] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/composite7.glsl
+[08:23:06] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/final.glsl
+[08:23:06] [main/INFO]: Iris legacy: repaired leaked Reflexium pack options [FXAA_DEFINE, IMAGE_SHARPENING, TAA, TAA_DEFINE, TAA_JITTER] using pack defaults
+[08:23:06] [main/INFO]: Iris recorded: repaired leaked Reflexium pack options [FXAA_DEFINE, IMAGE_SHARPENING, TAA, TAA_DEFINE, TAA_JITTER] using recorded user values
+[08:23:06] [main/WARN]: Iris unwritable: could not write original option record; session save protection remains active
+java.nio.file.FileAlreadyExistsException: C:\Users\Ryan\AppData\Local\Temp\iris-user-options7611694617686314743\not-a-directory
+	at java.base/sun.nio.fs.WindowsException.translateToIOException(WindowsException.java:87)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:103)
+	at java.base/sun.nio.fs.WindowsException.rethrowAsIOException(WindowsException.java:108)
+	at java.base/sun.nio.fs.WindowsFileSystemProvider.createDirectory(WindowsFileSystemProvider.java:503)
+	at java.base/java.nio.file.Files.createDirectory(Files.java:647)
+	at java.base/java.nio.file.Files.createAndCheckIsDirectory(Files.java:734)
+	at java.base/java.nio.file.Files.createDirectories(Files.java:689)
+	at com.bambooz.reflexium.compat.IrisOptionPersistence.prepare(IrisOptionPersistence.java:63)
+	at com.bambooz.reflexium.compat.IrisCompatCheck.optionPersistence(IrisCompatCheck.java:127)
+	at com.bambooz.reflexium.compat.IrisCompatCheck.main(IrisCompatCheck.java:32)
+[08:23:06] [main/WARN]: Iris stale: ignoring stale original option record; using unrecorded recovery
+[08:23:06] [main/INFO]: Iris stale: repaired leaked Reflexium pack options [FXAA_DEFINE, IMAGE_SHARPENING, TAA, TAA_DEFINE, TAA_JITTER] using pack defaults
+Iris user option persistence checks passed
+5 actionable tasks: 1 executed, 4 up-to-date

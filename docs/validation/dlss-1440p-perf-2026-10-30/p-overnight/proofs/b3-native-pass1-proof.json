@@ -1,0 +1,963 @@
+{
+  "record": {
+    "key": "b3-native-pass1",
+    "build": "b3",
+    "config": "native",
+    "pass": 1,
+    "visit": 1,
+    "label": "b3-native-pass1",
+    "artifact_sha256": "D6B8ED7E092998B6288127449E8C97BF30E49F38D4111218B40F41E2043F74EF",
+    "presentation": {
+      "topmost_overlay_covers_window": true,
+      "path": "composed",
+      "source": "Ryan via lead, 2026-10-31; not measured with PresentMon"
+    },
+    "bm_file": "b3-native-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.054911937005981855,
+      "gpu_range": 2
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1793005703456,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "processesBefore": {
+      "checked": "2026-10-31T17:33:42.277Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "processesAfter": {
+      "checked": "2026-10-31T17:36:37.713Z",
+      "processes": [
+        {
+          "ProcessId": 189276,
+          "ParentProcessId": 225480,
+          "CommandLine": "\"C:\\Program Files\\GraalVM\\graalvm-jdk-25.0.4+7.1\\bin\\java.exe\" --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED --enable-native-access=ALL-UNNAMED -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\gradle-daemon-main-9.7.1.jar -javaagent:C:\\Users\\Ryan\\.gradle\\wrapper\\dists\\gradle-9.7.1-bin\\1w1c7tv4s851m17nbqdsro2tv\\gradle-9.7.1\\lib\\agents\\gradle-instrumentation-agent-9.7.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.7.1"
+        },
+        {
+          "ProcessId": 76300,
+          "ParentProcessId": 166632,
+          "CommandLine": "\"C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\javaw.exe\" -XX:StackShadowPages=32 \"-Dfabric.addMods=C:\\Users\\Ryan\\AppData\\Roaming/ModrinthApp/profiles/Fabric 26.3 RxOvernightP/agentharness-1.0.0.jar\" \"-Duser.dir=C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp\\opencode\\modrinth-cp.args\" \"@C:\\Users\\Ryan\\AppData\\Local\\Temp/opencode/dlss-cost-b3.args\""
+        }
+      ],
+      "idleDaemons": [
+        {
+          "pid": 189276,
+          "state": "2026-10-31T13:31:44.776-0400 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as idle, address: [cdcb9506-9cba-44cd-aa8a-01aa12f97411 port:60867, addresses:[localhost/127.0.0.1]]"
+        }
+      ],
+      "exclusive": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_primary_borderless": true,
+        "focused": true,
+        "pack_expected": true,
+        "immediate": true,
+        "reflex_on": true,
+        "fg_off": true,
+        "render_distance_20": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 2560,
+        "h": 1440
+      },
+      "preset_hint": 0,
+      "evaluated_frames": [
+        0,
+        0
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 0,
+        "y": 0,
+        "width": 2561,
+        "height": 1440,
+        "placement": "display 1 'PG27AQDP' at 0,0",
+        "gui_width": 640,
+        "gui_height": 360,
+        "fullscreen": {
+          "allowed": true,
+          "requested": true,
+          "sdl_fullscreen": false,
+          "borderless": true,
+          "exclusive_fullscreen": false,
+          "display_id": 1,
+          "target_display_id": 1,
+          "on_target_display": true,
+          "display_width": 2560,
+          "display_height": 1440,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "b3-native-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 180.311,
+      "variance": 169.09,
+      "edges": 15122,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 12896,
+      "seconds": 90.08515299999941,
+      "avg_fps": 143.15344505215066,
+      "low1_fps": 92.43554770211674,
+      "low01_fps": 67.62732143786091
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 142.62231490949125,
+        "bm_low1_fps": 83.81288558944611,
+        "bm_low01_fps": 38.36150269608587,
+        "frames": 6424,
+        "seconds": 45.04234799999986,
+        "avg_fps": 142.62133936712223,
+        "low1_fps": 90.38373544680636,
+        "low01_fps": 59.0713976292679
+      },
+      {
+        "bm_avg_fps": 143.6866108211464,
+        "bm_low1_fps": 89.2758965088998,
+        "bm_low01_fps": 73.36071071826544,
+        "frames": 6472,
+        "seconds": 45.04280500000006,
+        "avg_fps": 143.68554533848396,
+        "low1_fps": 94.69752154732835,
+        "low01_fps": 76.2660158633313
+      }
+    ],
+    "avg_fps": 143.15344505215066,
+    "low1_fps": 92.43554770211674,
+    "low01_fps": 67.62732143786091
+  },
+  "crop_samples": {
+    "index": 2,
+    "first": {
+      "pid": 76300,
+      "game_directory": "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 2604,
+      "frames": 51905,
+      "fps": 134,
+      "frame_time_ms": 7.366506326060708,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": true,
+        "os_foreground": true,
+        "os_minimized": false,
+        "hwnd": 62981906,
+        "foreground_hwnd": 62981906,
+        "os_cursor": {
+          "x": 4419,
+          "y": 41
+        }
+      },
+      "displays": [
+        {
+          "id": 1,
+          "name": "PG27AQDP",
+          "x": 0,
+          "y": 0,
+          "w": 2560,
+          "h": 1440,
+          "refresh_hz": 479.99,
+          "primary": true
+        },
+        {
+          "id": 2,
+          "name": "XF250Q",
+          "x": 2560,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "refresh_hz": 239.76,
+          "primary": false
+        }
+      ],
+      "window": {
+        "x": 0,
+        "y": 0,
+        "width": 2561,
+        "height": 1440,
+        "placement": "display 1 'PG27AQDP' at 0,0",
+        "gui_width": 640,
+        "gui_height": 360,
+        "fullscreen": {
+          "allowed": true,
+          "requested": true,
+          "sdl_fullscreen": false,
+          "borderless": true,
+          "exclusive_fullscreen": false,
+          "display_id": 1,
+          "target_display_id": 1,
+          "on_target_display": true,
+          "display_width": 2560,
+          "display_height": 1440,
+          "covers_display": true
+        }
+      },
+      "hooks": {
+        "throttle": 51905,
+        "cursor": 1,
+        "pause": 51905
+      },
+      "camera": {
+        "x": 180.10403571371683,
+        "y": 121.67598012588351,
+        "z": 58.997891841903524,
+        "yaw": 59.186516,
+        "pitch": 20.016562
+      },
+      "widgets": [],
+      "plugins": {
+        "reflexium": {
+          "upscaler": "off",
+          "upscaler_effective": "off",
+          "upscaler_built": "off",
+          "render_distance": 20,
+          "simulation_distance": 8,
+          "quality": "quality",
+          "dlss_model": "transformer",
+          "dlss_preset_hint": 0,
+          "history_reset_frames": 0,
+          "transient_motion_uniforms": true,
+          "direct_scene_depth": true,
+          "drawn_projection_has_view_effects": false,
+          "scene_depth_index": -1,
+          "named_entities": [],
+          "player_name": "xBambooz",
+          "player_uuid": "adbb5c52-f276-4617-b5dc-3712b0726fa9",
+          "player_skin_model": "WIDE",
+          "camera_bob": 0,
+          "camera_walk_distance": 0,
+          "bob_view_option": true,
+          "bob_view_state": true,
+          "camera_is_player": true,
+          "foliage_motion": true,
+          "reflex_mode": "ON",
+          "reflex_status": "Reflex: On (requested On) (Streamline), latency report ready",
+          "reflex_sleeping": true,
+          "reflex_latency": "Reflex render latency: 13.2 ms, sim 0.0, submit 7.1, GPU 6.1",
+          "reflex_extension_revision": 3,
+          "reflex_interval_us": -1,
+          "streamline": "Streamline: DLSS ready, DLSS-G ready, max 6x, Reflex ready, PCL ready",
+          "streamline_dlss": true,
+          "streamline_dlssg": true,
+          "streamline_dlssg_max_generated": 5,
+          "streamline_dlssg_dynamic": false,
+          "streamline_dlssg_status": 0,
+          "streamline_reflex_flags": "[true, true]",
+          "pcl_stats_message": 49651,
+          "fg_streamline": true,
+          "fg_streamline_active": false,
+          "fg_streamline_generated_presents": 0,
+          "fg_streamline_present_result": 0,
+          "fg_streamline_problem": "",
+          "fsr_sharpness": 20,
+          "frame_generation": "off",
+          "fg_multiplier": 3,
+          "fg_requested_generated": 0,
+          "fg_effective_multiplier": 1,
+          "fg_policy_probes": 0,
+          "fg_policy_probing": false,
+          "fg_refresh_bypass": true,
+          "fg_refresh_cap": 2147483647,
+          "fg_policy_real_fps": 134,
+          "fg_policy_estimate_source": "measured bypass real presents; GPU minus FG is an upper bound",
+          "fg_resets_per_s": 0,
+          "fg_status": "Frame generation: off",
+          "fg_max_multiplier": 6,
+          "fg_gate_fg_allowed": true,
+          "fg_gate_mfg_allowed": true,
+          "fg_gate_reason": "",
+          "fg_gate_reason_key": "",
+          "window_minimized": false,
+          "failure_notice": "",
+          "swapchain_images_requested": 8,
+          "swapchain_images_created": 6,
+          "swapchain_present_mode": "IMMEDIATE",
+          "swapchain_surface_min_images": 2,
+          "swapchain_surface_max_images": 8,
+          "swapchain_extent": "2561x1440",
+          "swapchain_format": 44,
+          "measure_app_frame_id": 51844,
+          "measure_fg_evaluated_frames": 0,
+          "measure_fg_generated_presents": 0,
+          "measure_fg_real_presents": 51905,
+          "measure_fg_real_frames_closed": 51905,
+          "measure_fg_expected_generated": 0,
+          "measure_fg_batches_started": 0,
+          "measure_fg_batches_completed": 0,
+          "measure_fg_streamline_generated_presents": 0,
+          "measure_reflex_sleeps_issued": 51844,
+          "measure_reflex_sleeps_completed": 51844,
+          "measure_reflex_unpaced_frames": 0,
+          "measure_reflex_suspended_frames": 0,
+          "measure_reflex_timeouts": 0,
+          "measure_reflex_recoveries": 0,
+          "measure_reflex_failures": 0,
+          "measure_reflex_mode_configurations": 23,
+          "measure_fg_missing_not_evaluated": 0,
+          "measure_fg_missing_unavailable": 0,
+          "measure_fg_missing_reflex_not_sleeping": 0,
+          "measure_fg_missing_history_reset": 0,
+          "measure_fg_missing_gui_blur": 0,
+          "measure_fg_missing_menu": 0,
+          "measure_fg_missing_window_paused": 0,
+          "measure_fg_missing_batch_abandoned": 0,
+          "measure_fg_missing_surface_lost": 0,
+          "measure_fg_missing_present_failed": 0,
+          "measure_fg_missing_unpresented": 0,
+          "measure_fg_failed": 0,
+          "measure_fg_configured_generated": 0,
+          "measure_reflex_effective_mode": 1,
+          "measure_reflex_applied_mode": 1,
+          "fg_evaluated_frames": 0,
+          "fg_generated_presents": 0,
+          "fg_real_presents": 51905,
+          "fg_submitted_fps": 134,
+          "fg_submitted_real_fps": 134,
+          "fg_display_feedback": "unavailable",
+          "fg_batches_started": 0,
+          "fg_batches_completed": 0,
+          "fg_failed": false,
+          "fg_problem": "",
+          "fg_sdk_present_count": 0,
+          "fg_sdk_scheduler": false,
+          "upscaling_active": false,
+          "status_line": "Upscaling: off",
+          "render_size": {
+            "w": 2560,
+            "h": 1440
+          },
+          "display_size": {
+            "w": 2560,
+            "h": 1440
+          },
+          "jitter_index": 0,
+          "jitter_px": {
+            "x": 0,
+            "y": 0
+          },
+          "jitter_sign": {
+            "x": 1,
+            "y": 1
+          },
+          "jitter_enabled": true,
+          "mv_debug": false,
+          "foliage_depth_debug": false,
+          "object_motion": true,
+          "object_vertices_captured": 0,
+          "object_vertices_drawn": 0,
+          "object_entities": 0,
+          "object_block_entities": 0,
+          "mip_bias": 0,
+          "reactive_mask": false,
+          "evaluated_frames": 0,
+          "pack_hand_mask": false,
+          "observed": {
+            "hdr_requested": false,
+            "hdr_sources_verified": false,
+            "hdr_built": false,
+            "hdr_evaluated_this_frame": false,
+            "pack_surface_motion": false,
+            "bsl_foliage_motion": false,
+            "bsl_foliage_surface_cleared": false,
+            "vanilla_cloud_motion": false,
+            "post_upscale_particles": false,
+            "particle_generated_copies": 0,
+            "vanilla_cloud_previous_displacement_x": 0,
+            "primary_depth_source": "not_captured",
+            "drawn_projection_has_view_effects": false,
+            "pack_surface_sources_verified": false,
+            "blended_surface_strategy": "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported",
+            "gui_blur_calls_this_frame": 0,
+            "menu_blur_radius_setting": 5,
+            "applied_post_effects": [],
+            "mip_bias_requested": 0,
+            "mip_bias_offset": 0,
+            "mip_bias_vendor_baseline": -1,
+            "material_binds": {
+              "Sampler0": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "u_BlockTex": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "pack_atlas": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "pack_pbr": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "dh_atlas": {
+                "binds": 0,
+                "with_requested_bias": 0
+              }
+            },
+            "material_replacements": 0,
+            "jitter_phases": 0,
+            "jitter_index": 0,
+            "history_reset_frames": 0,
+            "last_reset_reason": "feature rebuild",
+            "resets_by_reason": {
+              "first_frame": 0,
+              "level": 0,
+              "teleport": 0,
+              "gap": 0,
+              "camera": 0,
+              "rotation": 0,
+              "loading": 0,
+              "rebuild": 0,
+              "menu": 0
+            },
+            "physical_camera": {
+              "near": 0.05,
+              "far": 1024,
+              "upscaler_far": 1024,
+              "vertical_fov_rad": 1.22,
+              "invalid_metadata_frames": 0
+            },
+            "hand_vertices_drawn": 0,
+            "hand_vertices_captured": 0,
+            "hand_projection_available": false,
+            "hand_slots": 0,
+            "hand_motion": true,
+            "post_effects_need_depth": false,
+            "post_depth_resolved": false,
+            "world_text_nodes": 0,
+            "world_text_fallback_nodes": 0,
+            "world_text_prepared": false,
+            "world_text_limitation": "",
+            "omit_sign_text": false,
+            "requested_preset": 0,
+            "requested_preset_is_hint": true,
+            "pack_resolve_bypass_requested": true,
+            "pack_resolve_bypass_applied": false,
+            "pack_pre_filters_requested": false,
+            "pack_source_edits": ""
+          },
+          "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+          "fps": 133,
+          "frame_time_ms": 7.39,
+          "frames": 51905,
+          "world_loaded": true,
+          "screen": "none",
+          "hud_hidden": false,
+          "motion_running": false,
+          "camera": {
+            "x": 180.104,
+            "y": 121.676,
+            "z": 58.998,
+            "eye_y": 123.296,
+            "yaw": 59.187,
+            "pitch": 20.017
+          },
+          "last_error": ""
+        }
+      },
+      "ok": true
+    },
+    "last": {
+      "pid": 76300,
+      "game_directory": "C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 26.3 RxOvernightP",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 2611,
+      "frames": 51949,
+      "fps": 131,
+      "frame_time_ms": 7.753672182667429,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": true,
+        "os_foreground": true,
+        "os_minimized": false,
+        "hwnd": 62981906,
+        "foreground_hwnd": 62981906,
+        "os_cursor": {
+          "x": 4419,
+          "y": 41
+        }
+      },
+      "displays": [
+        {
+          "id": 1,
+          "name": "PG27AQDP",
+          "x": 0,
+          "y": 0,
+          "w": 2560,
+          "h": 1440,
+          "refresh_hz": 479.99,
+          "primary": true
+        },
+        {
+          "id": 2,
+          "name": "XF250Q",
+          "x": 2560,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "refresh_hz": 239.76,
+          "primary": false
+        }
+      ],
+      "window": {
+        "x": 0,
+        "y": 0,
+        "width": 2561,
+        "height": 1440,
+        "placement": "display 1 'PG27AQDP' at 0,0",
+        "gui_width": 640,
+        "gui_height": 360,
+        "fullscreen": {
+          "allowed": true,
+          "requested": true,
+          "sdl_fullscreen": false,
+          "borderless": true,
+          "exclusive_fullscreen": false,
+          "display_id": 1,
+          "target_display_id": 1,
+          "on_target_display": true,
+          "display_width": 2560,
+          "display_height": 1440,
+          "covers_display": true
+        }
+      },
+      "hooks": {
+        "throttle": 51949,
+        "cursor": 1,
+        "pause": 51949
+      },
+      "camera": {
+        "x": 181.2878654810536,
+        "y": 121.39233646470898,
+        "z": 64.33651196007655,
+        "yaw": 62.066372,
+        "pitch": 19.932924
+      },
+      "widgets": [],
+      "plugins": {
+        "reflexium": {
+          "upscaler": "off",
+          "upscaler_effective": "off",
+          "upscaler_built": "off",
+          "render_distance": 20,
+          "simulation_distance": 8,
+          "quality": "quality",
+          "dlss_model": "transformer",
+          "dlss_preset_hint": 0,
+          "history_reset_frames": 0,
+          "transient_motion_uniforms": true,
+          "direct_scene_depth": true,
+          "drawn_projection_has_view_effects": false,
+          "scene_depth_index": -1,
+          "named_entities": [],
+          "player_name": "xBambooz",
+          "player_uuid": "adbb5c52-f276-4617-b5dc-3712b0726fa9",
+          "player_skin_model": "WIDE",
+          "camera_bob": 0,
+          "camera_walk_distance": 0,
+          "bob_view_option": true,
+          "bob_view_state": true,
+          "camera_is_player": true,
+          "foliage_motion": true,
+          "reflex_mode": "ON",
+          "reflex_status": "Reflex: On (requested On) (Streamline), latency report ready",
+          "reflex_sleeping": true,
+          "reflex_latency": "Reflex render latency: 14.4 ms, sim 0.0, submit 8.3, GPU 6.1",
+          "reflex_extension_revision": 3,
+          "reflex_interval_us": -1,
+          "streamline": "Streamline: DLSS ready, DLSS-G ready, max 6x, Reflex ready, PCL ready",
+          "streamline_dlss": true,
+          "streamline_dlssg": true,
+          "streamline_dlssg_max_generated": 5,
+          "streamline_dlssg_dynamic": false,
+          "streamline_dlssg_status": 0,
+          "streamline_reflex_flags": "[true, true]",
+          "pcl_stats_message": 49651,
+          "fg_streamline": true,
+          "fg_streamline_active": false,
+          "fg_streamline_generated_presents": 0,
+          "fg_streamline_present_result": 0,
+          "fg_streamline_problem": "",
+          "fsr_sharpness": 20,
+          "frame_generation": "off",
+          "fg_multiplier": 3,
+          "fg_requested_generated": 0,
+          "fg_effective_multiplier": 1,
+          "fg_policy_probes": 0,
+          "fg_policy_probing": false,
+          "fg_refresh_bypass": true,
+          "fg_refresh_cap": 2147483647,
+          "fg_policy_real_fps": 134,
+          "fg_policy_estimate_source": "measured bypass real presents; GPU minus FG is an upper bound",
+          "fg_resets_per_s": 0,
+          "fg_status": "Frame generation: off",
+          "fg_max_multiplier": 6,
+          "fg_gate_fg_allowed": true,
+          "fg_gate_mfg_allowed": true,
+          "fg_gate_reason": "",
+          "fg_gate_reason_key": "",
+          "window_minimized": false,
+          "failure_notice": "",
+          "swapchain_images_requested": 8,
+          "swapchain_images_created": 6,
+          "swapchain_present_mode": "IMMEDIATE",
+          "swapchain_surface_min_images": 2,
+          "swapchain_surface_max_images": 8,
+          "swapchain_extent": "2561x1440",
+          "swapchain_format": 44,
+          "measure_app_frame_id": 51888,
+          "measure_fg_evaluated_frames": 0,
+          "measure_fg_generated_presents": 0,
+          "measure_fg_real_presents": 51949,
+          "measure_fg_real_frames_closed": 51949,
+          "measure_fg_expected_generated": 0,
+          "measure_fg_batches_started": 0,
+          "measure_fg_batches_completed": 0,
+          "measure_fg_streamline_generated_presents": 0,
+          "measure_reflex_sleeps_issued": 51888,
+          "measure_reflex_sleeps_completed": 51888,
+          "measure_reflex_unpaced_frames": 0,
+          "measure_reflex_suspended_frames": 0,
+          "measure_reflex_timeouts": 0,
+          "measure_reflex_recoveries": 0,
+          "measure_reflex_failures": 0,
+          "measure_reflex_mode_configurations": 23,
+          "measure_fg_missing_not_evaluated": 0,
+          "measure_fg_missing_unavailable": 0,
+          "measure_fg_missing_reflex_not_sleeping": 0,
+          "measure_fg_missing_history_reset": 0,
+          "measure_fg_missing_gui_blur": 0,
+          "measure_fg_missing_menu": 0,
+          "measure_fg_missing_window_paused": 0,
+          "measure_fg_missing_batch_abandoned": 0,
+          "measure_fg_missing_surface_lost": 0,
+          "measure_fg_missing_present_failed": 0,
+          "measure_fg_missing_unpresented": 0,
+          "measure_fg_failed": 0,
+          "measure_fg_configured_generated": 0,
+          "measure_reflex_effective_mode": 1,
+          "measure_reflex_applied_mode": 1,
+          "fg_evaluated_frames": 0,
+          "fg_generated_presents": 0,
+          "fg_real_presents": 51949,
+          "fg_submitted_fps": 134,
+          "fg_submitted_real_fps": 134,
+          "fg_display_feedback": "unavailable",
+          "fg_batches_started": 0,
+          "fg_batches_completed": 0,
+          "fg_failed": false,
+          "fg_problem": "",
+          "fg_sdk_present_count": 0,
+          "fg_sdk_scheduler": false,
+          "upscaling_active": false,
+          "status_line": "Upscaling: off",
+          "render_size": {
+            "w": 2560,
+            "h": 1440
+          },
+          "display_size": {
+            "w": 2560,
+            "h": 1440
+          },
+          "jitter_index": 0,
+          "jitter_px": {
+            "x": 0,
+            "y": 0
+          },
+          "jitter_sign": {
+            "x": 1,
+            "y": 1
+          },
+          "jitter_enabled": true,
+          "mv_debug": false,
+          "foliage_depth_debug": false,
+          "object_motion": true,
+          "object_vertices_captured": 0,
+          "object_vertices_drawn": 0,
+          "object_entities": 0,
+          "object_block_entities": 0,
+          "mip_bias": 0,
+          "reactive_mask": false,
+          "evaluated_frames": 0,
+          "pack_hand_mask": false,
+          "observed": {
+            "hdr_requested": false,
+            "hdr_sources_verified": false,
+            "hdr_built": false,
+            "hdr_evaluated_this_frame": false,
+            "pack_surface_motion": false,
+            "bsl_foliage_motion": false,
+            "bsl_foliage_surface_cleared": false,
+            "vanilla_cloud_motion": false,
+            "post_upscale_particles": false,
+            "particle_generated_copies": 0,
+            "vanilla_cloud_previous_displacement_x": 0,
+            "primary_depth_source": "not_captured",
+            "drawn_projection_has_view_effects": false,
+            "pack_surface_sources_verified": false,
+            "blended_surface_strategy": "background vectors plus FSR contribution masks; DLSS blended layers remain unsupported",
+            "gui_blur_calls_this_frame": 0,
+            "menu_blur_radius_setting": 5,
+            "applied_post_effects": [],
+            "mip_bias_requested": 0,
+            "mip_bias_offset": 0,
+            "mip_bias_vendor_baseline": -1,
+            "material_binds": {
+              "Sampler0": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "u_BlockTex": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "pack_atlas": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "pack_pbr": {
+                "binds": 0,
+                "with_requested_bias": 0
+              },
+              "dh_atlas": {
+                "binds": 0,
+                "with_requested_bias": 0
+              }
+            },
+            "material_replacements": 0,
+            "jitter_phases": 0,
+            "jitter_index": 0,
+            "history_reset_frames": 0,
+            "last_reset_reason": "feature rebuild",
+            "resets_by_reason": {
+              "first_frame": 0,
+              "level": 0,
+              "teleport": 0,
+              "gap": 0,
+              "camera": 0,
+              "rotation": 0,
+              "loading": 0,
+              "rebuild": 0,
+              "menu": 0
+            },
+            "physical_camera": {
+              "near": 0.05,
+              "far": 1024,
+              "upscaler_far": 1024,
+              "vertical_fov_rad": 1.22,
+              "invalid_metadata_frames": 0
+            },
+            "hand_vertices_drawn": 0,
+            "hand_vertices_captured": 0,
+            "hand_projection_available": false,
+            "hand_slots": 0,
+            "hand_motion": true,
+            "post_effects_need_depth": false,
+            "post_depth_resolved": false,
+            "world_text_nodes": 0,
+            "world_text_fallback_nodes": 0,
+            "world_text_prepared": false,
+            "world_text_limitation": "",
+            "omit_sign_text": false,
+            "requested_preset": 0,
+            "requested_preset_is_hint": true,
+            "pack_resolve_bypass_requested": true,
+            "pack_resolve_bypass_applied": false,
+            "pack_pre_filters_requested": false,
+            "pack_source_edits": ""
+          },
+          "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5",
+          "fps": 133,
+          "frame_time_ms": 7.8,
+          "frames": 51949,
+          "world_loaded": true,
+          "screen": "none",
+          "hud_hidden": false,
+          "motion_running": false,
+          "camera": {
+            "x": 181.288,
+            "y": 121.392,
+            "z": 64.337,
+            "eye_y": 123.012,
+            "yaw": 62.066,
+            "pitch": 19.933
+          },
+          "last_error": ""
+        }
+      },
+      "ok": true
+    },
+    "shot": {
+      "frame": 51906,
+      "jitter_index": 0,
+      "jitter_px": {
+        "x": 0,
+        "y": 0
+      },
+      "camera": {
+        "x": 180.104,
+        "y": 121.676,
+        "z": 58.998,
+        "eye_y": 123.296,
+        "yaw": 59.187,
+        "pitch": 20.017
+      },
+      "width": 640,
+      "height": 360,
+      "crop_x": 960,
+      "crop_y": 540,
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-79390f11\\docs\\validation\\dlss-1440p-perf-2026-10-30\\p-overnight\\crops\\b3-native-pass1.png",
+      "ok": true
+    },
+    "bm": {
+      "phase": "MEASURING",
+      "serverTick": 486,
+      "runIndex": 2,
+      "startedNanos": 253013601044200,
+      "ok": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_primary_borderless": true,
+        "focused": true,
+        "pack_expected": true,
+        "immediate": true,
+        "reflex_on": true,
+        "fg_off": true,
+        "render_distance_20": true
+      },
+      "valid": true
+    }
+  }
+}

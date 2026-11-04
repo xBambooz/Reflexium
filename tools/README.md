@@ -9,6 +9,7 @@ Dev scripts for driving a test client, benchmarking and checking captures. None 
 | `run-debug.ps1` | Starts `runClient` with the debug server and waits for `/status` |
 | `rxdbg.ps1` | CLI for the debug server: status, set, screenshot, move, turn, join, quit |
 | `launch-keepalive.ps1` | Launches the dev client through the harness with the debug port |
+| `launch-modrinth-profile.ps1` | Detached `javaw.exe` launch with Minecraft 26.3's shadow-stack reserve; optional `-HarnessJar` exposes test ownership paths |
 | `join.ps1`, `capture.ps1` | Join the test save or take a screenshot through the harness on port 25601 |
 | `mc.sh` | `mc.sh PORT endpoint 'json'`: one authenticated harness call |
 

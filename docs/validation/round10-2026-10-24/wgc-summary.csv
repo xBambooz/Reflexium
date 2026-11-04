@@ -1,0 +1,4 @@
+multiplier,frames,elapsed_s,median_interval_us,capture_rate_hz,period_frames,real_indices,artifact
+2x,60,0.50,8332.7,120.0,2,even indices (0,2,4,...),wgc-2x-small
+3x,48,0.42,8332.8,120.0,3,2,5,8,... (every 3rd from 2),wgc-3x-small
+4x,65,0.43,6248.2,160.1,4,6,10,14,... (every 4th from 6),wgc-4x-small

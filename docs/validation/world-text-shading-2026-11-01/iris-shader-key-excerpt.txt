@@ -1,0 +1,60 @@
+         4: ldc_w         #476                // String TEXT
+         7: invokevirtual #477                // Method java/lang/String.contains:(Ljava/lang/CharSequence;)Z
+        10: ireturn
+
+  private static net.irisshaders.iris.pipeline.programs.ShaderKey[] $values();
+    Code:
+         0: bipush        90
+         2: anewarray     #1                  // class net/irisshaders/iris/pipeline/programs/ShaderKey
+         5: dup
+         6: iconst_0
+         7: getstatic     #3                  // Field BASIC:Lnet/irisshaders/iris/pipeline/programs/ShaderKey;
+        10: aastore
+        11: dup
+        12: iconst_1
+        13: getstatic     #7                  // Field BASIC_COLOR:Lnet/irisshaders/iris/pipeline/programs/ShaderKey;
+      1780: ldc_w         #476                // String TEXT
+      1783: bipush        54
+      1785: getstatic     #605                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.EntitiesTrans:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;
+      1788: getstatic     #528                // Field net/irisshaders/iris/gl/blending/AlphaTests.ONE_TENTH_ALPHA:Lnet/irisshaders/iris/gl/blending/AlphaTest;
+      1791: getstatic     #623                // Field net/irisshaders/iris/vertices/IrisVertexFormats.GLYPH:Lcom/mojang/renderpearl/api/vertex/VertexFormat;
+      1794: getstatic     #495                // Field net/irisshaders/iris/gl/state/FogMode.PER_VERTEX:Lnet/irisshaders/iris/gl/state/FogMode;
+      1797: getstatic     #500                // Field net/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel.LIGHTMAP:Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;
+      1800: getstatic     #503                // Field net/irisshaders/iris/pipeline/transform/Patch.VANILLA:Lnet/irisshaders/iris/pipeline/transform/Patch;
+      1803: invokespecial #508                // Method "<init>":(Ljava/lang/String;ILnet/irisshaders/iris/shaderpack/loading/ProgramId;Lnet/irisshaders/iris/gl/blending/AlphaTest;Lcom/mojang/renderpearl/api/vertex/VertexFormat;Lnet/irisshaders/iris/gl/state/FogMode;Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;Lnet/irisshaders/iris/pipeline/transform/Patch;)V
+      1806: putstatic     #166                // Field TEXT:Lnet/irisshaders/iris/pipeline/programs/ShaderKey;
+      1809: new           #1                  // class net/irisshaders/iris/pipeline/programs/ShaderKey
+      1812: dup
+      1813: ldc_w         #666                // String TEXT_INTENSITY
+      1816: bipush        55
+      1818: getstatic     #605                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.EntitiesTrans:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;
+      1846: ldc_w         #667                // String TEXT_BE
+      1849: bipush        56
+      1851: getstatic     #668                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.BlockTrans:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;
+      1854: getstatic     #528                // Field net/irisshaders/iris/gl/blending/AlphaTests.ONE_TENTH_ALPHA:Lnet/irisshaders/iris/gl/blending/AlphaTest;
+      1857: getstatic     #623                // Field net/irisshaders/iris/vertices/IrisVertexFormats.GLYPH:Lcom/mojang/renderpearl/api/vertex/VertexFormat;
+      1860: getstatic     #495                // Field net/irisshaders/iris/gl/state/FogMode.PER_VERTEX:Lnet/irisshaders/iris/gl/state/FogMode;
+      1863: getstatic     #500                // Field net/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel.LIGHTMAP:Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;
+      1866: getstatic     #503                // Field net/irisshaders/iris/pipeline/transform/Patch.VANILLA:Lnet/irisshaders/iris/pipeline/transform/Patch;
+      1869: invokespecial #508                // Method "<init>":(Ljava/lang/String;ILnet/irisshaders/iris/shaderpack/loading/ProgramId;Lnet/irisshaders/iris/gl/blending/AlphaTest;Lcom/mojang/renderpearl/api/vertex/VertexFormat;Lnet/irisshaders/iris/gl/state/FogMode;Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;Lnet/irisshaders/iris/pipeline/transform/Patch;)V
+      1872: putstatic     #172                // Field TEXT_BE:Lnet/irisshaders/iris/pipeline/programs/ShaderKey;
+      1875: new           #1                  // class net/irisshaders/iris/pipeline/programs/ShaderKey
+      1878: dup
+      1879: ldc_w         #671                // String TEXT_INTENSITY_BE
+      1882: bipush        57
+      1884: getstatic     #668                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.BlockTrans:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;
+      1879: ldc_w         #671                // String TEXT_INTENSITY_BE
+      1882: bipush        57
+      1884: getstatic     #668                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.BlockTrans:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;
+      1887: getstatic     #528                // Field net/irisshaders/iris/gl/blending/AlphaTests.ONE_TENTH_ALPHA:Lnet/irisshaders/iris/gl/blending/AlphaTest;
+      1890: getstatic     #623                // Field net/irisshaders/iris/vertices/IrisVertexFormats.GLYPH:Lcom/mojang/renderpearl/api/vertex/VertexFormat;
+      1893: getstatic     #495                // Field net/irisshaders/iris/gl/state/FogMode.PER_VERTEX:Lnet/irisshaders/iris/gl/state/FogMode;
+      1896: getstatic     #500                // Field net/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel.LIGHTMAP:Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;
+      1899: getstatic     #503                // Field net/irisshaders/iris/pipeline/transform/Patch.VANILLA:Lnet/irisshaders/iris/pipeline/transform/Patch;
+      1902: invokespecial #508                // Method "<init>":(Ljava/lang/String;ILnet/irisshaders/iris/shaderpack/loading/ProgramId;Lnet/irisshaders/iris/gl/blending/AlphaTest;Lcom/mojang/renderpearl/api/vertex/VertexFormat;Lnet/irisshaders/iris/gl/state/FogMode;Lnet/irisshaders/iris/pipeline/programs/ShaderKey$LightingModel;Lnet/irisshaders/iris/pipeline/transform/Patch;)V
+      1905: putstatic     #175                // Field TEXT_INTENSITY_BE:Lnet/irisshaders/iris/pipeline/programs/ShaderKey;
+      1908: new           #1                  // class net/irisshaders/iris/pipeline/programs/ShaderKey
+      1911: dup
+      1912: ldc_w         #672                // String BLOCK_ENTITY
+      1915: bipush        58
+      1917: getstatic     #579                // Field net/irisshaders/iris/shaderpack/loading/ProgramId.Block:Lnet/irisshaders/iris/shaderpack/loading/ProgramId;

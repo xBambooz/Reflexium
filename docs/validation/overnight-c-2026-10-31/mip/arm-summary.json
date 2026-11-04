@@ -1,0 +1,1058 @@
+[
+    {
+        "arm":  "p0-quality-a0-b0-pass1",
+        "pack_drawing":  false,
+        "evaluations":  16773,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a0-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8773,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a1-b1-pass1",
+        "pack_drawing":  false,
+        "evaluations":  16993,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a1-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8889,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a2-b1-pass1",
+        "pack_drawing":  false,
+        "evaluations":  16973,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a2-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8941,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a3-b0-pass1",
+        "pack_drawing":  false,
+        "evaluations":  16760,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-quality-a3-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8799,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p0-ultra_performance-a0-b0-pass1",
+        "pack_drawing":  false,
+        "evaluations":  17727,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a0-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11384,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a1-b1-pass1",
+        "pack_drawing":  false,
+        "evaluations":  17696,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a1-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11492,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a2-b1-pass1",
+        "pack_drawing":  false,
+        "evaluations":  17671,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a2-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11572,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a3-b0-pass1",
+        "pack_drawing":  false,
+        "evaluations":  17513,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  3,
+                                         "with_requested_bias":  3,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p0-ultra_performance-a3-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11411,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-quality-a0-b0-pass1",
+        "pack_drawing":  true,
+        "evaluations":  8810,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a0-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8799,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a1-b1-pass1",
+        "pack_drawing":  true,
+        "evaluations":  8905,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a1-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8878,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a2-b1-pass1",
+        "pack_drawing":  true,
+        "evaluations":  8835,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a2-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8891,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -0.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a3-b0-pass1",
+        "pack_drawing":  true,
+        "evaluations":  8770,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-quality-a3-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  8805,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.5846808
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "quality",
+        "render_w":  1707
+    },
+    {
+        "arm":  "p1-ultra_performance-a0-b0-pass1",
+        "pack_drawing":  true,
+        "evaluations":  11300,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a0-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11365,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a1-b1-pass1",
+        "pack_drawing":  true,
+        "evaluations":  11455,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a1-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11532,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a2-b1-pass1",
+        "pack_drawing":  true,
+        "evaluations":  11462,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a2-b1-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11565,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -1.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a3-b0-pass1",
+        "pack_drawing":  true,
+        "evaluations":  11450,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    },
+    {
+        "arm":  "p1-ultra_performance-a3-b0-pass2",
+        "pack_drawing":  true,
+        "evaluations":  11498,
+        "binds":  {
+                      "Sampler0":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "u_BlockTex":  {
+                                         "binds":  6,
+                                         "with_requested_bias":  6,
+                                         "applied_bias":  -2.585526
+                                     },
+                      "pack_atlas":  {
+                                         "binds":  0,
+                                         "with_requested_bias":  0
+                                     },
+                      "pack_pbr":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   },
+                      "dh_atlas":  {
+                                       "binds":  0,
+                                       "with_requested_bias":  0
+                                   }
+                  },
+        "exposure":  1.0,
+        "reset":  false,
+        "fov":  1.3439034,
+        "quality":  "ultra_performance",
+        "render_w":  853
+    }
+]

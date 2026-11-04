@@ -1,0 +1,1 @@
+Rejected alpha comparison: a killed Moving Name pig was still in its death animation; DeferredWorldText.layer() selected the name target. Equal coverage 1552 is not sign occlusion evidence. Final screenshots show occluding iron bars but the alpha discriminator is not accepted. The next runner clears nearby entities and steps 40 ticks before selecting sign alpha.

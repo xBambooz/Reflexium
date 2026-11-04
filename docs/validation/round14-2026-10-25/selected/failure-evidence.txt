@@ -1,0 +1,57 @@
+Round 14 failure handling evidence
+Run: dev client on port 25991, debug port 25599, RTX 5070, NVIDIA 617.42, Vulkan, DLSS Quality 1280x720 -> 1920x1080, 3x MFG.
+
+1. Forced DLSS-G feature-load failure (/set dlssg_fail 1)
+
+Status after the failure:
+  fg_status        = Frame generation: DLSS Frame Generation failed to load (see log)
+  fg_gate_reason   = "" (the adapter is an RTX 5070; the failure is the plugin load, not a pre-RTX 40 adapter)
+  failure_notice   = DLSS Frame Generation failed to load; using rendered frames.
+  status_line      = DLSS: Quality 1280x720 -> 1920x1080
+  last_error       = ""
+  fg_streamline_problem = ""
+
+Log:
+  [01:40:51] [Render thread/WARN] (Reflexium) Streamline: DLSS-G load true failed 57
+  [01:40:51] [Render thread/WARN] (Reflexium) Reflexium: DLSS Frame Generation failed to load; using rendered frames.
+  [01:40:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Reflexium: DLSS Frame Generation failed to load; using rendered frames.
+
+In-game message: docs/validation/round14-2026-10-25/selected/dlssg-fail-chat-640.png
+
+SR kept running and the client continued to render. Recovery after /set dlssg_fail 0:
+  [01:41:01] (Reflexium) DLSS-G feature loaded=true between swapchains
+  [01:41:01] (Reflexium) DLSS-G scene marked active (3x, 1920x1080)
+  real presents +572, generated presents +1144 over 2 s (3x)
+
+2. Simulated VK_ERROR_DEVICE_LOST (/set device_loss 1)
+
+Status after the failure:
+  status_line      = DLSS: stopped after an error (see log); change upscaling settings to retry
+  upscaling_active = false
+  fg_status        = Frame generation: VK_ERROR_DEVICE_LOST
+  last_error       = evaluate failed: java.lang.IllegalStateException: VK_ERROR_DEVICE_LOST (simulated)
+  failure_notice   = DLSS stopped: VK_ERROR_DEVICE_LOST. Rendering natively.
+
+Log:
+  [01:42:11] [Render thread/ERROR] (Reflexium) DLSS evaluate failed, falling back to native resolution
+  [01:42:11] [Render thread/ERROR] (Reflexium) Reflexium: DLSS stopped: VK_ERROR_DEVICE_LOST. Rendering natively.
+  [01:42:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Reflexium: DLSS stopped: VK_ERROR_DEVICE_LOST. Rendering natively.
+
+The client kept running and presented native frames. Screenshot mean luma 161.8, variance 1878.7
+(selected/native-fallback-640.png). No new crash report was written; the latest remained
+crash-2026-10-25_00.54.18-client.txt from before this round.
+
+Boundary: a real device loss raised by RenderPearl's VulkanUtils.crashIfFailure (native present or
+submit) throws GpuDeviceLossException, and Minecraft has no recovery path for it. The integration
+detects the lost result before touching the SDK again, disables DLSS/DLSS-G with the message above,
+and stops calling Streamline. Engine-level recovery from a genuinely lost VkDevice is outside the mod.
+
+3. VRAM over 10 DLSS-G off/on toggles
+
+nvidia-smi memory.used, MiB (game idle, 1920x1080, 3x MFG):
+  before: 2407, 2407, 2407, 2407, 2407
+  toggle 1 off=2467 on=2474
+  toggles 2..10 off=2474 on=2474
+  after: 2474, 2474, 2474, 2474, 2474
+One-time +67 MiB on the first toggle, then flat across 10 toggles. No resource growth.
+Raw rows: selected/vram-toggles.csv

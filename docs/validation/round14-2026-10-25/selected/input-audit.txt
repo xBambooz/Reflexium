@@ -1,0 +1,59 @@
+Round 14 static foliage input audit and matched-crop metrics
+
+Pose: Reflexium Vitrail Smoke range, camera 200.5 / 151 / 0.5, eye 152.62, yaw 60, pitch 3.
+Vanilla renderer (no shader pack drawing), render distance 12, 1920x1080 output.
+Native references are identical on crop A (PSNR 99 dB, correlation 1.000) and 57.08 dB on crop B,
+so the scene is static and the captures are repeatable.
+
+Inputs observed on the captured Quality frame:
+  render -> display         1280x720 -> 1920x1080
+  jitter phases             32 (Halton 2,3); captured index 14, x -0.0625 px, y +0.3148 px
+  jitter sign               +1, +1; sent equals the rendered offset
+  mip bias requested        -1.5849625
+  u_BlockTex binds          3 of 3 corrected, applied_bias -1.5849625
+  Sampler0 / pack / DH      no binds in this vanilla pose
+  pre-exposure              1.0
+  vendor auto exposure      false (SDR path)
+  requested preset          0 (Auto)
+  motion vectors at rest    81,600 crop pixels, 0 moving, mean 0.0000 px, max 0.0000 px
+  capture-check             7,935 samples, p99 0.0001 px, 100.00% within 1/4 px
+  history reset             false on the captured frame
+
+Matched-crop metrics (RGB 0..255, high-pass detail correlation against the same native frame).
+Crop A = 450,20 240x340 (dense leaf tower). Crop B = 430,20 280x560 (leaf tower plus frame blocks).
+
+arm                 crop  PSNR dB  correlation  laplacian native/test
+native repeat       A     99.00    1.0000       52.048 / 52.048
+DLAA auto           A     25.93    0.844        52.048 / 33.68
+Quality auto        A     25.82    0.834        52.048 / 34.41
+Quality Transformer A     25.82    0.834        52.048 / 34.39
+Quality 18 phases   A     25.53    0.815        52.048 / 35.34
+Quality 64 phases   A     25.90    0.839        52.048 / 34.06
+Quality bias -2.085 A     25.79    0.833        52.048 / 34.83
+native repeat       B     57.08    0.9999       45.240 / 45.239
+DLAA auto           B     26.50    0.850        45.240 / 29.70
+Quality auto        B     26.37    0.841        45.240 / 30.45
+Quality Transformer B     24.38    0.829        45.240 / 29.93
+Quality 18 phases   B     23.70    0.806        45.240 / 30.72
+Quality 64 phases   B     23.91    0.829        45.240 / 29.57
+Quality bias -2.085 B     26.36    0.841        45.240 / 30.59
+
+Interpretation:
+  - DLAA runs at 1:1 and is not sharper than Quality on the same leaves. The residual is therefore
+    not the 0.667 upscale ratio alone; it is the temporal reconstruction of alpha-tested cutout leaves.
+  - AUTO and Transformer K are identical on crop A. On crop B, K is 2.0 dB worse, so the shipped AUTO
+    default is retained.
+  - 18 phases (NVIDIA's table minimum for Quality) is worse by 0.3 to 2.7 dB. 64 phases is 0.08 dB
+    better on crop A and 2.5 dB worse on crop B. The shipped 32-phase policy is the best compromise.
+  - More negative texture bias (-2.085, -2.585) raises Laplacian energy by up to 0.4 but does not
+    raise matched detail correlation. That is added edge energy, not recovered detail. The guide bias
+    (-1.585) is retained.
+  - DLAA samples at 1:1 with bias 0. This is a deliberate deviation from the guide formula's
+    unconditional -1 term, because at 1:1 the input is already at display sampling; changing it was
+    not shown to recover matched detail in these captures.
+  - Exposure needs no input here: the color is finished SDR, pre-exposure is 1.0, and auto exposure is
+    off. The pack HDR path was not active.
+
+Conclusion: every numeric prerequisite checked (jitter length/range/sign, mip bias application,
+exposure, preset, zero still-frame motion vectors) conforms. The static foliage gap remains a
+reconstruction limitation for alpha-cutout leaves, not an input defect. Objective 5 is not fully met.

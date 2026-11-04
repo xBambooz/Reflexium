@@ -1,0 +1,122 @@
+[
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.828,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  1,
+                       "phase3_mean_laplacian":  [
+                                                     86.86760,
+                                                     81.51950,
+                                                     82.03966
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p0-wgc-hand-turn"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.825,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     126.32794,
+                                                     135.25296,
+                                                     129.20074
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p0-wgc-hand-walk"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.827,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     1393.70704,
+                                                     1370.38348,
+                                                     1363.37874
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p0-wgc-mob"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.825,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     1229.66271,
+                                                     1008.69149,
+                                                     1154.14901
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p0-wgc-sign"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.823,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     17.95236,
+                                                     16.22395,
+                                                     20.60587
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p1-wgc-hand-turn"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.819,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     49.19200,
+                                                     45.80063,
+                                                     48.90648
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p1-wgc-hand-walk"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.827,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     854.38182,
+                                                     845.60702,
+                                                     844.65430
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p1-wgc-mob"
+    },
+    {
+        "period":  {
+                       "frames":  200,
+                       "median_interval_ms":  20.829,
+                       "nonpositive_intervals":  0,
+                       "gaps_over_1_8_median":  0,
+                       "phase3_mean_laplacian":  [
+                                                     636.22996,
+                                                     515.11209,
+                                                     539.18443
+                                                 ],
+                       "labels_verified":  false
+                   },
+        "scene":  "p1-wgc-sign"
+    }
+]

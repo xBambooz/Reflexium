@@ -1,0 +1,11 @@
+scene,mode,rep,real_fps,delta,latency
+shaderless1080,off,1,1442.0,,1.1 ms
+shaderless1080,on,1,1356.8,-5.9%,1.2 ms
+shaderless1080,boost,1,1360.9,-5.6%,1.2 ms
+shaderless1080,off,2,1437.8,,1.4 ms
+shaderless1080,on,2,1369.6,-4.7%,1.2 ms
+bsl1080_performance,off,1,321.2,,6.4 ms
+bsl1080_performance,on,1,298.2,-7.2%,4.8 ms
+bsl1080_performance,boost,1,296.2,-7.8%,6.0 ms
+bsl1080_performance,off,2,320.5,,6.2 ms
+bsl1080_performance,on,2,294.3,-8.2%,4.9 ms

@@ -1,0 +1,444 @@
+{
+  "frames": [
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11182,
+      "frames": 232326,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_000.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 115224,
+        "jitter_index": 30,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 1.9711081e-7,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    },
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11193,
+      "frames": 232529,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_001.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 115427,
+        "jitter_index": 14,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 4.571939e-10,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    },
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11206,
+      "frames": 232746,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_002.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 115644,
+        "jitter_index": 12,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 7.3493273e-13,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    },
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11218,
+      "frames": 232951,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_003.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 115849,
+        "jitter_index": 71,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 1.6331187e-15,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    },
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11230,
+      "frames": 233154,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_004.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 116052,
+        "jitter_index": 55,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 4.026537e-18,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    },
+    {
+      "pid": 233468,
+      "game_directory": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run",
+      "world_loaded": true,
+      "screen": "none",
+      "paused": false,
+      "ticks": 11242,
+      "frames": 233355,
+      "camera": {
+        "x": 200.5,
+        "y": 151,
+        "z": 2.6548441280441573,
+        "yaw": 0,
+        "pitch": 3
+      },
+      "path": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\hand\\after\\walk\\frame_005.png",
+      "width": 2560,
+      "height": 1440,
+      "motion_running": false,
+      "focus": {
+        "os_input_focus": false,
+        "os_foreground": false,
+        "os_minimized": false,
+        "hwnd": 15271108,
+        "foreground_hwnd": 63374344,
+        "os_cursor": {
+          "x": 1114,
+          "y": 1038
+        }
+      },
+      "reflexium": {
+        "upscaler_effective": "dlss",
+        "quality": "ultra_performance",
+        "render_distance": 20,
+        "render_size": {
+          "w": 853,
+          "h": 480
+        },
+        "display_size": {
+          "w": 2560,
+          "h": 1440
+        },
+        "evaluated_frames": 116253,
+        "jitter_index": 37,
+        "frame_generation": "off",
+        "fg_multiplier": 3,
+        "fg_generated_presents": 2934,
+        "last_error": "",
+        "pack": "Iris 1.12.0-snapshot+mc26.3-local, ComplementaryReimagined_r5.9.3 + EuphoriaPatches_1.10.5, Reflexium jitter (pack options off: TAA, IMAGE_SHARPENING=0, FXAA_DEFINE=-1, TAA_JITTER=0, TAA_DEFINE=0)",
+        "camera_bob": 9.870416e-21,
+        "camera_walk_distance": -15.225264,
+        "player_name": "RxWhiteA",
+        "player_uuid": "81c98b84-3355-3072-ad0c-53a63b1196ac",
+        "player_skin_model": "WIDE",
+        "named_entities": [
+          {
+            "id": 240,
+            "name": "Behind Wall",
+            "x": 203.5,
+            "y": 151,
+            "z": 8.5
+          }
+        ]
+      },
+      "observed": {
+        "world_text_nodes": 38,
+        "world_text_prepared": true,
+        "world_text_fallback_nodes": 0,
+        "post_depth_resolved": true,
+        "hand_vertices_drawn": 48,
+        "hand_vertices_captured": 48
+      }
+    }
+  ],
+  "ok": true,
+  "full_metadata": "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-b5ddc25e\\run\\iq-continuation\\metadata-full\\hand\\after\\walk.json"
+}

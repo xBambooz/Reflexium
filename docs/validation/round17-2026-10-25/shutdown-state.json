@@ -1,0 +1,18 @@
+﻿{
+    "time":  "2026-10-25T19:03:07.3432355-04:00",
+    "owned_clients":  [
+
+                      ],
+    "untouched_pid_25084_present":  false,
+    "overlay_pid":  35352,
+    "overlay_windows":  [
+                            {
+                                "hwnd":  53478888,
+                                "x":  0,
+                                "y":  0,
+                                "width":  2560,
+                                "height":  1440
+                            }
+                        ],
+    "foreground_hwnd":  85657614
+}

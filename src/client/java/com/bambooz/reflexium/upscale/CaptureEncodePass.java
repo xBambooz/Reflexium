@@ -27,6 +27,7 @@ final class CaptureEncodePass {
 	static final int MOTION = 0;
 	static final int DEPTH = 1;
 	static final int HDR = 2;
+	static final int ALPHA = 3;
 	private static final int UBO_SIZE = new Std140SizeCalculator().putVec4().get();
 
 	private static final RenderPipeline PIPELINE = RenderPipeline.builder()

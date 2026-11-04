@@ -14,8 +14,10 @@ public final class MaterialBinding {
 	public static final int PACK_ATLAS = 2;
 	/** Vitrail non-interpolated PBR map sampler (normal, specular and similar material maps). */
 	public static final int PACK_PBR = 3;
-	public static final int PATHS = 4;
-	static final String[] PATH_NAMES = {"Sampler0", "u_BlockTex", "pack_atlas", "pack_pbr"};
+	/** Distant Horizons LOD block atlas, bound by DH's own Blaze render pass. */
+	public static final int DH_ATLAS = 4;
+	public static final int PATHS = 5;
+	static final String[] PATH_NAMES = {"Sampler0", "u_BlockTex", "pack_atlas", "pack_pbr", "dh_atlas"};
 
 	private MaterialBinding() {}
 

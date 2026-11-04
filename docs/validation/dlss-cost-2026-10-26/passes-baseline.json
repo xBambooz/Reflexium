@@ -1,0 +1,1568 @@
+[
+  {
+    "key": "baseline-native-pass1",
+    "build": "baseline",
+    "config": "native",
+    "pass": 1,
+    "visit": 1,
+    "label": "dlss-cost-baseline-native-pass1",
+    "bm_file": "baseline-native-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.06414797884824139,
+      "gpu_range": 4
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584869,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584868,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584973,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584972,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584941,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584941,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584869,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584868,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584973,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584972,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983584941,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983584941,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 1920,
+        "h": 1080
+      },
+      "preset_hint": 0,
+      "evaluated_frames": [
+        0,
+        0
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-native-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.991,
+      "variance": 1642.733,
+      "edges": 76134,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 36355,
+      "seconds": 90.0932379999996,
+      "avg_fps": 403.52640006123613,
+      "low1_fps": 206.6938132112553,
+      "low01_fps": 126.24801422394293
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 401.6944637061121,
+        "bm_low1_fps": 165.2518171948673,
+        "bm_low01_fps": 33.47812544259121,
+        "frames": 18095,
+        "seconds": 45.04751600000014,
+        "avg_fps": 401.6869653811754,
+        "low1_fps": 197.47127665725858,
+        "low01_fps": 106.87757174157001
+      },
+      {
+        "bm_avg_fps": 405.3747559129125,
+        "bm_low1_fps": 198.12948148662375,
+        "bm_low01_fps": 126.08485412708033,
+        "frames": 18260,
+        "seconds": 45.04572200000028,
+        "avg_fps": 405.3659079989857,
+        "low1_fps": 217.096529658589,
+        "low01_fps": 154.78411914937527
+      }
+    ],
+    "avg_fps": 403.52640006123613,
+    "low1_fps": 206.6938132112553,
+    "low01_fps": 126.24801422394293
+  },
+  {
+    "key": "baseline-cnn-q-pass1",
+    "build": "baseline",
+    "config": "cnn-q",
+    "pass": 1,
+    "visit": 1,
+    "label": "dlss-cost-baseline-cnn-q-pass1",
+    "bm_file": "baseline-cnn-q-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.08592580643238942,
+      "gpu_range": 2
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810000,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 333752,
+            "mtime_ms": 1792983878929,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810251,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983810250,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810105,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983810105,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983435236,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810000,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 333752,
+            "mtime_ms": 1792983878929,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810251,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983810250,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792983810105,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792983810105,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 5,
+      "evaluated_frames": [
+        28425,
+        28551
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-cnn-q-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.556,
+      "variance": 1482.34,
+      "edges": 45058,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 34482,
+      "seconds": 90.09573799999956,
+      "avg_fps": 382.7262062052277,
+      "low1_fps": 220.03912231815363,
+      "low01_fps": 147.44337523905344
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 385.460848362139,
+        "bm_low1_fps": 197.36580930957442,
+        "bm_low01_fps": 60.99023809101653,
+        "frames": 17364,
+        "seconds": 45.04825799999989,
+        "avg_fps": 385.4533065407333,
+        "low1_fps": 220.0217239840119,
+        "low01_fps": 134.38416480241577
+      },
+      {
+        "bm_avg_fps": 380.0057821035853,
+        "bm_low1_fps": 204.62455945108505,
+        "bm_low01_fps": 140.54785295086063,
+        "frames": 17118,
+        "seconds": 45.047480000000014,
+        "avg_fps": 379.99905877087895,
+        "low1_fps": 220.52849460285526,
+        "low01_fps": 163.55589763324994
+      }
+    ],
+    "avg_fps": 382.7262062052277,
+    "low1_fps": 220.03912231815363,
+    "low01_fps": 147.44337523905344
+  },
+  {
+    "key": "baseline-transformer-q-pass1",
+    "build": "baseline",
+    "config": "transformer-q",
+    "pass": 1,
+    "visit": 1,
+    "label": "dlss-cost-baseline-transformer-q-pass1",
+    "bm_file": "baseline-transformer-q-pass1.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.07058192563027813,
+      "gpu_range": 4
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983982708,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983982708,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012490,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 412032,
+            "mtime_ms": 1792984035590,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012581,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984012581,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012546,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984012546,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792983982708,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012490,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 412032,
+            "mtime_ms": 1792984035590,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012581,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984012581,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984012546,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984012546,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": true,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": true
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 11,
+      "evaluated_frames": [
+        27673,
+        27781
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-transformer-q-pass1.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.82,
+      "variance": 1453.317,
+      "edges": 48331,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": true,
+    "pooled": {
+      "frames": 30399,
+      "seconds": 90.09134199999971,
+      "avg_fps": 337.42421108567896,
+      "low1_fps": 204.9343333769267,
+      "low01_fps": 137.04700255364247
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 336.71158110896005,
+        "bm_low1_fps": 180.63420689462245,
+        "bm_low01_fps": 63.832096599583664,
+        "frames": 15166,
+        "seconds": 45.042321999999885,
+        "avg_fps": 336.7055543894926,
+        "low1_fps": 199.1917010447081,
+        "low01_fps": 121.36020517965356
+      },
+      {
+        "bm_avg_fps": 338.1487989986472,
+        "bm_low1_fps": 197.93570611928402,
+        "bm_low01_fps": 143.67078769387555,
+        "frames": 15233,
+        "seconds": 45.04901999999989,
+        "avg_fps": 338.14276093020527,
+        "low1_fps": 211.19588279184282,
+        "low01_fps": 157.66404944344586
+      }
+    ],
+    "avg_fps": 337.42421108567896,
+    "low1_fps": 204.9343333769267,
+    "low01_fps": 137.04700255364247
+  },
+  {
+    "key": "baseline-transformer-q-pass2",
+    "build": "baseline",
+    "config": "transformer-q",
+    "pass": 2,
+    "visit": 2,
+    "label": "dlss-cost-baseline-transformer-q-pass2",
+    "bm_file": "baseline-transformer-q-pass2.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.07668314075611382,
+      "gpu_range": 4
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984181672,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984181672,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213776,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 1038272,
+            "mtime_ms": 1792984305087,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213907,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984213907,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213872,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984213872,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984181672,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213776,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 1297832,
+            "mtime_ms": 1792984315113,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213907,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984213907,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984213872,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984213872,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": false,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": false
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 11,
+      "evaluated_frames": [
+        26795,
+        26900
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-transformer-q-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.867,
+      "variance": 1451.384,
+      "edges": 48288,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": false,
+    "pooled": {
+      "frames": 29513,
+      "seconds": 90.09705900000068,
+      "avg_fps": 327.5689609357812,
+      "low1_fps": 191.99654276055884,
+      "low01_fps": 129.480567124884
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 327.34989293422353,
+        "bm_low1_fps": 169.0969786966758,
+        "bm_low01_fps": 57.032595641335774,
+        "frames": 14747,
+        "seconds": 45.05033500000017,
+        "avg_fps": 327.3449575902143,
+        "low1_fps": 187.5720142554732,
+        "low01_fps": 113.89867573806343
+      },
+      {
+        "bm_avg_fps": 327.79790355624453,
+        "bm_low1_fps": 184.95146780098594,
+        "bm_low01_fps": 131.16703598286276,
+        "frames": 14766,
+        "seconds": 45.04672399999988,
+        "avg_fps": 327.79298223773253,
+        "low1_fps": 196.60406332776282,
+        "low01_fps": 151.36684258857483
+      }
+    ],
+    "avg_fps": 327.5689609357812,
+    "low1_fps": 191.99654276055884,
+    "low01_fps": 129.480567124884
+  },
+  {
+    "key": "baseline-cnn-q-pass2",
+    "build": "baseline",
+    "config": "cnn-q",
+    "pass": 2,
+    "visit": 2,
+    "label": "dlss-cost-baseline-cnn-q-pass2",
+    "bm_file": "baseline-cnn-q-pass2.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.06028566330991906,
+      "gpu_range": 4
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984390325,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984390325,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422789,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 519152,
+            "mtime_ms": 1792984498489,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422866,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984422865,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422834,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984422834,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984390325,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422789,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 1038272,
+            "mtime_ms": 1792984546877,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422866,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984422865,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984422834,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984422834,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": false,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": false
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "dlss",
+      "render_size": {
+        "w": 1280,
+        "h": 720
+      },
+      "preset_hint": 5,
+      "evaluated_frames": [
+        29952,
+        30079
+      ],
+      "status_line": "DLSS: Quality 1280x720 -> 1920x1080",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-cnn-q-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 110.56,
+      "variance": 1482.918,
+      "edges": 44831,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": false,
+    "pooled": {
+      "frames": 34357,
+      "seconds": 90.09710200000026,
+      "avg_fps": 381.3330200121187,
+      "low1_fps": 214.63873617717186,
+      "low01_fps": 139.10595782634664
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 382.772560297247,
+        "bm_low1_fps": 202.79830849475692,
+        "bm_low01_fps": 97.79645078428328,
+        "frames": 17243,
+        "seconds": 45.048542000000296,
+        "avg_fps": 382.7648850433358,
+        "low1_fps": 221.9435024749282,
+        "low01_fps": 144.8299951439355
+      },
+      {
+        "bm_avg_fps": 379.90824882027994,
+        "bm_low1_fps": 187.04899159968036,
+        "bm_low01_fps": 102.69956178427952,
+        "frames": 17114,
+        "seconds": 45.048560000000265,
+        "avg_fps": 379.90115555302765,
+        "low1_fps": 208.59127698115964,
+        "low01_fps": 135.40961408259986
+      }
+    ],
+    "avg_fps": 381.3330200121187,
+    "low1_fps": 214.63873617717186,
+    "low01_fps": 139.10595782634664
+  },
+  {
+    "key": "baseline-native-pass2",
+    "build": "baseline",
+    "config": "native",
+    "pass": 2,
+    "visit": 2,
+    "label": "dlss-cost-baseline-native-pass2",
+    "bm_file": "baseline-native-pass2.bmresult.json.gz",
+    "idle": {
+      "cpu_cv": 0.06768900119654518,
+      "gpu_range": 5
+    },
+    "dh": {
+      "generator_plan": "DISABLED",
+      "before": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984593698,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          }
+        ]
+      },
+      "crop": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984593698,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623348,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 519152,
+            "mtime_ms": 1792984709191,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623499,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984623499,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623457,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984623457,
+            "transient": true
+          }
+        ]
+      },
+      "end": {
+        "files": [
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite",
+            "size": 595415040,
+            "mtime_ms": 1792984593698,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623348,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/overworld/data/DistantHorizons.sqlite-wal",
+            "size": 1631552,
+            "mtime_ms": 1792984769878,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859388,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623499,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_end/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984623499,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite",
+            "size": 61440,
+            "mtime_ms": 1790936859405,
+            "transient": false
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-shm",
+            "size": 32768,
+            "mtime_ms": 1792984623457,
+            "transient": true
+          },
+          {
+            "rel": "dimensions/minecraft/the_nether/data/DistantHorizons.sqlite-wal",
+            "size": 0,
+            "mtime_ms": 1792984623457,
+            "transient": true
+          }
+        ]
+      },
+      "durable_unchanged_before_to_end": true,
+      "unchanged_crop_to_end": false,
+      "log_generation_lines": 0,
+      "log_sample": [],
+      "gate_valid": false
+    },
+    "mode": {
+      "checks": {
+        "world_loaded": true,
+        "screen_none": true,
+        "not_paused": true,
+        "measuring_same_run": true,
+        "no_last_error": true,
+        "upscaler_effective": true,
+        "upscaling_active": true,
+        "render_size": true,
+        "evaluated_counter": true,
+        "preset_hint": true,
+        "window_secondary": true,
+        "pack_mellow": true,
+        "render_distance_8": true
+      },
+      "valid": true
+    },
+    "mode_status": {
+      "upscaler_effective": "off",
+      "render_size": {
+        "w": 1920,
+        "h": 1080
+      },
+      "preset_hint": 5,
+      "evaluated_frames": [
+        58456,
+        58456
+      ],
+      "status_line": "Upscaling: off",
+      "window": {
+        "x": 2560,
+        "y": 0,
+        "width": 1920,
+        "height": 1080,
+        "placement": "display 2 'XF250Q' at 2560,0",
+        "gui_width": 480,
+        "gui_height": 270,
+        "fullscreen": {
+          "allowed": false,
+          "requested": false,
+          "sdl_fullscreen": false,
+          "borderless": false,
+          "exclusive_fullscreen": false,
+          "display_id": 2,
+          "target_display_id": 2,
+          "on_target_display": true,
+          "display_width": 1920,
+          "display_height": 1080,
+          "covers_display": true
+        }
+      }
+    },
+    "content": {
+      "file": "baseline-native-pass2.png",
+      "width": 640,
+      "height": 360,
+      "mean_luma": 111.023,
+      "variance": 1637.993,
+      "edges": 75437,
+      "content_valid": true
+    },
+    "gate_flags": {
+      "invalid": false,
+      "load_timeout": false,
+      "focus_lost": false,
+      "backend_vulkan": true,
+      "settle_ready": true
+    },
+    "valid": false,
+    "pooled": {
+      "frames": 37679,
+      "seconds": 90.09742699999941,
+      "avg_fps": 418.20284168603666,
+      "low1_fps": 225.47887346687824,
+      "low01_fps": 147.48861814808635
+    },
+    "per_run": [
+      {
+        "bm_avg_fps": 412.6509167416251,
+        "bm_low1_fps": 185.5415430206352,
+        "bm_low01_fps": 56.80430496126482,
+        "frames": 18589,
+        "seconds": 45.04868800000014,
+        "avg_fps": 412.6424281213238,
+        "low1_fps": 213.97067451379192,
+        "low01_fps": 126.51232163427284
+      },
+      {
+        "bm_avg_fps": 423.7718836857831,
+        "bm_low1_fps": 221.30028519993635,
+        "bm_low01_fps": 153.04995749858742,
+        "frames": 19090,
+        "seconds": 45.04873900000063,
+        "avg_fps": 423.7632489557529,
+        "low1_fps": 239.49603013386707,
+        "low01_fps": 180.8869171157105
+      }
+    ],
+    "avg_fps": 418.20284168603666,
+    "low1_fps": 225.47887346687824,
+    "low01_fps": 147.48861814808635
+  }
+]

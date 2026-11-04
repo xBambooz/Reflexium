@@ -1,0 +1,6 @@
+"mode","render","upscaler","status_line","evaluated_before","evaluated_after","evaluated_delta","world_loaded","screen","paused","pack","render_distance","last_error"
+"native","1920x1080","off","Upscaling: off","4250","4250","0","True","none","False","Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8",,""
+"dlaa","1920x1080","dlss","DLSS: DLAA 1920x1080 -> 1920x1080","1564","2392","828","True","none","False","Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",,""
+"quality","1280x720","dlss","DLSS: Quality 1280x720 -> 1920x1080","1835","2756","921","True","none","False","Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",,""
+"balanced","1114x626","dlss","DLSS: Balanced 1114x626 -> 1920x1080","1841","2769","928","True","none","False","Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",,""
+"performance","960x540","dlss","DLSS: Performance 960x540 -> 1920x1080","2006","3012","1006","True","none","False","Iris 1.12.0-snapshot+mc26.3-local, BSL_v10.1.8, Reflexium jitter",,""

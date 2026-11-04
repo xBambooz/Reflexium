@@ -1,0 +1,434 @@
+[
+    {
+        "frame":  110255,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_000.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  90.0,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  110676,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_001.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  90.52001,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  111107,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_002.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  91.080025,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  111534,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_003.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  91.60004,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  111945,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_004.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  92.12005,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  112372,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_005.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  92.68006,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  112794,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_006.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  93.20007,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  113220,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_007.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  93.760086,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  113651,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_008.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  114079,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_009.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  114506,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_010.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  114943,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_011.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  115431,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_012.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  115855,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_013.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  116283,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_014.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  116711,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_015.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  117142,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_016.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  117569,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_017.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  117987,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_018.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  118419,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_019.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  118846,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_020.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  119272,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_021.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  119704,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_022.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    },
+    {
+        "frame":  120138,
+        "render_size":  {
+                            "w":  2560,
+                            "h":  1440
+                        },
+        "last_error":  "",
+        "jitter_index":  0,
+        "path":  "C:\\Users\\Ryan\\.t3\\worktrees\\Reflexium\\t3-ce6c7b5a\\run\\overnight-c\\mip\\p0-native-pass1-pan\\frame_023.png",
+        "evaluated":  0,
+        "camera":  {
+                       "x":  200.5,
+                       "y":  110.0,
+                       "z":  150.0,
+                       "yaw":  94.00009,
+                       "pitch":  10.0
+                   }
+    }
+]

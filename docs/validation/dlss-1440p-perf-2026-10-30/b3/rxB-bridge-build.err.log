@@ -1,0 +1,62 @@
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:116: error: unreported exception ClassNotFoundException; must be caught or declared to be thrown
+						Class.forName("com.benchmarkmod.client.run.RunController").getMethod("start", String.class, String.class)
+						             ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:116: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+						Class.forName("com.benchmarkmod.client.run.RunController").getMethod("start", String.class, String.class)
+						                                                                    ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:117: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+								.invoke(null, params.get("scene"), params.getOrDefault("label", ""));
+								       ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception ClassNotFoundException; must be caught or declared to be thrown
+					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+					                            ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+					                                                                        ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+					                                                                                      ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:122: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+						Object value = state.getClass().getMethod(name).invoke(state);
+						                                         ^
+C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:122: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+						Object value = state.getClass().getMethod(name).invoke(state);
+						                                                      ^
+8 errors
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileClientJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:116: error: unreported exception ClassNotFoundException; must be caught or declared to be thrown
+  						Class.forName("com.benchmarkmod.client.run.RunController").getMethod("start", String.class, String.class)
+  						             ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:116: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+  						Class.forName("com.benchmarkmod.client.run.RunController").getMethod("start", String.class, String.class)
+  						                                                                    ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:117: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+  								.invoke(null, params.get("scene"), params.getOrDefault("label", ""));
+  								       ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception ClassNotFoundException; must be caught or declared to be thrown
+  					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+  					                            ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+  					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+  					                                                                        ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:119: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+  					Object state = Class.forName("com.benchmarkmod.run.RunStates").getMethod("get").invoke(null);
+  					                                                                                      ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:122: error: unreported exception NoSuchMethodException; must be caught or declared to be thrown
+  						Object value = state.getClass().getMethod(name).invoke(state);
+  						                                         ^
+  C:\Users\Ryan\.t3\worktrees\Reflexium\t3-93ca5d66\src\client\java\com\bambooz\reflexium\debug\server\DebugServer.java:122: error: unreported exception IllegalAccessException; must be caught or declared to be thrown
+  						Object value = state.getClass().getMethod(name).invoke(state);
+  						                                                      ^
+  8 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 6s

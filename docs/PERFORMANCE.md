@@ -1,10 +1,45 @@
 # Upscaling performance
 
-Continuation status, 14 October 2026: the apparent FG regression is session drift. The remaining Reflex throughput penalty is reproduced with Benchmark Mod on FPS Lab's standard scene, but a safe throughput fix has not been established. The changes below add diagnostics and correct latency reporting; they do not claim an FPS optimization. See the continuation evidence and the latest sleep audit at the end of this document.
+Continuation status, 14 October 2026: the apparent FG regression is session drift. The remaining Reflex throughput penalty is reproduced with Benchmark Mod on FPS Lab's standard scene, but a safe throughput fix has not been established. The changes below add diagnostics and correct latency reporting; they do not claim an FPS optimization. See the continuation evidence and the latest sleep audit at the end of this document. The upscaler path was re-measured on 23 October 2026; that section above is the current result.
 
 Measured on 14 October 2026, RTX 5070, NVIDIA 617.42, Minecraft 26.3, GraalVM Java 25, Vulkan, 1920x1080, VSync off, unlimited FPS and Reflex On. Frame generation is off unless a test explicitly enables it. This is a shaderless fixed-pose investigation, separate from the older moving-route Set A and shader Set B results.
 
 The outline timings below describe the earlier post-upscale renderer. That renderer was removed after visual checks showed depth-clipped edges even with corrected line indices. Current builds use vanilla's world-pass outline and skip the outline depth reconstruction entirely. The uniform and scene-depth optimizations measured here remain in place.
+
+## Round 5, 24 October 2026
+
+The Streamline SR matrix, BSL forest 1440p per-pass investigation, shaderless overhead floor,
+Reflex/PCL rows and the DLSS-G unfocused behaviour are in
+[the round 5 report](validation/round5-2026-10-24.md). Summary: BSL gains at 1080p and mostly at 4K,
+forest 1440p Quality and Balanced still lose, shaderless 1080p platform loses in every mode, and the
+1440p terrain growth follows BSL's shadow cost rather than mip bias.
+
+## Production pass, 23 October 2026
+
+The current build was measured on the smoke platform with Iris/BSL 10.1.8. Full tables, the no-shader
+CPU-bound analysis and the frame generation counts are in
+[the production pass report](validation/production-pass-2026-10-23.md). Summary:
+
+| Scene | Native | DLSS Quality | DLSS Balanced | DLSS Performance | FSR Performance |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1080p BSL | 389 | 447 (+15%) | 462 (+19%) | 508 (+31%) | 496 (+27%) |
+| 4K BSL | 175 | 218 (+24%) | 240 (+37%) | 274 (+56%) | 253 (+44%) |
+| 1080p no shaders | 992 | 853 (-14%) | 871 (-12%) | 869 (-12%) | 848 (-15%) |
+
+The no-shader scene is CPU bound: a native 960x540 window still spends 634 us in the world timestamp
+against 798 us at 1080p, so removing pixels does not free enough GPU time to pay for reconstruction.
+The shader and 4K rows are GPU bound and show the intended gains. DLAA costs about 14% at 1080p BSL.
+
+Frame generation on DLSS Performance at 1080p BSL delivered exact generated counts: 2x produced one
+generated present per real frame, 3x two and 6x five, while all three paced to the 223 FPS display
+budget. The base rate fell from 483 FPS rendered-only to 111, 74 and 37 real FPS respectively.
+Generation stops while a GUI screen is open. These are submitted presents, not scanout.
+
+Retained changes from this pass: native frame generation keeps the main colour and depth targets and
+adds no full-resolution copies or render-size swap; empty deferred particle or weather states no
+longer force a display-depth resolve; the unused FSR reactive output image and five stale profiler
+spans were removed. The earlier cleanup removed the Auto native-versus-DLSS probe loop, the
+full-resolution DLSS sharpen pass and the FSR opaque copy plus reactive mask.
 
 ## Measurement
 

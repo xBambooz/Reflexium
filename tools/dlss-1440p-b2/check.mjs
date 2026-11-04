@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {root,metrics,capframexCsv,benchmarkState} from './lib.mjs';
+let stateCalls=0;
+assert.deepEqual(await benchmarkState({call:async(endpoint,params)=>{
+ assert.equal(endpoint,'bm');assert.deepEqual(params,{});
+ if(++stateCalls<3)throw Error('TimeoutException: null');
+ return {phase:'FINISHED'};
+}}),{phase:'FINISHED'});
+assert.equal(stateCalls,3);
+stateCalls=0;
+await assert.rejects(benchmarkState({call:async()=>{stateCalls++;throw Error('TimeoutException: null');}}));
+assert.equal(stateCalls,3);
+stateCalls=0;
+await assert.rejects(benchmarkState({call:async()=>{stateCalls++;throw Error('Wrong client');}}));
+assert.equal(stateCalls,1);
+assert.equal(root, (await import('node:url')).fileURLToPath(new URL('../../', import.meta.url)).replaceAll('\\','/').replace(/\/$/,''));
+assert.equal(metrics([10,10,10]).avg_fps,100);
+assert.equal(capframexCsv([{frames:{t:[0,0.01],ms:[10,10]}}]).trim().split('\n').length,3);
+console.log('B2 helper checks passed');
+const rows = JSON.parse((await import('node:fs')).readFileSync(new URL('../../docs/validation/dlss-1440p-perf-2026-10-30/b2/research/game-gains.json', import.meta.url),'utf8').replace(/^\uFEFF/,''));
+assert.equal(rows.length,18);
+for(const row of rows) assert(Math.abs(row.gain_pct-100*(row.fps/row.native_fps-1))<1e-9);
+console.log('All 18 chart gain calculations checked');

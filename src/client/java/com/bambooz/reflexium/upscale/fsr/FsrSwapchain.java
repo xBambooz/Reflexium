@@ -75,6 +75,7 @@ public final class FsrSwapchain {
 				for (int q = 0; q < firstPrivate; q++) priorities.put(q, entry.pQueuePriorities().get(q));
 				for (int q = firstPrivate; q < firstPrivate + 3; q++) priorities.put(q, 1);
 				entry.pQueuePriorities(priorities);
+				VkDeviceQueueCreateInfo.nqueueCount(entry.address(), firstPrivate + 3);
 				ReflexiumClient.LOGGER.info("Reserved FSR presentation queues {}..{} in Vulkan family {}", firstPrivate, firstPrivate + 2, family);
 			}
 		}

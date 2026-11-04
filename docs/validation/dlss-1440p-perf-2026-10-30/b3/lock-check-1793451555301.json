@@ -1,0 +1,11 @@
+{
+  "checked": "2026-10-31T12:59:15.301Z",
+  "owner": {
+    "pid": 173796,
+    "purpose": "mip and pack IQ validation",
+    "owner": "worker-C-overnight",
+    "started": "2026-10-31T08:58:30.2163179-04:00"
+  },
+  "alive": true,
+  "stale": false
+}

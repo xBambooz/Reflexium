@@ -2,6 +2,11 @@ package com.bambooz.reflexium.motion;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
+import net.fabricmc.loader.api.FabricLoader;
+import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.renderer.feature.FlameFeatureRenderer;
@@ -85,6 +90,7 @@ public final class ObjectMotion {
 	private final ArrayList<Track> contexts = new ArrayList<>();
 	private int lastDrawVertices;
 	private int capturedVertices;
+	private int capturedHandVertices;
 
 	// First-person hand and held item. Its vertices are recorded in model space and drawn with the hand's own
 	// view and projection, so the camera delta of world tracks never applies to them.
@@ -107,6 +113,7 @@ public final class ObjectMotion {
 
 	/** Before the level submits anything. {@code enabled} false drops all history and records nothing. */
 	public void beginFrame(boolean enabled, boolean drawStatic) {
+		capturedHandVertices = 0;
 		if (!enabled) {
 			capturedVertices = 0;
 			if (active || !entityTracks.isEmpty() || !blockTracks.isEmpty() || handTrack.hadPrevious) {
@@ -235,7 +242,8 @@ public final class ObjectMotion {
 		slot.signature = 1;
 		slot.overflow = false;
 		slot.feature = type;
-		slot.model = node instanceof ModelFeatureRenderer.Submit<?> model ? model.model() : null;
+		// submitModelPart creates a new Model.Simple every frame around the same persistent geometry.
+		slot.model = node instanceof ModelFeatureRenderer.Submit<?> model ? model.model().root() : null;
 		if (track == handTrack) {
 			if (slot.view == null) {
 				slot.view = new Matrix4f();
@@ -279,7 +287,9 @@ public final class ObjectMotion {
 			return capture;
 		}
 		slot.signature = 31 * slot.signature + System.identityHashCode(renderType);
-		capture = new Capture(consumer, slot, this, renderType.pipeline().isCull());
+		capture = FabricLoader.getInstance().isModLoaded("sodium")
+				? SodiumCapture.create(consumer, slot, this, renderType.pipeline().isCull())
+				: new Capture(consumer, slot, this, renderType.pipeline().isCull());
 		lastCapture = capture;
 		return capture;
 	}
@@ -332,10 +342,10 @@ public final class ObjectMotion {
 	}
 
 	/**
-	 * Hand and held item quads that are the visible hand surface and moved since last frame. Positions are
-	 * compared in eye space, so a camera turn that carries the hand along produces no vector.
+	 * Hand and held item quads with continuous history. Even a stationary hand must overwrite world
+	 * reprojection underneath it: its zero eye-space velocity is independent of the camera's motion.
 	 */
-	int prepareHandDraws(boolean reset, boolean projectionChanged) {
+	int prepareHandDraws(boolean reset) {
 		for (Slot slot : handTrack.slots) slot.draw = false;
 		int total = 0;
 		if (!reset && handSeen && handTrack.frame == frame && handTrack.hadPrevious) {
@@ -346,7 +356,7 @@ public final class ObjectMotion {
 						|| slot.signature != slot.previousSignature || total + slot.count > MAX_VERTICES) {
 					continue;
 				}
-				if (handMoving(slot, projectionChanged)) {
+				if (handContinuous(slot)) {
 					slot.draw = true;
 					total += slot.count;
 				}
@@ -356,8 +366,7 @@ public final class ObjectMotion {
 		return total;
 	}
 
-	private boolean handMoving(Slot slot, boolean projectionChanged) {
-		boolean moving = drawStatic || projectionChanged;
+	private boolean handContinuous(Slot slot) {
 		for (int v = 0, n = slot.count * 3; v < n; v += 3) {
 			slot.view.transformPosition(slot.positions[v], slot.positions[v + 1], slot.positions[v + 2], scratchNow);
 			slot.previousView.transformPosition(slot.previous[v], slot.previous[v + 1], slot.previous[v + 2], scratchBefore);
@@ -365,9 +374,8 @@ public final class ObjectMotion {
 			float dy = scratchNow.y - scratchBefore.y;
 			float dz = scratchNow.z - scratchBefore.z;
 			if (!Float.isFinite(dx + dy + dz) || dx * dx + dy * dy + dz * dz > TELEPORT_BLOCKS * TELEPORT_BLOCKS) return false;
-			moving |= Math.abs(dx) > STATIC_EPSILON || Math.abs(dy) > STATIC_EPSILON || Math.abs(dz) > STATIC_EPSILON;
 		}
-		return moving;
+		return true;
 	}
 
 	/** Eye-space position now and last frame per vertex, matching {@link #writeVertices}. */
@@ -388,6 +396,7 @@ public final class ObjectMotion {
 	}
 
 	public int handVertices() { return lastHandVertices; }
+	public int capturedHandVertices() { return capturedHandVertices; }
 	public int handSlots() { return handSeen ? handTrack.cursor : 0; }
 	/** Writes position (relative to this frame's camera) and previous position (relative to last frame's camera) per vertex. */
 	void writeVertices(FloatBuffer out) {
@@ -591,7 +600,7 @@ public final class ObjectMotion {
 	}
 
 	/** Forwards everything to the real buffer builder and copies each vertex position into a slot. */
-	static final class Capture implements VertexConsumer {
+	static class Capture implements VertexConsumer {
 		final VertexConsumer out;
 		final Slot slot;
 		final ObjectMotion owner;
@@ -611,10 +620,11 @@ public final class ObjectMotion {
 			return this;
 		}
 
-		private void remember(float x, float y, float z) {
+		final void remember(float x, float y, float z) {
 			if (owner.capturedVertices < MAX_VERTICES) {
 				slot.add(x, y, z, cull);
 				owner.capturedVertices++;
+				if (slot.view != null) owner.capturedHandVertices++;
 			} else slot.overflow = true;
 		}
 
@@ -646,7 +656,7 @@ public final class ObjectMotion {
 			return this;
 		}
 
-		private void rememberUv(float u, float v) {
+		final void rememberUv(float u, float v) {
 			slot.signature = 31 * (31 * slot.signature + Float.floatToIntBits(u)) + Float.floatToIntBits(v);
 		}
 
@@ -678,6 +688,36 @@ public final class ObjectMotion {
 		public VertexConsumer setLineWidth(float width) {
 			out.setLineWidth(width);
 			return this;
+		}
+	}
+
+	/** Loaded only with Sodium present. Inspect the packed stream before forwarding: a writer may mutate it. */
+	static final class SodiumCapture extends Capture implements VertexBufferWriter {
+		private final VertexBufferWriter writer;
+
+		// The base return type keeps Sodium out of the outer class's verifier dependencies.
+		static Capture create(VertexConsumer out, Slot slot, ObjectMotion owner, boolean cull) {
+			return new SodiumCapture(out, slot, owner, cull);
+		}
+
+		SodiumCapture(VertexConsumer out, Slot slot, ObjectMotion owner, boolean cull) {
+			super(out, slot, owner, cull);
+			writer = VertexBufferWriter.tryOf(out);
+		}
+
+		@Override public boolean canUseIntrinsics() { return writer != null; }
+
+		@Override public void push(MemoryStack stack, long pointer, int count, VertexFormat format) {
+			long start = pointer;
+			int stride = format.getVertexSize();
+			int position = format.getElement("Position").offset();
+			var uv = format.getElement("UV0");
+			for (int i = 0; i < count; i++, pointer += stride) {
+				remember(MemoryUtil.memGetFloat(pointer + position), MemoryUtil.memGetFloat(pointer + position + 4),
+						MemoryUtil.memGetFloat(pointer + position + 8));
+				if (uv != null) rememberUv(MemoryUtil.memGetFloat(pointer + uv.offset()), MemoryUtil.memGetFloat(pointer + uv.offset() + 4));
+			}
+			writer.push(stack, start, count, format);
 		}
 	}
 

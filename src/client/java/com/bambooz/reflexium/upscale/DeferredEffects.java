@@ -43,6 +43,9 @@ public final class DeferredEffects {
 	public static boolean available() { return UpscalingRenderer.get().isUpscalingThisFrame() && !ShaderPacks.isDrawingPack()
 			&& !Minecraft.getInstance().gameRenderer.useImprovedTransparency(); }
 	public static void deferWeather(WeatherEffectRenderer renderer, WeatherRenderState state) {
+		if (state.rainColumns.isEmpty() && state.snowColumns.isEmpty()) {
+			return;
+		}
 		weather = renderer;
 		weatherState = state;
 		camera = Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState;
@@ -50,7 +53,13 @@ public final class DeferredEffects {
 	public static void projection(Matrix4f matrix) { projection.set(matrix); }
 	public static void fog(GpuBufferSlice value) { fog = value; }
 	public static GpuBufferSlice worldFog() { return fog; }
-	public static void defer(ParticlesRenderState state, CameraRenderState view) { particles = state; camera = view; }
+	public static void defer(ParticlesRenderState state, CameraRenderState view) {
+		if (state.particles.isEmpty()) {
+			return;
+		}
+		particles = state;
+		camera = view;
+	}
 	public static boolean pending() { return particles != null || weather != null; }
 	public static void clear() { particles = null; weather = null; camera = null; fog = null; }
 	static void close() { clear(); if (projectionBuffer != null) projectionBuffer.close(); projectionBuffer = null; }

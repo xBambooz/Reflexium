@@ -1,9 +1,11 @@
 # Reflexium Implementation Reference
 
 This is a working integration reference for Reflexium. Vendor requirements, API-specific conventions,
-project choices and runtime evidence must be distinguished. Reflexium uses raw NGX and
-`VK_NV_low_latency2`, not Streamline; Streamline behavior must not be assumed to apply to these
-interfaces unchanged. Current acceptance and remaining limits are in [DLSS.md](DLSS.md) and
+project choices and runtime evidence must be distinguished. Since round 10, Reflexium uses NVIDIA
+Streamline 2.14.16 for DLSS SR, DLSS-G and Reflex/PCL; the raw NGX bridge and raw
+`VK_NV_low_latency2` integration are deleted. Rows below that name `reflexium_ngx.cpp` or raw
+`vkLatency*` calls describe the removed path and are historical. Current acceptance and remaining
+limits are in [DLSS.md](DLSS.md), [FRAME_GENERATION.md](FRAME_GENERATION.md) and
 [VITRAIL.md](VITRAIL.md). No vendor certification is claimed.
 
 Primary Sources Cited:
@@ -328,10 +330,10 @@ Status definitions:
 | Reflex Marker Sequence | OK (corrected) | `ReflexController.beginFrame`, `MinecraftMixin` | Sleep, SIMULATION_START and INPUT_SAMPLE before SDL polling. The previous after-poll marker omitted input collection from timing. |
 | Reflex Sleep Placement | OK | `ReflexController.java:122, 251` | `vkLatencySleepNV` and timeline semaphore wait execute before input gathering. |
 | Reflex Present ID Attribution | OK | `VulkanLifecycle.java:78, 101` | Present ID is chained via `VkLatencySubmissionPresentIdNV` on submit and `VkPresentIdKHR` on present. |
-| Reflex Boost Mode | OK | `ReflexController.java:231` | `lowLatencyBoost` correctly passed to `VkLatencySleepModeInfoNV`. |
-| Reflex Frame Limiter | OK | `ReflexController.java:171` | `minimumIntervalUs` calculated as `1000000 / fps` and applied via `vkSetLatencySleepModeNV`. |
+| Reflex Boost Mode | OK (Streamline) | `StreamlineSupport.setReflexMode` | `sl::ReflexOptions.mode` 1/2 for On/On + Boost. |
+| Reflex Frame Limiter | OK (Streamline) | `StreamlineSupport.setReflexMode` | `sl::ReflexOptions.frameLimitUs` calculated from the requested FPS cap. |
 | Reflex Frame Cap Policy | OK | `ReflexController.updateFrameLimit` | Uses only Minecraft's explicit Max Framerate. Automatic refresh-rate caps and adaptive pacing pauses were removed. |
-| Reflex PCL Markers when Off | OK (reviewed) | `ReflexController.marker` | marker() only requires a swapchain with low_latency2; it is not gated on the Reflex mode, so PC Latency stats keep working with Reflex Off. Earlier draft said WRONG by mistake. |
+| Reflex PCL Markers when Off | OK (Streamline) | `ReflexController.marker` | PCL markers use the current Streamline token and are not gated on the Reflex mode. |
 | Reflex UI Naming | OK | `ReflexiumConfig.java`, UI screens | Uses "NVIDIA Reflex" with "Off", "On", "On + Boost". |
 | DLSS Required Buffer Formats | OK | `UpscalingRenderer.java:441` | Passes RGBA8/D32_FLOAT/RG16F, valid under NGX Vulkan requirements. |
 | DLSS Jitter Sign Convention | SMOKE CHECKED | `UpscalingRenderer.JITTER_SIGN` | Uses +1 on both axes, based on captured stability tests. Do not copy a sign from another renderer's projection convention. |
@@ -339,11 +341,11 @@ Status definitions:
 | DLSS Motion Vector Convention | OK | `dlss_motion.fsh:32`, `UpscalingRenderer.java:50` | `previous - current` in render pixels with `MVLowRes` and `MVScale = {1, 1}`. |
 | DLSS Depth Inversion Flag | OK | `UpscalingRenderer.java:50` | `NVSDK_NGX_DLSS_Feature_Flags_DepthInverted` matches reverse-Z depth. |
 | DLSS History Reset Trigger | OK | `UpscalingRenderer.java:323` | Sets `InReset` on $>8$ block teleport, $>15$ deg turn, or $>250$ ms frametime jump. |
-| DLSS Exposure & Pre-Exposure | OK | `reflexium_ngx.cpp:218` | `InPreExposure = 1.0f`, auto-exposure disabled for pre-tonemapped LDR color. |
+| DLSS Exposure & Pre-Exposure | Superseded | Streamline `DLSSOptions.colorBuffersHDR` | The raw NGX pre-exposure row described the removed bridge; Streamline receives the SDR/HDR flag instead. |
 | DLSS Texture Mip LOD Bias | IMPLEMENTED | `MipBiasSamplers`, `MaterialSamplerMixin` | Material-only `log2(render/display) - 1.0`, zero in Native AA; replacements close when resolution changes. |
 | DLSS Pipeline Order & UI | OK | `UpscalingRenderer.java:264, 335` | Swaps world pass; DLSS evaluates before GUI rendering. |
 | DLSS DLAA Mode Support | OK | `UpscaleQuality.java:10` | DLAA runs at $1.0\times$ render scale through DLSS neural network. |
-| DLSS Render Presets Assignment | OK | `reflexium_ngx.cpp:181` | Sets NGX preset hints; applies single preset globally across modes. |
+| DLSS Render Presets Assignment | OK (Streamline) | `DlssModel`, `StreamlineSupport.setDlssOptions` | K for DLAA/Quality/Balanced, M for Performance, L for Ultra Performance; AUTO requests the runtime default. |
 | DLSS Quality Mode Ratios | OK | `UpscaleQuality.java` | DLAA (1.0x), Quality (1.5x), Balanced (1.7x), Performance (2.0x), Ultra Perf (3.0x). |
 | DLSS DLL Redistribution | OK | `DlssRuntimeInstaller.java:36` | Downloads licensed `nvngx_dlss.dll` from official NVIDIA release repository. |
 | FSR 3.1 Jitter Offset Sign | OK | `UpscalingRenderer.java:521` | Subpixel pixel offset passed directly to `ffxDispatchDescUpscale`. |

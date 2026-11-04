@@ -1,0 +1,58 @@
+[
+    {
+        "arm":  0,
+        "value":  {
+                      "mae":  4.734,
+                      "mse":  42.114,
+                      "psnr":  31.89,
+                      "detail_correlation":  0.7206,
+                      "laplacian_reference":  20.384,
+                      "laplacian_test":  11.220
+                  },
+        "kind":  "native_detail"
+    },
+    {
+        "arm":  0,
+        "value":  {
+                      "frames":  10,
+                      "registered_mean_luma_change":  0.990252
+                  },
+        "kind":  "static"
+    },
+    {
+        "arm":  0,
+        "value":  {
+                      "frames":  10,
+                      "registered_mean_luma_change":  1.978592
+                  },
+        "kind":  "pan"
+    },
+    {
+        "arm":  1,
+        "value":  {
+                      "mae":  4.999,
+                      "mse":  43.398,
+                      "psnr":  31.76,
+                      "detail_correlation":  0.7539,
+                      "laplacian_reference":  20.384,
+                      "laplacian_test":  9.177
+                  },
+        "kind":  "native_detail"
+    },
+    {
+        "arm":  1,
+        "value":  {
+                      "frames":  10,
+                      "registered_mean_luma_change":  0.721544
+                  },
+        "kind":  "static"
+    },
+    {
+        "arm":  1,
+        "value":  {
+                      "frames":  10,
+                      "registered_mean_luma_change":  1.873038
+                  },
+        "kind":  "pan"
+    }
+]

@@ -1,0 +1,28 @@
+{
+  "valid": false,
+  "reason": "Runner API timeout after capture; final mode/process/DH proof bundle not retained",
+  "presentation": {
+    "overlay": true,
+    "path": "composed",
+    "source": "owner instruction"
+  },
+  "flags": {
+    "focusLost": false,
+    "debugOrChatOpen": false,
+    "invalid": false,
+    "loadTimeout": false,
+    "firstCapture": true,
+    "gpuClockDrift": false,
+    "renderDistanceMismatch": true,
+    "gpuUsageAvailable": false,
+    "chunkStatsAvailable": false,
+    "legacy": false
+  },
+  "pooled": {
+    "frames": 12849,
+    "seconds": 90.08677399999942,
+    "avg_fps": 142.62914997933083,
+    "low1_fps": 92.07050010825479,
+    "low01_fps": 67.83764885145644
+  }
+}

@@ -1,0 +1,4 @@
+row,window,upscaler,world_cpu_us,world_gpu_us,shadow_cpu_us,shadow_gpu_us,terrain_cpu_us,terrain_gpu_us,composite_cpu_us,composite_gpu_us,evaluate_cpu_us,evaluate_gpu_us
+native1440,2560x1440,off,1542,3419,767,1016,246,834,70,708,0,0
+native1707,1707x960,off,1509,3346,748,982,242,1409,81,440,0,0
+dlssq1440,2560x1440->1707x960,dlss,1690,3979,783,884,218,1582,79,375,74,428

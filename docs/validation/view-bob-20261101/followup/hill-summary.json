@@ -1,0 +1,58 @@
+[
+    {
+        "label":  "before",
+        "motion":  "still",
+        "roi":  [
+                    1030,
+                    760,
+                    70,
+                    120
+                ],
+        "frames":  6,
+        "samples":  40861,
+        "registered_luma_mae":  0.726159,
+        "laplacian_l1":  11.117669
+    },
+    {
+        "label":  "before",
+        "motion":  "walk",
+        "roi":  [
+                    1030,
+                    760,
+                    70,
+                    120
+                ],
+        "frames":  5,
+        "samples":  32390,
+        "registered_luma_mae":  5.603760,
+        "laplacian_l1":  9.925555
+    },
+    {
+        "label":  "after",
+        "motion":  "still",
+        "roi":  [
+                    1030,
+                    760,
+                    70,
+                    120
+                ],
+        "frames":  6,
+        "samples":  40673,
+        "registered_luma_mae":  0.580528,
+        "laplacian_l1":  11.158863
+    },
+    {
+        "label":  "after",
+        "motion":  "walk",
+        "roi":  [
+                    1030,
+                    760,
+                    70,
+                    120
+                ],
+        "frames":  5,
+        "samples":  32145,
+        "registered_luma_mae":  3.346063,
+        "laplacian_l1":  9.809759
+    }
+]

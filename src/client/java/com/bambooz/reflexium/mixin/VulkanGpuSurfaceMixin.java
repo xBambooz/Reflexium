@@ -4,6 +4,7 @@ import com.bambooz.reflexium.ReflexiumClient;
 import com.bambooz.reflexium.debug.FrameProfiler;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.framegen.GenerationLedger;
 import com.bambooz.reflexium.reflex.ReflexController;
 import com.bambooz.reflexium.vulkan.FrameTrace;
@@ -19,16 +20,22 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.backend.api.CommandEncoderBackend;
 import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 import com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface;
+import org.lwjgl.sdl.SDLProperties;
+import org.lwjgl.sdl.SDLVideo;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.vulkan.KHRSurface;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VK12;
 import org.lwjgl.vulkan.VkAllocationCallbacks;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkImageBlit;
+import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
+import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,14 +46,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 
 /**
- * VK_NV_low_latency2 needs the swapchain created with VkSwapchainLatencyCreateInfoNV and each present
- * tagged with the frame's id; without both, the driver cannot pair markers with presented frames.
+ * Streamline owns the Vulkan swapchain and present path when it is loaded. Each real present is
+ * tagged with VkPresentIdKHR so Reflex can pair its markers with presented frames.
  */
 @Mixin(VulkanGpuSurface.class)
 public abstract class VulkanGpuSurfaceMixin {
@@ -74,11 +82,45 @@ public abstract class VulkanGpuSurfaceMixin {
 	@Unique private GpuFence[] reflexium$acquireCompletion;
 	@Unique private GpuTextureView reflexium$realView;
 	@Unique private boolean reflexium$presenting;
+	@Unique private boolean reflexium$streamlineSwapchain;
+
+	/**
+	 * Streamline's manual Vulkan path requires the window surface to be created through its proxy so
+	 * the present hook can map the surface to the HWND and evaluate focus. SDL creates the surface via
+	 * the loader, so substitute the interposer call while leaving everything else to SDL.
+	 */
+	@WrapOperation(method = "<init>", at = @At(value = "INVOKE",
+			target = "Lorg/lwjgl/sdl/SDLVulkan;SDL_Vulkan_CreateSurface(JLorg/lwjgl/vulkan/VkInstance;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)Z"))
+	private boolean reflexium$createStreamlineSurface(long window, VkInstance instance, VkAllocationCallbacks allocator,
+			LongBuffer surface, Operation<Boolean> original) {
+		if (StreamlineSupport.initialized()) {
+			int properties = SDLVideo.SDL_GetWindowProperties(window);
+			long hwnd = properties == 0 ? 0
+					: SDLProperties.SDL_GetPointerProperty(properties, "SDL.window.win32.hwnd", 0L);
+			if (hwnd != 0) {
+				int result = StreamlineSupport.createWin32Surface(instance.address(), hwnd, MemoryUtil.memAddress(surface));
+				if (result == VK10.VK_SUCCESS) return true;
+				ReflexiumClient.LOGGER.warn("Streamline surface creation failed ({}); using the SDL surface", result);
+			}
+		}
+		return original.call(window, instance, allocator, surface);
+	}
+
+	@WrapOperation(method = "close", at = @At(value = "INVOKE",
+			target = "Lorg/lwjgl/vulkan/KHRSurface;vkDestroySurfaceKHR(Lorg/lwjgl/vulkan/VkInstance;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
+	private void reflexium$destroyStreamlineSurface(VkInstance instance, long surface, VkAllocationCallbacks allocator,
+			Operation<Void> original) {
+		if (StreamlineSupport.ownsSurface(surface)) {
+			StreamlineSupport.destroySurface(instance.address(), surface, allocator == null ? 0 : allocator.address());
+			return;
+		}
+		original.call(instance, surface, allocator);
+	}
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void reflexium$trackAcquireCompletion(VulkanDevice device, long windowHandle, CallbackInfo ci) {
 		var session = VulkanSession.current();
-		if (session != null && session.presentMetering()) {
+		if (session != null && session.isNvidia()) {
 			// Two real frames in flight, each with at most eight physical presents. Completion tracking below,
 			// rather than ring size, proves binary semaphore reuse safe. Avoid waiting mid-batch on the world's submit.
 			long[] expanded = Arrays.copyOf(acquireSemaphores, 16);
@@ -162,8 +204,46 @@ public abstract class VulkanGpuSurfaceMixin {
 
 	@ModifyArg(method = "configure", index = 1, at = @At(value = "INVOKE",
 			target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkCreateSwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;Lorg/lwjgl/vulkan/VkSwapchainCreateInfoKHR;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)I"))
-	private VkSwapchainCreateInfoKHR reflexium$latencySwapchain(VkSwapchainCreateInfoKHR info) {
-		return VulkanLifecycle.chainSwapchainLatency(info);
+	private VkSwapchainCreateInfoKHR reflexium$prepareSwapchain(VkSwapchainCreateInfoKHR info) {
+		return VulkanLifecycle.prepareSwapchain(info);
+	}
+
+	@Unique private static boolean reflexium$loggedSurfaceFormats;
+	/**
+	 * SDR surfaces usually expose only 8-bit UNORM formats. When a 10-bit format is offered, select it so
+	 * the pack's dither survives presentation instead of being quantized to 8 bits after frame generation.
+	 * Opt in with -Dreflexium.tenBit=true while this path is being measured.
+	 */
+	@Inject(method = "pickSwapchainSurfaceFormat", at = @At("RETURN"), cancellable = true)
+	private void reflexium$preferTenBit(VkSurfaceFormatKHR.Buffer formats, CallbackInfoReturnable<VkSurfaceFormatKHR> cir) {
+		if (formats == null) return;
+		if (!reflexium$loggedSurfaceFormats) {
+			reflexium$loggedSurfaceFormats = true;
+			StringBuilder available = new StringBuilder();
+			for (VkSurfaceFormatKHR format : formats) {
+				if (available.length() > 0) available.append(", ");
+				available.append(format.format()).append('/').append(format.colorSpace());
+			}
+			ReflexiumClient.LOGGER.info("Vulkan surface formats: {}", available);
+		}
+		boolean tenBit = Boolean.getBoolean("reflexium.tenBit")
+				|| com.bambooz.reflexium.upscale.dlss.StreamlineSupport.initialized()
+				&& com.bambooz.reflexium.config.ReflexiumConfig.get().frameGeneration().nvidia();
+		if (!tenBit) return;
+		for (VkSurfaceFormatKHR format : formats) {
+			if (format.colorSpace() == 0 && format.format() == VK10.VK_FORMAT_A2B10G10R10_UNORM_PACK32) {
+				cir.setReturnValue(format);
+				return;
+			}
+		}
+		ReflexiumClient.LOGGER.info("Vulkan surface has no A2B10G10R10 UNORM format; frame generation output stays 8-bit");
+	}
+
+	/** Guide 17.0: disable frame generation and drop latency markers before any surface change. */
+	@Inject(method = "configure", at = @At("HEAD"))
+	private void reflexium$prepareSurfaceChange(GpuSurface.Configuration configuration, CallbackInfo ci) {
+		FrameGenerationRenderer.get().beforeSurfaceChange();
+		ReflexController.get().beforeSurfaceChange();
 	}
 
 	@Inject(method = "configure", at = @At("TAIL"))
@@ -177,6 +257,20 @@ public abstract class VulkanGpuSurfaceMixin {
 		VulkanLifecycle.onSwapchainDestroyed();
 	}
 
+	/**
+	 * The flag must stay set while the wrapped vkDestroySwapchainKHR runs, otherwise the proxy
+	 * swapchain is passed to the raw driver entry point and DLSS-G keeps its internal swapchain.
+	 * The next creation is then rejected as a second swapchain, presentCommon() stops running and
+	 * Reflex sleeps on a presented state that never arrives.
+	 */
+	@Inject(method = "destroySwapchain", at = @At("TAIL"))
+	private void reflexium$swapchainDestroyedTail(CallbackInfo ci) {
+		reflexium$streamlineSwapchain = false;
+		// Only now has the old proxy been destroyed and its handle cleared. Unloading at HEAD
+		// removes its hooks while the engine still owns the proxy swapchain.
+		StreamlineSupport.onSwapchainDestroyed();
+	}
+
 	@WrapOperation(method = "present", at = @At(value = "INVOKE",
 			target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkQueuePresentKHR(Lorg/lwjgl/vulkan/VkQueue;Lorg/lwjgl/vulkan/VkPresentInfoKHR;)I"))
 	private int reflexium$tagPresent(VkQueue queue, VkPresentInfoKHR info, Operation<Integer> original) {
@@ -186,13 +280,15 @@ public abstract class VulkanGpuSurfaceMixin {
 			return result;
 		}
 		FrameGenerationRenderer fg = FrameGenerationRenderer.get();
-		info = fg.chainMetering(info);
 		if (!fg.isGeneratedPresent()) info = VulkanLifecycle.chainPresentId(info);
+		// slDLSSGGetState is read after this present, once its markers have been processed.
 		ReflexController reflex = ReflexController.get();
 		if (fg.inPresentBatch()) reflex.beforeBatchPresent();
 		int result;
 		long timing = FrameProfiler.start(FrameProfiler.PRESENT, null);
-		try { result = original.call(queue, info); }
+		try { result = reflexium$streamlineSwapchain
+				? StreamlineSupport.present(queue.address(), info.address())
+				: original.call(queue, info); }
 		finally {
 			FrameProfiler.end(FrameProfiler.PRESENT, timing, null);
 			if (fg.inPresentBatch()) reflex.afterBatchPresent();
@@ -200,13 +296,22 @@ public abstract class VulkanGpuSurfaceMixin {
 		fg.onPresentResult(info, result);
 		long id = reflex.currentFrameId();
 		if (FrameTrace.enabled(id)) FrameTrace.event(id,
-				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result + " feedback=" + fg.meteringFeedbackRaw());
+				"present role=" + (fg.isGeneratedPresent() ? "generated" : "real") + " result=" + result);
 		return result;
 	}
 
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkCreateSwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;Lorg/lwjgl/vulkan/VkSwapchainCreateInfoKHR;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Ljava/nio/LongBuffer;)I"))
 	private int reflexium$fsrCreate(VkDevice device, VkSwapchainCreateInfoKHR info, VkAllocationCallbacks allocator,
 			LongBuffer out, Operation<Integer> original) {
+		if (StreamlineSupport.swapchainReady()) {
+			int result = StreamlineSupport.createSwapchain(device.address(), info.address(),
+					allocator == null ? 0 : allocator.address(), MemoryUtil.memAddress(out));
+			if (result == VK10.VK_SUCCESS) { reflexium$streamlineSwapchain = true; return result; }
+			reflexium$streamlineSwapchain = false;
+			ReflexiumClient.LOGGER.warn("Streamline swapchain creation failed ({}); using the native swapchain", result);
+			return original.call(device, info, allocator, out);
+		}
+		reflexium$streamlineSwapchain = false;
 		if (FsrSwapchain.canCreate(info)) {
 			int result = FsrSwapchain.create(info, allocator, out);
 			if (result == VK10.VK_SUCCESS) return result;
@@ -218,16 +323,25 @@ public abstract class VulkanGpuSurfaceMixin {
 	@WrapOperation(method = "acquireNextTexture", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkAcquireNextImageKHR(Lorg/lwjgl/vulkan/VkDevice;JJJJLjava/nio/IntBuffer;)I"))
 	private int reflexium$fsrAcquire(VkDevice device, long swapchain, long timeout, long semaphore, long fence,
 			IntBuffer index, Operation<Integer> original) {
+		if (reflexium$streamlineSwapchain) {
+			return StreamlineSupport.acquireNextImage(device.address(), swapchain, timeout, semaphore, fence, MemoryUtil.memAddress(index));
+		}
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.acquire(timeout, semaphore, fence, index) : original.call(device, swapchain, timeout, semaphore, fence, index);
 	}
 	@WrapOperation(method = "destroySwapchain", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkDestroySwapchainKHR(Lorg/lwjgl/vulkan/VkDevice;JLorg/lwjgl/vulkan/VkAllocationCallbacks;)V"))
 	private void reflexium$fsrDestroy(VkDevice device, long swapchain, VkAllocationCallbacks allocator, Operation<Void> original) {
-		if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
+		if (reflexium$streamlineSwapchain) {
+			StreamlineSupport.destroySwapchain(device.address(), swapchain, allocator == null ? 0 : allocator.address());
+		} else if (FsrSwapchain.owns(swapchain)) FsrSwapchain.destroy(allocator);
 		else original.call(device, swapchain, allocator);
 	}
 	@WrapOperation(method = "configure", at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/KHRSwapchain;vkGetSwapchainImagesKHR(Lorg/lwjgl/vulkan/VkDevice;JLjava/nio/IntBuffer;Ljava/nio/LongBuffer;)I"))
 	private int reflexium$fsrImages(VkDevice device, long swapchain, IntBuffer count,
 			LongBuffer images, Operation<Integer> original) {
+		if (reflexium$streamlineSwapchain) {
+			return StreamlineSupport.getSwapchainImages(device.address(), swapchain, MemoryUtil.memAddress(count),
+					images == null ? 0 : MemoryUtil.memAddress(images));
+		}
 		return FsrSwapchain.owns(swapchain) ? FsrSwapchain.images(count, images) : original.call(device, swapchain, count, images);
 	}
 }

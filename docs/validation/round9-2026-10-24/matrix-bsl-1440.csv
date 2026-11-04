@@ -1,0 +1,6 @@
+"pack","window","mode","fps","eval_fps","line","render","display","mip","reflex","fg_status","world","screen","camera","error"
+"bsl","2560x1440","native","258.4","0","Upscaling: off","2560x1440","2560x1440","-2.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"bsl","2560x1440","native_aa","216.7","216.7","DLSS: DLAA 2560x1440 -> 2560x1440","2560x1440","2560x1440","0.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"bsl","2560x1440","quality","268.8","268.8","DLSS: Quality 1707x960 -> 2560x1440","1707x960","2560x1440","-1.585","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"bsl","2560x1440","balanced","259.1","259.1","DLSS: Balanced 1485x835 -> 2560x1440","1485x835","2560x1440","-1.786","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""
+"bsl","2560x1440","performance","276.3","276.3","DLSS: Performance 1280x720 -> 2560x1440","1280x720","2560x1440","-2.0","Reflex: On (requested On) (Streamline), latency report ready","2","True","none","200.5,151.0,0.5 yaw 0.0 pitch 3.0",""

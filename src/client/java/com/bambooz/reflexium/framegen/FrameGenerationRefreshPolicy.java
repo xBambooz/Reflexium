@@ -2,6 +2,13 @@ package com.bambooz.reflexium.framegen;
 
 /** Selects an output budget from measured uncapped gameplay presents. Render thread only. */
 public final class FrameGenerationRefreshPolicy {
+	/**
+	 * Auto (configured multiplier 0) is the only mode that targets the display refresh rate. A fixed
+	 * multiplier is an explicit "real x N" request and must not throttle real rendering to refresh / N.
+	 */
+	public static boolean targetsRefresh(int configuredMultiplier) {
+		return configuredMultiplier == 0;
+	}
 	private int cap = Integer.MAX_VALUE, requested, maximum = 2, selected = 1;
 	private long nextSelection, bypassSince, nextProbe;
 	private double realFps;

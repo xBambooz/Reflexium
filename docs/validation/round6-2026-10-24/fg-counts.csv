@@ -1,0 +1,6 @@
+"multiplier","seconds","fps","real_frames","real_presents","generated_presents","presented_fps","ratio","active","status","effective","fg_status","latency"
+"2","6.01","301.6","1809","1814","0","301.9","0","False","0","2","Frame generation: DLSS FG 2x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)","Reflex latency: waiting for Streamline data"
+"3","6.01","301.6","1809","1812","0","301.6","0","False","0","3","Frame generation: DLSS MFG 3x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)","Reflex latency: waiting for Streamline data"
+"4","6.01","301.7","1810","1812","0","301.7","0","False","0","4","Frame generation: DLSS MFG 4x (Streamline) (window unfocused: DLSS-G paused by NVIDIA)","Reflex latency: waiting for Streamline data"
+"auto","6.01","306.2","1837","1840","0","306.3","0","False","0","1","Frame generation: rendered only (frame target 223 FPS, Auto output budget)","Reflex latency: waiting for Streamline data"
+"auto-4k","6","201.7","1209","1211","0","201.7","0","False","0","1","Frame generation: rendered only (frame target 223 FPS, Auto output budget)","Reflex latency: waiting for Streamline data"

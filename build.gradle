@@ -21,6 +21,13 @@ loom {
 
 	runs {
 		client {
+			def iqUser = providers.gradleProperty("rxIqUser").orNull
+			if (iqUser != null) {
+				programArg "--username"
+				programArg iqUser
+				programArg "--uuid"
+				programArg UUID.nameUUIDFromBytes(("OfflinePlayer:" + iqUser).getBytes("UTF-8")).toString().replace("-", "")
+			}
 			providers.gradlePropertiesPrefixedBy("reflexium.disableDh").get().each { key, value -> vmArg "-D${key}=${value}" }
 			if ("true".equalsIgnoreCase(providers.gradleProperty("rxPackHdr").orNull)) vmArg "-Dreflexium.pack.hdr=true"
 			vmArg "-Dreflexium.logLatency=true"
@@ -58,8 +65,16 @@ dependencies {
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	clientCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	clientCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+	testRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
 	clientCompileOnly "maven.modrinth:betterf3:${project.betterf3_version}"
 	if (rxBenchJar != null) clientRuntimeOnly files(rxBenchJar)
+}
+
+
+// Signed NVIDIA Streamline runtime (SDK 2.14.16), extracted to <game>/reflexium/streamline.
+processClientResources {
+	from("native/streamline/bin/x64") { into "streamline" }
+	from("native/streamline/licenses") { into "streamline/licenses" }
 }
 
 processResources {
@@ -94,11 +109,17 @@ sourceSets.test.runtimeClasspath += sourceSets.client.output + sourceSets.client
 // Every one runs as part of check, which build and installReflexium depend on. No JUnit dependency is needed.
 tasks.named("test") { failOnNoDiscoveredTests = false }
 def assertionChecks = [
+	mesheliumCompatCheck        : "com.bambooz.reflexium.compat.MesheliumCompatCheck",
+	fpsTextCheck                 : "com.bambooz.reflexium.debug.FpsTextCheck",
 	dlssMathCheck                : "com.bambooz.reflexium.upscale.DlssMathCheck",
+	deferredWorldTextCheck       : "com.bambooz.reflexium.upscale.DeferredWorldTextCheck",
 	upscalingContractCheck       : "com.bambooz.reflexium.upscale.UpscalingContractCheck",
 	nativeBridgeCheck            : "com.bambooz.reflexium.upscale.NativeBridgeCheck",
+	streamlineBridgeCheck        : "com.bambooz.reflexium.upscale.dlss.StreamlineBridgeCheck",
+	dlssFeatureGateCheck         : "com.bambooz.reflexium.upscale.dlss.DlssFeatureGateCheck",
 	dlssRuntimeInstallerCheck    : "com.bambooz.reflexium.upscale.dlss.DlssRuntimeInstallerCheck",
 	objectMotionCheck            : "com.bambooz.reflexium.motion.ObjectMotionCheck",
+	objectMotionWithoutSodiumCheck: "com.bambooz.reflexium.motion.ObjectMotionCheck",
 	frameDeliveryCheck           : "com.bambooz.reflexium.framegen.FrameDeliveryCheck",
 	frameGenerationConstantsCheck: "com.bambooz.reflexium.framegen.FrameGenerationConstantsCheck",
 	frameProfilerCheck           : "com.bambooz.reflexium.debug.FrameProfilerCheck",
@@ -111,9 +132,13 @@ assertionChecks.each { name, main ->
 		group = "verification"
 		dependsOn tasks.named("testClasses"), tasks.named("clientClasses")
 		classpath = sourceSets.test.runtimeClasspath
+		if (name == "objectMotionWithoutSodiumCheck") {
+			classpath = classpath.filter { !it.name.startsWith("sodium-") }
+			args "--without-sodium"
+		}
 		mainClass = main
 		workingDir = projectDir
-		for (property in ["reflexium.irisJar", "reflexium.dhJar"]) {
+		for (property in ["reflexium.irisJar", "reflexium.dhJar", "reflexium.mesheliumJar", "reflexium.euphoriaFixture"]) {
 			if (providers.gradleProperty(property).isPresent()) systemProperty property, providers.gradleProperty(property).get()
 		}
 	}

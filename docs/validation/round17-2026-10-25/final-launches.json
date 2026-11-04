@@ -1,0 +1,82 @@
+[
+  {
+    "label": "final-launch-1",
+    "pid": 22780,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 1920,
+      "h": 1080
+    },
+    "evaluated_delta": 537,
+    "world_loaded": true,
+    "screen": "none",
+    "foreground_unchanged": true
+  },
+  {
+    "label": "final-launch-2",
+    "pid": 19356,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 1920,
+      "h": 1080
+    },
+    "evaluated_delta": 497,
+    "world_loaded": true,
+    "screen": "none",
+    "foreground_unchanged": true
+  },
+  {
+    "label": "final-launch-3",
+    "pid": 15580,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 1920,
+      "h": 1080
+    },
+    "evaluated_delta": 543,
+    "world_loaded": true,
+    "screen": "none",
+    "foreground_unchanged": true
+  },
+  {
+    "label": "final-launch-4",
+    "pid": 38996,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 1920,
+      "h": 1080
+    },
+    "evaluated_delta": 538,
+    "world_loaded": true,
+    "screen": "none",
+    "foreground_unchanged": true
+  },
+  {
+    "label": "final-launch-5",
+    "pid": 28016,
+    "render": {
+      "w": 1280,
+      "h": 720
+    },
+    "display": {
+      "w": 1920,
+      "h": 1080
+    },
+    "evaluated_delta": 477,
+    "world_loaded": true,
+    "screen": "none",
+    "foreground_unchanged": true
+  }
+]

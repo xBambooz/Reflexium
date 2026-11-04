@@ -1,0 +1,81 @@
+Iris ShaderPack constructor excerpt:
+       362: invokestatic  #81                 // Method net/irisshaders/iris/shaderpack/include/ShaderPackSourceNames.findPresentSources:(Lcom/google/common/collect/ImmutableList$Builder;Ljava/nio/file/Path;Lnet/irisshaders/iris/shaderpack/include/AbsolutePackPath;Lcom/google/common/collect/ImmutableList;)Z
+       365: ifeq          380
+       368: aload_0
+       369: getfield      #86                 // Field dimensionIds:Ljava/util/List;
+       372: aload         11
+       374: invokeinterface #141,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       379: pop
+       380: goto          325
+       383: new           #194                // class net/irisshaders/iris/shaderpack/include/IncludeGraph
+       386: dup
+       387: aload_1
+       388: aload         6
+       390: invokevirtual #196                // Method com/google/common/collect/ImmutableList$Builder.build:()Lcom/google/common/collect/ImmutableList;
+       393: iload         4
+       395: invokespecial #201                // Method net/irisshaders/iris/shaderpack/include/IncludeGraph."<init>":(Ljava/nio/file/Path;Lcom/google/common/collect/ImmutableList;Z)V
+       398: astore        10
+       400: aload         10
+       402: invokevirtual #204                // Method net/irisshaders/iris/shaderpack/include/IncludeGraph.getFailures:()Lcom/google/common/collect/ImmutableMap;
+       405: invokevirtual #208                // Method com/google/common/collect/ImmutableMap.isEmpty:()Z
+       408: ifne          458
+       411: new           #213                // class java/io/IOException
+       414: dup
+       415: ldc           #215                // String \n
+       417: aload         10
+       419: invokevirtual #204                // Method net/irisshaders/iris/shaderpack/include/IncludeGraph.getFailures:()Lcom/google/common/collect/ImmutableMap;
+       422: invokevirtual #217                // Method com/google/common/collect/ImmutableMap.values:()Lcom/google/common/collect/ImmutableCollection;
+       425: invokevirtual #221                // Method com/google/common/collect/ImmutableCollection.stream:()Ljava/util/stream/Stream;
+       428: invokedynamic #227,  0            // InvokeDynamic #2:apply:()Ljava/util/function/Function;
+       433: invokeinterface #230,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+       438: invokedynamic #235,  0            // InvokeDynamic #3:apply:()Ljava/util/function/IntFunction;
+       443: invokeinterface #238,  2          // InterfaceMethod java/util/stream/Stream.toArray:(Ljava/util/function/IntFunction;)[Ljava/lang/Object;
+       448: checkcast     #242                // class "[Ljava/lang/CharSequence;"
+       451: invokestatic  #244                // Method java/lang/String.join:(Ljava/lang/CharSequence;[Ljava/lang/CharSequence;)Ljava/lang/String;
+       454: invokespecial #248                // Method java/io/IOException."<init>":(Ljava/lang/String;)V
+       457: athrow
+       458: aload_0
+       459: new           #251                // class net/irisshaders/iris/shaderpack/LanguageMap
+       462: dup
+       463: aload_1
+       464: ldc           #253                // String lang
+       466: invokeinterface #127,  2          // InterfaceMethod java/nio/file/Path.resolve:(Ljava/lang/String;)Ljava/nio/file/Path;
+       471: invokespecial #255                // Method net/irisshaders/iris/shaderpack/LanguageMap."<init>":(Ljava/nio/file/Path;)V
+       474: putfield      #258                // Field languageMap:Lnet/irisshaders/iris/shaderpack/LanguageMap;
+       477: aload_0
+       478: new           #262                // class net/irisshaders/iris/shaderpack/option/ShaderPackOptions
+       481: dup
+       482: aload         10
+       484: aload_2
+       485: invokespecial #264                // Method net/irisshaders/iris/shaderpack/option/ShaderPackOptions."<init>":(Lnet/irisshaders/iris/shaderpack/include/IncludeGraph;Ljava/util/Map;)V
+       488: putfield      #267                // Field shaderPackOptions:Lnet/irisshaders/iris/shaderpack/option/ShaderPackOptions;
+       491: aload_0
+       492: getfield      #267                // Field shaderPackOptions:Lnet/irisshaders/iris/shaderpack/option/ShaderPackOptions;
+       495: invokevirtual #271                // Method net/irisshaders/iris/shaderpack/option/ShaderPackOptions.getIncludes:()Lnet/irisshaders/iris/shaderpack/include/IncludeGraph;
+
+IncludeGraph constructor excerpt:
+       158: astore        14
+       160: aload         14
+       162: aload         14
+       164: ldc           #74                 // String shaders/
+       166: invokevirtual #76                 // Method java/lang/String.lastIndexOf:(Ljava/lang/String;)I
+       169: bipush        8
+       171: iadd
+       172: invokevirtual #80                 // Method java/lang/String.substring:(I)Ljava/lang/String;
+       175: astore        14
+       177: aload         13
+       179: aload         14
+       181: invokevirtual #93                 // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+       184: ifne          207
+       187: new           #97                 // class net/irisshaders/iris/shaderpack/include/FileIncludeException
+       190: dup
+       191: aload         10
+       193: invokevirtual #99                 // Method net/irisshaders/iris/shaderpack/include/AbsolutePackPath.getPathString:()Ljava/lang/String;
+       196: aload         14
+       198: invokedynamic #102,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+       203: invokespecial #106                // Method net/irisshaders/iris/shaderpack/include/FileIncludeException."<init>":(Ljava/lang/String;)V
+       206: athrow
+       207: aload         12
+       209: invokestatic  #109                // Method readFile:(Ljava/nio/file/Path;)Ljava/lang/String;
+       212: astore        11
+       214: goto          415

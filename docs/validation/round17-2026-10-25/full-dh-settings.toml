@@ -1,0 +1,197 @@
+# Copied-profile configuration values; generated comments and blank lines omitted.
+_version = 5
+[server]
+	realTimeUpdateDistanceRadiusInChunks = 256
+	levelKeyPrefix = ""
+	maxSyncOnLoadRequestDistance = 4096
+	synchronizeOnLoad = true
+	serverKey = ""
+	maxGenerationRequestDistance = 4096
+	sendLevelKeys = true
+	serverId = -827658760
+	generationRequestRateLimit = 20
+	syncOnLoadRateLimit = 50
+	enableRealTimeUpdates = true
+	globalBandwidthLimit = 0
+	playerBandwidthLimit = 500
+	enableAdaptiveTransferSpeed = false
+	[common.lodBuilding]
+		worldCompression = "VISUALLY_EQUAL"
+		databaseSyncMode = "NORMAL"
+		dataCompression = "Z_STD_BLOCK"
+		disableUnchangedChunkCheck = false
+	[common.multiThreading]
+		numberOfThreads = 16
+		threadRunTimeRatio = "0.5"
+		threadPriority = 5
+	[common.logging]
+		logRendererEventToFile = "INFO"
+		logWorldGenEventToFile = "INFO"
+		logRendererGLEventToChat = "ERROR"
+		globalChatMaxLevel = "ERROR"
+		logWorldGenChunkLoadEventToFile = "INFO"
+		logRendererGLEventToFile = "INFO"
+		logNetworkEventToFile = "INFO"
+		logConnectionConfigChangesToFile = "WARN"
+		globalFileMaxLevel = "INFO"
+		[common.logging.warning]
+			showExplicitGcDisabledWarning = false
+			showSlowWorldGenSettingWarnings = true
+			showUpdateQueueOverloadedChatWarning = false
+			logExplicitGcDisabledWarning = false
+			showLowMemoryWarningOnStartup = true
+			showReplayWarningOnStartup = true
+			showModCompatibilityWarningsOnStartup = true
+			showHighVanillaRenderDistanceWarning = true
+			showPoolInsufficientMemoryWarning = true
+			logGarbageCollectorWarning = true
+			showGarbageCollectorWarning = true
+	[common.worldGenerator]
+		showGenerationProgress = "OVERLAY"
+		surfaceRegenMaxDistancePercent = "-1.0"
+		generationMaxChunkRadius = 0
+		limitIfServerUnhealthy = true
+		generationProgressDisplayIntervalInSeconds = 2
+		generationProgressIncludeChunksPerSecond = true
+		chunkGeneratorMode = "FEATURES"
+		generatorPlan = "DISABLED"
+		pauseIfMovingQuickly = true
+		generationProgressDisableMessageDisplayTimeInSeconds = 20
+		generationCenterChunkZ = 0
+		generationCenterChunkX = 0
+[client]
+	showDhOptionsButtonInMinecraftUi = true
+		[client.advanced.autoUpdater]
+			updateBranch = "AUTO"
+			enableAutoUpdater = true
+			enableSilentUpdates = false
+		[client.advanced.debugging]
+			lodOnlyMode = false
+			rendererMode = "DEFAULT"
+			showOverlappingQuadErrors = false
+			logBufferGarbageCollection = false
+			debugRenderingColors = "OFF"
+			enableWhiteWorld = false
+			renderWireframe = false
+			enableDebugKeybindings = false
+			[client.advanced.debugging.debugWireframe]
+				showRenderSectionStatus = false
+				showNetworkSyncOnLoadQueue = false
+				showFullDataUpdateStatus = false
+				showWorldGenQueue = false
+				showQuadTreeRenderStatus = false
+				enableRendering = false
+			[client.advanced.debugging.openGl]
+				overrideVanillaGLLogger = true
+				glErrorHandlingMode = "IGNORE"
+				onlyLogGlErrorsOnce = true
+			[client.advanced.debugging.exampleConfigScreen]
+				shortTest = "69"
+				mapTest = "{}"
+				byteTest = "8"
+				longTest = "42069"
+				listTest = ["option 1", "option 2", "option 3"]
+				boolTest = false
+				doubleTest = "420.69"
+				floatTest = "0.42069"
+				linkableTest = 420
+				intTest = 69420
+				stringTest = "Test input box"
+			[client.advanced.debugging.f3Screen]
+				showRenderThreadTasks = false
+				showQueuedChunkUpdateCount = true
+				showSeparatedObjectPools = false
+				showPlayerPos = true
+				showCombinedObjectPools = false
+				playerPosSectionDetailLevel = 6
+				onlyShowRenderingLevels = true
+				showThreadPools = true
+				showLevelStatus = true
+			[client.advanced.debugging.positionFinderDebugging]
+				positionFinderEnable = false
+				positionFinderMinBlockY = -64
+				positionFinderZPos = 0
+				positionFinderXPos = 0
+				positionFinderMaxBlockY = 125
+				positionFinderDetailLevel = 6
+				positionFinderMarginPercent = "0.0"
+		[client.advanced.graphics]
+			enableAntiAliasing = true
+			enableSsao = true
+			overrideVanillaGraphicsSettings = true
+			[client.advanced.graphics.culling]
+				overdrawPrevention = "-1.0"
+				disableShadowPassFrustumCulling = false
+				waterSubSurfaceBlockReplacementCsv = "minecraft:kelp,minecraft:tall_seagrass,minecraft:seagrass"
+				ignoredRenderBlockCsv = "minecraft:barrier,minecraft:structure_void,minecraft:light,minecraft:tripwire,minecraft:brown_mushroom"
+				waterSurfaceBlockReplacementCsv = "minecraft:lily_pad"
+				blocksToIgnore = "NON_COLLIDING"
+				disableFrustumCulling = false
+				disableBeaconDistanceCulling = true
+				tintWithAvoidedBlocks = true
+				enableCaveCulling = true
+				caveCullingHeight = 60
+				ignoredRenderCaveBlockCsv = ""
+				reduceOverdrawWithFastMovement = true
+			[client.advanced.graphics.texture]
+				blocksDontUseSideTextureCsv = "grass_block,mycelium,nylium,dirt_path,grass"
+				maxTexturedLodDetailLevel = 2
+				enableTexturedLods = true
+				blocksDontRenderTextureCsv = "minecraft:bamboo"
+				blockTagsDontUseSideTextureCsv = "grass_blocks,nylium"
+				blocksAlwaysRasterizeTextureCsv = "minecraft:beacon"
+			[client.advanced.graphics.noiseTexture]
+				enableNoiseTexture = true
+				noiseDropoff = 1024
+				noiseSteps = 4
+				noiseIntensity = "0.05"
+			[client.advanced.graphics.experimental]
+				ignoredDimensionCsv = ""
+				renderingEngine = "AUTO"
+				earthCurveRatio = 0
+			[client.advanced.graphics.genericRendering]
+				dimensionEnabledCloudRenderingCsv = "minecraft:overworld"
+				enableCloudRendering = true
+				expandDistantBeacons = true
+				beaconRenderHeight = 6000
+				enableBeaconRendering = true
+				enableGenericRendering = true
+				enableMultiLayerClouds = true
+			[client.advanced.graphics.quality]
+				maxHorizontalResolution = "BLOCK"
+				ditherDhFade = true
+				useCameraPositionForQualityDropOff = true
+				brightnessMultiplier = "1.0"
+				maxZoomQualityIncrease = 4
+				lodShading = "AUTO"
+				saturationMultiplier = "1.0"
+				verticalQuality = "MEDIUM"
+				lodChunkRenderDistanceRadius = 64
+				grassSideRendering = "FADE_TO_DIRT"
+				horizontalQuality = "MEDIUM"
+				transparency = "COMPLETE"
+				lodBiomeBlending = 3
+				vanillaFadeMode = "DOUBLE_PASS"
+				increaseQualityWhenZoomedIn = true
+			[client.advanced.graphics.fog]
+				enableVanillaFog = false
+				farFogMax = "1.0"
+				enableDhFog = false
+				farFogStart = "0.4"
+				farFogMin = "0.0"
+				colorMode = "USE_WORLD_FOG_COLOR"
+				farFogFalloff = "EXPONENTIAL_SQUARED"
+				farFogDensity = "2.5"
+				farFogEnd = "1.0"
+				[client.advanced.graphics.fog.heightFog]
+					heightFogDirection = "BELOW_SET_HEIGHT"
+					heightFogMin = "0.0"
+					heightFogBaseHeight = "80.0"
+					heightFogMax = "1.0"
+					heightFogFalloff = "EXPONENTIAL_SQUARED"
+					heightFogDensity = "20.0"
+					heightFogMixMode = "SPHERICAL"
+					heightFogStart = "0.0"
+					heightFogEnd = "0.6"
+		[client.advanced.multiplayer]
+			serverFolderNameMode = "NAME_ONLY"

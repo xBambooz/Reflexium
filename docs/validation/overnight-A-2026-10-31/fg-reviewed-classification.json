@@ -1,0 +1,91 @@
+{
+    "baseline_hand_turn_pack":  {
+                                    "wins":  66,
+                                    "pack":  1,
+                                    "directory":  "baseline398-mid-rate",
+                                    "generated_phases":  [
+                                                             0,
+                                                             1
+                                                         ],
+                                    "triplet_range":  [
+                                                          0,
+                                                          65
+                                                      ],
+                                    "real_phase":  2
+                                },
+    "current_sign":  {
+                         "wins":  66,
+                         "directory":  "current-corrected-mid-rate",
+                         "generated_phases":  [
+                                                  0,
+                                                  1
+                                              ],
+                         "triplet_range":  [
+                                               0,
+                                               65
+                                           ],
+                         "real_phase":  2,
+                         "packs":  [
+                                       0,
+                                       1
+                                   ]
+                     },
+    "baseline_sign_shaderless":  {
+                                     "wins":  43,
+                                     "pack":  0,
+                                     "directory":  "baseline398-mid-rate",
+                                     "generated_phases":  [
+                                                              1,
+                                                              2
+                                                          ],
+                                     "triplet_range":  [
+                                                           6,
+                                                           48
+                                                       ],
+                                     "real_phase":  0
+                                 },
+    "method":  "Manual WGC period method: total rate below 480 Hz panel, stable cadence, high Laplacian phase is real",
+    "automatic_analyzer_labels":  "WgcPeriodEvidence deliberately reports false; this file records the separately reviewed classifications",
+    "current_hand_turn":  {
+                              "wins":  66,
+                              "directory":  "current-corrected-mid-rate",
+                              "generated_phases":  [
+                                                       1,
+                                                       2
+                                                   ],
+                              "triplet_range":  [
+                                                    0,
+                                                    65
+                                                ],
+                              "real_phase":  0,
+                              "packs":  [
+                                            0,
+                                            1
+                                        ]
+                          },
+    "excluded":  [
+                     "Whole walking crop: moving-hand boundary confounds sharpness; use recorded world-ROI windows only",
+                     "Mob-labelled crops: pig below crop, background only",
+                     "Earlier low/mid-rate sets: cadence failures and wrong crop"
+                 ],
+    "walking_world_roi":  {
+                              "scope":  "Only these local windows; whole-crop classification remains ambiguous",
+                              "roi":  [
+                                          10,
+                                          10,
+                                          60,
+                                          40
+                                      ],
+                              "current_real_phase":  2,
+                              "baseline_real_phase_pack":  0,
+                              "shaderless_stable_triplets":  [
+                                                                 47,
+                                                                 65
+                                                             ],
+                              "pack_stable_triplets":  [
+                                                           21,
+                                                           42
+                                                       ],
+                              "baseline_real_phase_shaderless":  2
+                          }
+}

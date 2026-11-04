@@ -32,6 +32,8 @@ public final class UpscalingContractCheck {
 		independentReprojection();
 		cloudReprojection();
 		cameraMetadata();
+		viewBobReprojection();
+		reflexChoices();
 		historyCuts();
 		modelPresets();
 		captureCancellation();
@@ -232,6 +234,45 @@ public final class UpscalingContractCheck {
 		check(points >= 3, "enough visible reference points exercised the check");
 	}
 
+	private static void reflexChoices() {
+		var all = com.bambooz.reflexium.gui.ReflexiumOptions.reflexModes(false);
+		var fg = com.bambooz.reflexium.gui.ReflexiumOptions.reflexModes(true);
+		check(all.equals(List.of(com.bambooz.reflexium.reflex.ReflexMode.values())), "Reflex Off available without NVIDIA FG");
+		check(fg.equals(List.of(com.bambooz.reflexium.reflex.ReflexMode.ON, com.bambooz.reflexium.reflex.ReflexMode.ON_BOOST)),
+				"NVIDIA FG permits On and Boost only");
+	}
+
+	private static void viewBobReprojection() {
+		Matrix4f projection = new Matrix4f().setPerspective(1.2f, 16f / 9f, 1024, 0.05f, true);
+		Matrix4f view = new Matrix4f().rotateY(0.3f);
+		Matrix4f before = new Matrix4f().translate(0.02f, -0.03f, 0).rotateX(0.01f);
+		Matrix4f after = new Matrix4f().translate(-0.04f, -0.09f, 0).rotateX(0.035f);
+		var camera = new net.minecraft.client.renderer.state.level.CameraRenderState();
+		camera.projectionMatrix.set(projection);
+		camera.viewRotationMatrix.set(view);
+		CameraHistory history = new CameraHistory();
+		history.recordLevel(projection, projection, camera);
+		history.recordDrawnView(new Matrix4f(before).mul(view));
+		history.promote(true);
+		Matrix4f jittered = new Matrix4f().translation(0.001f, -0.002f, 0).mul(projection);
+		history.recordLevel(projection, jittered, camera);
+		history.recordDrawnView(new Matrix4f(after).mul(view));
+		check(history.currentViewHasViewEffects && !history.currentProjectionHasViewEffects, "Iris bob is in view");
+		Vector4f point = new Vector4f(0.4f, 0.2f, -6f, 1);
+		Vector4f current = history.currentJittered.transform(new Vector4f(point));
+		Vector4f expected = new Matrix4f(projection).mul(before).mul(view).transform(new Vector4f(point));
+		Vector4f reprojected = DlssMath.reprojection(history.previousUnjittered, history.currentJittered, 0, 0, 0).transform(current);
+		near(reprojected.x / reprojected.w, expected.x / expected.w, "bob previous drawn x");
+		near(reprojected.y / reprojected.w, expected.y / expected.w, "bob previous drawn y");
+		check(history.currentUnjittered.equals(new Matrix4f(projection).mul(after).mul(view), EPS), "bob in view matches bob in projection");
+		check(history.currentJittered.equals(new Matrix4f(jittered).mul(after).mul(view), EPS), "jitter preserved with bob");
+		// Shaderless: the view has not changed at draw time, so the second capture is identical.
+		history.recordLevel(new Matrix4f(projection).mul(after), new Matrix4f(jittered).mul(after), camera);
+		Matrix4f original = new Matrix4f(history.currentJittered);
+		history.recordDrawnView(view);
+		check(!history.currentViewHasViewEffects && history.currentJittered.equals(original), "shaderless draw capture unchanged");
+	}
+
 	// 7. FSR planes and FOV come from the pure projection, not the bobbed one.
 	private static void cameraMetadata() {
 		float fov = (float) Math.toRadians(63);
@@ -293,14 +334,14 @@ public final class UpscalingContractCheck {
 		}
 	}
 
-	// 5. Explicit model presets and the shader-aware Auto backend policy.
+	// 5. Explicit model presets and the Auto backend policy.
 	private static void modelPresets() {
-		check(Upscaler.AUTO.resolve(true, true, false) == Upscaler.OFF, "Shaderless Auto keeps native rendering");
-		check(Upscaler.AUTO.resolve(true, true, true) == Upscaler.DLSS, "Shader-pack Auto prefers DLSS");
-		check(Upscaler.AUTO.resolve(false, true, true) == Upscaler.FSR, "Shader-pack Auto falls back to FSR");
-		check(Upscaler.AUTO.resolve(false, false, true) == Upscaler.OFF, "No runtime keeps native rendering");
-		check(Upscaler.DLSS.resolve(true, true, false) == Upscaler.DLSS, "Explicit shaderless DLSS remains available");
-		check(Upscaler.OFF.resolve(true, true, true) == Upscaler.OFF, "Explicit Off stays off with shaders");
+		check(Upscaler.AUTO.resolve(true, true) == Upscaler.DLSS, "Auto prefers DLSS without shaders");
+		check(Upscaler.AUTO.resolve(true, true) == Upscaler.DLSS, "Auto prefers DLSS with shaders");
+		check(Upscaler.AUTO.resolve(false, true) == Upscaler.FSR, "Auto falls back to FSR");
+		check(Upscaler.AUTO.resolve(false, false) == Upscaler.OFF, "No runtime keeps native rendering");
+		check(Upscaler.DLSS.resolve(true, true) == Upscaler.DLSS, "Explicit DLSS remains available");
+		check(Upscaler.OFF.resolve(true, true) == Upscaler.OFF, "Explicit Off stays off");
 		for (UpscaleQuality quality : UpscaleQuality.values()) {
 			check(DlssModel.AUTO.preset(quality) == 0, "Auto passes zero for the runtime default");
 			check(DlssModel.CNN.preset(quality) == 5, "CNN stays preset E");
@@ -308,7 +349,7 @@ public final class UpscalingContractCheck {
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.NATIVE_AA) == 11, "DLAA K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.QUALITY) == 11, "Quality K");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.BALANCED) == 11, "Balanced K");
-		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 11, "Performance K retains detail at lower cost than M");
+		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.PERFORMANCE) == 13, "Performance uses the guide's M default");
 		check(DlssModel.TRANSFORMER.preset(UpscaleQuality.ULTRA_PERFORMANCE) == 12, "Ultra Performance L");
 	}
 

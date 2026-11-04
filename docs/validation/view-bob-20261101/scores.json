@@ -1,0 +1,602 @@
+[
+    {
+        "name":  "after-quality-bob0-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  16.2472
+    },
+    {
+        "name":  "after-quality-bob0-1",
+        "median_px":  0.0119,
+        "p90_px":  0.0174,
+        "p99_px":  0.0208,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  5.49711230124314,
+        "frame_ms":  17.128
+    },
+    {
+        "name":  "after-quality-bob0-2",
+        "median_px":  0.0114,
+        "p90_px":  0.0166,
+        "p99_px":  0.0199,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  9.883366795162802,
+        "frame_ms":  17.7295
+    },
+    {
+        "name":  "after-quality-bob0-3",
+        "median_px":  0.0131,
+        "p90_px":  0.0181,
+        "p99_px":  0.0207,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  14.131473262971408,
+        "frame_ms":  17.1458
+    },
+    {
+        "name":  "after-quality-bob0-4",
+        "median_px":  0.0118,
+        "p90_px":  0.0170,
+        "p99_px":  0.0198,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  18.4486546311345,
+        "frame_ms":  17.6698
+    },
+    {
+        "name":  "after-quality-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  16.2837
+    },
+    {
+        "name":  "after-quality-bob1-1",
+        "median_px":  0.0124,
+        "p90_px":  0.0172,
+        "p99_px":  0.0204,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  5.4409892631185155,
+        "frame_ms":  17.1504
+    },
+    {
+        "name":  "after-quality-bob1-2",
+        "median_px":  0.0126,
+        "p90_px":  0.0176,
+        "p99_px":  0.0206,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  9.75816854552544,
+        "frame_ms":  16.436
+    },
+    {
+        "name":  "after-quality-bob1-3",
+        "median_px":  0.0124,
+        "p90_px":  0.0174,
+        "p99_px":  0.0206,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  14.291208982085138,
+        "frame_ms":  16.337
+    },
+    {
+        "name":  "after-quality-bob1-4",
+        "median_px":  0.0124,
+        "p90_px":  0.0174,
+        "p99_px":  0.0205,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  18.60839035024823,
+        "frame_ms":  16.6684
+    },
+    {
+        "name":  "after-shaderless-quality-bob0-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.3559
+    },
+    {
+        "name":  "after-shaderless-quality-bob0-1",
+        "median_px":  0.0125,
+        "p90_px":  0.0178,
+        "p99_px":  0.0214,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  4.391951780376331,
+        "frame_ms":  5.06
+    },
+    {
+        "name":  "after-shaderless-quality-bob0-2",
+        "median_px":  0.0116,
+        "p90_px":  0.0175,
+        "p99_px":  0.0214,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  7.6988731927107255,
+        "frame_ms":  5.1821
+    },
+    {
+        "name":  "after-shaderless-quality-bob0-3",
+        "median_px":  0.0117,
+        "p90_px":  0.0176,
+        "p99_px":  0.0211,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  11.105129282400958,
+        "frame_ms":  5.2287
+    },
+    {
+        "name":  "after-shaderless-quality-bob0-4",
+        "median_px":  0.0123,
+        "p90_px":  0.0175,
+        "p99_px":  0.0207,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  14.368918397761298,
+        "frame_ms":  5.3158
+    },
+    {
+        "name":  "after-shaderless-quality-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.3092
+    },
+    {
+        "name":  "after-shaderless-quality-bob1-1",
+        "median_px":  0.0126,
+        "p90_px":  0.0175,
+        "p99_px":  0.0206,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  4.374684967289346,
+        "frame_ms":  5.1908
+    },
+    {
+        "name":  "after-shaderless-quality-bob1-2",
+        "median_px":  0.0124,
+        "p90_px":  0.0178,
+        "p99_px":  0.0209,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  7.711824672829764,
+        "frame_ms":  5.0588
+    },
+    {
+        "name":  "after-shaderless-quality-bob1-3",
+        "median_px":  0.0126,
+        "p90_px":  0.0182,
+        "p99_px":  0.2884,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  11.286450829871558,
+        "frame_ms":  5.1861
+    },
+    {
+        "name":  "after-shaderless-quality-bob1-4",
+        "median_px":  0.0125,
+        "p90_px":  0.0180,
+        "p99_px":  0.1156,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  14.809270837614752,
+        "frame_ms":  5.2261
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob0-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.2596
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob0-1",
+        "median_px":  0.0130,
+        "p90_px":  0.0180,
+        "p99_px":  0.0206,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  4.163176683114364,
+        "frame_ms":  5.1582
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob0-2",
+        "median_px":  0.0129,
+        "p90_px":  0.0179,
+        "p99_px":  0.0202,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  7.353498619882791,
+        "frame_ms":  5.3104
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob0-3",
+        "median_px":  0.0130,
+        "p90_px":  0.0180,
+        "p99_px":  0.0217,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  10.423014556240572,
+        "frame_ms":  5.1945
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob0-4",
+        "median_px":  0.0124,
+        "p90_px":  0.0179,
+        "p99_px":  0.0848,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  13.397552519160481,
+        "frame_ms":  5.1347
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.1425
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob1-1",
+        "median_px":  0.0128,
+        "p90_px":  0.0178,
+        "p99_px":  0.0202,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  4.275401145819332,
+        "frame_ms":  5.9112
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob1-2",
+        "median_px":  0.0127,
+        "p90_px":  0.0180,
+        "p99_px":  0.0206,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  7.539137417784452,
+        "frame_ms":  4.5372
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob1-3",
+        "median_px":  0.0129,
+        "p90_px":  0.0177,
+        "p99_px":  0.0208,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  10.85041551580465,
+        "frame_ms":  5.2199
+    },
+    {
+        "name":  "after-shaderless-ultra_performance-bob1-4",
+        "median_px":  0.0126,
+        "p90_px":  0.0173,
+        "p99_px":  0.0207,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  13.967420475969428,
+        "frame_ms":  5.0451
+    },
+    {
+        "name":  "after-ultra_performance-bob0-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  16.1104
+    },
+    {
+        "name":  "after-ultra_performance-bob0-1",
+        "median_px":  0.0129,
+        "p90_px":  0.0173,
+        "p99_px":  0.0197,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  4.707082111509956,
+        "frame_ms":  17.8275
+    },
+    {
+        "name":  "after-ultra_performance-bob0-2",
+        "median_px":  0.0125,
+        "p90_px":  0.0173,
+        "p99_px":  0.0201,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  8.229886352055882,
+        "frame_ms":  16.2638
+    },
+    {
+        "name":  "after-ultra_performance-bob0-3",
+        "median_px":  0.0122,
+        "p90_px":  0.0178,
+        "p99_px":  0.0215,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  11.757023523347945,
+        "frame_ms":  17.1452
+    },
+    {
+        "name":  "after-ultra_performance-bob0-4",
+        "median_px":  0.0121,
+        "p90_px":  0.0178,
+        "p99_px":  0.0214,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  15.137376540280746,
+        "frame_ms":  16.602
+    },
+    {
+        "name":  "after-ultra_performance-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  15.8494
+    },
+    {
+        "name":  "after-ultra_performance-bob1-1",
+        "median_px":  0.0126,
+        "p90_px":  0.0174,
+        "p99_px":  0.0212,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  5.21218047732952,
+        "frame_ms":  16.4172
+    },
+    {
+        "name":  "after-ultra_performance-bob1-2",
+        "median_px":  0.0131,
+        "p90_px":  0.0179,
+        "p99_px":  0.0207,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  8.808388604792748,
+        "frame_ms":  17.7246
+    },
+    {
+        "name":  "after-ultra_performance-bob1-3",
+        "median_px":  0.0125,
+        "p90_px":  0.0177,
+        "p99_px":  0.0206,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  13.129887150046846,
+        "frame_ms":  18.9214
+    },
+    {
+        "name":  "after-ultra_performance-bob1-4",
+        "median_px":  0.0130,
+        "p90_px":  0.0174,
+        "p99_px":  0.0202,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  17.72336813889591,
+        "frame_ms":  16.5268
+    },
+    {
+        "name":  "before-quality-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  15.8865
+    },
+    {
+        "name":  "before-quality-bob1-1",
+        "median_px":  0.3713,
+        "p90_px":  0.5936,
+        "p99_px":  0.6649,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  5.466918693672157,
+        "frame_ms":  16.3379
+    },
+    {
+        "name":  "before-quality-bob1-2",
+        "median_px":  0.3039,
+        "p90_px":  0.5079,
+        "p99_px":  0.6346,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  9.641631141902499,
+        "frame_ms":  17.2984
+    },
+    {
+        "name":  "before-quality-bob1-3",
+        "median_px":  0.3754,
+        "p90_px":  0.5238,
+        "p99_px":  0.6444,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  13.958812510050016,
+        "frame_ms":  17.2732
+    },
+    {
+        "name":  "before-quality-bob1-4",
+        "median_px":  0.2790,
+        "p90_px":  0.5862,
+        "p99_px":  0.7521,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  18.202601787749263,
+        "frame_ms":  16.6517
+    },
+    {
+        "name":  "before-shaderless-quality-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.0683
+    },
+    {
+        "name":  "before-shaderless-quality-bob1-1",
+        "median_px":  0.0128,
+        "p90_px":  0.0178,
+        "p99_px":  0.0211,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  4.430828488957097,
+        "frame_ms":  5.1398
+    },
+    {
+        "name":  "before-shaderless-quality-bob1-2",
+        "median_px":  0.0127,
+        "p90_px":  0.0179,
+        "p99_px":  0.0214,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  7.742071507787046,
+        "frame_ms":  5.8345
+    },
+    {
+        "name":  "before-shaderless-quality-bob1-3",
+        "median_px":  0.0131,
+        "p90_px":  0.0181,
+        "p99_px":  0.0215,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  11.169913522741169,
+        "frame_ms":  5.0948
+    },
+    {
+        "name":  "before-shaderless-quality-bob1-4",
+        "median_px":  0.0128,
+        "p90_px":  0.0179,
+        "p99_px":  0.0214,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  14.360310547637715,
+        "frame_ms":  4.9039
+    },
+    {
+        "name":  "before-shaderless-ultra_performance-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  5.4115
+    },
+    {
+        "name":  "before-shaderless-ultra_performance-bob1-1",
+        "median_px":  0.0123,
+        "p90_px":  0.0172,
+        "p99_px":  0.0203,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  4.09414278161775,
+        "frame_ms":  4.4524
+    },
+    {
+        "name":  "before-shaderless-ultra_performance-bob1-2",
+        "median_px":  0.0125,
+        "p90_px":  0.0177,
+        "p99_px":  0.0211,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  7.189472278738473,
+        "frame_ms":  5.039
+    },
+    {
+        "name":  "before-shaderless-ultra_performance-bob1-3",
+        "median_px":  0.0120,
+        "p90_px":  0.0173,
+        "p99_px":  0.0201,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  10.258988222153171,
+        "frame_ms":  5.0728
+    },
+    {
+        "name":  "before-shaderless-ultra_performance-bob1-4",
+        "median_px":  0.0121,
+        "p90_px":  0.0167,
+        "p99_px":  0.0217,
+        "view_effects":  false,
+        "projection_effects":  true,
+        "z":  13.259429267877234,
+        "frame_ms":  5.1753
+    },
+    {
+        "name":  "before-ultra_performance-bob1-0",
+        "median_px":  0.0000,
+        "p90_px":  0.0000,
+        "p99_px":  0.0000,
+        "view_effects":  false,
+        "projection_effects":  false,
+        "z":  1.5,
+        "frame_ms":  15.7129
+    },
+    {
+        "name":  "before-ultra_performance-bob1-1",
+        "median_px":  0.1613,
+        "p90_px":  0.2454,
+        "p99_px":  0.3053,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  5.074059027475889,
+        "frame_ms":  17.0833
+    },
+    {
+        "name":  "before-ultra_performance-bob1-2",
+        "median_px":  0.1419,
+        "p90_px":  0.2417,
+        "p99_px":  0.2724,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  8.605507572640708,
+        "frame_ms":  27.4728
+    },
+    {
+        "name":  "before-ultra_performance-bob1-3",
+        "median_px":  0.3125,
+        "p90_px":  0.5923,
+        "p99_px":  0.6497,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  12.059252666886419,
+        "frame_ms":  18.4873
+    },
+    {
+        "name":  "before-ultra_performance-bob1-4",
+        "median_px":  0.3405,
+        "p90_px":  0.3767,
+        "p99_px":  0.4006,
+        "view_effects":  true,
+        "projection_effects":  false,
+        "z":  15.48277752066004,
+        "frame_ms":  17.3563
+    }
+]

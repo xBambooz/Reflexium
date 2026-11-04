@@ -27,6 +27,12 @@ public abstract class MinecraftMixin {
 		DebugServer.onClientTick();
 	}
 
+	/** The debug HTTP dispatcher is non-daemon; stop it before the JVM shutdown watchdog sees it. */
+	@Inject(method = "stop", at = @At("HEAD"))
+	private void reflexium$stopDebugServer(CallbackInfo ci) {
+		DebugServer.stop();
+	}
+
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;renderFrame(Z)V"))
 	private void reflexium$simulationEnd(boolean advanceGameTime, CallbackInfo ci) {
 		ReflexController.get().endSimulation();

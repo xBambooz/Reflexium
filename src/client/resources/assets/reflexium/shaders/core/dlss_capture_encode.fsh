@@ -11,7 +11,7 @@ uniform sampler2D MotionSampler;
 uniform sampler2D DepthSampler;
 
 layout(std140) uniform ReflexiumCaptureEncode {
-    vec4 Mode; // x: 0 motion, 1 depth
+    vec4 Mode; // x: 0 motion, 1 depth, 2 HDR, 3 alpha
 };
 
 layout(location = 0) in vec2 texCoord;
@@ -27,7 +27,9 @@ void main() {
         float depth = texelFetch(DepthSampler, pixel, 0).r;
         uint d = uint(clamp(depth, 0.0, 1.0) * 16777215.0 + 0.5);
         fragColor = vec4(float((d >> 16) & 255u), float((d >> 8) & 255u), float(d & 255u), 255.0) / 255.0;
-    } else {
+    } else if (Mode.x < 2.5) {
         fragColor = vec4(clamp(log2(1.0 + max(texelFetch(MotionSampler, pixel, 0).rgb, vec3(0.0))) / 16.0, 0.0, 1.0), 1.0);
+    } else {
+        fragColor = vec4(vec3(texelFetch(MotionSampler, pixel, 0).a), 1.0);
     }
 }

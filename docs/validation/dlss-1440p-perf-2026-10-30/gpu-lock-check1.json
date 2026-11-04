@@ -1,0 +1,17 @@
+{
+    "checked":  "2026-10-30T20:07:21.6757482-04:00",
+    "lock":  {
+                 "pid":  83028,
+                 "owner":  "worker-A",
+                 "started":  "2026-10-30T20:03:39.8551603-04:00"
+             },
+    "ownerAlive":  true,
+    "games":  [
+                  {
+                      "ProcessId":  116884,
+                      "Name":  "java.exe",
+                      "CreationDate":  "\/Date(1793405093363)\/"
+                  }
+              ],
+    "decision":  "No launch while worker-A owns GPU"
+}

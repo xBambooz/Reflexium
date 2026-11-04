@@ -1,0 +1,91 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :
+Fabric Loom: 1.18.2
+
+> Task :compileJava NO-SOURCE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :compileClientJava UP-TO-DATE
+> Task :processClientResources UP-TO-DATE
+> Task :processIncludeJars UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :sourcesJar UP-TO-DATE
+> Task :assemble UP-TO-DATE
+> Task :clientClasses UP-TO-DATE
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+
+> Task :distantHorizonsCheck
+[17:52:52] [main/WARN]: Waiting for Distant Horizons: Deferring Iris DH depth resize until the next world frame
+[17:52:52] [main/INFO]: Distant Horizons inputs ready; temporal reconstruction can resume
+[17:52:52] [main/WARN]: Waiting for Distant Horizons: Invalid DH depth or projection: closed=false, format=D32_FLOAT, size=960x540, far=32768.0, determinant=NaN, matrix=      NaN  0.000E+0  0.000E+0  0.000E+0
+ 0.000E+0  1.000E+0  0.000E+0  0.000E+0
+ 0.000E+0  0.000E+0  1.000E+0  0.000E+0
+ 0.000E+0  0.000E+0  0.000E+0  1.000E+0
+
+[17:52:52] [main/INFO]: Distant Horizons inputs ready; temporal reconstruction can resume
+DH ABI check skipped: run\mods\DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar
+DH ABI checked: run\mods\iris-fabric-experimental-build-26.3.jar
+Distant Horizons checks passed: depth range, occlusion, jitter-free camera motion, shaders and available ABIs
+
+> Task :dlssFeatureGateCheck
+DLSS feature gate checks passed: pre-RTX 40, RTX 40, RTX 50, non-NVIDIA and missing runtime.
+
+> Task :dlssMathCheck
+DLSS reprojection checks passed: translation, rotation, reverse depth, jitter and jitter-free camera constants.
+
+> Task :dlssRuntimeInstallerCheck
+[17:52:53] [main/INFO]: DLSS runtime 310.9.1 installed (0.0 MB) at C:\Users\Ryan\AppData\Local\Temp\reflexium-runtime-check16620491935201419293\nvngx_dlss.dll
+[17:52:53] [main/INFO]: DLSS runtime 310.9.1 installed (0.0 MB) at C:\Users\Ryan\AppData\Local\Temp\reflexium-runtime-check16620491935201419293\nvngx_dlssg.dll
+DLSS runtime download checks passed: install, user runtime preserved, hash rejection
+
+> Task :frameDeliveryCheck
+Frame delivery lifecycle checks passed
+
+> Task :frameGenerationConstantsCheck
+Frame generation constant layout checks passed
+
+> Task :frameProfilerCheck
+Frame profiler CPU/disabled/reset checks passed
+
+> Task :irisCompatCheck
+[17:52:55] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to lib/antialiasing/jitter.glsl
+[17:52:55] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/composite6.glsl
+[17:52:55] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/composite7.glsl
+[17:52:55] [main/INFO]: Iris ComplementaryReimagined_r5.9.3: Reflexium temporal edit applied to program/final.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to lib/settings.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to lib/atmospherics/clouds.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to lib/atmospherics/lightShafts.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to lib/lighting/ambientOcclusion.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to lib/reflections/raytrace.glsl
+[17:52:55] [main/INFO]: Iris BSL_v10.1.8: Reflexium temporal edit applied to program/deferred1.glsl
+Iris compatibility checks passed
+
+> Task :nativeBridgeCheck
+Native bridge and resource checks passed: typed native ABI, FSR argument handling, strict JSON
+
+> Task :objectMotionCheck
+ObjectMotionCheck passed: identity, geometry history, camera/object displacement, GPU layout, nesting, budget and hand animation
+
+> Task :reflexTimingCheck
+Reflex GPU-complete latency and sleep timeout recovery checks passed
+
+> Task :streamlineBridgeCheck
+Streamline bridge checks passed: 42 handles match their native signatures and every call site
+
+> Task :bmDriverJar
+> Task :test
+
+> Task :upscalingContractCheck
+UpscalingContractCheck passed: material binds, mip bias, sampler ownership, jitter phases, independent reprojection, physical camera metadata, history cuts and model presets
+
+> Task :validateAccessWidener NO-SOURCE
+> Task :check
+> Task :installReflexium UP-TO-DATE
+> Task :build
+
+BUILD SUCCESSFUL in 10s
+23 actionable tasks: 16 executed, 7 up-to-date

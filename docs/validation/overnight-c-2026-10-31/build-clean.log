@@ -1,0 +1,69 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+Fabric Loom: 1.18.2
+
+> Task :compileJava NO-SOURCE
+> Task :processResources
+> Task :classes
+> Task :compileClientJava
+> Task :processClientResources
+> Task :processIncludeJars
+> Task :jar
+> Task :sourcesJar
+> Task :assemble
+> Task :clientClasses
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+
+> Task :deferredWorldTextCheck
+Deferred world text phase, order, scope and reset checks passed
+
+> Task :distantHorizonsCheck
+[08:22:04] [main/WARN]: Waiting for Distant Horizons: Deferring Iris DH depth resize until the next world frame
+[08:22:04] [main/INFO]: Distant Horizons inputs ready; temporal reconstruction can resume
+[08:22:04] [main/WARN]: Waiting for Distant Horizons: Invalid DH depth or projection: closed=false, format=D32_FLOAT, size=960x540, far=32768.0, determinant=NaN, matrix=      NaN  0.000E+0  0.000E+0  0.000E+0
+ 0.000E+0  1.000E+0  0.000E+0  0.000E+0
+ 0.000E+0  0.000E+0  1.000E+0  0.000E+0
+ 0.000E+0  0.000E+0  0.000E+0  1.000E+0
+
+[08:22:04] [main/INFO]: Distant Horizons inputs ready; temporal reconstruction can resume
+DH ABI check skipped: run\mods\DistantHorizons-3.3.5-dev-26.3-fabric-neoforge.jar
+DH ABI check skipped: run\mods\iris-fabric-experimental-build-26.3.jar
+Distant Horizons checks passed: depth range, occlusion, jitter-free camera motion, shaders and available ABIs
+
+> Task :dlssFeatureGateCheck
+DLSS feature gate checks passed: pre-RTX 40, RTX 40, RTX 50, non-NVIDIA and missing runtime.
+
+> Task :dlssMathCheck
+DLSS reprojection checks passed: translation, rotation, reverse depth, jitter and jitter-free camera constants.
+
+> Task :dlssRuntimeInstallerCheck
+[08:22:05] [main/INFO]: DLSS runtime 310.9.1 installed (0.0 MB) at C:\Users\Ryan\AppData\Local\Temp\reflexium-runtime-check12079339305208483540\nvngx_dlss.dll
+[08:22:05] [main/INFO]: DLSS runtime 310.9.1 installed (0.0 MB) at C:\Users\Ryan\AppData\Local\Temp\reflexium-runtime-check12079339305208483540\nvngx_dlssg.dll
+DLSS runtime download checks passed: install, user runtime preserved, hash rejection
+
+> Task :fpsTextCheck
+FPS text checks passed
+
+> Task :frameDeliveryCheck
+Frame delivery lifecycle checks passed
+
+> Task :frameGenerationConstantsCheck
+Frame generation constant layout checks passed
+
+> Task :frameProfilerCheck
+Frame profiler CPU/disabled/reset checks passed
+
+> Task :irisCompatCheck FAILED
+
+[Incubating] Problems report is available at: file:///C:/Users/Ryan/.t3/worktrees/Reflexium/t3-ce6c7b5a/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+17 actionable tasks: 17 executed

@@ -1,0 +1,68 @@
+Minecraft 26.3 version-matched source, inspected 2026-10-31.
+Code-grounded race: disconnect discards queued callbacks; exact prior callback loss remains inferred.
+Minecraft.disconnect:
+
+> 	public void disconnect(final Screen screen, final boolean keepResourcePacks, final boolean stopSound) {
+  		ClientPacketListener connection = this.getConnection();
+  		if (connection != null) {
+  			this.dropAllTasks();
+  			connection.close();
+  			if (!keepResourcePacks) {
+  				this.clearDownloadedResourcePacks();
+  			}
+  		}
+  
+  		this.playerSocialManager.stopOnlineMode();
+  		if (this.metricsRecorder.isRecording()) {
+  			this.debugClientMetricsCancel();
+  		}
+  
+  		IntegratedServer server = this.singleplayerServer;
+  		this.singleplayerServer = null;
+  		this.gameRenderer.resetData();
+  		this.gameMode = null;
+
+
+
+BlockableEventLoop.dropAllTasks:
+
+> 	protected void dropAllTasks() {
+  		this.pendingRunnables.clear();
+  	}
+  
+  	protected void runAllTasks() {
+  		while (this.pollTask()) {
+
+
+
+RenderThread.call:
+package com.bambooz.reflexium.debug.server;
+
+import com.bambooz.reflexium.debug.DebugSettings;
+import net.minecraft.client.Minecraft;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
+/** Runs debug commands on the render thread and waits for game state from the HTTP threads. */
+final class RenderThread {
+	private static final long CALL_TIMEOUT_MS = 30_000;
+
+	private RenderThread() {
+	}
+
+	static <T> T call(Supplier<T> task) throws Exception {
+		Minecraft mc = Minecraft.getInstance();
+		CompletableFuture<T> future = new CompletableFuture<>();
+		mc.execute(() -> {
+			try {
+				future.complete(task.get());
+			} catch (Throwable t) {
+				future.completeExceptionally(t);
+			}
+		});
+		return future.get(CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+	}

@@ -1,0 +1,14 @@
+[
+    {
+        "TimeCreated":  "\/Date(1792963853724)\/",
+        "Message":  "Faulting application name: java.exe, version: 25.0.4.1, time stamp: 0x9930f6d0\r\nFaulting module name: jvm.dll, version: 25.0.4.1, time stamp: 0xaf39b4c5\r\nException code: 0xc0000005\r\nFault offset: 0x0000000000a88377\r\nFaulting process id: 0x6184\r\nFaulting application start time: 0x1DD64C8182F2B7A\r\nFaulting application path: C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\java.exe\r\nFaulting module path: C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\server\\jvm.dll\r\nReport Id: c12b6036-19d2-458f-b548-588aaa0aee30\r\nFaulting package full name: \r\nFaulting package-relative application ID: "
+    },
+    {
+        "TimeCreated":  "\/Date(1792963775281)\/",
+        "Message":  "Faulting application name: java.exe, version: 25.0.4.1, time stamp: 0x9930f6d0\r\nFaulting module name: unknown, version: 0.0.0.0, time stamp: 0x00000000\r\nException code: 0xc0000005\r\nFault offset: 0x000001e0ab350100\r\nFaulting process id: 0x9C74\r\nFaulting application start time: 0x1DD64C7E7C4C07E\r\nFaulting application path: C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\java.exe\r\nFaulting module path: unknown\r\nReport Id: 743da068-5803-4c2d-aa78-c1635a615fcd\r\nFaulting package full name: \r\nFaulting package-relative application ID: "
+    },
+    {
+        "TimeCreated":  "\/Date(1792963692354)\/",
+        "Message":  "Faulting application name: java.exe, version: 25.0.4.1, time stamp: 0x9930f6d0\r\nFaulting module name: ntdll.dll, version: 10.0.26100.9711, time stamp: 0x5fd39a05\r\nException code: 0xc0000005\r\nFault offset: 0x00000000000c4408\r\nFaulting process id: 0x7E88\r\nFaulting application start time: 0x1DD64C7AB764015\r\nFaulting application path: C:\\Users\\Ryan\\AppData\\Roaming\\ModrinthApp\\meta\\java_versions\\zulu25.36.205-ca-jre25.0.4.1-win_x64\\bin\\java.exe\r\nFaulting module path: C:\\WINDOWS\\SYSTEM32\\ntdll.dll\r\nReport Id: 6eb9259a-4425-4ac4-b1f3-6cb25339224d\r\nFaulting package full name: \r\nFaulting package-relative application ID: "
+    }
+]

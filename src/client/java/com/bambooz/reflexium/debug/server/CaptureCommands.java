@@ -4,6 +4,7 @@ import com.bambooz.reflexium.debug.DebugSettings;
 import com.bambooz.reflexium.framegen.FrameGenerationRenderer;
 import com.bambooz.reflexium.upscale.UpscaleCapture;
 import com.bambooz.reflexium.upscale.UpscalingRenderer;
+import com.bambooz.reflexium.upscale.DeferredWorldText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -76,6 +77,7 @@ final class CaptureCommands {
 					files.add(names[i], entry);
 				}
 				meta.add("files", files);
+				if (extras) captureDisplayLayers(dir, name, meta);
 				Path json = dir.resolve(name + ".json");
 				Files.writeString(json, GSON.toJson(meta), StandardCharsets.UTF_8);
 				result.add("capture", meta);
@@ -91,6 +93,43 @@ final class CaptureCommands {
 			throw e;
 		}
 		return result;
+	}
+
+	/** One render-thread boundary for already completed display layers. Separate metadata from the SR input frame. */
+	private static void captureDisplayLayers(Path dir, String name, JsonObject meta) throws Exception {
+		List<String> names = new ArrayList<>();
+		List<CompletableFuture<NativeImage>> images = new ArrayList<>();
+		try {
+			JsonObject status = call(() -> {
+				var fg = FrameGenerationRenderer.get();
+				RenderTarget[] targets = {DeferredWorldText.layer(), fg.wantsMotion() ? fg.debugHudlessTarget() : null,
+						fg.wantsMotion() ? fg.debugUiAlphaTarget() : null, Minecraft.getInstance().gameRenderer.mainRenderTarget()};
+				String[] labels = {"world_text", "fg_hudless_flipped", "fg_ui", "final"};
+				for (int i = 0; i < targets.length; i++) {
+					if (targets[i] == null) continue;
+					CompletableFuture<NativeImage> future = new CompletableFuture<>();
+					images.add(future); names.add(labels[i]);
+					Screenshot.takeScreenshot(targets[i], future::complete);
+					if (i == 0 || i == 2) {
+						names.add(labels[i] + "_alpha");
+						images.add(UpscalingRenderer.get().captureDisplayChannel(targets[i], true));
+					}
+				}
+				var depth = UpscalingRenderer.get().captureDisplayChannel(DeferredWorldText.layer(), false);
+				if (depth != null) { names.add("world_text_depth"); images.add(depth); }
+				return StatusCommands.statusNow();
+			});
+			JsonObject files = new JsonObject();
+			for (int i = 0; i < images.size(); i++) {
+				Path file = dir.resolve(name + "_" + names.get(i) + ".png");
+				images.get(i).get(20, TimeUnit.SECONDS).writeToFile(file);
+				files.addProperty(names.get(i), file.toAbsolutePath().toString());
+			}
+			meta.add("display_layers_status", status);
+			meta.add("display_layers", files);
+		} finally {
+			for (var image : images) image.thenAccept(NativeImage::close);
+		}
 	}
 
 	/** Read every output at one render-thread boundary, rather than comparing unrelated screenshot frames. */
@@ -132,7 +171,7 @@ final class CaptureCommands {
 		boolean gui = flag(q, "gui", false);
 		boolean hiddenByUs = hideHud(gui);
 		try {
-			return capture(file, integer(q, "fg_index", -1));
+			return capture(file, integer(q, "fg_index", -1), q);
 		} finally {
 			restoreHud(hiddenByUs);
 		}
@@ -192,6 +231,10 @@ final class CaptureCommands {
 
 	/** Reads back the main render target (display resolution, after upscaling), or a generated frame, and writes a PNG. */
 	private static JsonObject capture(Path file, int generatedIndex) throws Exception {
+		return capture(file, generatedIndex, Map.of());
+	}
+
+	private static JsonObject capture(Path file, int generatedIndex, Map<String, String> params) throws Exception {
 		CompletableFuture<NativeImage> image = new CompletableFuture<>();
 		JsonObject meta = call(() -> {
 			Minecraft mc = Minecraft.getInstance();
@@ -215,9 +258,26 @@ final class CaptureCommands {
 			if (parent != null) {
 				Files.createDirectories(parent);
 			}
-			img.writeToFile(file);
-			meta.addProperty("width", img.getWidth());
-			meta.addProperty("height", img.getHeight());
+			int w = integer(params, "crop_width", img.getWidth()), h = integer(params, "crop_height", img.getHeight());
+			int x = integer(params, "crop_x", (img.getWidth() - w) / 2), y = integer(params, "crop_y", (img.getHeight() - h) / 2);
+			if (w <= 0 || h <= 0 || x < 0 || y < 0 || w > img.getWidth() - x || h > img.getHeight() - y)
+				throw new DebugHttp.BadRequest("Crop must fit inside the rendered image");
+			int pairSlot = integer(params, "crop_pair_slot", -1);
+			if (pairSlot < -1 || pairSlot > 1) throw new DebugHttp.BadRequest("crop_pair_slot must be 0 or 1");
+			try (NativeImage crop = new NativeImage(pairSlot < 0 ? w : w * 2, h, true)) {
+				if (pairSlot == 1) {
+					try (var input = Files.newInputStream(file); NativeImage first = NativeImage.read(input)) {
+						if (first.getWidth() != w * 2 || first.getHeight() != h) throw new DebugHttp.BadRequest("Crop pair dimensions changed");
+						first.copyRect(crop, 0, 0, 0, 0, w, h, false, false);
+					}
+				}
+				img.copyRect(crop, x, y, pairSlot < 0 ? 0 : pairSlot * w, 0, w, h, false, false);
+				crop.writeToFile(file);
+			}
+			meta.addProperty("width", w);
+			meta.addProperty("height", h);
+			meta.addProperty("crop_x", x);
+			meta.addProperty("crop_y", y);
 		}
 		meta.addProperty("path", file.toAbsolutePath().toString());
 		return meta;

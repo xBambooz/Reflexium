@@ -1,0 +1,9 @@
+{
+    "implementation_commit":  "6954841",
+    "baseline_commit":  "68f7f292",
+    "client_pid":  27664,
+    "sha256":  "CE53E6A8B32F164C2EFAE5724B6BE1520354A5C311F8CB224C6D5BD4C1951EFF",
+    "harness_port":  25921,
+    "real_options_sha256":  "D847B60DF58EFD6AB25567E51C6EE98157E8BD2A9E2318D54C0A90DA0B327944",
+    "build_jar":  "Reflexium-1.2.0-alpha-fabric-26.3.jar"
+}

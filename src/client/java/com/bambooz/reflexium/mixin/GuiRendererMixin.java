@@ -28,5 +28,9 @@ public abstract class GuiRendererMixin {
 			return;
 		}
 		FrameGenerationRenderer.get().drawGuiCopies(Minecraft.getInstance().gameRenderer, () -> original.call(renderer));
+		// Streamline DLSS-G recomposes the HUD from a UI alpha target. Replay the same draw list into a
+		// cleared transparent target; Minecraft's GUI blend writes coverage into alpha. The target is
+		// mirrored afterwards to match the presented backbuffer, whose final blit flips Y.
+		FrameGenerationRenderer.get().captureUiAlpha(Minecraft.getInstance().gameRenderer, () -> original.call(renderer));
 	}
 }

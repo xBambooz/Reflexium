@@ -1,5 +1,6 @@
 package com.bambooz.reflexium.mixin;
 
+import com.bambooz.reflexium.upscale.dlss.StreamlineSupport;
 import com.bambooz.reflexium.upscale.fsr.FsrSwapchain;
 import com.bambooz.reflexium.vulkan.DeviceExtensions;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,7 +23,8 @@ public abstract class VulkanBackendMixin {
 			at = @At(value = "INVOKE", target = "Lorg/lwjgl/vulkan/VK12;vkCreateDevice(Lorg/lwjgl/vulkan/VkPhysicalDevice;Lorg/lwjgl/vulkan/VkDeviceCreateInfo;Lorg/lwjgl/vulkan/VkAllocationCallbacks;Lorg/lwjgl/PointerBuffer;)I"))
 	private static int reflexium$frameGenerationQueues(VkPhysicalDevice physical, VkDeviceCreateInfo info,
 			VkAllocationCallbacks allocator, PointerBuffer output, Operation<Integer> original) {
-		return original.call(physical, FsrSwapchain.reserveQueues(physical, info), allocator, output);
+		VkDeviceCreateInfo reserved = FsrSwapchain.reserveQueues(physical, info);
+		return original.call(physical, StreamlineSupport.reserveQueues(physical, reserved), allocator, output);
 	}
 	@WrapOperation(
 			method = "createDevice(Lcom/mojang/renderpearl/api/device/GpuDebugOptions;)Lcom/mojang/renderpearl/api/device/GpuDevice;",

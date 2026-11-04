@@ -1,6 +1,7 @@
 package com.bambooz.reflexium.debug.server;
 
 import com.bambooz.reflexium.compat.IrisCompat;
+import com.bambooz.reflexium.compat.MesheliumCompat;
 import com.bambooz.reflexium.compat.VitrailCompat;
 import com.bambooz.reflexium.config.ReflexiumConfig;
 import com.bambooz.reflexium.debug.DebugSettings;
@@ -32,18 +33,19 @@ import static com.bambooz.reflexium.debug.server.RenderThread.call;
 final class SetCommand {
 	static final List<String> KEYS = List.of(
 			// Player settings
-			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier", "fg_force_multiplier",
-			"reflex_mode", "pack_shadow_cap",
+			"upscaler", "quality", "dlss_model", "fsr_sharpness", "frame_generation", "fg_multiplier",
+			"reflex_mode",
 			// Vanilla options
-			"vsync", "fullscreen", "pause", "improved_transparency", "crosshair_3d",
+			"vsync", "fullscreen", "exclusive_fullscreen", "pause", "improved_transparency", "crosshair_3d",
 			// Upscaling dev overrides
 			"jitter", "jitter_sign", "jitter_sign_x", "jitter_sign_y", "mv_debug", "object_motion", "object_static", "hand_motion",
+			"foliage_motion", "bob_view", "pack_hand_mask", "jitter_phases", "device_loss", "dlssg_fail",
 			"dlss_preset", "mip_bias_offset", "perf_uniforms", "perf_depth", "cloud_motion", "crosshair_defer",
-			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug",
+			"particles_defer", "particles_fg_replay", "foliage_clear", "foliage_depth_debug", "omit_sign_text", "world_text_defer", "world_text_ignore_depth", "world_text_pack_levels",
 			// Shader pack dev overrides
-			"shaders", "pack_taa", "pack_resolve", "pack_filters",
+			"shaders", "shader_pack", "pack_taa", "pack_resolve", "pack_filters", "meshelium_delegation",
 			// Reflex diagnostics
-			"reflex_trace", "reflex_submission", "reflex_interval_us");
+			"reflex_trace", "reflex_interval_us", "pcl_flash");
 
 	private SetCommand() {
 	}
@@ -53,6 +55,26 @@ final class SetCommand {
 		String value = required(q, "value");
 		// Validate before touching the render thread so a typo never half-applies.
 		Runnable apply = switch (key) {
+			case "world_text_pack_levels" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.worldTextPackLevels = on;
+			}
+			case "world_text_ignore_depth" -> {
+				boolean on = flag(value, true);
+				yield () -> com.bambooz.reflexium.upscale.DeferredWorldText.ignoreSceneDepth = on;
+			}
+			case "meshelium_delegation" -> {
+				boolean on = flag(value, true);
+				yield () -> MesheliumCompat.debugDelegation = on;
+			}
+			case "world_text_defer" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.deferWorldText = on;
+			}
+			case "omit_sign_text" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.omitSignText = on;
+			}
 			case "crosshair_3d" -> {
 				// F3's axis crosshair, for composition-order captures; leaves the rest of the debug overlay alone.
 				boolean on = flag(value, true);
@@ -69,6 +91,25 @@ final class SetCommand {
 						case "pause" -> { if (on) mc.pauseGame(false); else mc.setScreenAndShow(null); }
 					}
 				};
+			}
+			case "exclusive_fullscreen" -> {
+				boolean on = flag(value, true);
+				yield () -> Minecraft.getInstance().options.exclusiveFullscreen().set(on);
+			}
+			case "jitter_phases" -> {
+				int phases = Integer.parseInt(value);
+				if (phases != 0 && (phases < 1 || phases > 256)) throw new DebugHttp.BadRequest("jitter_phases must be 0 (ratio policy) or 1..256");
+				yield () -> DebugSettings.setJitterPhases(phases);
+			}
+			case "device_loss" -> {
+				boolean on = flag(value, true);
+				DebugSettings.setSimulatedDeviceLost(on);
+				yield () -> { };
+			}
+			case "dlssg_fail" -> {
+				boolean on = flag(value, true);
+				DebugSettings.setFailDlssgLoad(on);
+				yield () -> { };
 			}
 			case "cloud_motion" -> {
 				boolean on = flag(value, true);
@@ -109,22 +150,21 @@ final class SetCommand {
 				if (!Float.isFinite(offset) || offset < -4.0f || offset > 4.0f) throw new DebugHttp.BadRequest("mip_bias_offset must be finite within -4..4 (+1 reproduces the pre-baseline bias)");
 				yield () -> DebugSettings.setMipBiasOffset(offset);
 			}
-			case "pack_shadow_cap" -> {
-				// "<resolution>,<distance>"; 0 keeps the pack's value. Recompiles the pack so the options apply.
-				String[] parts = value.trim().split(",");
-				if (parts.length != 2) throw new DebugHttp.BadRequest("pack_shadow_cap must be <resolution>,<distance> (0 = pack value)");
-				int resolution, distance;
-				try { resolution = Integer.parseInt(parts[0].trim()); distance = Integer.parseInt(parts[1].trim()); }
-				catch (NumberFormatException e) { throw new DebugHttp.BadRequest("pack_shadow_cap values must be whole numbers"); }
-				if (resolution < 0 || resolution > 8192 || distance < 0 || distance > 1024) throw new DebugHttp.BadRequest("pack_shadow_cap range is 0..8192,0..1024");
-				yield () -> {
-					ReflexiumConfig.get().setPackShadowCaps(resolution, distance);
-					IrisCompat.reloadForOptionChange();
-				};
-			}
 			case "hand_motion" -> {
 				boolean on = flag(value, true);
 				yield () -> DebugSettings.setHandMotion(on);
+			}
+			case "foliage_motion" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.setFoliageMotion(on);
+			}
+			case "pack_hand_mask" -> {
+				boolean on = flag(value, true);
+				yield () -> DebugSettings.setPackHandMask(on);
+			}
+			case "bob_view" -> {
+				boolean on = flag(value, true);
+				yield () -> Minecraft.getInstance().options.bobView().set(on);
 			}
 			case "pack_taa" -> {
 				boolean retained = value.trim().equalsIgnoreCase("retain") || flag(value.equals("retain") ? "1" : value.equals("off") ? "0" : value, true);
@@ -145,19 +185,23 @@ final class SetCommand {
 					else VitrailCompat.debugSetPackEnabled(on);
 				};
 			}
+			case "shader_pack" -> {
+				String pack = value.trim();
+				yield () -> IrisCompat.debugSetShaderPack(pack);
+			}
 			case "reflex_trace" -> {
 				int frames = Integer.parseInt(value);
 				if (frames < 0 || frames > 32) throw new DebugHttp.BadRequest("Reflex trace must be 0..32 frames");
 				yield () -> FrameTrace.arm(frames);
 			}
-			case "reflex_submission" -> {
-				boolean enabled = flag(value, true);
-				yield () -> DebugSettings.reflexSubmission = enabled;
-			}
 			case "reflex_interval_us" -> {
 				int interval = Integer.parseInt(value);
 				if (interval < -1 || interval > 1_000_000) throw new DebugHttp.BadRequest("Reflex interval must be -1..1000000 us");
 				yield () -> DebugSettings.reflexIntervalUs = interval;
+			}
+			case "pcl_flash" -> {
+				flag(value, true);
+				yield () -> ReflexController.get().triggerFlash();
 			}
 			case "reflex_mode" -> {
 				ReflexMode mode = parseEnum(ReflexMode.class, value);
@@ -165,25 +209,21 @@ final class SetCommand {
 			}
 			case "frame_generation" -> {
 				FrameGeneration mode = parseEnum(FrameGeneration.class, value);
-				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); };
-			}
-			case "fg_force_multiplier" -> {
-				boolean enabled = flag(value, false);
-				yield () -> { ReflexiumConfig.get().setFgForceMultiplier(enabled); FrameGenerationRenderer.get().retry(); };
+				yield () -> { ReflexiumConfig.get().setFrameGeneration(mode); FrameGenerationRenderer.get().retry(); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "fg_multiplier" -> {
 				int multiplier = "auto".equalsIgnoreCase(value) ? 0 : integer(Map.of("v", value), "v", 0);
 				int maximum = Math.max(2, FrameGenerationRenderer.get().maximumMultiplier());
 				if (multiplier != 0 && (multiplier < 2 || multiplier > maximum)) throw new DebugHttp.BadRequest("FG multiplier must be auto or 2.." + maximum + " on this GPU");
-				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); };
+				yield () -> { ReflexiumConfig.get().setFrameGenerationMultiplier(multiplier); FrameGenerationRenderer.get().retry(); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "upscaler" -> {
 				Upscaler upscaler = parseEnum(Upscaler.class, value);
-				yield () -> ReflexiumConfig.get().setUpscaler(upscaler);
+				yield () -> { ReflexiumConfig.get().setUpscaler(upscaler); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "quality" -> {
 				UpscaleQuality quality = parseEnum(UpscaleQuality.class, value);
-				yield () -> ReflexiumConfig.get().setUpscaleQuality(quality);
+				yield () -> { ReflexiumConfig.get().setUpscaleQuality(quality); UpscalingRenderer.get().onModeChanged(); };
 			}
 			case "dlss_model" -> {
 				DlssModel model = parseEnum(DlssModel.class, value);
